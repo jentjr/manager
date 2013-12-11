@@ -1,0 +1,8 @@
+Package: groundwater
+Title: Tools to help with plotting and analyzing groundwater monitoring data  
+Description: 
+Version: 0.1
+Authors@R: # getOptions('devtools.desc.author')
+Depends: R (>= 3.0.2)
+License: # getOptions('devtools.desc.license')
+LazyData: true
