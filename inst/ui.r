@@ -1,37 +1,34 @@
-library(shiny)
-library(rCharts)
-
+# Define layout of interface
 shinyUI(pageWithSidebar(
   
   headerPanel("Groundwater Monitoring"),
   
     sidebarPanel(
-      selectInput(inputId = "plant",
-                  label = "Select Facility",
-                  choices = c("Tanners Creek", "Muskingum River", "Cardinal"),
-                  selected = "Cardinal"),
       
-      selectInput(inputId = "well",
-                  label = "Monitoring Wells",
-                  choices = well_names,
-                  selected = well_names[1],
-                  multiple = TRUE),
+      fileInput(inputId = "manages_path",
+                label = "Enter path to MANAGES database",
+                accept = '.csv'),
       
-      dateRangeInput(inputId = "back_date_range",
-                  label = "Select Background Date Range \"Solid\"",
-                  start = start_date,
-                  end = end_date),
+      conditionalPanel(
+        condition = "input.data == TRUE",
+        uiOutput("wells")),
       
-      dateRangeInput(inputId = "comp_date_range",
-                     label = "Select Compliance Date Range \"Dashed\"",
-                     start = end_date - 7,
-                     end = end_date),
+      uiOutput("analytes"),
       
-      selectInput(inputId = "analyte",
-                  label = "Constituents",
-                  choices = analyte_names,
-                  selected = analyte_names[1],
-                  multiple = TRUE),
+      helpText("CTRL- Click to select multiple wells and constituents."),
+      
+      uiOutput("backgound_date"),
+      
+#       dateRangeInput(inputId = "back_date_range",
+#                   label = "Select Background Date Range",
+#                   start = start_date,
+#                   end = end_date),
+#       
+#       dateRangeInput(inputId = "comp_date_range",
+#                      label = "Select Compliance Date Range",
+#                      start = end_date - 7,
+#                      end = end_date),
+#       
       
       checkboxInput(inputId = "scale_plot",
                     label = "Scale Free Plot"),
