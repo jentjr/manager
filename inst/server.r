@@ -127,7 +127,15 @@ shinyServer(function(input, output) {
 #     print(ggplot_piper())
     
   })
+
+  output$well_map <- renderPlot({
+    
+    print(qmap("Brilliant, OH", zoom = 14, color = "bw", legend = "bottomright"))
+    
+  })
   
+
+
 #   # Show the first "n" observations
 #   output$well_table <- renderTable({  
 # #     data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)

@@ -44,7 +44,8 @@ shinyUI(pageWithSidebar(
       tabPanel("Time Series Plot", plotOutput("time_plot" )),
       tabPanel("Boxplot", plotOutput("box_plot")),
       tabPanel("Piper Plot", plotOutput("piper_plot")),
-      tabPanel("Stiff Plot", plotOutput("stiff_plot"))
+      tabPanel("Stiff Plot", plotOutput("stiff_plot")),
+      tabPanel("Map", plotOutput("well_map"))
       )
     )
 
