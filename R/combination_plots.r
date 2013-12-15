@@ -1,16 +1,20 @@
-# This function plots groundwater data faceted by parameters with shaded regions
-# for background and compliance date ranges. Horizontal lines are plotted for 
-# Groundwater Protection Standards. Use d_ply(data, (.location), .print=TRUE) to 
-# plot combinations for all wells. See demo
+#' This function plots groundwater data faceted by parameters with shaded regions
+#' for background and compliance date ranges. Horizontal lines are plotted for 
+#' Groundwater Protection Standards. 
+#' 
+#' @param df data frame in long format containing groundwater monitoring data
+#' assumes column names of location_id, param_name, analysis_result, default_unit,
+#' lt_measure, sample_date. Dates for sample_date column must be in as.POSIXct format
+#' @param back_date vector of start and end of background dates. Use as.POSIXct()
+#' @param comp_date vector of start and end of compliance dates. Use as.POSIXct()
 
-combo_plot <- function(df){ 
+combo_plot <- function(df, back_date, comp_date){ 
   
   limits = df
+  df$non_detect <- ifelse(df$lt_measure == "<", 0, 1)
   
-  shaded_dates <- data.frame(xmin = c(as.POSIXct("2004-06-01", format = "%Y-%m-%d"), 
-                                      as.POSIXct("2013-10-01", format = "%Y-%m-%d")), 
-                             xmax = c(as.POSIXct("2013-10-01", format="%Y-%m-%d"), 
-                                      max(df$sample_date)),
+  shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
+                             xmax = c(back_date[2], comp_date[2]),
                              ymin = c(-Inf, -Inf), 
                              ymax = c(Inf, Inf),
                              years = c("background", "compliance"))
@@ -36,16 +40,16 @@ combo_plot <- function(df){
               alpha = 0.2, inherit.aes = FALSE) +
     scale_fill_manual(values=c("blue","green")) +
     
-    # add horizontal lines for EPA MCL and Upper Prediction Limit
-    geom_hline(data = limits, aes(yintercept = GWPS, linetype = "GWPS"), show_guide = TRUE, size = 0.75) +
-    geom_hline(data = limits, aes(yintercept = DMR_limit, linetype = "DMR Limit"), show_guide = TRUE, size = 0.75) +
-    
+#     # add horizontal lines for EPA MCL and Upper Prediction Limit
+#     geom_hline(data = limits, aes(yintercept = GWPS, linetype = "GWPS"), show_guide = TRUE, size = 0.75) +
+#     geom_hline(data = limits, aes(yintercept = DMR_limit, linetype = "DMR Limit"), show_guide = TRUE, size = 0.75) +
+#     
     # create custom legend using guide
     theme(axis.title.x = element_text(size = 15, vjust=-.2)) +
     theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
     guides(colour = guide_legend("Units"), fill = guide_legend("Dates"),
            linetype = guide_legend("Limits")) +
-    scale_shape_manual(name = "Measure", labels = c("Detected", "Non-Detect"),
-                       values = c("1" = 21, "0" = 4))  
+    scale_shape_manual(name = "Measure", labels = c("Non-Detect", "Detected"),
+                       values = c("0" = 1, "1" = 4))  
     
 }

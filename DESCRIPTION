@@ -9,11 +9,17 @@ Depends:
     R (>= 3.0.2)
 Imports:
     ggplot2,
+    ggmap,
+    scales,
+    grid,
+    shiny,
     RODBC,
+    XLConnect,
     googleVis,
     animation,
     plyr,
-    reshape
+    reshape,
+    Hmisc
 Suggests:
     knitr
 License: none
