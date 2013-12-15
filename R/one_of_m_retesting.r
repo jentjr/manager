@@ -1,26 +1,31 @@
-# Compute multiplier for intrawell prediction limit using either regular or pooled SD estimate
-# and 1-of-m retesting for either observations or means of order p
-#----------------------------------------------------------------------------
-# Solve for kappa given an SWFPR adjusted for nbr of constituents and wells;
-# then rate by effective power
-# ne = number of yearly evaluations
-#----------------------------------------------------------------------------
-# Note: ne=4 (quarterly eval), ne=2 (semi-annual), ne=1 (annual)
-# n = intrawell BG sample size; 
-# w = # wells; 
-# coc = # constituents
-# df = degrees of freedom associated with variance estimate of prediction limit formula
-# 
-# Note: if the usual std deviation for a single well is used, set df = (n-1);
-# if using a pooled SD estimate across w equal sized wells, set df= w*(n-1) or
-# df = (sum of well n's) - w, if w pooled wells are of different sizes
-# 
-# alph = per-test false positive rate
-# m = type of 1-of-m retesting scheme (usually m= 1,2,3,or 4)
-# ord = order of the mean to be predicted (for tests on observations, set ord=1)
-# swfpr is the targeted network-wide false positive rate, by default set to 10%
-# Rate power at 3 and 4 SD units above BG;
-# use ERPC power values as the reference power
+#' Compute multiplier for intrawell prediction limit using either regular or 
+#' pooled standard deviation estimate and 1-of-m retesting for either 
+#' observations or means of order p.
+#' 
+#' Solve for kappa given an Site-Wide False Positive Rate (SWFPR) adjusted for 
+#' number of constituents and wells, then rate by effective power.
+#' Rate power at 3 and 4 SD units above BG; use ERPC power values as the reference power.
+
+#' @param ne number of yearly evaluations
+#' Note: ne=4 (quarterly eval), ne=2 (semi-annual), ne=1 (annual)
+#' @param n intrawell background sample size
+#' @param w  number of wells 
+#' @param coc number of constituents
+#' @param df degrees of freedom associated with variance estimate of prediction limit formula
+#' 
+#' Note: if the usual standard deviation for a single well is used, set df = (n-1);
+#' if using a pooled SD estimate across w equal sized wells, set df= w*(n-1) or
+#' df = (sum of well n's) - w, if w pooled wells are of different sizes
+#' 
+#' @param alph  per-test false positive rate
+#' @param m type of 1-of-m retesting scheme (usually m= 1, 2, 3, or 4)
+#' @param ord order of the mean to be predicted (for tests on observations, set ord = 1)
+#' @param swfpr the targeted network-wide false positive rate, by default set to 10%
+#'
+#' @keywords intrawell
+#' @export
+#' @examples
+#' calc_kappa(n = 8, w = 10, coc = 28, ne = 4, m = 1) 
 
 calc_kappa <- function(n, w, coc, ne, m, ord = 1, swfpr = 0.1){
   
@@ -133,4 +138,3 @@ calc_kappa <- function(n, w, coc, ne, m, ord = 1, swfpr = 0.1){
        "power rating" = powrate)
   
 }
-

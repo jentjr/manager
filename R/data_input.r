@@ -1,4 +1,11 @@
-library(RODBC)
+#' Connect to MANAGES database
+#' 
+#' This function connects to the MANAGES database for the path supplied.
+#' R must be in 32-bit mode. 
+#' 
+#' @param manages_path Path to MANAGES Site.mdb file
+#' @keywords manages
+#' @export 
 
 connect_manages <- function(manages_path) {
   

@@ -1,0 +1,49 @@
+\name{calc_kappa}
+\alias{calc_kappa}
+\title{Compute multiplier for intrawell prediction limit using either regular or
+pooled standard deviation estimate and 1-of-m retesting for either
+observations or means of order p.}
+\usage{
+calc_kappa(n, w, coc, ne, m, ord = 1, swfpr = 0.1)
+}
+\arguments{
+  \item{ne}{number of yearly evaluations Note: ne=4
+  (quarterly eval), ne=2 (semi-annual), ne=1 (annual)}
+
+  \item{n}{intrawell background sample size}
+
+  \item{w}{number of wells}
+
+  \item{coc}{number of constituents}
+
+  \item{df}{degrees of freedom associated with variance
+  estimate of prediction limit formula
+
+  Note: if the usual standard deviation for a single well
+  is used, set df = (n-1); if using a pooled SD estimate
+  across w equal sized wells, set df= w*(n-1) or df = (sum
+  of well n's) - w, if w pooled wells are of different
+  sizes}
+
+  \item{alph}{per-test false positive rate}
+
+  \item{m}{type of 1-of-m retesting scheme (usually m= 1,
+  2, 3, or 4)}
+
+  \item{ord}{order of the mean to be predicted (for tests
+  on observations, set ord = 1)}
+
+  \item{swfpr}{the targeted network-wide false positive
+  rate, by default set to 10%}
+}
+\description{
+Solve for kappa given an Site-Wide False Positive Rate
+(SWFPR) adjusted for number of constituents and wells, then
+rate by effective power. Rate power at 3 and 4 SD units
+above BG; use ERPC power values as the reference power.
+}
+\examples{
+calc_kappa(n = 8, w = 10, coc = 28, ne = 4, m = 1)
+}
+\keyword{intrawell}
+

@@ -1,0 +1,40 @@
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Using the Groundwater Library}
+-->
+
+Using the Groundwater Library
+========================================================
+
+This document will aide in using the groundwater library for creating plots and analysing groundwater monitoring network data. 
+
+The first section deals with loading data into R as well as cleaning and rearranging data for analysis. 
+
+```{r}
+card_data <- read.csv("/Users/justinjent/Downloads/MANAGES_data_long.csv", header=TRUE)
+
+# this is the typical data format for groundwater monitoring
+head(card_data)
+
+
+# lets select a few constituents
+unique(card_data$param_name) # get a list of the names
+
+const <- c("Magnesium, Mg (dissolved)", "Manganese, Mn (dissolved)",
+           "Iron, Fe (dissolved)")
+
+card_data_sub <- subset(card_data, param_name %in% const)
+
+# we can cast the data with the reshape2 library
+library(reshape2)
+card_cast <- dcast(card_data_sub, value.var = "analysis_result",location_id + sample_date ~ param_name)
+
+```
+
+One thing that we might like to see is a plot of the correlations of the constituents. The PerformanceAnalytics library has a nice correlation chart. Let's plot the correlation matrix.
+
+```{r fig.width=17, fig.height=11}
+library(PerformanceAnalytics)
+chart.Correlation(card_cast[-c(1:2)], method = "spearman", pch=21)
+```
+
