@@ -32,11 +32,11 @@ remove_dup <- function(df){
 
 groundwater_summary <- function(df){
   
-  gw <- ddply(df, .(location_id, param_name), summarise, 
-        mean = mean(analysis_result), 
-        sd = sd(analysis_result), 
-        n = length(analysis_result),
-        percent_lt = percent_lt(lt_measure))
+  gw <- ddply(df, .(location_id, param_name, default_unit), summarise, 
+              n = length(analysis_result),
+              mean = round(mean(analysis_result), digits = 3), 
+              sd = round(sd(analysis_result), digits = 3),
+              percent_lt = round(percent_lt(lt_measure), digits = 3))
   
   return(gw)
   
