@@ -11,6 +11,13 @@ This document will aide in using the groundwater library for creating plots and 
 The first section deals with loading data into R as well as cleaning and rearranging data for analysis. 
 
 ```{r}
+
+tanners <- connect_manages("H:/INTERNAL/MANAGES_DATA/Tanners/Tanners/Site.mdb")
+
+head(tanners)
+
+
+# files can also be read in .csv format
 card_data <- read.csv("/Users/justinjent/Downloads/MANAGES_data_long.csv", header=TRUE)
 
 # this is the typical data format for groundwater monitoring
