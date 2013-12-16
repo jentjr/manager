@@ -6,8 +6,7 @@ Version: 0.1
 Author: Justin Jent <jentjr@gmail.com>
 Maintainer: Justin Jent <jentjr@gmail.com>
 Depends:
-    R (>= 3.0.2)
-Imports:
+    R (>= 3.0.2),
     ggplot2,
     ggmap,
     scales,
@@ -20,7 +19,8 @@ Imports:
     plyr,
     reshape,
     Hmisc,
-    NADA
+    NADA,
+	sp
 Suggests:
     knitr
 License: none
