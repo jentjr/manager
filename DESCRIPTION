@@ -19,7 +19,8 @@ Imports:
     animation,
     plyr,
     reshape,
-    Hmisc
+    Hmisc,
+    NADA
 Suggests:
     knitr
 License: none
