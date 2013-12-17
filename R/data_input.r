@@ -4,7 +4,7 @@
 #' R must be in 32-bit mode. 
 #' 
 #' @param manages_path Path to MANAGES Site.mdb file
-
+#' @export
 
 connect_manages <- function(manages_path) {
   
@@ -17,6 +17,10 @@ connect_manages <- function(manages_path) {
   return(data)
 }
 
+#' function to connect to MANAGES database and read spatial data
+#' 
+#' @param manages_path path to MANAGES database
+#' @export
 connect_manages_spatial <- function(manages_path){
   
   manages_conn <- odbcConnectAccess(manages_path)

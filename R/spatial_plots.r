@@ -1,7 +1,3 @@
-library(ggmap)
-library(sp)
-library(rgdal)
-
 # well_data <- read.csv("/Users/justinjent/downloads/well_test.csv", header=TRUE)
 # 
 # well_data$longitude <- as.numeric(char2dms(as.character(well_data$longitude)))

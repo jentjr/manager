@@ -1,0 +1,15 @@
+\name{piper_time_html}
+\alias{piper_time_html}
+\title{a function to create an aminated Piper plot and save to html}
+\usage{
+piper_time_html(df)
+}
+\arguments{
+  \item{df}{data frame of groundwater data transformed
+  using \code{\link{transform_piper_data}}}
+}
+\description{
+a function to create an aminated Piper plot and save to
+html
+}
+

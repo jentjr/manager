@@ -7,6 +7,7 @@
 #' lt_measure, sample_date. Dates for sample_date column must be in as.POSIXct format
 #' @param back_date vector of start and end of background dates. Use as.POSIXct()
 #' @param comp_date vector of start and end of compliance dates. Use as.POSIXct()
+#' @export
 
 combo_plot <- function(df, back_date, comp_date){ 
   

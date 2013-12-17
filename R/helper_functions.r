@@ -3,6 +3,7 @@
 #' @param df data frame of groundwater monitoring data in long format
 #' @param lt column of non-detects. Default is set to lt_measure which has 
 #' the "<" symbol.
+#' @export
 
 
 percent_lt <- function(lt) {
@@ -13,11 +14,13 @@ percent_lt <- function(lt) {
 }
 
 
-#' function to remove duplicate well names
+#' function to remove duplicate samples
+#' Example: If you have wells named MW-1 and another named MW-1 Duplicate
+#' this function will remove the MW-1 Duplicate sample
 #'
 #'@param df data frame of groundwater data in long format with location_id as the column 
 #' name for monitoring wells
-#' 
+#' @export
 
 remove_dup <- function(df){
   df_nodup <- df[-grep("*Dup", df$location_id), ]
@@ -29,6 +32,7 @@ remove_dup <- function(df){
 #' non-detects. This is useful for calculating the upper prediction limit.
 #' 
 #' @param df data frame of groundwater monitoring network data 
+#' @export
 
 groundwater_summary <- function(df){
   

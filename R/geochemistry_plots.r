@@ -1,23 +1,10 @@
-### A piper diagram based on the ternary plot example here: 
-### http://srmulcahy.github.io/2012/12/04/ternary-plots-r.html
-### This was written quickly, and most likely contains bugs - I advise you to check it first.
-### Jason Lessels jlessels@gmail.com
+#' function to read monitoring well data in the form location_id, sample_date, 
+#' analysis_result, default_unit, param_name and gather parameters needed for
+#' geochemistry plots. The data is cast by location_id + sample_date ~ param_name
+#'
+#' @param df data frame of groundwater monitoring data
+#' @export
 
-### This now consists of two functions. transform_piper_data transforms the data to match 
-### the coordinates of the piper diagram. ggplot_piper does all of the background.
-
-### Updated and bugs fixed by Justin Jent jentjr@gmail.com
-### Last Update: 12/8/2013
-library(plyr)
-library(ggplot2)
-library(reshape)
-library(googleVis)
-library(animation)
-
-
-# function to read monitoring well data in the form location_id, sample_date, 
-# analysis_result, default_unit, param_name and gather parameters needed for
-# geochemistry plots. The data is cast by location_id + sample_date ~ param_name
 get_plot_data <- function(df){
   
   # Assumes units are all in mg/L
@@ -81,8 +68,25 @@ get_plot_data <- function(df){
 }
 
 
-# function to transform data from get_plot_data() into x, y coordinates for
-# cation, anion and diamond of a Piper plot
+#' function to transform data from get_plot_data() into x, y coordinates for
+#' cation, anion and diamond of a Piper plot
+#'
+#' @param df data frame of groundwater data 
+#' @param Mg Magnesium
+#' @param Ca Calcium
+#' @param Na Sodium
+#' @param K Potassum
+#' @param Cl Chloride
+#' @param SO4 Sulfate
+#' @param CO3 Carbonate
+#' @param HCO3 Bicarbonate
+#' @param TDS Total Dissolved Solids
+#' @param name column of well names
+#' @param date column of dates
+#' @param units units, right now can handle mg/L and meq/L
+#' @keywords piper diagram
+#' @export
+
 transform_piper_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df$Cl, SO4=df$SO4, 
                                  CO3=df$CO3, HCO3=df$HCO3, TDS=df$TDS, 
                                  name = df$location_id, date = df$sample_date, units = NULL){
@@ -131,7 +135,9 @@ return(piper_data)
   
 }
 
-# Function to create base Piper plot
+#' Function to create base Piper plot
+#' @export
+
 ggplot_piper <- function() {
   
   # gridlines
@@ -236,8 +242,14 @@ ggplot_piper <- function() {
 
 }
 
-# Function to plot points from transform_piper_data() onto base ggplot_piper
-# background. Points are sized by Total Dissolved Solids
+#' Function to plot points from transform_piper_data() onto base ggplot_piper
+#' background. Points are sized by Total Dissolved Solids
+#' 
+#' @param df data frame of groundwater data transformed into piper coordinates 
+#'  using \code{\link{transform_piper_data}}
+#'  
+#' @export
+  
 plot_piper <- function(df){
   ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, colour = name, size = TDS)) +
     geom_point(data = df, aes(x = anion_x, y = anion_y, colour = name, size = TDS)) +
@@ -246,7 +258,13 @@ plot_piper <- function(df){
     ggtitle("Piper Diagram")
 }
 
-# Function to created an animated Piper plot through time
+#' Function to created an animated Piper plot through time
+#' using the animation package
+#' 
+#' @param df data frame of groundwater data transformed using 
+#' \code{\link{transform_piper_data}}
+#' @export
+
 piper_time_plot <- function(df){
   ggplot_piper()
   dev.hold()
@@ -256,15 +274,19 @@ piper_time_plot <- function(df){
   }
 }
 
-# Create a function to create an aminated Piper plot and save to html
+#'a function to create an aminated Piper plot and save to html
+#'
+#' @param df data frame of groundwater data transformed using 
+#' \code{\link{transform_piper_data}}
+#' @export
+
 piper_time_html <- function(df){
   saveHTML({
     ani.options(nmax = length(unique(df$date)))
     piper_time_plot(df)
   }, 
            img.name = "PiperPlot", htmlfile = "Piper_plot.html",
-           autobrowse = TRUE, title = "Piper Plot", 
-           description = "This is a demo Piper Plot for Tanners Creek"
+           autobrowse = TRUE, title = "Piper Plot"
   )
   
 }
@@ -274,8 +296,12 @@ piper_time_html <- function(df){
 #---------------------------------------------------------------------------------
 
 
-# Function to transform data from get_plot_data into x, y coordinates and in the 
-# correct path for geom_polygon of ggplot
+#' Function to transform data from \code{\link{get_plot_data}} into x, y coordinates and in the 
+#' correct path for geom_polygon of ggplot
+#' 
+#' @param df data frame of groundwater data from \code{\link{get_plot_data}}
+#' @export
+
 transform_stiff_data <- function(df){
   
   df$`Na + K` <- df$Na + df$K
@@ -304,7 +330,12 @@ transform_stiff_data <- function(df){
   
 }
 
-# Stiff Diagram function
+#' Function to plot a Stiff Diagram 
+#' 
+#' @param df data frame of groundwater data transformed using 
+#' \code{\link{transform_stiff_data}}
+#' @export
+
 stiff_plot <- function(df){
   
   p <- ggplot(df) +
@@ -331,23 +362,30 @@ stiff_plot <- function(df){
   
 }
 
-# Animated Stiff Diagram function
+#' function to create an animated Stiff Diagram 
+#' @param df data frame of groundwater data transformed using 
+#' \code{\link{transform_stiff_data}}
+#' @export
+
 stiff_time_plot <- function(df){
   for(i in 1:length(unique(df$sample_date))){
     print(stiff_plot(subset(df, sample_date == df$sample_date[i])))
     ani.pause()
   }
 }
-  
-# Create an aminated Stiff diagram and save to html
+
+#' function to create an animated Stiff Diagram and save to html
+#' @param df data frame of groundwater data transformed using 
+#' \code{\link{transform_stiff_data}}
+#' @export
+
 stiff_time_html <- function(df){
   saveHTML({
     ani.options(nmax = length(unique(df$sample_date)))
     stiff_time_plot(df)
   }, 
            img.name = "StiffPlot", htmlfile = "Stiff_plot.html",
-           autobrowse = TRUE, title = "Stiff Diagram", 
-           description = "This is a demo Stiff Diagram for Tanners Creek"
+           autobrowse = TRUE, title = "Stiff Diagram"
   )
   
 }
