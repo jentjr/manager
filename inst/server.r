@@ -1,31 +1,16 @@
-options(shiny.maxRequestSize=30*1024^2)
-
+# change options to handle large file size
+options(shiny.maxRequestSize=60*1024^2)
 
 # Define server
 shinyServer(function(input, output) {
-  
-  # get input data from MANAGES database path 
-  output$well_table <- renderTable({
-  
-    if (is.null(input$manages_path))
-      return(NULL)
-    
-    data <- read.csv(input$manages_path$datapath, header=TRUE)
-    data$sample_date <- as.Date(data$sample_date, format="%m/%d/%y")
-    
-    print(data)
-    #   connect_manages(path)
-  })
-  
-  
+      
   # return a list of well names
   output$wells <- renderUI({
     
     if (is.null(input$manages_path))
       return(NULL)
     
-    data <- read.csv(input$manages_path$datapath, header=TRUE)
-    data$sample_date <- as.Date(data$sample_date, format="%m/%d/%y")
+    data <- connect_manages(input$manages_path$datapath)
     
     well_names <- getWellNames(data)
 
@@ -37,13 +22,38 @@ shinyServer(function(input, output) {
     
     if (is.null(input$manages_path))
       return(NULL)
-    
-    data <- read.csv(input$manages_path$datapath, header=TRUE)
-    data$sample_date <- as.Date(data$sample_date, format="%m/%d/%y")
+
+    data <- connect_manages(input$manages_path$datapath)
     
     analyte_names <- getAnalytes(data)
     
     selectInput("analyte", "Constituents", analyte_names, multiple = TRUE)
+  })
+  
+  output$well_table <- renderGvis({
+    
+    if (is.null(input$manages_path))
+      return(NULL)
+    
+    data <- connect_manages(input$manages_path$datapath)
+    
+#     data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
+    
+    gvisTable(data, options=list(page = 'enable', pageSize = 25, width = 825)) 
+    
+  })
+  
+  output$gw_summary <- renderGvis({
+    
+    if (is.null(input$manages_path))
+      return(NULL)
+    
+    data <- connect_manages(input$manages_path$datapath)
+    
+    gw_summary_table <- groundwater_summary(data)
+    
+    gvisTable(gw_summary_table, options=list(page = 'enable', pageSize = 25, width = 825))
+    
   })
   
   # return start and end date of series selected
@@ -51,9 +61,8 @@ shinyServer(function(input, output) {
     
     if (is.null(input$manages_path))
       return(NULL)
-    
-    data <- read.csv(input$manages_path$datapath, header=TRUE)
-    data$sample_date <- as.Date(data$sample_date, format="%m/%d/%y")
+
+    data <- connect_manages(input$manages_path$datapath)
     
     dateRangeInput("background", "Background Date Range", min = min(data$sample_date),
                    max = max(data$sample_date))
@@ -67,8 +76,7 @@ shinyServer(function(input, output) {
     if (is.null(input$manages_path))
       return(NULL)
     
-    data <- read.csv(input$manages_path$datapath, header=TRUE)
-    data$sample_date <- as.Date(data$sample_date, format="%m/%d/%y")
+    data <- connect_manages(input$manages_path$datapath)
     
     data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
     
@@ -99,14 +107,13 @@ shinyServer(function(input, output) {
     
     if (is.null(input$manages_path))
       return(NULL)
-    
-    data <- read.csv(input$manages_path$datapath, header=TRUE)
-    data$sample_date <- as.Date(data$sample_date, format="%m/%d/%y")
+
+    data <- connect_manages(input$manages_path$datapath)
     
     data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
     
     # box plot of analyte
-    b <- ggplot(data_selected, aes(location_id, y=analysis_result, colour=param_name)) + theme_bw()
+    b <- ggplot(data_selected, aes(location_id, y=analysis_result, colour=param_name)) + theme_bw() + ylab("Analysis Result") + xlab("Location ID")
     
     if(input$scale_plot){
       b1 <- b + geom_boxplot()  + facet_wrap(~param_name, scale="free")
@@ -124,24 +131,26 @@ shinyServer(function(input, output) {
     
     
     
-#     print(ggplot_piper())
+    print(ggplot_piper())
     
   })
 
   output$well_map <- renderPlot({
     
-    print(qmap("Brilliant, OH", zoom = 14, color = "bw", legend = "bottomright"))
+    sp_data <- connect_manages_spatial(input$manages_path$datapath)
+    
+    sp_data <- na.omit(sp_data)
+    sp_data$long_pos <- as.numeric(as.character(sp_data$long_pos))
+    sp_data$lat_pos <- as.numeric(as.character(sp_data$lat_pos))
+    
+    well_map <- get_map(location = c(lon=mean(sp_data$long_pos), lat=mean(sp_data$lat_pos)), zoom=14)
+    
+    p1 <- ggmap(well_map, extent = "device", maptype = "terrain", color = "color")
+    
+    p2 <- p1 + geom_point(data = sp_data, aes(x = long_pos, y = lat_pos, colour = location_id), size = 2.25)
+        
+    print(p2)
     
   })
-  
 
-
-#   # Show the first "n" observations
-#   output$well_table <- renderTable({  
-# #     data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
-# #     data_selected$sample_date <- as.Date(data_selected$sample_date, format="%Y-%m-%d")
-# #     # out <- subset(out_f, location %in% input$well & analyte %in% input$analyte)
-# #     print(data_selected)
-#   })
-#   
 })

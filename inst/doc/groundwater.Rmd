@@ -12,9 +12,9 @@ The first section deals with loading data into R as well as cleaning and rearran
 
 ```{r}
 library(groundwater)
-# tanners <- connect_manages("H:/INTERNAL/MANAGES_DATA/Tanners/Tanners/Site.mdb")
+# gw_data <- connect_manages("H:/INTERNAL/MANAGES_DATA/Tanners/Tanners/Site.mdb")
 # 
-# head(tanners)
+# head(gw_data)
 
 
 # files can also be read in .csv format

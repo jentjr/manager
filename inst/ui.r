@@ -7,12 +7,12 @@ shinyUI(pageWithSidebar(
       
       fileInput(inputId = "manages_path",
                 label = "Enter path to MANAGES database",
-                accept = '.csv'),
+                accept = '.mdb'),
       
       conditionalPanel(
         condition = "input.data == TRUE",
         uiOutput("wells")),
-      
+
       uiOutput("analytes"),
       
       helpText("CTRL- Click to select multiple wells and constituents."),
@@ -40,11 +40,12 @@ shinyUI(pageWithSidebar(
 
   mainPanel(
     tabsetPanel(
-      tabPanel("Table", tableOutput("well_table")),
-      tabPanel("Time Series Plot", plotOutput("time_plot" )),
+      tabPanel("Data Table",htmlOutput("well_table")),
+      tabPanel("Summary Table", htmlOutput("gw_summary")),
+      tabPanel("Time Series", plotOutput("time_plot" )),
       tabPanel("Boxplot", plotOutput("box_plot")),
       tabPanel("Piper Plot", plotOutput("piper_plot")),
-      tabPanel("Stiff Plot", plotOutput("stiff_plot")),
+      tabPanel("Stiff Diagram", plotOutput("stiff_plot")),
       tabPanel("Map", plotOutput("well_map"))
       )
     )
