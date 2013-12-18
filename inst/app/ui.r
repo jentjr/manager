@@ -1,9 +1,22 @@
 # Define layout of interface
 shinyUI(pageWithSidebar(
   
-  headerPanel("Groundwater Monitoring"),
+  headerPanel(title = "", windowTitle = "Groundwater Monitoring"),
   
     sidebarPanel(
+      
+      tags$head(
+        tags$style(type="text/css", "select { width: 200px; }"),
+        
+        tags$style(type="text/css", "textarea { max-width: 200px; }"),
+        
+        tags$style(type="text/css", ".jslider { max-width: 200px; }"),
+        
+        tags$style(type='text/css', ".well { max-width: 230px; }"),
+        
+        tags$style(type='text/css', ".span4 { max-width: 270px; }")
+        ),
+      
       
       fileInput(inputId = "manages_path",
                 label = "Enter path to MANAGES database",
@@ -34,7 +47,7 @@ shinyUI(pageWithSidebar(
     tabsetPanel(
       tabPanel("Data Table",htmlOutput("well_table")),
       tabPanel("Summary Table", htmlOutput("gw_summary")),
-      tabPanel("Time Series", plotOutput("time_plot" )),
+      tabPanel("Time Series", plotOutput("time_plot", width = "825px", height = "800px")),
       tabPanel("Boxplot", plotOutput("box_plot")),
       tabPanel("Piper Plot", plotOutput("piper_plot")),
       tabPanel("Stiff Diagram", plotOutput("stiff_plot")),
