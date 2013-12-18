@@ -19,16 +19,7 @@ shinyUI(pageWithSidebar(
       
       uiOutput("backgound_date"),
       
-#       dateRangeInput(inputId = "back_date_range",
-#                   label = "Select Background Date Range",
-#                   start = start_date,
-#                   end = end_date),
-#       
-#       dateRangeInput(inputId = "comp_date_range",
-#                      label = "Select Compliance Date Range",
-#                      start = end_date - 7,
-#                      end = end_date),
-#       
+      uiOutput("compliance_date"),
       
       checkboxInput(inputId = "scale_plot",
                     label = "Scale Free Plot"),

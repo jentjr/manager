@@ -56,7 +56,7 @@ shinyServer(function(input, output) {
     
   })
   
-  # return start and end date of series selected
+  # return start and end date of background data
   output$background_date <- renderUI({
     
     if (is.null(input$manages_path))
@@ -64,11 +64,25 @@ shinyServer(function(input, output) {
 
     data <- connect_manages(input$manages_path$datapath)
     
-    dateRangeInput("background", "Background Date Range", min = min(data$sample_date),
-                   max = max(data$sample_date))
+    
+    dateRangeInput("back_date_range", "Background Date Range", start = min(data$sample_date),
+                   end = max(data$sample_date) - 365)
     
   })
   
+  # return start and end date of compliance period
+  output$compliance_date <- renderUI({
+    
+    if (is.null(input$manages_path))
+      return(NULL)
+    
+    data <- connect_manages(input$manages_path$datapath)
+    
+    
+    dateRangeInput("comp_date_range", "Compliance Date Range", start = max(data$sample_date) - 365,
+                   end = max(data$sample_date))
+    
+  })
   
   # time series plot output
   output$time_plot <- renderPlot({
@@ -80,26 +94,36 @@ shinyServer(function(input, output) {
     
     data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
     
+    # create separate data.frame for geom_rect data
+    # change dates to POSIXct which is same as data.frame dates
+    shaded_dates <- data.frame(xmin = c(min(as.numeric(input$back_date_range)), min(as.numeric(input$comp_date_range))), 
+                               xmax = c(max(as.numeric(input$back_date_range)), max(as.numeric(input$comp_date_range))),
+                               ymin = c(-Inf, -Inf), 
+                               ymax = c(Inf, Inf),
+                               years = c("background", "compliance"))
+    
+    
     t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, colour=param_name)) 
     
     if(input$scale_plot){
       # time series plot of analytes gridded by wells
-      t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + facet_wrap(~location_id, scales="free") + theme_bw() + xlab("Sample Date") + ylab("Analysis Result")
+      t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
+        facet_wrap(~location_id, scales="free") + theme_bw() + xlab("Sample Date") + ylab("Analysis Result")
     } else {
-      t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + facet_wrap(~location_id) + theme_bw() + xlab("Sample Date") + ylab("Analysis Result")
+      t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
+        facet_wrap(~location_id) + theme_bw() + xlab("Sample Date") + ylab("Analysis Result")
     }
       
     if(input$date_lines){
-      t1 <- t1 + geom_vline(xintercept=c(min(as.numeric(input$back_date_range)), max(as.numeric(input$back_date_range))))
-      t1 <- t1 + geom_vline(xintercept=c(min(as.numeric(input$comp_date_range)), max(as.numeric(input$comp_date_range))), linetype="longdash")
-      # change dates to POSIXct which is same as data.frame dates
-      # create separate data.frame for geom_rect data
-      # draw lines for background date range and compliance date range
-#       t1 <- t1 + geom_rect(xmin=min(as.numeric(input$back_date_range)), xmax=max(as.numeric(input$back_date_range)), ymin=-Inf, ymax=Inf, alpha=1/50)
-#       t1 <- t1 + geom_rect(xmin=min(as.numeric(input$comp_date_range)), xmax=max(as.numeric(input$comp_date_range)), ymin=-Inf, ymax=Inf, alpha=1/50, fill="red")
+      # draw shaded rectangle for background date range and compliance date range
+      t1 <- t + geom_rect(data = shaded_dates, aes(xmin = xmin, ymin = ymin, xmax = xmax, 
+                                         ymax = ymax, fill = years),
+                alpha = 0.2, inherit.aes = FALSE) +
+        
+        scale_fill_manual(values=c("blue","green"))
     }
     
-    print(t1)
+  print(t1)
     
   })
   
