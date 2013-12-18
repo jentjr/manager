@@ -11,93 +11,93 @@ This document will aide in using the groundwater library for creating plots and 
 The first section deals with loading data into R as well as cleaning and rearranging data for analysis. 
 
 ```{r}
-library(groundwater)
-# tanners <- connect_manages("H:/INTERNAL/MANAGES_DATA/Tanners/Tanners/Site.mdb")
+# library(groundwater)
+# gw_data <- connect_manages("H:/INTERNAL/MANAGES_DATA/Tanners/Tanners/Site.mdb")
 # 
-# head(tanners)
+# head(gw_data)
 
 
-# files can also be read in .csv format
-card_data <- read.csv("/Users/justinjent/Downloads/MANAGES_data_long.csv", header=TRUE)
-
-# this is the typical data format for groundwater monitoring
-head(card_data)
+# # files can also be read in .csv format
+# card_data <- read.csv("/Users/justinjent/Downloads/MANAGES_data_long.csv", header=TRUE)
+# 
+# # this is the typical data format for groundwater monitoring
+# head(card_data)
 
 
 # lets select a few constituents
-unique(card_data$param_name) # get a list of the names
-
-const <- c("Magnesium, Mg (dissolved)", "Manganese, Mn (dissolved)",
-           "Iron, Fe (dissolved)")
-
-card_data_sub <- subset(card_data, param_name %in% const)
+# unique(card_data$param_name) # get a list of the names
+# 
+# const <- c("Magnesium, Mg (dissolved)", "Manganese, Mn (dissolved)",
+#            "Iron, Fe (dissolved)")
+# 
+# card_data_sub <- subset(card_data, param_name %in% const)
 
 # we can cast the data with the reshape2 library
-library(reshape2)
-card_cast <- dcast(card_data_sub, value.var = "analysis_result",location_id + sample_date ~ param_name)
+# library(reshape2)
+# card_cast <- dcast(card_data_sub, value.var = "analysis_result",location_id + sample_date ~ param_name)
 
 ```
 
 One thing that we might like to see is a plot of the correlations of the constituents. The PerformanceAnalytics library has a nice correlation chart. Let's plot the correlation matrix.
 
 ```{r fig.width=17, fig.height=11}
-library(PerformanceAnalytics)
-chart.Correlation(card_cast[-c(1:2)], method = "spearman", pch=21)
+# library(PerformanceAnalytics)
+# chart.Correlation(card_cast[-c(1:2)], method = "spearman", pch=21)
 ```
 
 ```{r}
-data(gw_data)
-data$sample_date <- as.POSIXct(data$sample_date, format="%Y-%m-%d")
-
-#check wich wells and parameters only have one data point and remove those
-(check_data <- names(which(dlply(data, .(location_id, param_name), nrow) == 1)))
-
-# remove PZ-1, PZ-2, Uranium, etc.
-wells_remove <- c("PZ-1", "PZ-2", "PZ-3", "PZ-4")
-param_remove <- c("Uranium, U", "Nitrate, NO3 as N","Nitrite, NO2, as N",
-                  "Nitrate-Nitrite, NO3-NO2, as N", "Se, diss", "SO4, tot",
-                  "Sb, diss")
+# data(gw_data)
+# data$sample_date <- as.POSIXct(data$sample_date, format="%Y-%m-%d")
+# 
+# #check wich wells and parameters only have one data point and remove those
+# (check_data <- names(which(dlply(data, .(location_id, param_name), nrow) == 1)))
+# 
+# # remove PZ-1, PZ-2, Uranium, etc.
+# wells_remove <- c("PZ-1", "PZ-2", "PZ-3", "PZ-4")
+# param_remove <- c("Uranium, U", "Nitrate, NO3 as N","Nitrite, NO2, as N",
+#                   "Nitrate-Nitrite, NO3-NO2, as N", "Se, diss", "SO4, tot",
+#                   "Sb, diss")
 
 # remove wells and parameter using %nin% from Hmisc pacakge
-library(Hmisc)
-data_comp <- subset(data, location_id %nin% wells_remove & param_name %nin% param_remove)
+# library(Hmisc)
+# data_comp <- subset(data, location_id %nin% wells_remove & param_name %nin% param_remove)
 
 # check data again
-names(which(dlply(data_comp, .(location_id, param_name), nrow) == 1))
- 
-back <- as.POSIXct(c("2010-01-01","2012-01-01"), format="%Y-%m-%d")
-comp <- as.POSIXct(c("2012-02-01","2012-03-01"), format="%Y-%m-%d")
+# names(which(dlply(data_comp, .(location_id, param_name), nrow) == 1))
+#  
+# back <- as.POSIXct(c("2010-01-01","2012-01-01"), format="%Y-%m-%d")
+# comp <- as.POSIXct(c("2012-02-01","2012-03-01"), format="%Y-%m-%d")
 
 # lets use combo plot on only MW-1 and MW-2 to save output
-include <- c("MW-1", "MW-2")
+# include <- c("MW-1", "MW-2")
 
 # this time we use %in%
-data_comp <- subset(data_comp, location_id %in% include)
+# data_comp <- subset(data_comp, location_id %in% include)
 
 # use d_ply to create the plots
 ```
 ```{r fig.width=17, fig.height=11}
-d_ply(data_comp, .(location_id), combo_plot, back_date=back, comp_date=comp, .print=TRUE)
+# d_ply(data_comp, .(location_id), combo_plot, back_date=back, comp_date=comp, .print=TRUE)
 ```
 
 Test for geomchemistry_plots.r
 
 ```{r fig.width=17, fig.height=11}
 # read in test data 
-data(gw_data)
+# data(gw_data)
 
 # grab the variables needed from the file for the geochemistry plots
-plot_data <- get_plot_data(data)
+# plot_data <- get_plot_data(data)
 
 # transform the data for a Piper plot
-piper_data <- transform_piper_data(plot_data) 
+# piper_data <- transform_piper_data(plot_data) 
 
 # Piper plot
 # plots all wells for all dates
-plot_piper(piper_data)
+# plot_piper(piper_data)
 
 ## run the following to plot all wells by date
-d_ply(piper_data[!(piper_data$name %in% c("PZ-1", "PZ-2", "PZ-3", "PZ-4")),], .(date), plot_piper, .print = TRUE)
+# d_ply(piper_data[!(piper_data$name %in% c("PZ-1", "PZ-2", "PZ-3", "PZ-4")),], .(date), plot_piper, .print = TRUE)
 
 # # animated time plot using animation library
 # piper_time_plot(piper_data) 
@@ -113,10 +113,10 @@ d_ply(piper_data[!(piper_data$name %in% c("PZ-1", "PZ-2", "PZ-3", "PZ-4")),], .(
 # plot(piper_time)
 
 # transform data for Stiff Diagram
-stiff_data <- transform_stiff_data(plot_data)
+# stiff_data <- transform_stiff_data(plot_data)
 
 # Stiff Diagram
-stiff_plot(stiff_data)
+# stiff_plot(stiff_data)
 
 # # animation of Stiff Diagram
 # stiff_time_plot(stiff_data)
@@ -125,6 +125,6 @@ stiff_plot(stiff_data)
 # stiff_time_html(stiff_data)
 
 ## run the following to print Stiff diagrams individually by date
-d_ply(stiff_data, .(sample_date), stiff_plot, .print = TRUE)
+# d_ply(stiff_data, .(sample_date), stiff_plot, .print = TRUE)
 
 ```
