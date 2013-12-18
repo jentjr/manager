@@ -1,4 +1,4 @@
-#' funciton to launch shiny app
+#' function to launch shiny app
 #' 
 groundwater_app  <- function(){
   

@@ -1,5 +1,5 @@
 # change options to handle large file size
-options(shiny.maxRequestSize=60*1024^2)
+options(shiny.maxRequestSize=-1)
 
 # Define server
 shinyServer(function(input, output) {
