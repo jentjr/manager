@@ -17,9 +17,10 @@ shinyUI(pageWithSidebar(
       
       helpText("CTRL- Click to select multiple wells and constituents."),
       
-      uiOutput("backgound_date"),
+      conditionalPanel(
+        condition = "input.data == TRUE",
+        uiOutput("date_ranges")),
       
-      uiOutput("compliance_date"),
       
       checkboxInput(inputId = "scale_plot",
                     label = "Scale Free Plot"),

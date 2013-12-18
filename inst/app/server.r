@@ -7,27 +7,31 @@ shinyServer(function(input, output) {
   # return a list of well names
   output$wells <- renderUI({
     
-    if (is.null(input$manages_path))
-      return(NULL)
+    if (!is.null(input$manages_path)){
+      
+      data <- connect_manages(input$manages_path$datapath)
+      
+      well_names <- getWellNames(data)
+      
+      selectInput("well", "Monitoring Wells", well_names, multiple = TRUE)
+      
+    }
     
-    data <- connect_manages(input$manages_path$datapath)
-    
-    well_names <- getWellNames(data)
-
-    selectInput("well", "Monitoring Wells", well_names, multiple = TRUE)
   })
   
   # return a list of constituents
   output$analytes <- renderUI({
     
-    if (is.null(input$manages_path))
-      return(NULL)
+    if (!is.null(input$manages_path)){
+      
+      data <- connect_manages(input$manages_path$datapath)
+      
+      analyte_names <- getAnalytes(data)
+      
+      selectInput("analyte", "Constituents", analyte_names, multiple = TRUE)
+      
+    }
 
-    data <- connect_manages(input$manages_path$datapath)
-    
-    analyte_names <- getAnalytes(data)
-    
-    selectInput("analyte", "Constituents", analyte_names, multiple = TRUE)
   })
   
   output$well_table <- renderGvis({
@@ -57,73 +61,75 @@ shinyServer(function(input, output) {
   })
   
   # return start and end date of background data
-  output$background_date <- renderUI({
+  output$date_ranges <- renderUI({
     
-    if (is.null(input$manages_path))
-      return(NULL)
+    if (!is.null(input$manages_path)){
+    
+      data <- connect_manages(input$manages_path$datapath)
+      
+      
+      tagList(
+        
+        dateRangeInput("back_date_range", "Background Date Range", start = min(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE)),
+        
+        
+        dateRangeInput("comp_date_range", "Compliance Date Range", start = max(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE))  
+        )
+      
+    }
+    
+  })
 
-    data <- connect_manages(input$manages_path$datapath)
-    
-    
-    dateRangeInput("back_date_range", "Background Date Range", start = min(data$sample_date),
-                   end = max(data$sample_date) - 365)
-    
-  })
-  
-  # return start and end date of compliance period
-  output$compliance_date <- renderUI({
-    
-    if (is.null(input$manages_path))
-      return(NULL)
-    
-    data <- connect_manages(input$manages_path$datapath)
-    
-    
-    dateRangeInput("comp_date_range", "Compliance Date Range", start = max(data$sample_date) - 365,
-                   end = max(data$sample_date))
-    
-  })
   
   # time series plot output
   output$time_plot <- renderPlot({
     
-    if (is.null(input$manages_path))
-      return(NULL)
-    
-    data <- connect_manages(input$manages_path$datapath)
-    
-    data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
-    
-    # create separate data.frame for geom_rect data
-    # change dates to POSIXct which is same as data.frame dates
-    shaded_dates <- data.frame(xmin = c(min(as.numeric(input$back_date_range)), min(as.numeric(input$comp_date_range))), 
-                               xmax = c(max(as.numeric(input$back_date_range)), max(as.numeric(input$comp_date_range))),
-                               ymin = c(-Inf, -Inf), 
-                               ymax = c(Inf, Inf),
-                               years = c("background", "compliance"))
-    
-    
-    t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, colour=param_name)) 
-    
-    if(input$scale_plot){
-      # time series plot of analytes gridded by wells
-      t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
-        facet_wrap(~location_id, scales="free") + theme_bw() + xlab("Sample Date") + ylab("Analysis Result")
-    } else {
-      t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
-        facet_wrap(~location_id) + theme_bw() + xlab("Sample Date") + ylab("Analysis Result")
-    }
+    if (!is.null(input$manages_path)){
       
-    if(input$date_lines){
-      # draw shaded rectangle for background date range and compliance date range
-      t1 <- t + geom_rect(data = shaded_dates, aes(xmin = xmin, ymin = ymin, xmax = xmax, 
-                                         ymax = ymax, fill = years),
-                alpha = 0.2, inherit.aes = FALSE) +
-        
-        scale_fill_manual(values=c("blue","green"))
+      data <- connect_manages(input$manages_path$datapath)
+      
+      data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
+      
+      # create separate data.frame for geom_rect data
+      # change dates to POSIXct which is same as data.frame dates
+      shaded_dates <- data.frame(xmin = c(min(as.POSIXct(input$back_date_range, format = "%Y-%m-%d")),
+                                          min(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))), 
+                                 xmax = c(max(as.POSIXct(input$back_date_range, format = "%Y-%m-%d")), 
+                                          max(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))),
+                                 ymin = c(-Inf, -Inf), 
+                                 ymax = c(Inf, Inf),
+                                 years = c("background", "compliance"))
+      
+      
+      t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, colour=param_name)) 
+      
+      if(input$scale_plot){
+        # time series plot of analytes gridded by wells
+        t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
+          facet_wrap(~location_id, scales="free") + theme_bw() + xlab("Sample Date") + 
+          ylab("Analysis Result") +
+          scale_colour_discrete(name = "Constituent")
+      } else {
+        t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
+          facet_wrap(~location_id) + theme_bw() + xlab("Sample Date") + 
+          ylab("Analysis Result") + 
+          scale_colour_discrete(name = "Constituent")
+      }
+      
+      if(input$date_lines){
+        # draw shaded rectangle for background date range and compliance date range
+        t1 <- t1 + geom_rect(data = shaded_dates, aes(xmin = xmin, ymin = ymin, xmax = xmax, 
+                                                     ymax = ymax, fill = years),
+                            alpha = 0.2, inherit.aes = FALSE) +
+          
+          scale_fill_discrete(breaks=c("background","compliance"))
+      }
+      
+      print(t1)
+      
     }
-    
-  print(t1)
     
   })
   
