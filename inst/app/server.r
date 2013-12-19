@@ -1,5 +1,5 @@
 # change options to handle large file size
-options(shiny.maxRequestSize=60*1024^2)
+options(shiny.maxRequestSize=-1)
 
 # Define server
 shinyServer(function(input, output) {
@@ -134,14 +134,19 @@ shinyServer(function(input, output) {
 
   output$well_map <- renderPlot({
     if (!is.null(input$manages_path)){
+      # read in spatial data and coerce long and lat to numeric
       sp_data <- get_spatial_data()
       sp_data <- na.omit(sp_data)
       sp_data$long_pos <- as.numeric(as.character(sp_data$long_pos))
       sp_data$lat_pos <- as.numeric(as.character(sp_data$lat_pos))
-      well_map <- get_map(location = c(lon=mean(sp_data$long_pos), lat=mean(sp_data$lat_pos)), zoom=14)
-      p1 <- ggmap(well_map, extent = "device", maptype = "terrain", color = "color")
-      p2 <- p1 + geom_point(data = sp_data, aes(x = long_pos, y = lat_pos, colour = location_id), size = 2.25)
-      print(p2)
+      # create map using rCharts and Leaflet
+      well_map <- Leaflet$new()
+      well_map$setView = c(mean(sp_data$long_pos), mean(sp_data$lat_pos)), zoom=14)
+      for(i in 1:nrow(sp_data)){
+        well_map$marker(sp_data$lat_pos[i], sp_data$long_pos[i], 
+            binPopup = paste("<p> Well", sp_data$location_id[i], "</p>", sep = ""))
+      }
+      print(well_map)
     }
   })
 })

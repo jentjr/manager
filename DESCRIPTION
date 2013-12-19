@@ -8,7 +8,7 @@ Maintainer: Justin Jent <jentjr@gmail.com>
 Depends:
     R (>= 3.0.2),
     ggplot2,
-    ggmap,
+    rCharts,
     scales,
     grid,
     shiny,
