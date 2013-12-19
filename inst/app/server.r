@@ -141,7 +141,7 @@ shinyServer(function(input, output) {
       sp_data$lat_pos <- as.numeric(as.character(sp_data$lat_pos))
       # create map using rCharts and Leaflet
       well_map <- Leaflet$new()
-      well_map$setView = c(mean(sp_data$long_pos), mean(sp_data$lat_pos)), zoom=14)
+      well_map$setView(c(mean(sp_data$long_pos), mean(sp_data$lat_pos)), zoom=13)
       for(i in 1:nrow(sp_data)){
         well_map$marker(sp_data$lat_pos[i], sp_data$long_pos[i], 
             binPopup = paste("<p> Well", sp_data$location_id[i], "</p>", sep = ""))
