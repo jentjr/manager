@@ -91,10 +91,6 @@ shinyServer(function(input, output) {
       data <- connect_manages(input$manages_path$datapath)
       
       data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
-      # create a column of 0 for non_detect and 1 for detected
-      data_selected$non_detect <- ifelse(data_selected$lt_measure == "<", 0, 1)
-      # create separate data frame for non-detects
-      non_detects <- data_selected
       
       # create separate data.frame for geom_rect data
       # change dates to POSIXct which is same as data.frame dates
@@ -107,16 +103,16 @@ shinyServer(function(input, output) {
                                  years = c("background", "compliance"))
       
       
-      t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, colour=param_name, shape = default_unit)) 
+      t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, colour=param_name)) 
       
       if(input$scale_plot){
         # time series plot of analytes gridded by wells
-        t1 <- t + geom_point(aes(shape=default_unit), size=3) + geom_line() + 
+        t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
           facet_wrap(~location_id, scales="free") + theme_bw() + xlab("Sample Date") + 
           ylab("Analysis Result") +
           scale_colour_discrete(name = "Constituent")
       } else {
-        t1 <- t + geom_point(aes(shape=default_unit), size=3) + geom_line() + 
+        t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
           facet_wrap(~location_id) + theme_bw() + xlab("Sample Date") + 
           ylab("Analysis Result") + 
           scale_colour_discrete(name = "Constituent")

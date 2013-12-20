@@ -1,4 +1,4 @@
-#' This function prepares plots of groundwater data faceted by parameters with shaded regions
+#' This function plots groundwater data faceted by parameters with shaded regions
 #' for background and compliance date ranges. Horizontal lines are plotted for 
 #' Groundwater Protection Standards. 
 #' 
@@ -9,18 +9,18 @@
 #' @param comp_date vector of start and end of compliance dates. Use as.POSIXct()
 #' @export
 
-prep_combo_plot <- function(df, back_dates, comp_dates){ 
+combo_plot <- function(df, back_date, comp_date){ 
   
+  limits = df
   df$non_detect <- ifelse(df$lt_measure == "<", 0, 1)
   
-  shaded_dates <- data.frame(xmin = c(back_dates[1], comp_dates[1]), 
-                             xmax = c(back_dates[2], comp_dates[2]),
+  shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
+                             xmax = c(back_date[2], comp_date[2]),
                              ymin = c(-Inf, -Inf), 
                              ymax = c(Inf, Inf),
                              years = c("background", "compliance"))
   
-    ggplot(data = df, aes(x = sample_date, y = analysis_result)) +
-  
+  ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
     geom_point(data = df, aes(colour = default_unit, shape = factor(non_detect))) + 
     geom_line(data = df, aes(colour = default_unit)) +
     facet_wrap(~ param_name, scale="free") + 
@@ -41,27 +41,16 @@ prep_combo_plot <- function(df, back_dates, comp_dates){
               alpha = 0.2, inherit.aes = FALSE) +
     scale_fill_manual(values=c("blue","green")) +
     
+#     # add horizontal lines for EPA MCL and Upper Prediction Limit
+#     geom_hline(data = limits, aes(yintercept = GWPS, linetype = "GWPS"), show_guide = TRUE, size = 0.75) +
+#     geom_hline(data = limits, aes(yintercept = DMR_limit, linetype = "DMR Limit"), show_guide = TRUE, size = 0.75) +
+#     
     # create custom legend using guide
     theme(axis.title.x = element_text(size = 15, vjust=-.2)) +
     theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
     guides(colour = guide_legend("Units"), fill = guide_legend("Dates"),
            linetype = guide_legend("Limits")) +
     scale_shape_manual(name = "Measure", labels = c("Non-Detect", "Detected"),
-                       values = c("0" = 1, "1" = 4)) +
-  
-    # add horizontal lines for limit1 and limit2
-    geom_hline(aes(yintercept = intra_upl, linetype = "Intra-well"), show_guide = TRUE, size = 0.75) +
-    geom_hline(aes(yintercept = inter_upl, linetype = "Inter-well"), show_guide = TRUE, size = 0.75)
-  
-}
-
-#' Function to plot all combinations of wells and varibles
-#' @param df data frame of groundwater data
-#' @param back_dates vector of start and end of background dates in POSIXct format
-#' @param comp_dates vector of start and end of compliance dates in POSIXct format
-#' @export
-
-combo_plot <- function(df, back_dates, comp_dates){
-  # print all combinations of plots
-  d_ply(df, .(location_id), .progress = "text", prep_combo_plot, back_dates, comp_dates, .print = TRUE)
+                       values = c("0" = 1, "1" = 4))  
+    
 }
