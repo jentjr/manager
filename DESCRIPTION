@@ -20,7 +20,8 @@ Depends:
     reshape,
     Hmisc,
     NADA,
-    sp
+    sp,
+    xts
 Suggests:
     knitr
 License: none
