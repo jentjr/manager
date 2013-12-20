@@ -41,10 +41,10 @@ combo_plot <- function(df, back_date, comp_date){
               alpha = 0.2, inherit.aes = FALSE) +
     scale_fill_manual(values=c("blue","green")) +
     
-#     # add horizontal lines for EPA MCL and Upper Prediction Limit
-#     geom_hline(data = limits, aes(yintercept = GWPS, linetype = "GWPS"), show_guide = TRUE, size = 0.75) +
-#     geom_hline(data = limits, aes(yintercept = DMR_limit, linetype = "DMR Limit"), show_guide = TRUE, size = 0.75) +
-#     
+    # add horizontal lines for EPA MCL and Upper Prediction Limit
+    geom_hline(data = limits, aes(yintercept = intra_upl, linetype = "Intrawell prediction limit"), show_guide = TRUE, size = 0.75) +
+    geom_hline(data = limits, aes(yintercept = inter_upl, linetype = "Interwell prediction limit"), show_guide = TRUE, size = 0.75) +
+    
     # create custom legend using guide
     theme(axis.title.x = element_text(size = 15, vjust=-.2)) +
     theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
