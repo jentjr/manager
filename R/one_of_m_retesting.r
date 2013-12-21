@@ -1,4 +1,4 @@
-#' Compute multiplier for intrawell prediction limit using either regular or 
+#' @description Compute multiplier for intrawell prediction limit using either regular or 
 #' pooled standard deviation estimate and 1-of-m retesting for either 
 #' observations or means of order p.
 #' 
@@ -13,7 +13,7 @@
 #' @param coc number of constituents
 #' @param df degrees of freedom associated with variance estimate of prediction limit formula
 #' 
-#' Note: if the usual standard deviation for a single well is used, set df = (n-1);
+#' @note Note: if the usual standard deviation for a single well is used, set df = (n-1);
 #' if using a pooled SD estimate across w equal sized wells, set df= w*(n-1) or
 #' df = (sum of well n's) - w, if w pooled wells are of different sizes
 #' 
