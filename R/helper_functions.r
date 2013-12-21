@@ -27,25 +27,6 @@ remove_dup <- function(df){
   return(df_nodup)
 }
 
-
-#' Function to summarize the number of samples, mean, sd, and percentage of 
-#' non-detects. This is useful for calculating the upper prediction limit.
-#' 
-#' @param df data frame of groundwater monitoring network data 
-#' @export
-
-groundwater_summary <- function(df){
-  
-  gw <- ddply(df, .(location_id, param_name, default_unit), summarise, 
-              n = length(analysis_result),
-              mean = round(mean(analysis_result), digits = 3), 
-              sd = round(sd(analysis_result), digits = 3),
-              percent_lt = round(percent_lt(lt_measure), digits = 3))
-  
-  return(gw)
-  
-}
-
 #' Calculate intrawell prediction limit
 #'
 #' @param df data frame of groundwater monitoring data
@@ -71,7 +52,26 @@ intrawell_prediction <- function(df, back_dates, comp_dates, num_wells, num_para
                       swfpr = swfpr, ne = ne, ord = ord)$kappa
   
   upl <- back_mean + kappa * sqrt(1 + 1 / n_back) * back_sd
-  
+    
   return(upl)
 
+}
+
+
+#' Function to summarize the number of samples, mean, sd, and percentage of 
+#' non-detects. This is useful for calculating the upper prediction limit.
+#' 
+#' @param df data frame of groundwater monitoring network data 
+#' @export
+
+groundwater_summary <- function(df){
+  
+  gw <- ddply(df, .(location_id, param_name, default_unit), summarise, 
+              n = length(analysis_result),
+              mean = round(mean(analysis_result), digits = 3), 
+              sd = round(sd(analysis_result), digits = 3),
+              percent_lt = round(percent_lt(lt_measure), digits = 3))
+  
+  return(gw)
+  
 }
