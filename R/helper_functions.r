@@ -75,3 +75,41 @@ groundwater_summary <- function(df){
   return(gw)
   
 }
+
+#' function to convert geochemical plot data into meq/L
+
+convert_mgL_to_meqL <- function(df, Mg, Ca, Na, K, Cl, SO4, CO3, HCO3){
+  
+  # formuala weights
+  Ca_fwt <- 40.078
+  Mg_fwt <- 24.305
+  Na_fwt <- 22.990
+  K_fwt <- 39.098
+  S_fwt <- 32.06
+  O_fwt <- 15.999
+  H_fwt <- 1.008
+  C_fwt <- 12.011
+  Cl_fwt <- 35.45
+  
+  # absolute value of charge
+  Ca_chrg <- 2
+  Mg_chrg <- 2
+  Na_chrg <- 1
+  K_chrg <- 1
+  SO4_chrg <- 2
+  CO3_chrg <- 2
+  HCO3_chrg <- 1
+  Cl_chrg <- 1
+  
+  # conversion 
+  df$Mg <- Mg / Mg_fwt * Mg_chrg
+  df$Ca <- Ca / Ca_fwt * Ca_chrg
+  df$Na <- Na / Na_fwt * Na_chrg
+  df$K <- K / K_fwt * K_chrg
+  df$Cl <- Cl / Cl_fwt * Cl_chrg
+  df$SO4 <- SO4 / (S_fwt + 4 * O_fwt) * SO4_chrg
+  df$CO3 <- CO3 / (C_fwt + 3 * O_fwt) * CO3_chrg
+  df$HCO3 <- HCO3 / (H_fwt + C_fwt + 3 * O_fwt) * HCO3_chrg
+  
+  return(df)
+}

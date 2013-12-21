@@ -5,61 +5,26 @@
 #' @param df data frame of groundwater monitoring data
 #' @export
 
-get_plot_data <- function(df){
+get_geochem_plot_data <- function(df, Mg, Ca, Na, K, Cl, SO4, CO3, HCO3, TDS){
   
   # Assumes units are all in mg/L
   # TODO: add feature to check units 
   
-  plot_params <- c("Magnesium, Mg", "Calcium, Ca", "Sodium, Na", "Potassium, K",
-              "Chloride, Cl", "Sulfate, SO4","Alkalinity, as CaCO3", "Residue, Filterable, TDS")
+  plot_params <- c(Mg, Ca, Na, K, Cl, SO4, CO3, HCO3, TDS)
   
   plot_data <- subset(df, param_name %in% plot_params)
  
   plot_data <- cast(plot_data, value = "analysis_result", location_id + sample_date ~ param_name)
   
-  # need to convert alkalinity to CO3 and HCO3
-  # check these conversions
-  plot_data$CO3 <- plot_data$`Alkalinity, as CaCO3` * 0.6
-  plot_data$HCO3 <- plot_data$`Alkalinity, as CaCO3` * 1.22
-  plot_data$TDS <- plot_data$`Residue, Filterable, TDS`
+#   # need to convert alkalinity to CO3 and HCO3
+#   # check these conversions
+#   plot_data$CO3 <- plot_data$`Alkalinity, as CaCO3` * 0.6
+#   plot_data$HCO3 <- plot_data$`Alkalinity, as CaCO3` * 1.22
+#   plot_data$TDS <- plot_data$`Residue, Filterable, TDS`
   
-  plot_data$sample_date <- as.Date(plot_data$sample_date, format="%m/%d/%y")
-  
-  convert_mgL_to_meqL <- function(df, Mg=df$`Magnesium, Mg`, Ca=df$`Calcium, Ca`,
-                                  Na=df$`Sodium, Na`, K=df$`Potassium, K`, Cl=df$`Chloride, Cl`,
-                                  SO4=df$`Sulfate, SO4`, CO3=df$CO3, HCO3=df$HCO3){
+#   # don't need this with MANAGES since already in POSIXct format
+#   plot_data$sample_date <- as.Date(plot_data$sample_date, format="%m/%d/%y")
     
-    # conversion Variables
-    Ca_fwt <- 40.078
-    Mg_fwt <- 24.305
-    Na_fwt <- 22.990
-    K_fwt <- 39.098
-    S_fwt <- 32.06
-    O_fwt <- 15.999
-    H_fwt <- 1.008
-    C_fwt <- 12.011
-    Cl_fwt <- 35.45
-    
-    Ca_chrg <- 2
-    Mg_chrg <- 2
-    Na_chrg <- 1
-    K_chrg <- 1
-    SO4_chrg <- 2
-    CO3_chrg <- 2
-    HCO3_chrg <- 1
-    Cl_chrg <- 1
-    
-    df$Mg <- Mg / Mg_fwt * Mg_chrg
-    df$Ca <- Ca / Ca_fwt * Ca_chrg
-    df$Na <- Na / Na_fwt * Na_chrg
-    df$K <- K / K_fwt * K_chrg
-    df$Cl <- Cl / Cl_fwt * Cl_chrg
-    df$SO4 <- SO4 / (S_fwt + 4 * O_fwt) * SO4_chrg
-    df$CO3 <- CO3 / (C_fwt + 3 * O_fwt) * CO3_chrg
-    df$HCO3 <- HCO3 / (H_fwt + C_fwt + 3 * O_fwt) * HCO3_chrg
-    return(df)
-  }
-  
   plot_data <- convert_mgL_to_meqL(plot_data)
   
   plot_data <- plot_data[, !(names(plot_data) %in% plot_params)]
