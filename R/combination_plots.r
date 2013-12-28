@@ -42,14 +42,17 @@ combo_plot <- function(df, back_date, comp_date){
     scale_fill_manual(values=c("blue","green")) +
     
     # add horizontal lines for EPA MCL and Upper Prediction Limit
-    geom_hline(data = limits, aes(yintercept = intra_upl, linetype = "Intrawell prediction limit"), show_guide = TRUE, size = 0.75) +
-    geom_hline(data = limits, aes(yintercept = inter_upl, linetype = "Interwell prediction limit"), show_guide = TRUE, size = 0.75) +
+    geom_hline(data = limits, aes(yintercept = EPA_limit, linetype = "EPA Limit"), colour = "black", size = 0.75, show_guide = T) +
+    geom_hline(data = limits, aes(yintercept = DMR_limit, linetype = "DMR Limit"), size = 0.75, show_guide = T) +
+    scale_linetype_manual(name = "Limits", labels = c("EPA Limit", "DMR Limit"), values = c("EPA Limit" = 1, "DMR Limit" = 2)) +
     
     # create custom legend using guide
     theme(axis.title.x = element_text(size = 15, vjust=-.2)) +
     theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
-    guides(colour = guide_legend("Units"), fill = guide_legend("Dates"),
-           linetype = guide_legend("Limits")) +
+    guides(colour = guide_legend(override.aes = list(linetype = 0 )), 
+           fill = guide_legend(override.aes = list(linetype = 0 )), 
+           shape = guide_legend(override.aes = list(linetype = 0 )), 
+           linetype = guide_legend()) +
     scale_shape_manual(name = "Measure", labels = c("Non-Detect", "Detected"),
                        values = c("0" = 1, "1" = 4))  
     
