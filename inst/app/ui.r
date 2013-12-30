@@ -36,6 +36,7 @@ shinyUI(pageWithSidebar(
       tabPanel("Data Table",htmlOutput("well_table")),
       tabPanel("Summary Table", htmlOutput("gw_summary")),
       tabPanel("Time Series", plotOutput("time_plot")),
+      tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
       tabPanel("Boxplot", plotOutput("box_plot")),
       tabPanel("Piper Plot", plotOutput("piper_plot")),
       tabPanel("Stiff Diagram", plotOutput("stiff_plot")),
