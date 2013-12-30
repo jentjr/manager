@@ -15,7 +15,7 @@ combo_plot <- function(df, back_date = NULL, comp_date = NULL, limits = NULL, ..
   df$param_name <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
     
   p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
-    geom_point(data = df, aes(shape = factor(non_detect), size = factor(non_detect))) + 
+    geom_point(data = df, aes(shape = factor(non_detect))) + 
     geom_line(data = df) +
     facet_wrap(~ param_name, scale="free") + 
     
@@ -34,8 +34,7 @@ combo_plot <- function(df, back_date = NULL, comp_date = NULL, limits = NULL, ..
            shape = guide_legend(override.aes = list(linetype = 0 )),
            size = guide_legend("none")) +
     scale_shape_manual(name = "Measure", labels = c("Non-Detect", "Detected"),
-                       values = c("0" = 1, "1" = 4)) +
-    scale_size_manual(values = c("0" = 6, "1" = 4))
+                       values = c("0" = 1, "1" = 4)) 
   
   # shaded background and compliance date regions
   if(!missing(back_date)){
