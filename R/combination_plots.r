@@ -11,13 +11,18 @@
 #' @export
 
 
-combo_plot <- function(df, back_date = NULL, comp_date = NULL, limits = NULL, ...){
+combo_plot <- function(df, back_date = NULL, comp_date = NULL, limit1 = NULL, limit2 = NULL, name = NULL, ...){
   
-  df$non_detect <- ifelse(df$lt_measure == "<", 0, 1)
-  df$param_name <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
+  df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
+  
+  if(isTRUE(name == "short")){
+    df$param_name <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
+  } else {
+    df$param_name <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
+  }
   
   p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
-    geom_point(data = df, aes(shape = factor(non_detect))) + 
+    geom_point(data = df, aes(shape = factor(non_detect))) +
     geom_line(data = df) +
     facet_wrap(~ param_name, scale="free") + 
     
@@ -33,10 +38,10 @@ combo_plot <- function(df, back_date = NULL, comp_date = NULL, limits = NULL, ..
     theme(axis.title.x = element_text(size = 15, vjust=-.2)) +
     theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
     guides(colour = guide_legend(override.aes = list(linetype = 0 )), 
-           shape = guide_legend(override.aes = list(linetype = 0 )),
-           size = guide_legend("none")) +
-    scale_shape_manual(name = "Measure", labels = c("Non-Detect", "Detected"),
-                       values = c("0" = 1, "1" = 4)) 
+           shape = guide_legend("Measure", override.aes = list(linetype = 0 )),
+           size = guide_legend("none"),
+           linetype = guide_legend("Limits")) +
+    scale_shape(solid = FALSE)
   
   # shaded background and compliance date regions
   if(!missing(back_date)){
@@ -54,14 +59,17 @@ combo_plot <- function(df, back_date = NULL, comp_date = NULL, limits = NULL, ..
       guides(fill = guide_legend(override.aes = list(linetype = 0)))
   }
   
-  # add horizontal lines limits
-  if(!missing(limits)){
-    limits <- as.quoted(limits)
-    for(i in 1:length(limits)){
-      df$line.type <- paste(limits[[i]])
-      p <- p + geom_hline(data = df, aes_string(yintercept = limits[[i]], linetype = "line.type"), size = 0.75, show_guide = TRUE)
-    }
-    p <- p + scale_linetype(name = "Limits")
-  }    
-  print(p)
+  # add horizontal line for limit1
+  if(!missing(limit1)){
+    limit1 <- as.quoted(limit1)
+    df$limit1_name <- paste(limit1[[1]])
+      p <- p + geom_hline(data = df, aes_string(yintercept = limit1, linetype = "limit1_name"), size = 0.75, show_guide = TRUE)
+  }
+  # add horizontal line for limit2
+  if(!missing(limit2)){
+    limit2 <- as.quoted(limit2)
+    df$limit2_name <- paste(limit2[[1]])
+    p <- p + geom_hline(data = df, aes_string(yintercept = limit2, linetype = "limit2_name"), size = 0.75, show_guide = TRUE)
+  }  
+return(p)
 }

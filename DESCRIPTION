@@ -23,7 +23,8 @@ Depends:
     sp,
     xts
 Suggests:
-    knitr
+    knitr,
+    lubridate
 License: none
 LazyData: true
 VignetteBuilder: knitr
