@@ -4,7 +4,7 @@
 for background and compliance date ranges. Horizontal lines are plotted for
 Groundwater Protection Standards.}
 \usage{
-combo_plot(df, back_date, comp_date)
+combo_plot(df, back_date = NULL, comp_date = NULL, limits = NULL, ...)
 }
 \arguments{
   \item{df}{data frame in long format containing
@@ -18,6 +18,9 @@ combo_plot(df, back_date, comp_date)
 
   \item{comp_date}{vector of start and end of compliance
   dates. Use as.POSIXct()}
+
+  \item{limits}{column vector of limits e.g.
+  c("EPA_Limits", "DMR_limits")}
 }
 \description{
 This function plots groundwater data faceted by parameters

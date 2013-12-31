@@ -1,4 +1,4 @@
-#' @description Compute multiplier for intrawell prediction limit using either regular or 
+#' Compute multiplier for intrawell prediction limit using either regular or 
 #' pooled standard deviation estimate and 1-of-m retesting for either 
 #' observations or means of order p.
 #' 
@@ -13,7 +13,7 @@
 #' @param coc number of constituents
 #' @param df degrees of freedom associated with variance estimate of prediction limit formula
 #' 
-#' @note Note: if the usual standard deviation for a single well is used, set df = (n-1);
+#' Note: if the usual standard deviation for a single well is used, set df = (n-1);
 #' if using a pooled SD estimate across w equal sized wells, set df= w*(n-1) or
 #' df = (sum of well n's) - w, if w pooled wells are of different sizes
 #' 
@@ -22,10 +22,9 @@
 #' @param ord order of the mean to be predicted (for tests on observations, set ord = 1)
 #' @param swfpr the targeted network-wide false positive rate, by default set to 10%
 #'
-#' @keywords intrawell
+#'
 #' @export
-#' @examples
-#' calc_kappa(n = 8, w = 10, coc = 28, ne = 4, m = 1) 
+
 
 calc_kappa <- function(n, w, coc, ne, m, ord = 1, swfpr = 0.1){
   
