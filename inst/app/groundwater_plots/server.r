@@ -161,24 +161,6 @@ shinyServer(function(input, output) {
     }
   })
   
- # piper plot
-  output$piper_plot <- renderPlot({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      # get the major cations/anions
-      geochem_plot_data <- get_geochem_plot_data()
-      piper_data <- transform_piper_data(geochem_plot_data)
-      print(ggplot_piper())
-    }
-  })
-  
- # stiff diagram
- output$stiff_diagram <- renderPlot({
-   if (!is.null(input$manages_path)){
-     
-   }
- })
- 
  # saptial plot of wells
   output$well_map <- renderPlot({
     if (!is.null(input$manages_path)){

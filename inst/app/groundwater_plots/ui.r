@@ -38,8 +38,6 @@ shinyUI(pageWithSidebar(
       tabPanel("Time Series", plotOutput("time_plot")),
       tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
       tabPanel("Boxplot", plotOutput("box_plot")),
-      tabPanel("Piper Plot", plotOutput("piper_plot")),
-      tabPanel("Stiff Diagram", plotOutput("stiff_plot")),
       tabPanel("Map", plotOutput("well_map"))
     )
   )
