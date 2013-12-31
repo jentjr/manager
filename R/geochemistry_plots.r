@@ -5,28 +5,23 @@
 #' @param df data frame of groundwater monitoring data
 #' @export
 
-get_major_ions <- function(df, Mg, Ca, Na, K, Cl, SO4, CO3, HCO3, TDS){
+get_major_ions <- function(df, Mg="Magnesium, dissolved", Ca="Calcium, dissolved", 
+                           Na="Sodium, dissolved", K="Potassium, dissolved", 
+                           Cl="Chloride, total", SO4="Sulfate, total", 
+                           HCO3="Alkalinity, total (lab)", TDS="Total Dissolved Solids", 
+                           units = "mg/L"){
   
-  # Assumes units are all in mg/L
-  # TODO: add feature to check units 
-  
-  plot_params <- c(Mg, Ca, Na, K, Cl, SO4, CO3, HCO3, TDS)
+  plot_params <- c(Mg, Ca, Na, K, Cl, SO4, HCO3, TDS)
   
   plot_data <- subset(df, param_name %in% plot_params)
  
   plot_data <- cast(plot_data, value = "analysis_result", location_id + sample_date ~ param_name)
   
-#   # need to convert alkalinity to CO3 and HCO3
-#   # check these conversions
-#   plot_data$CO3 <- plot_data$`Alkalinity, as CaCO3` * 0.6
-#   plot_data$HCO3 <- plot_data$`Alkalinity, as CaCO3` * 1.22
-#   plot_data$TDS <- plot_data$`Residue, Filterable, TDS`
-  
-#   # don't need this with MANAGES since already in POSIXct format
-#   plot_data$sample_date <- as.Date(plot_data$sample_date, format="%m/%d/%y")
-    
-  plot_data <- convert_mgL_to_meqL(plot_data)
-  
+  if(units == "mg/L"){
+    plot_data <- convert_mgL_to_meqL(plot_data, Mg=Mg, Ca=Ca, Na=Na, K=K, Cl=Cl,
+                                     SO4=SO4, HCO3=HCO3, CO3 = NULL)
+  }
+
   plot_data <- plot_data[, !(names(plot_data) %in% plot_params)]
   
   return(plot_data)
@@ -43,8 +38,7 @@ get_major_ions <- function(df, Mg, Ca, Na, K, Cl, SO4, CO3, HCO3, TDS){
 #' @param K Potassum
 #' @param Cl Chloride
 #' @param SO4 Sulfate
-#' @param CO3 Carbonate
-#' @param HCO3 Bicarbonate
+#' @param HCO3 Bicarbonate, or Alkalinity
 #' @param TDS Total Dissolved Solids
 #' @param name column of well names
 #' @param date column of dates
@@ -69,9 +63,9 @@ transform_piper_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df
   
   # anion data
   # Convert data to %
-  anion_total = SO4 + Cl + CO3 + HCO3
+  anion_total = SO4 + Cl + HCO3
   an_top = (SO4 / anion_total) * 100
-  an_left = ((HCO3 + CO3) / anion_total) * 100
+  an_left = (HCO3 / anion_total) * 100
   an_right = 100 - (an_top + an_left)
   
   # Convert data into xy coordinates
