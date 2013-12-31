@@ -4,9 +4,14 @@
 data(gw_data)
 
 # grab the variables needed from the file for the geochemistry plots
-plot_data <- get_major_ions(gw_data, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved", 
-                            Na = "Sodium, dissolved", K = "Potassium, dissolved", Cl = "Chloride, total",
-                            SO4 = "Sulfate, total", CO3 = "")
+ions <- get_major_ions(gw_data)
+
+plot_data <- convert_mgL_to_meqL(ions, Mg=ions$`Magnesium, dissolved`, Ca=ions$`Calcium, dissolved`,
+                             Na=ions$`Sodium, dissolved`, K=ions$`Potassium, dissolved`, 
+                             Cl=ions$`Chloride, total`, SO4=ions$`Sulfate, total`, 
+                             HCO3=ions$`Alkalinity, total (lab)`)
+
+plot_data <- plot_data[complete.cases(plot_data),]
 
 # transform the data for a Piper plot
 piper_data <- transform_piper_data(plot_data) 

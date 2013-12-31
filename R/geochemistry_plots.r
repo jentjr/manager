@@ -8,22 +8,16 @@
 get_major_ions <- function(df, Mg="Magnesium, dissolved", Ca="Calcium, dissolved", 
                            Na="Sodium, dissolved", K="Potassium, dissolved", 
                            Cl="Chloride, total", SO4="Sulfate, total", 
-                           HCO3="Alkalinity, total (lab)", TDS="Total Dissolved Solids", 
-                           units = "mg/L"){
+                           Alk="Alkalinity, total (lab)", TDS="Total Dissolved Solids",...){
+  # TODO: add other major ions like Fe
+  input_list <- list(...)
   
-  plot_params <- c(Mg, Ca, Na, K, Cl, SO4, HCO3, TDS)
+  plot_params <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
   
   plot_data <- subset(df, param_name %in% plot_params)
  
-  plot_data <- cast(plot_data, value = "analysis_result", location_id + sample_date ~ param_name)
-  
-  if(units == "mg/L"){
-    plot_data <- convert_mgL_to_meqL(plot_data, Mg=Mg, Ca=Ca, Na=Na, K=K, Cl=Cl,
-                                     SO4=SO4, HCO3=HCO3, CO3 = NULL)
-  }
+  plot_data <- cast(plot_data, value = "analysis_result", location_id + sample_date + default_unit ~ param_name)
 
-  plot_data <- plot_data[, !(names(plot_data) %in% plot_params)]
-  
   return(plot_data)
 }
 
@@ -47,7 +41,7 @@ get_major_ions <- function(df, Mg="Magnesium, dissolved", Ca="Calcium, dissolved
 #' @export
 
 transform_piper_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df$Cl, SO4=df$SO4, 
-                                 CO3=df$CO3, HCO3=df$HCO3, TDS=df$TDS, 
+                                 CO3=NULL, HCO3=df$HCO3, TDS=df$TDS, 
                                  name = df$location_id, date = df$sample_date, units = NULL){
 
   # cation data
@@ -59,7 +53,7 @@ transform_piper_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df
   
   # Convert data into xy coordinates
   cation_x <- cat_right + cat_top / 2
-  cation_y <-sqrt(3) / 2 * cat_top
+  cation_y <- sqrt(3) / 2 * cat_top
   
   # anion data
   # Convert data to %

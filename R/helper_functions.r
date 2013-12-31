@@ -80,6 +80,8 @@ groundwater_summary <- function(df){
 
 convert_mgL_to_meqL <- function(df, Mg, Ca, Na, K, Cl, SO4, HCO3, CO3 = NULL){
   
+  # TODO: add ... feature and a data base of elements.
+  
   # formuala weights
   Ca_fwt <- 40.078
   Mg_fwt <- 24.305
