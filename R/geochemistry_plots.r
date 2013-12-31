@@ -5,7 +5,7 @@
 #' @param df data frame of groundwater monitoring data
 #' @export
 
-get_geochem_plot_data <- function(df, Mg, Ca, Na, K, Cl, SO4, CO3, HCO3, TDS){
+get_major_ions <- function(df, Mg, Ca, Na, K, Cl, SO4, CO3, HCO3, TDS){
   
   # Assumes units are all in mg/L
   # TODO: add feature to check units 

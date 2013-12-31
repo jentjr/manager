@@ -7,9 +7,10 @@ shinyServer(function(input, output) {
   get_data <- reactive({
     if (!is.null(input$manages_path)){
         switch(input$file_type, 
-               ".csv" = read.csv(input$manages_path$datapath, header = TRUE, stringsAsFactors = FALSE),
+               ".csv" = from_csv(input$manages_path$datapath),
                ".mdb" = connect_manages(input$manages_path$datapath),
-               ".xls" = readWorksheet(loadWorkbook(input$manages_path$datapath), sheet = "Sheet1"))
+               ".xls" = readWorksheet(loadWorkbook(input$manages_path$datapath), sheet = "Sheet1"),
+               forceConversion = TRUE, dateTimeFormat = "%Y-%m-%d %H:%M:%S")
       }      
   })
  
@@ -74,8 +75,11 @@ shinyServer(function(input, output) {
     if (!is.null(input$manages_path)){
       data <- get_data()
       data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
+      
+      data_selected$non_detect <- ifelse(data_selected$lt_measure == "<", 0, 1)
+      
       # create separate data.frame for geom_rect data
-      # change dates to POSIXct which is same as data.frame dates
+      # change dates to POSIXct which is same as MANAGES database dates. 
       shaded_dates <- data.frame(xmin = c(min(as.POSIXct(input$back_date_range, format = "%Y-%m-%d")),
                                           min(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))), 
                                  xmax = c(max(as.POSIXct(input$back_date_range, format = "%Y-%m-%d")), 
@@ -88,12 +92,12 @@ shinyServer(function(input, output) {
       
       if(input$scale_plot){
         # time series plot of analytes gridded by wells
-        t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
+        t1 <- t + geom_point(aes(shape=param_name, shape = factor(non_detect)), size=3) + geom_line() + 
           facet_wrap(~location_id, scales="free") + theme_bw() + xlab("Sample Date") + 
           ylab("Analysis Result") +
           scale_colour_discrete(name = "Constituent")
       } else {
-        t1 <- t + geom_point(aes(shape=param_name), size=3) + geom_line() + 
+        t1 <- t + geom_point(aes(shape=param_name, shape = factor(non_detect)), size=3) + geom_line() + 
           facet_wrap(~location_id) + theme_bw() + xlab("Sample Date") + 
           ylab("Analysis Result") + 
           scale_colour_discrete(name = "Constituent")

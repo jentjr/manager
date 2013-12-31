@@ -1,10 +1,12 @@
 # test file for geomchemistry_plots.r
 
 # read in test data 
-load("data/gw_data.RData")
+data(gw_data)
 
 # grab the variables needed from the file for the geochemistry plots
-plot_data <- get_plot_data(data)
+plot_data <- get_major_ions(gw_data, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved", 
+                            Na = "Sodium, dissolved", K = "Potassium, dissolved", Cl = "Chloride, total",
+                            SO4 = "Sulfate, total", CO3 = "")
 
 # transform the data for a Piper plot
 piper_data <- transform_piper_data(plot_data) 
