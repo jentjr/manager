@@ -46,10 +46,10 @@ transform_piper_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df
 
   # cation data
   # Convert data to %
-  cation_total = Mg + Ca + Na + K
-  cat_top = (Mg / cation_total) * 100
-  cat_left = (Ca / cation_total) * 100
-  cat_right = 100 - (cat_top + cat_left)
+  cation_total <- Mg + Ca + Na + K
+  cat_top <- (Mg / cation_total) * 100
+  cat_left <- (Ca / cation_total) * 100
+  cat_right <- 100 - (cat_top + cat_left)
   
   # Convert data into xy coordinates
   cation_x <- cat_right + cat_top / 2
@@ -57,10 +57,10 @@ transform_piper_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df
   
   # anion data
   # Convert data to %
-  anion_total = SO4 + Cl + HCO3
-  an_top = (SO4 / anion_total) * 100
-  an_left = (HCO3 / anion_total) * 100
-  an_right = 100 - (an_top + an_left)
+  anion_total <- SO4 + Cl + HCO3
+  an_top <- (SO4 / anion_total) * 100
+  an_left <- (HCO3 / anion_total) * 100
+  an_right <- 100 - (an_top + an_left)
   
   # Convert data into xy coordinates
   anion_x <- 120 + (an_right + an_top / 2)
@@ -162,27 +162,27 @@ ggplot_piper <- function() {
     geom_text(aes(c(95,85,75,65),grid1p3$y2, label=c(80, 60, 40, 20)), size=3) +
     
     # geom_text(aes(17,50, label="Mg^2"), parse=T, angle=60, size=4) +
-    coord_equal(ratio=1)+  
+    coord_equal(ratio=1) +  
     geom_text(aes(17,50, label="Mg^+2"), angle=60, size=4, parse=TRUE) +  
-    geom_text(aes(82.5,50, label="Na  +  K"), angle=-60, size=4) +
+    geom_text(aes(82.5,50, label="Na + K"), angle=-60, size=4) +
     geom_text(aes(50,-10, label="Ca^+2"), size=4, parse=TRUE) +
     
     # labels for anion plot
     geom_text(aes(170,-10, label="Cl^-phantom()"), size=4, parse=TRUE) +
     geom_text(aes(205,50, label="SO[4]^+2"), angle=-60, size=4, parse=TRUE) +
-    geom_text(aes(137.5,50, label="CO[3]~+~HCO[3]"), angle=60, size=4, parse=TRUE) +
+    geom_text(aes(137.5,50, label="Alkalinity"), angle=60, size=4, parse=TRUE) +
     
     # 
     geom_text(aes(72.5,150, label="SO[4]^+2~+~Cl^-phantom()"), angle=60, size=4, parse=TRUE) +
     geom_text(aes(147.5,150, label="Ca^+2~+~Mg^+2"), angle=-60, size=4, parse=TRUE) + 
 
-    geom_text(aes(c(155,145,135,125),grid2p2$y2, label=c(20, 40, 60, 80)), size=3) +
-    geom_text(aes(c(215,205,195,185),grid2p3$y2, label=c(20, 40, 60, 80)), size=3) +
-    geom_text(aes(c(140,160,180,200),c(-5,-5,-5,-5), label=c(20, 40, 60, 80)), size=3) +
-    geom_text(aes(grid3p1$x1-5,grid3p1$y1, label=c(80, 60, 40, 20)), size=3) +
-    geom_text(aes(grid3p1$x2+5,grid3p1$y2, label=c(20, 40, 60, 80)), size=3) +
-    geom_text(aes(grid3p2$x1-5,grid3p2$y1, label=c(20, 40, 60, 80)), size=3) +
-    geom_text(aes(grid3p2$x2+5,grid3p2$y2, label=c(80, 60, 40, 20)), size=3) +
+    geom_text(aes(c(155,145,135,125), grid2p2$y2, label=c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(c(215,205,195,185), grid2p3$y2, label=c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(c(140,160,180,200), c(-5,-5,-5,-5), label=c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(grid3p1$x1-5, grid3p1$y1, label=c(80, 60, 40, 20)), size=3) +
+    geom_text(aes(grid3p1$x2+5, grid3p1$y2, label=c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(grid3p2$x1-5, grid3p2$y1, label=c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(grid3p2$x2+5, grid3p2$y2, label=c(80, 60, 40, 20)), size=3) +
     
     theme_bw() +
     
@@ -249,24 +249,29 @@ piper_time_html <- function(df){
 #---------------------------------------------------------------------------------
 
 
-#' Function to transform data from \code{\link{get_plot_data}} into x, y coordinates and in the 
+#' Function to transform data from \code{\link{get_major_ions}} into x, y coordinates and in the 
 #' correct path for geom_polygon of ggplot
 #' 
-#' @param df data frame of groundwater data from \code{\link{get_plot_data}}
+#' @param df data frame of groundwater data from \code{\link{get_major_ions}}
 #' @export
 
-transform_stiff_data <- function(df){
+transform_stiff_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df$Cl, SO4=df$SO4, 
+                                 HCO3=df$HCO3,name = df$location_id, date = df$sample_date, 
+                                 TDS = NULL, units = NULL){
   
-  df$`Na + K` <- df$Na + df$K
+#   df$`Na + K` <- Na + K
   
-  df_melt <- melt(as.data.frame(df), id.vars = c("location_id", "sample_date"))
+  temp <- data.frame(name, date, Mg, Ca, Na + K, SO4, HCO3)
+  colnames(temp) <- c("location_id", "sample_date", "Mg", "Ca", "Na + K", "SO4", "HCO3")
+  
+  df_melt <- melt(temp, id.vars = c("location_id", "sample_date"))
   
   cations <- c("Mg", "Ca", "Na + K")
   anions <- c("SO4", "HCO3", "Cl")
   
   df_melt$value <- ifelse(df_melt$variable %in% cations, -1 * df_melt$value, df_melt$value)
   
-  stiff <- subset(df_melt, variable %in% c("Mg", "SO4", "HCO3", "Cl", "Na + K", "Ca"))
+  stiff <- subset(df_melt, variable %in% c("Mg", "SO4", "HCO3", "Cl", "Na + K", "Ca", "TDS"))
   
   poly_order <-  data.frame(c("Mg", "SO4", "HCO3", "Cl", "Na + K", "Ca"),
                             c(3, 3, 2, 1, 1, 2))
@@ -275,9 +280,14 @@ transform_stiff_data <- function(df){
   
   stiff <- join(poly_order, stiff, by="variable", type="left")
   
-  stiff <- join(stiff, df, by = "location_id", type = "full")
-  
   stiff <- rename(stiff, replace=c("value" = "stiff_x"))
+  
+  if(!missing(TDS)){
+#     TDS <-  as.quoted(TDS)
+    stiff <- join(stiff, df, by=c("location_id", "sample_date"))
+    stiff <- stiff[, names(stiff) %in% c("location_id", "sample_date", "variable", "stiff_x", "stiff_y", "Total Dissolved Solids")]
+    stiff <- rename(stiff, replace=c("Total Dissolved Solids" = "TDS"))
+  }
   
   return(stiff)
   
@@ -286,33 +296,43 @@ transform_stiff_data <- function(df){
 #' Function to plot a Stiff Diagram 
 #' 
 #' @param df data frame of groundwater data transformed using 
+#' @param multiple TRUE/FALSE plots multiple locations with facet_wrap
+#' @param TDS TRUE/FALSE fills in the color of the stiff diagram by TDS
 #' \code{\link{transform_stiff_data}}
 #' @export
 
-stiff_plot <- function(df){
-  
-  p <- ggplot(df) +
+stiff_plot <- function(df, TDS = FALSE){
     
-    geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS)) +
-    facet_wrap(~location_id, scale = "free") +
-    geom_hline(yintercept = 1, linetype = "dashed") +
-    geom_hline(yintercept = 2, linetype = "dashed") +
-    geom_hline(yintercept = 3, linetype = "dashed") +
-    xlab("\nmeq/L") + xlim(-15,15) +
-    annotate("text", x = -14, y = 1.1, label = "Na^+1 + K^+1", size = 3, parse = TRUE) +
-    annotate("text", x = -14, y = 2.1, label = "Ca^+2", size = 3, parse = TRUE) +
-    annotate("text", x = -14, y = 3.1, label = "Mg^+2", size = 3, parse = TRUE) +
-    annotate("text", x = 14, y = 1.1, label = "Cl^-phantom()", size = 3, parse = TRUE) +
-    annotate("text", x = 14, y = 2.1, label = "HCO[3]^-1", size = 3, parse = TRUE) +
-    annotate("text", x = 14, y = 3.1, label = "SO[4]^-2", size = 3, parse = TRUE) +
-    theme_bw() +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    if(isTRUE(TDS)){
+      num <- length(unique(df$location_id))
+      if(num > 1){
+        p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS)) 
+      }else{
+        p <- ggplot(df) + geom_polygon(aes(x=stiff_x, y=stiff_y, fill = TDS)) + 
+          scale_fill_discrete(guide = "legend")
+      }
+    } else{
+      p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y))
+    }
+    
+    p <- p + facet_wrap(~location_id, scale = "free") +
+      geom_hline(yintercept = 1, linetype = "dashed") +
+      geom_hline(yintercept = 2, linetype = "dashed") +
+      geom_hline(yintercept = 3, linetype = "dashed") +
+      xlab("\nmeq/L") + xlim(-15,15) +
+      annotate("text", x = -14, y = 1.1, label = "Na^+1 + K^+1", size = 3, parse = TRUE) +
+      annotate("text", x = -14, y = 2.1, label = "Ca^+2", size = 3, parse = TRUE) +
+      annotate("text", x = -14, y = 3.1, label = "Mg^+2", size = 3, parse = TRUE) +
+      annotate("text", x = 14, y = 1.1, label = "Cl^-phantom()", size = 3, parse = TRUE) +
+      annotate("text", x = 14, y = 2.1, label = "HCO[3]^-1", size = 3, parse = TRUE) +
+      annotate("text", x = 14, y = 3.1, label = "SO[4]^-2", size = 3, parse = TRUE) +
+      theme_bw() +
+      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.border = element_blank(), axis.ticks = element_blank(),
           axis.text.y = element_blank(), axis.title.y = element_blank()) +
-    ggtitle("Stiff Diagram \n")
-  
+      ggtitle("Stiff Diagram \n")
+    
   return(p)
-  
 }
 
 #' function to create an animated Stiff Diagram 
@@ -320,10 +340,15 @@ stiff_plot <- function(df){
 #' \code{\link{transform_stiff_data}}
 #' @export
 
-stiff_time_plot <- function(df){
+stiff_time_plot <- function(df, TDS = FALSE){
   for(i in 1:length(unique(df$sample_date))){
-    print(stiff_plot(subset(df, sample_date == df$sample_date[i])))
-    ani.pause()
+    if(isTRUE(TDS)){
+      print(stiff_plot(subset(df, sample_date == df$sample_date[i]), TDS = TRUE))
+      ani.pause()
+    }else{
+      print(stiff_plot(subset(df, sample_date == df$sample_date[i]), TDS = FALSE))
+      ani.pause()
+    }
   }
 }
 

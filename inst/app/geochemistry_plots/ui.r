@@ -26,10 +26,10 @@ shinyUI(pageWithSidebar(
     conditionalPanel(
       condition = "input.data == TRUE",
       uiOutput("date_ranges")),
-#     checkboxInput(inputId = "scale_plot",
-#                   label = "Scale Free Plot"),
-#     checkboxInput(inputId = "date_lines",
-#                   label = "Show Date Ranges")
+    checkboxInput(inputId = "scale_plot",
+                  label = "Scale Free Plot"),
+    checkboxInput(inputId = "date_lines",
+                  label = "Show Date Ranges")
   ),
   mainPanel(
     tabsetPanel(
