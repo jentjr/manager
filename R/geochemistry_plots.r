@@ -308,8 +308,8 @@ stiff_plot <- function(df, TDS = FALSE){
       if(num > 1){
         p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS)) 
       }else{
-        p <- ggplot(df) + geom_polygon(aes(x=stiff_x, y=stiff_y, fill = TDS)) + 
-          scale_fill_discrete(guide = "legend")
+        # try to fix error message when only 1 location plotted
+        p <- ggplot(df) + geom_polygon(aes(x=stiff_x, y=stiff_y, fill = TDS))
       }
     } else{
       p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y))
@@ -354,18 +354,22 @@ stiff_time_plot <- function(df, TDS = FALSE){
 
 #' function to create an animated Stiff Diagram and save to html
 #' @param df data frame of groundwater data transformed using 
+#' @param TDS TRUE/FALSE fills polygon with color gradient of TDS
 #' \code{\link{transform_stiff_data}}
 #' @export
 
-stiff_time_html <- function(df){
+stiff_time_html <- function(df, TDS = FALSE){
   saveHTML({
     ani.options(nmax = length(unique(df$sample_date)))
-    stiff_time_plot(df)
+    if(isTRUE(TDS)){
+      stiff_time_plot(df, TDS = TRUE)
+    }else{
+      stiff_time_plot(df, TDS = FALSE)
+    }
   }, 
            img.name = "StiffPlot", htmlfile = "Stiff_plot.html",
            autobrowse = TRUE, title = "Stiff Diagram"
   )
-  
 }
 
 
