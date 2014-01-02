@@ -78,7 +78,10 @@ groundwater_summary <- function(df){
 
 #' function to convert geochemical plot data into meq/L
 
-convert_mgL_to_meqL <- function(df, Mg, Ca, Na, K, Cl, SO4, HCO3, CO3 = NULL){
+convert_mgL_to_meqL <- function(df, Mg=df$`Magnesium, dissolved`, 
+                                Ca=df$`Calcium, dissolved`, Na=df$`Sodium, dissolved`, 
+                                K=df$`Potassium, dissolved`, Cl=df$`Chloride, total`, 
+                                SO4=df$`Sulfate, total`, HCO3=df$`Alkalinity, total (lab)`){
   
   # TODO: add ... feature and a data base of elements.
   
