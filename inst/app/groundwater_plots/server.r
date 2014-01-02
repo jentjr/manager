@@ -9,8 +9,7 @@ shinyServer(function(input, output) {
         switch(input$file_type, 
                ".csv" = from_csv(input$manages_path$datapath),
                ".mdb" = connect_manages(input$manages_path$datapath),
-               ".xls" = readWorksheet(loadWorkbook(input$manages_path$datapath), sheet = "Sheet1"),
-               forceConversion = TRUE, dateTimeFormat = "%Y-%m-%d %H:%M:%S")
+               ".xls" = from_excel(input$manages_path$datapath))
       }      
   })
  
@@ -74,41 +73,64 @@ shinyServer(function(input, output) {
   output$time_plot <- renderPlot({
     if (!is.null(input$manages_path)){
       data <- get_data()
+      
+      data$non_detect <- ifelse(data$lt_measure == "<", "non-detect", "detected")
+#       df$param_name <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
+      
       data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
-      
-      data_selected$non_detect <- ifelse(data_selected$lt_measure == "<", 0, 1)
-      
-      # create separate data.frame for geom_rect data
-      # change dates to POSIXct which is same as MANAGES database dates. 
-      shaded_dates <- data.frame(xmin = c(min(as.POSIXct(input$back_date_range, format = "%Y-%m-%d")),
-                                          min(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))), 
-                                 xmax = c(max(as.POSIXct(input$back_date_range, format = "%Y-%m-%d")), 
-                                          max(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))),
-                                 ymin = c(-Inf, -Inf), 
-                                 ymax = c(Inf, Inf),
-                                 years = c("background", "compliance"))
 
-      t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, colour=param_name)) 
+      t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, colour = param_name)) 
       
       if(input$scale_plot){
         # time series plot of analytes gridded by wells
-        t1 <- t + geom_point(aes(shape=param_name, shape = factor(non_detect)), size=3) + geom_line() + 
-          facet_wrap(~location_id, scales="free") + theme_bw() + xlab("Sample Date") + 
+        t1 <- t + geom_point(aes(colour=factor(param_name), shape=factor(non_detect), size=3)) + geom_line() + 
+          facet_wrap(~location_id, scales="free") + 
+          theme_bw() + 
+          xlab("Sample Date") + scale_x_datetime(labels = date_format("%Y")) +
           ylab("Analysis Result") +
-          scale_colour_discrete(name = "Constituent")
+          scale_colour_discrete(name = "Parameter") + 
+          theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
+          theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
+          theme(legend.background = element_rect()) + 
+          guides(colour = guide_legend(override.aes = list(linetype = 0, fill = NA)), 
+                 shape = guide_legend("Measure", override.aes = list(linetype = 0)),
+                 size = guide_legend("none"),
+                 linetype = guide_legend("Limits")) +
+          scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
       } else {
-        t1 <- t + geom_point(aes(shape=param_name, shape = factor(non_detect)), size=3) + geom_line() + 
-          facet_wrap(~location_id) + theme_bw() + xlab("Sample Date") + 
+        t1 <- t + geom_point(aes(colour=factor(param_name), shape=factor(non_detect), size=3)) + geom_line() + 
+          facet_wrap(~location_id) + 
+          theme_bw() + 
+          xlab("Sample Date") + scale_x_datetime(labels = date_format("%Y")) +
           ylab("Analysis Result") + 
-          scale_colour_discrete(name = "Constituent")
+          scale_colour_discrete(name = "Parameter") +
+          theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
+          theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
+          guides(colour = guide_legend(override.aes = list(linetype = 0, fill = NA)), 
+                 shape = guide_legend("Measure", override.aes = list(linetype = 0)),
+                 size = guide_legend("none"),
+                 linetype = guide_legend("Limits")) +
+          scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
       }
       if(input$date_lines){
+        # create separate data.frame for geom_rect data
+        # change dates to POSIXct which is same as MANAGES database dates. 
+        shaded_dates <- data.frame(xmin = c(min(as.POSIXct(input$back_date_range, format = "%Y-%m-%d")),
+                                            min(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))), 
+                                   xmax = c(max(as.POSIXct(input$back_date_range, format = "%Y-%m-%d")), 
+                                            max(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))),
+                                   ymin = c(-Inf, -Inf), 
+                                   ymax = c(Inf, Inf),
+                                   Years = c("background", "compliance"))
         # draw shaded rectangle for background date range and compliance date range
         t1 <- t1 + geom_rect(data = shaded_dates, aes(xmin = xmin, ymin = ymin, xmax = xmax, 
-                                                     ymax = ymax, fill = years),
+                                                     ymax = ymax, fill = Years),
                             alpha = 0.2, inherit.aes = FALSE) +
-          
-          scale_fill_discrete(breaks=c("background","compliance"))
+          scale_fill_manual(values=c("blue","green")) +
+          guides(fill = guide_legend(override.aes = list(linetype = 0)))
+      }
+      if(input$coord_flip){
+        t1 <- t1 + coord_flip()
       }
       print(t1)
     }
@@ -151,11 +173,20 @@ shinyServer(function(input, output) {
       data <- get_data()
       data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
       # box plot of analyte
-      b <- ggplot(data_selected, aes(location_id, y=analysis_result, colour=param_name)) + theme_bw() + ylab("Analysis Result") + xlab("Location ID")
+      b <- ggplot(data_selected, aes(location_id, y=analysis_result, fill=param_name)) + 
+        theme_bw() + ylab("Analysis Result") + xlab("Location ID") +
+        guides(fill = guide_legend("Constituent")) +
+        theme(legend.background = element_rect()) + 
+        theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
+        theme(axis.text.x = element_text(angle=90)) +
+        theme(axis.title.y = element_text(size = 15, vjust=0.3)) 
       if(input$scale_plot){
         b1 <- b + geom_boxplot()  + facet_wrap(~param_name, scale="free")
       } else{
         b1 <- b + geom_boxplot() + facet_wrap(~param_name)
+      }
+      if(input$coord_flip){
+        b1 <- b1 + coord_flip()
       }
       print(b1)
     }
@@ -169,14 +200,15 @@ shinyServer(function(input, output) {
       sp_data <- na.omit(sp_data)
       sp_data$long_pos <- as.numeric(as.character(sp_data$long_pos))
       sp_data$lat_pos <- as.numeric(as.character(sp_data$lat_pos))
-      # create map using rCharts and Leaflet
-      well_map <- Leaflet$new()
-      well_map$setView(c(mean(sp_data$long_pos), mean(sp_data$lat_pos)), zoom=13)
-      for(i in 1:nrow(sp_data)){
-        well_map$marker(sp_data$lat_pos[i], sp_data$long_pos[i], 
-            binPopup = paste("<p> Well", sp_data$location_id[i], "</p>", sep = ""))
-      }
-      print(well_map)
+      
+      well_map <- get_map(location = c(lon=mean(sp_data$long_pos), lat=mean(sp_data$lat_pos)), zoom=14)
+      
+      p1 <- ggmap(well_map, extent = "device", maptype = "terrain", color = "color")
+      
+      p2 <- p1 + geom_point(data = sp_data, aes(x = long_pos, y = lat_pos, colour = location_id), size = 2.25)
+      
+      print(p2)
+      
     }
   })
 })

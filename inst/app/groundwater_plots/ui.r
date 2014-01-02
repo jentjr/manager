@@ -23,22 +23,20 @@ shinyUI(pageWithSidebar(
       uiOutput("wells")),
     uiOutput("analytes"),
     helpText("CTRL- Click to select multiple wells and constituents."),
-    conditionalPanel(
-      condition = "input.data == TRUE",
-      uiOutput("date_ranges")),
-    checkboxInput(inputId = "scale_plot",
-                  label = "Scale Free Plot"),
-    checkboxInput(inputId = "date_lines",
-                  label = "Show Date Ranges")
+    conditionalPanel(condition = "input.data == TRUE", uiOutput("date_ranges")),
+    checkboxInput(inputId = "scale_plot", label = "Scale Free Plot"),
+    checkboxInput(inputId = "date_lines", label = "Show Date Ranges"),
+    checkboxInput(inputId = "coord_flip", label = "Flip Axes")
   ),
   mainPanel(
     tabsetPanel(
       tabPanel("Data Table",htmlOutput("well_table")),
       tabPanel("Summary Table", htmlOutput("gw_summary")),
       tabPanel("Time Series", plotOutput("time_plot")),
-      tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
+#       tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
       tabPanel("Boxplot", plotOutput("box_plot")),
       tabPanel("Map", plotOutput("well_map"))
+#       tabPanel("About", htmlOutput(source("external/about.r")))
     )
   )
 ))

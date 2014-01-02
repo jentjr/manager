@@ -38,8 +38,8 @@ combo_plot <- function(df, back_date = NULL, comp_date = NULL, limit1 = NULL, li
     # create custom legend using guide
     theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
     theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
-    guides(colour = guide_legend(override.aes = list(linetype = 0 )), 
-           shape = guide_legend("Measure", override.aes = list(linetype = 0 )),
+    guides(colour = guide_legend(override.aes = list(linetype = 0)), 
+           shape = guide_legend("Measure", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
            linetype = guide_legend("Limits")) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
