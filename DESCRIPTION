@@ -15,7 +15,7 @@ Imports:
     RODBC,
     shiny,
     plyr,
-    reshape,
+    reshape2,
     animation,
     lubridate,
     sp

@@ -4,6 +4,7 @@ library(groundwater)
 library(ggplot2)
 library(ggmap)
 library(plyr)
+library(lubridate)
 
 # Define server
 shinyServer(function(input, output) {
@@ -25,77 +26,125 @@ shinyServer(function(input, output) {
   })
   
   # return a list of well names
-  output$wells <- renderUI({
+  output$well_list <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
       well_names <- get_well_names(data)
-      selectInput("well", "Monitoring Wells", well_names, multiple = TRUE)
+      selectInput("well", "Monitoring Wells", well_names, multiple = TRUE,
+                  selected = well_names[1])
     }
   })
   
-  # return a list of constituents
-  output$analytes <- renderUI({
+  # return start and end dates of data
+  output$date_ranges <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      analyte_names <- get_analytes(data)
-      selectInput("analyte", "Constituents", analyte_names, multiple = TRUE)
+        dateRangeInput("date_range", "Date Range", 
+                       start = min(data$sample_date,                                        
+                                   na.rm = TRUE), 
+                       end = max(data$sample_date, na.rm = TRUE))
     }
   })
-  
-  # Output a googleTable of the data
+
+  # Output a table of the data
   output$well_table <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
       return(data)
     }
    }, options = list(sScrollY = "100%", sScrollX = "100%", 
-                     aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 15)
+                     aLengthMenu = c(5, 10, 15, 25, 50, 100), 
+                     iDisplayLength = 15)
   )
   
-  # googleTable output of a data summary
+  # Output of a ion data 
   output$ion_summary <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      ions <- get_major_ions(data, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+      ions <- get_major_ions(data, Mg=input$Mg, Ca=input$Ca, Na=input$Na, 
+                             K=input$K, Cl=input$Cl, 
                              SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
       return(ions)
     }
   }, options = list(sScrollY = "100%", sScrollX = "100%",
+                    aLengthMenu = c(5, 10, 15, 25, 50, 100),
+                    iDisplayLength = 15)
+  )
+  
+  output$piper_plot_data <- renderDataTable({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      # get the major cations/anions
+      data_selected <- subset(data, location_id %in% input$well)      
+      data_selected <- subset(data_selected, sample_date >= ymd(input$date_ranges[1]) &
+                                sample_date <= ymd(input$date_ranges[2]))
+      ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca,
+                             Na=input$Na, K=input$K, Cl=input$Cl, 
+                             SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+      piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca,
+                                         Na=input$Na, K=input$K, Cl=input$Cl, 
+                                         SO4=input$SO4, Alk=input$Alk, 
+                                         TDS=input$TDS)
+      return(piper_data)
+    }
+   }, options = list(sScrollY = "100%", sScrollX = "100%",
                     aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 15)
   )
   
-  # return start and end date of background data
-  output$date_ranges <- renderUI({
+  # stiff diagram
+  output$stiff_plot_data <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      tagList(
-        dateRangeInput("back_date_range", "Background Date Range", start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE)),
-        dateRangeInput("comp_date_range", "Compliance Date Range", start = max(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE))  
-        )
+      data_selected <- subset(data, location_id %in% input$well)
+      ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+                             SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+      plot_data <- convert_mgL_to_meqL(ions, Mg="Magnesium, dissolved", Ca="Calcium, dissolved",
+                                       Na="Sodium, dissolved", K="Potassium, dissolved", 
+                                       Cl="Chloride, total", SO4="Sulfate, total", 
+                                       HCO3="Alkalinity, total (lab)")
+      stiff_data <- transform_stiff_data(plot_data)
+      return(stiff_data)
     }
-  })
+   }, options = list(sScrollY = "100%", sScrollX = "100%",
+                    aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 15)
+  )
   
+    
  # piper plot
   output$piper_plot <- renderPlot({
     if (!is.null(input$manages_path)){
       data <- get_data()
       # get the major cations/anions
-      ions <- get_major_ions(data, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
-                             SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
-      ions <- convert_mgL_to_meqL(data, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
-                                   SO4=input$SO4, HCO3=input$Alk)
+      data_selected <- subset(data, location_id %in% input$well)
       
-      piper_data <- transform_piper_data(ions, TDS=ions$input$TDS)
-      print(plot_piper(piper_data))
+      ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+                             SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+      piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+                                         SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+      print(plot_piper(piper_data, TDS=input$TDS_plot))
     }
   })
+  
+#   # piper time plot
+#   output$piper_time_plot <- renderUI({
+#     if (!is.null(input$manages_path)){
+#       data <- get_data()
+#       # get the major cations/anions
+#       data_selected <- subset(data, location_id %in% input$well)
+#       
+#       ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+#                              SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+#       piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+#                                          SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+#       piper_time_html(piper_data)
+#     }
+#   })
   
  # stiff diagram
  output$stiff_diagram <- renderPlot({
    if (!is.null(input$manages_path)){
-     
+     data <- get_data()
+     data_selected <- subset(data, location_id %in% input$well)
    }
  })
  

@@ -20,9 +20,11 @@ shinyUI(pageWithSidebar(
                    choices = c(".mdb", ".csv", ".xls"))),
     conditionalPanel(
       condition = "input.data == TRUE",
-      uiOutput("wells")),
-    uiOutput("analytes"),
+      uiOutput("well_list")),
     helpText("CTRL- Click to select multiple wells and constituents."),
+    conditionalPanel(
+      condition = "input.data == TRUE",
+      uiOutput("date_ranges")),
     textInput(inputId = "Mg", label = "Mg", value = "Magnesium, dissolved"),
     textInput(inputId = "Ca", label = "Ca", value = "Calcium, dissolved"),
     textInput(inputId = "K", label = "K", value = "Potassium, dissolved"),
@@ -31,9 +33,6 @@ shinyUI(pageWithSidebar(
     textInput(inputId = "SO4", label = "SO4", value = "Sulfate, total"),
     textInput(inputId = "Alk", label = "Alkalinity", value = "Alkalinity, total (lab)"),
     textInput(inputId = "TDS", label = "TDS", value = "Total Dissolved Solids"),
-    conditionalPanel(
-      condition = "input.data == TRUE",
-      uiOutput("date_ranges")),
     checkboxInput(inputId = "TDS_plot",
                   label = "Scale by Total Dissolved Solids")
   ),
@@ -41,7 +40,10 @@ shinyUI(pageWithSidebar(
     tabsetPanel(
       tabPanel("Data Table", dataTableOutput("well_table")),
       tabPanel("Ion Table", dataTableOutput("ion_summary")),
+      tabPanel("Piper Plot Data", dataTableOutput("piper_plot_data")),
       tabPanel("Piper Plot", plotOutput("piper_plot")),
+#       tabPanel("Piper Time Plot", htmlOutput("piper_time_plot")),
+      tabPanel("Stiff Plot Data", dataTableOutput("stiff_plot_data")),
       tabPanel("Stiff Diagram", plotOutput("stiff_plot")),
       tabPanel("Map", plotOutput("well_map"))
     )

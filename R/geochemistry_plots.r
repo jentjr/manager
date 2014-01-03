@@ -9,18 +9,73 @@ get_major_ions <- function(df, Mg="Magnesium, dissolved", Ca="Calcium, dissolved
                            Na="Sodium, dissolved", K="Potassium, dissolved", 
                            Cl="Chloride, total", SO4="Sulfate, total", 
                            Alk="Alkalinity, total (lab)", TDS="Total Dissolved Solids",...){
-  # TODO: add other major ions like Fe
-  input_list <- list(...)
+#   TODO: add other major ions like Fe
+#   input_list <- list(...)
   
   plot_params <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
   
   plot_data <- subset(df, param_name %in% plot_params)
  
-  plot_data <- reshape::cast(plot_data, value = "analysis_result", location_id + sample_date + default_unit ~ param_name)
+  plot_data <- reshape2::dcast(plot_data, value.var = "analysis_result", location_id + sample_date + default_unit ~ param_name)
 
   return(plot_data)
 }
 
+#' function to convert geochemical plot data into meq/L
+#' 
+#' @param df data frame
+#' @param Mg Magnesium
+#' @param Ca Calcium
+#' @param Na Sodium
+#' @param K Potassium
+#' @param Cl Chloride
+#' @param SO4 Sulfate
+#' @param HCO3 Bicaronate
+#' 
+#' @export
+
+convert_mgL_to_meqL <- function(df, Mg="Magnesium, dissolved", 
+                                Ca="Calcium, dissolved", Na="Sodium, dissolved", 
+                                K="Potassium, dissolved", Cl="Chloride, total", 
+                                SO4="Sulfate, total", HCO3="Alkalinity, total (lab)"){
+  
+  # TODO: add ... feature and a data base of elements perhaps from phreeqc.
+  
+  # formuala weights
+  Ca_fwt <- 40.078
+  Mg_fwt <- 24.305
+  Na_fwt <- 22.990
+  K_fwt <- 39.098
+  S_fwt <- 32.06
+  O_fwt <- 15.999
+  H_fwt <- 1.008
+  C_fwt <- 12.011
+  Cl_fwt <- 35.45
+  
+  # absolute value of charge
+  Ca_chrg <- 2
+  Mg_chrg <- 2
+  Na_chrg <- 1
+  K_chrg <- 1
+  SO4_chrg <- 2
+  #   CO3_chrg <- 2
+  HCO3_chrg <- 1
+  Cl_chrg <- 1
+  
+  # conversion 
+  df$Mg <- df[,Mg] / Mg_fwt * Mg_chrg
+  df$Ca <- df[,Ca] / Ca_fwt * Ca_chrg
+  df$Na <- df[,Na] / Na_fwt * Na_chrg
+  df$K <- df[,K] / K_fwt * K_chrg
+  df$Cl <- df[,Cl] / Cl_fwt * Cl_chrg
+  df$SO4 <- df[,SO4] / (S_fwt + 4 * O_fwt) * SO4_chrg
+  #   df$CO3 <- CO3 / (C_fwt + 3 * O_fwt) * CO3_chrg
+  df$HCO3 <- df[,HCO3] / (H_fwt + C_fwt + 3 * O_fwt) * HCO3_chrg
+  
+#   data_converted <- data.frame
+  
+  return(df)
+}
 
 #' function to transform data from get_plot_data() into x, y coordinates for
 #' cation, anion and diamond of a Piper plot
@@ -40,15 +95,15 @@ get_major_ions <- function(df, Mg="Magnesium, dissolved", Ca="Calcium, dissolved
 #' @keywords piper diagram
 #' @export
 
-transform_piper_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df$Cl, SO4=df$SO4, 
-                                 CO3=NULL, HCO3=df$HCO3, TDS=df$TDS, 
+transform_piper_data <- function(df, Mg="Mg", Ca="Ca", Na="Na", K="K", Cl="Cl", SO4="SO4", 
+                                 CO3=NULL, Alk="HCO3", TDS="Total Dissolved Solids", 
                                  name = df$location_id, date = df$sample_date, units = NULL){
 
   # cation data
   # Convert data to %
-  cation_total <- Mg + Ca + Na + K
-  cat_top <- (Mg / cation_total) * 100
-  cat_left <- (Ca / cation_total) * 100
+  cation_total <- df[,Mg] + df[,Ca] + df[,Na] + df[,K]
+  cat_top <- (df[,Mg] / cation_total) * 100
+  cat_left <- (df[,Ca] / cation_total) * 100
   cat_right <- 100 - (cat_top + cat_left)
   
   # Convert data into xy coordinates
@@ -57,9 +112,9 @@ transform_piper_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df
   
   # anion data
   # Convert data to %
-  anion_total <- SO4 + Cl + HCO3
-  an_top <- (SO4 / anion_total) * 100
-  an_left <- (HCO3 / anion_total) * 100
+  anion_total <- df[,SO4] + df[,Cl] + df[,Alk]
+  an_top <- (df[,SO4] / anion_total) * 100
+  an_left <- (df[,Alk] / anion_total) * 100
   an_right <- 100 - (an_top + an_left)
   
   # Convert data into xy coordinates
@@ -82,7 +137,7 @@ diam_list <- lapply(1:length(cation_x), function(i) calc_diam_point(cation_x[i],
 npoints <- do.call("rbind", diam_list)
 
 piper_data <- data.frame(name, date, cation_x, anion_x, cation_y, anion_y, 
-                         diam_x = npoints$diam_x, diam_y = npoints$diam_y, TDS)
+                         diam_x = npoints$diam_x, diam_y = npoints$diam_y, TDS = df[,TDS])
 
 return(piper_data)
   
@@ -203,12 +258,20 @@ ggplot_piper <- function() {
 #'  
 #' @export
   
-plot_piper <- function(df){
-  ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, colour = name, size = TDS)) +
-    geom_point(data = df, aes(x = anion_x, y = anion_y, colour = name, size = TDS)) +
-    geom_point(data = df, aes(x = diam_x, y = diam_y, colour = name, size = TDS)) +
-    scale_size("TDS", range = c(1, 20)) +
-    ggtitle("Piper Diagram")
+plot_piper <- function(df, TDS=FALSE){
+  if(isTRUE(TDS)){
+    ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, colour = name, size = TDS)) +
+      geom_point(data = df, aes(x = anion_x, y = anion_y, colour = name, size = TDS)) +
+      geom_point(data = df, aes(x = diam_x, y = diam_y, colour = name, size = TDS)) +
+      scale_size("TDS", range = c(1, 20)) +
+      ggtitle("Piper Diagram") + guides(colour = guide_legend("Location ID"),
+                                        fill = guide_legend("TDS"))
+  }else{
+  ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, colour = name), size = 3) +
+    geom_point(data = df, aes(x = anion_x, y = anion_y, colour = name), size = 3) +
+    geom_point(data = df, aes(x = diam_x, y = diam_y, colour = name), size = 3) +
+    ggtitle("Piper Diagram") + guides(colour = guide_legend("Location ID"))
+  }
 }
 
 #' Function to created an animated Piper plot through time
@@ -218,12 +281,17 @@ plot_piper <- function(df){
 #' \code{\link{transform_piper_data}}
 #' @export
 
-piper_time_plot <- function(df){
+piper_time_plot <- function(df, TDS = FALSE){
   ggplot_piper()
   dev.hold()
   for(i in 1:length(unique(df$date))){
-    print(plot_piper(subset(df, date == df$date[i])))
-    animation::ani.pause()
+    if(isTRUE(TDS)){
+      print(plot_piper(subset(df, date == df$date[i]), TDS = TRUE))
+      animation::ani.pause()
+    }else{
+      print(plot_piper(subset(df, date == df$date[i])))
+      animation::ani.pause()
+    }
   }
 }
 
@@ -233,15 +301,24 @@ piper_time_plot <- function(df){
 #' \code{\link{transform_piper_data}}
 #' @export
 
-piper_time_html <- function(df){
-  animation::saveHTML({
-    animation::ani.options(nmax = length(unique(df$date)))
-    piper_time_plot(df)
-  }, 
-           img.name = "PiperPlot", htmlfile = "Piper_plot.html",
-           autobrowse = TRUE, title = "Piper Plot"
-  )
-  
+piper_time_html <- function(df, TDS = FALSE){
+  if(isTRUE(TDS)){
+    animation::saveHTML({
+      animation::ani.options(nmax = length(unique(df$date)), outdir = getwd())
+      piper_time_plot(df, TDS = TRUE)
+    }, 
+                        img.name = "PiperPlot", htmlfile = "Piper_plot.html",
+                        autobrowse = TRUE, title = "Piper Plot"
+    )
+  }else{
+    animation::saveHTML({
+     animation::ani.options(nmax = length(unique(df$date)), outdir = getwd())
+      piper_time_plot(df)
+    }, 
+                        img.name = "PiperPlot", htmlfile = "Piper_plot.html",
+                        autobrowse = TRUE, title = "Piper Plot"
+    )
+  }
 }
 
 #--------------------------------------------------------------------------------
@@ -264,7 +341,7 @@ transform_stiff_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df
   temp <- data.frame(name, date, Mg, Ca, Na + K, SO4, HCO3)
   colnames(temp) <- c("location_id", "sample_date", "Mg", "Ca", "Na + K", "SO4", "HCO3")
   
-  df_melt <- reshape::melt(temp, id.vars = c("location_id", "sample_date"))
+  df_melt <- reshape2::melt(temp, id.vars = c("location_id", "sample_date"))
   
   cations <- c("Mg", "Ca", "Na + K")
   anions <- c("SO4", "HCO3", "Cl")
