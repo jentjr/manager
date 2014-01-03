@@ -2,7 +2,7 @@
 \alias{stiff_time_plot}
 \title{function to create an animated Stiff Diagram}
 \usage{
-stiff_time_plot(df)
+stiff_time_plot(df, TDS = FALSE)
 }
 \arguments{
   \item{df}{data frame of groundwater data transformed

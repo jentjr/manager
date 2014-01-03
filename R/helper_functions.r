@@ -73,7 +73,6 @@ groundwater_summary <- function(df){
               percent_lt = round(percent_lt(lt_measure), digits = 3))
   
   return(gw)
-  
 }
 
 #' function to convert geochemical plot data into meq/L

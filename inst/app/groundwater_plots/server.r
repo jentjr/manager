@@ -1,7 +1,10 @@
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
 options(scipen=6, digits = 8) # force numbers to be decimal instead of scientific
-
+# load required packages
+library(groundwater)
+library(plyr)
+library(ggmap)
 # Define server
 shinyServer(function(input, output) {
   # reactive function to upload data
@@ -25,7 +28,7 @@ shinyServer(function(input, output) {
   output$wells <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- getWellNames(data)
+      well_names <- get_well_names(data)
       selectInput("well", "Monitoring Wells", well_names, multiple = TRUE)
     }
   })
@@ -34,7 +37,7 @@ shinyServer(function(input, output) {
   output$analytes <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      analyte_names <- getAnalytes(data)
+      analyte_names <- get_analytes(data)
       selectInput("analyte", "Constituents", analyte_names, multiple = TRUE)
     }
   })
@@ -45,7 +48,8 @@ shinyServer(function(input, output) {
       data <- get_data()
       return(data)
     }
-   }, options = list(aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 10)
+   }, options = list(sScrollY = "100%", sScrollX = "100%", 
+                     aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 15)
   )
   
   # googleTable output of a data summary
@@ -55,7 +59,8 @@ shinyServer(function(input, output) {
       gw_summary_table <- groundwater_summary(data)
       return(gw_summary_table)
     }
-   }, options = list(aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 10)
+   }, options = list(sScrollY = "100%", sScrollX = "100%", 
+                     aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 15)
   )
   
   # return start and end date of background data
@@ -92,7 +97,7 @@ shinyServer(function(input, output) {
           ylab("Analysis Result") +
           scale_colour_discrete(name = "Parameter") + 
           theme(axis.title.x = element_text(vjust=-0.3)) +
-          theme(axis.text.x = element_text(angle=45)) +
+          theme(axis.text.x = element_text(angle=0)) +
           theme(axis.title.y = element_text(vjust=0.3)) +
           theme(legend.background = element_rect()) + 
           guides(colour = guide_legend(override.aes = list(linetype = 0, fill = NA)), 
@@ -108,7 +113,7 @@ shinyServer(function(input, output) {
           ylab("Analysis Result") + 
           scale_colour_discrete(name = "Parameter") +
           theme(axis.title.x = element_text(vjust=-0.3)) +
-          theme(axis.text.x = element_text(angle=45)) +
+          theme(axis.text.x = element_text(angle=0)) +
           theme(axis.title.y = element_text(vjust=0.3)) +
           guides(colour = guide_legend(override.aes = list(linetype = 0, fill = NA)), 
                  shape = guide_legend("Measure", override.aes = list(linetype = 0)),
@@ -177,11 +182,11 @@ shinyServer(function(input, output) {
       data <- get_data()
       data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
       # box plot of analyte
-      b <- ggplot(data_selected, aes(location_id, y=analysis_result, fill=param_name)) + 
+      b <- ggplot(data_selected, aes(location_id, y=analysis_result, fill=location_id)) + 
         theme_bw() + ylab("Analysis Result") + xlab("Location ID") +
-        guides(fill = guide_legend("Constituent")) +
+        guides(fill = guide_legend("Location ID")) +
         theme(legend.background = element_rect()) + 
-        theme(axis.title.x = element_text(vjust=-0.3)) +
+        theme(axis.title.x = element_text(vjust=-0.5)) +
         theme(axis.text.x = element_text(angle=45)) +
         theme(axis.title.y = element_text(vjust=0.3)) 
       if(input$scale_plot){

@@ -4,7 +4,10 @@
 analysis_result, default_unit, param_name and gather parameters needed for
 geochemistry plots. The data is cast by location_id + sample_date ~ param_name}
 \usage{
-get_major_ions(df, Mg, Ca, Na, K, Cl, SO4, CO3, HCO3, TDS)
+get_major_ions(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
+  Na = "Sodium, dissolved", K = "Potassium, dissolved",
+  Cl = "Chloride, total", SO4 = "Sulfate, total",
+  Alk = "Alkalinity, total (lab)", TDS = "Total Dissolved Solids", ...)
 }
 \arguments{
   \item{df}{data frame of groundwater monitoring data}

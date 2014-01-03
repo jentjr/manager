@@ -4,7 +4,8 @@
 for background and compliance date ranges. Horizontal lines are plotted for
 Groundwater Protection Standards.}
 \usage{
-combo_plot(df, back_date = NULL, comp_date = NULL, limits = NULL, ...)
+combo_plot(df, back_date = NULL, comp_date = NULL, limit1 = NULL,
+  limit2 = NULL, name = NULL, pnt = 3)
 }
 \arguments{
   \item{df}{data frame in long format containing

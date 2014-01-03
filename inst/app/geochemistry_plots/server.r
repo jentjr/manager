@@ -1,5 +1,9 @@
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
+library(groundwater)
+library(ggplot2)
+library(ggmap)
+library(plyr)
 
 # Define server
 shinyServer(function(input, output) {
@@ -9,8 +13,7 @@ shinyServer(function(input, output) {
         switch(input$file_type, 
                ".csv" = from_csv(input$manages_path$datapath),
                ".mdb" = connect_manages(input$manages_path$datapath),
-               ".xls" = readWorksheet(loadWorkbook(input$manages_path$datapath), sheet = "Sheet1"),
-               forceConversion = TRUE, dateTimeFormat = "%Y-%m-%d %H:%M:%S")
+               ".xls" = from_excel(input$manages_path$datapath))
       }      
   })
  
@@ -25,7 +28,7 @@ shinyServer(function(input, output) {
   output$wells <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- getWellNames(data)
+      well_names <- get_well_names(data)
       selectInput("well", "Monitoring Wells", well_names, multiple = TRUE)
     }
   })
@@ -34,7 +37,7 @@ shinyServer(function(input, output) {
   output$analytes <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      analyte_names <- getAnalytes(data)
+      analyte_names <- get_analytes(data)
       selectInput("analyte", "Constituents", analyte_names, multiple = TRUE)
     }
   })
@@ -45,7 +48,8 @@ shinyServer(function(input, output) {
       data <- get_data()
       return(data)
     }
-   }, options = list(sScrollY = "100%", sScrollX = "100%")
+   }, options = list(sScrollY = "100%", sScrollX = "100%", 
+                     aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 15)
   )
   
   # googleTable output of a data summary
@@ -56,7 +60,8 @@ shinyServer(function(input, output) {
                              SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
       return(ions)
     }
-  }, options = list(sScrollY = "100%", sScrollX = "100%")
+  }, options = list(sScrollY = "100%", sScrollX = "100%",
+                    aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 15)
   )
   
   # return start and end date of background data
@@ -102,14 +107,14 @@ shinyServer(function(input, output) {
       sp_data <- na.omit(sp_data)
       sp_data$long_pos <- as.numeric(as.character(sp_data$long_pos))
       sp_data$lat_pos <- as.numeric(as.character(sp_data$lat_pos))
-      # create map using rCharts and Leaflet
-      well_map <- Leaflet$new()
-      well_map$setView(c(mean(sp_data$long_pos), mean(sp_data$lat_pos)), zoom=13)
-      for(i in 1:nrow(sp_data)){
-        well_map$marker(sp_data$lat_pos[i], sp_data$long_pos[i], 
-            binPopup = paste("<p> Well", sp_data$location_id[i], "</p>", sep = ""))
-      }
-      print(well_map)
+      
+      well_map <- get_map(location = c(lon=mean(sp_data$long_pos), lat=mean(sp_data$lat_pos)), zoom=14)
+      
+      p1 <- ggmap(well_map, extent = "device", maptype = "terrain", color = "color")
+      
+      p2 <- p1 + geom_point(data = sp_data, aes(x = long_pos, y = lat_pos, colour = location_id), size = 2.25)
+      
+      print(p2)
     }
   })
 })

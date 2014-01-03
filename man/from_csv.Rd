@@ -1,0 +1,16 @@
+\name{from_csv}
+\alias{from_csv}
+\title{function to read data in csv format and convert date to POSIXct with lubridate}
+\usage{
+from_csv(path)
+}
+\arguments{
+  \item{path}{path to the csv file of groundwater data in
+  the format with column names location_id, param_name,
+  default_unit, lt_measure, analysis_result}
+}
+\description{
+function to read data in csv format and convert date to
+POSIXct with lubridate
+}
+

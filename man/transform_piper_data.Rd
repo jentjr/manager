@@ -4,9 +4,8 @@
 cation, anion and diamond of a Piper plot}
 \usage{
 transform_piper_data(df, Mg = df$Mg, Ca = df$Ca, Na = df$Na, K = df$K,
-  Cl = df$Cl, SO4 = df$SO4, CO3 = df$CO3, HCO3 = df$HCO3,
-  TDS = df$TDS, name = df$location_id, date = df$sample_date,
-  units = NULL)
+  Cl = df$Cl, SO4 = df$SO4, CO3 = NULL, HCO3 = df$HCO3, TDS = df$TDS,
+  name = df$location_id, date = df$sample_date, units = NULL)
 }
 \arguments{
   \item{df}{data frame of groundwater data}
@@ -23,9 +22,7 @@ transform_piper_data(df, Mg = df$Mg, Ca = df$Ca, Na = df$Na, K = df$K,
 
   \item{SO4}{Sulfate}
 
-  \item{CO3}{Carbonate}
-
-  \item{HCO3}{Bicarbonate}
+  \item{HCO3}{Bicarbonate, or Alkalinity}
 
   \item{TDS}{Total Dissolved Solids}
 
