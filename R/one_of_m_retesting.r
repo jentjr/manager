@@ -28,22 +28,21 @@
 
 calc_kappa <- function(n, w, coc, ne, m, ord = 1, swfpr = 0.1){
   
-  # user supplied values of n, w, coc, df, evaluation frequency, m, and ord
-  n <- n
-  w <- w
-  coc <- coc
+  # degress of freedom
   df <- w * (n - 1)
-  ne <- ne
-  m <- 2
-  ord <- ord
-  swfpr <- swfpr
   alph <- 1 - (1 - swfpr) ^ (1 / (coc * w))
   
+  # reference power
   ref= c()
-  
-  if (ne == 1) ref = c(0.54, 0.81)
-  if (ne == 2) ref = c(0.59, 0.85)
-  if (ne == 4) ref = c(0.60, 0.86)
+  if (ne == 1) {
+    ref = c(0.54, 0.81)
+  }
+  if (ne == 2) {
+    ref = c(0.59, 0.85)
+  }
+  if (ne == 4) {
+    ref = c(0.60, 0.86)
+  }
   
   # default tolerance values for convergence
   tol= 0.000001
@@ -56,23 +55,33 @@ calc_kappa <- function(n, w, coc, ne, m, ord = 1, swfpr = 0.1){
   # recursive function to compute correct multiplier within limits (lo, hi)
   kfind <- function(lo, hi, n, alph, ne, tol) {
     
-    if (abs(hi - lo) < tol2) return(lo)
+    if (abs(hi - lo) < tol2) {
+      return(lo)
+    }
     
-    nc <- function(x) sqrt(n) * qnorm(x) / sqrt(ord)
+    nc <- function(x) {
+      sqrt(n) * qnorm(x) / sqrt(ord)
+    } 
     
     tt <- sqrt(n) * lo
     
-    g <- function(x) ne * m * (1 - (1 - x) ^ m) ^ (ne - 1) * (1 - x) ^ (m - 1) * pt(tt, df, nc(x))
+    g <- function(x){
+      ne * m * (1 - (1 - x) ^ m) ^ (ne - 1) * (1 - x) ^ (m - 1) * pt(tt, df, nc(x))
+    } 
     
     klo <- 1 - alph - integrate(g, 0, 1)$value
     
-    if (abs(klo) <= tol) return(lo)
+    if (abs(klo) <= tol) {
+      return(lo)
+    }
     
     tt <- sqrt(n) * hi
     
     khi <- 1 - alph - integrate(g, 0, 1)$value
     
-    if (abs(khi) <= tol) return(hi)
+    if (abs(khi) <= tol) {
+      return(hi)
+    }
     
     tt <- sqrt(n) * (mean(c(lo, hi)))
     
@@ -100,7 +109,6 @@ calc_kappa <- function(n, w, coc, ne, m, ord = 1, swfpr = 0.1){
   kap <- kfind(ll, ul, n, alph, ne, tol)
   
   for (jj in 1:length(del)) {
-    
     dc <- del[jj]
     tt <- sqrt(n) * kap
     
@@ -119,11 +127,18 @@ calc_kappa <- function(n, w, coc, ne, m, ord = 1, swfpr = 0.1){
     pow[jj] <- 1 - integrate(h, 0, 1, stop.on.error = F)$value
   }
   
-  if ((pow[1] >= ref[1]) && (pow[2] >= ref[2])) powrate= 'GOOD'
-  if ((pow[1] < ref[1]) && (pow[2] >= ref[2])) powrate= 'ACCEPTABLE'
-  if ((pow[1] >= ref[1]) && (pow[2] < ref[2])) powrate= 'ACCEPTABLE'
-  if ((pow[1] < ref[1]) && (pow[2] < ref[2])) powrate= 'LOW'
-  
+  if ((pow[1] >= ref[1]) && (pow[2] >= ref[2])) {
+    powrate= 'GOOD'
+  }
+  if ((pow[1] < ref[1]) && (pow[2] >= ref[2])) {
+    powrate= 'ACCEPTABLE'
+  }
+  if ((pow[1] >= ref[1]) && (pow[2] < ref[2])) {
+    powrate= 'ACCEPTABLE'
+  } 
+  if ((pow[1] < ref[1]) && (pow[2] < ref[2])) {
+    powrate= 'LOW'
+  }
   
   list("background sample size" = n,
        "number of wells" = w,

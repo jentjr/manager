@@ -1,5 +1,6 @@
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
+options(scipen=6, digits = 8) # force numbers to be decimal instead of scientific
 
 # Define server
 shinyServer(function(input, output) {
@@ -39,22 +40,23 @@ shinyServer(function(input, output) {
   })
   
   # Output a googleTable of the data
-  output$well_table <- renderGvis({
+  output$well_table <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      #     data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
-      gvisTable(data, options=list(page = 'enable', pageSize = 25, width = 850, heigth = 900)) 
+      return(data)
     }
-  })
+   }, options = list(aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 10)
+  )
   
   # googleTable output of a data summary
-  output$gw_summary <- renderGvis({
+  output$gw_summary <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
       gw_summary_table <- groundwater_summary(data)
-      gvisTable(gw_summary_table, options=list(page = 'enable', pageSize = 25, width = 850))
+      return(gw_summary_table)
     }
-  })
+   }, options = list(aLengthMenu = c(5, 10, 15, 25, 50, 100), iDisplayLength = 10)
+  )
   
   # return start and end date of background data
   output$date_ranges <- renderUI({
@@ -83,14 +85,15 @@ shinyServer(function(input, output) {
       
       if(input$scale_plot){
         # time series plot of analytes gridded by wells
-        t1 <- t + geom_point(aes(colour=factor(param_name), shape=factor(non_detect), size=3)) + geom_line() + 
+        t1 <- t + geom_point(aes(colour=param_name, shape=factor(non_detect), size=3)) + geom_line() + 
           facet_wrap(~location_id, scales="free") + 
           theme_bw() + 
           xlab("Sample Date") + scale_x_datetime(labels = date_format("%Y")) +
           ylab("Analysis Result") +
           scale_colour_discrete(name = "Parameter") + 
-          theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
-          theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
+          theme(axis.title.x = element_text(vjust=-0.3)) +
+          theme(axis.text.x = element_text(angle=45)) +
+          theme(axis.title.y = element_text(vjust=0.3)) +
           theme(legend.background = element_rect()) + 
           guides(colour = guide_legend(override.aes = list(linetype = 0, fill = NA)), 
                  shape = guide_legend("Measure", override.aes = list(linetype = 0)),
@@ -98,14 +101,15 @@ shinyServer(function(input, output) {
                  linetype = guide_legend("Limits")) +
           scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
       } else {
-        t1 <- t + geom_point(aes(colour=factor(param_name), shape=factor(non_detect), size=3)) + geom_line() + 
+        t1 <- t + geom_point(aes(colour=param_name, shape=factor(non_detect), size=3)) + geom_line() + 
           facet_wrap(~location_id) + 
           theme_bw() + 
           xlab("Sample Date") + scale_x_datetime(labels = date_format("%Y")) +
           ylab("Analysis Result") + 
           scale_colour_discrete(name = "Parameter") +
-          theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
-          theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
+          theme(axis.title.x = element_text(vjust=-0.3)) +
+          theme(axis.text.x = element_text(angle=45)) +
+          theme(axis.title.y = element_text(vjust=0.3)) +
           guides(colour = guide_legend(override.aes = list(linetype = 0, fill = NA)), 
                  shape = guide_legend("Measure", override.aes = list(linetype = 0)),
                  size = guide_legend("none"),
@@ -177,9 +181,9 @@ shinyServer(function(input, output) {
         theme_bw() + ylab("Analysis Result") + xlab("Location ID") +
         guides(fill = guide_legend("Constituent")) +
         theme(legend.background = element_rect()) + 
-        theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
-        theme(axis.text.x = element_text(angle=90)) +
-        theme(axis.title.y = element_text(size = 15, vjust=0.3)) 
+        theme(axis.title.x = element_text(vjust=-0.3)) +
+        theme(axis.text.x = element_text(angle=45)) +
+        theme(axis.title.y = element_text(vjust=0.3)) 
       if(input$scale_plot){
         b1 <- b + geom_boxplot()  + facet_wrap(~param_name, scale="free")
       } else{

@@ -16,7 +16,7 @@ get_major_ions <- function(df, Mg="Magnesium, dissolved", Ca="Calcium, dissolved
   
   plot_data <- subset(df, param_name %in% plot_params)
  
-  plot_data <- cast(plot_data, value = "analysis_result", location_id + sample_date + default_unit ~ param_name)
+  plot_data <- reshape::cast(plot_data, value = "analysis_result", location_id + sample_date + default_unit ~ param_name)
 
   return(plot_data)
 }
@@ -223,7 +223,7 @@ piper_time_plot <- function(df){
   dev.hold()
   for(i in 1:length(unique(df$date))){
     print(plot_piper(subset(df, date == df$date[i])))
-    ani.pause()
+    animation::ani.pause()
   }
 }
 
@@ -234,8 +234,8 @@ piper_time_plot <- function(df){
 #' @export
 
 piper_time_html <- function(df){
-  saveHTML({
-    ani.options(nmax = length(unique(df$date)))
+  animation::saveHTML({
+    animation::ani.options(nmax = length(unique(df$date)))
     piper_time_plot(df)
   }, 
            img.name = "PiperPlot", htmlfile = "Piper_plot.html",
@@ -264,7 +264,7 @@ transform_stiff_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df
   temp <- data.frame(name, date, Mg, Ca, Na + K, SO4, HCO3)
   colnames(temp) <- c("location_id", "sample_date", "Mg", "Ca", "Na + K", "SO4", "HCO3")
   
-  df_melt <- melt(temp, id.vars = c("location_id", "sample_date"))
+  df_melt <- reshape::melt(temp, id.vars = c("location_id", "sample_date"))
   
   cations <- c("Mg", "Ca", "Na + K")
   anions <- c("SO4", "HCO3", "Cl")
@@ -278,15 +278,15 @@ transform_stiff_data <- function(df, Mg=df$Mg, Ca=df$Ca, Na=df$Na, K=df$K, Cl=df
   
   colnames(poly_order) <- c("variable", "stiff_y")
   
-  stiff <- join(poly_order, stiff, by="variable", type="left")
+  stiff <- plyr::join(poly_order, stiff, by="variable", type="left")
   
-  stiff <- rename(stiff, replace=c("value" = "stiff_x"))
+  stiff <- plyr::rename(stiff, replace=c("value" = "stiff_x"))
   
   if(!missing(TDS)){
 #     TDS <-  as.quoted(TDS)
-    stiff <- join(stiff, df, by=c("location_id", "sample_date"))
+    stiff <- plyr::join(stiff, df, by=c("location_id", "sample_date"))
     stiff <- stiff[, names(stiff) %in% c("location_id", "sample_date", "variable", "stiff_x", "stiff_y", "Total Dissolved Solids")]
-    stiff <- rename(stiff, replace=c("Total Dissolved Solids" = "TDS"))
+    stiff <- plyr::rename(stiff, replace=c("Total Dissolved Solids" = "TDS"))
   }
   
   return(stiff)
@@ -344,10 +344,10 @@ stiff_time_plot <- function(df, TDS = FALSE){
   for(i in 1:length(unique(df$sample_date))){
     if(isTRUE(TDS)){
       print(stiff_plot(subset(df, sample_date == df$sample_date[i]), TDS = TRUE))
-      ani.pause()
+      animation::ani.pause()
     }else{
       print(stiff_plot(subset(df, sample_date == df$sample_date[i]), TDS = FALSE))
-      ani.pause()
+     animation:: ani.pause()
     }
   }
 }
@@ -359,8 +359,8 @@ stiff_time_plot <- function(df, TDS = FALSE){
 #' @export
 
 stiff_time_html <- function(df, TDS = FALSE){
-  saveHTML({
-    ani.options(nmax = length(unique(df$sample_date)))
+  animation::saveHTML({
+    animation::ani.options(nmax = length(unique(df$sample_date)))
     if(isTRUE(TDS)){
       stiff_time_plot(df, TDS = TRUE)
     }else{
@@ -371,6 +371,3 @@ stiff_time_html <- function(df, TDS = FALSE){
            autobrowse = TRUE, title = "Stiff Diagram"
   )
 }
-
-
-

@@ -30,8 +30,8 @@ shinyUI(pageWithSidebar(
   ),
   mainPanel(
     tabsetPanel(
-      tabPanel("Data Table",htmlOutput("well_table")),
-      tabPanel("Summary Table", htmlOutput("gw_summary")),
+      tabPanel("Data Table", dataTableOutput("well_table")),
+      tabPanel("Summary Table", dataTableOutput("gw_summary")),
       tabPanel("Time Series", plotOutput("time_plot")),
 #       tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
       tabPanel("Boxplot", plotOutput("box_plot")),

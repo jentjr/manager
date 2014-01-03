@@ -66,7 +66,7 @@ intrawell_prediction <- function(df, back_dates, comp_dates, num_wells, num_para
 
 groundwater_summary <- function(df){
   
-  gw <- ddply(df, .(location_id, param_name, default_unit), summarise, 
+  gw <- plyr::ddply(df, .(location_id, param_name, default_unit), summarise, 
               n = length(analysis_result),
               mean = round(mean(analysis_result), digits = 3), 
               sd = round(sd(analysis_result), digits = 3),

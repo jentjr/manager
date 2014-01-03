@@ -40,22 +40,24 @@ shinyServer(function(input, output) {
   })
   
   # Output a googleTable of the data
-  output$well_table <- renderGvis({
+  output$well_table <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      #     data_selected <- subset(data, location_id %in% input$well & param_name %in% input$analyte)
-      gvisTable(data, options=list(page = 'enable', pageSize = 25, width = 850, heigth = 900)) 
+      return(data)
     }
-  })
+   }, options = list(sScrollY = "100%", sScrollX = "100%")
+  )
   
   # googleTable output of a data summary
-  output$gw_summary <- renderGvis({
+  output$ion_summary <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      gw_summary_table <- groundwater_summary(data)
-      gvisTable(gw_summary_table, options=list(page = 'enable', pageSize = 25, width = 850))
+      ions <- get_major_ions(data, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+                             SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+      return(ions)
     }
-  })
+  }, options = list(sScrollY = "100%", sScrollX = "100%")
+  )
   
   # return start and end date of background data
   output$date_ranges <- renderUI({
@@ -75,9 +77,13 @@ shinyServer(function(input, output) {
     if (!is.null(input$manages_path)){
       data <- get_data()
       # get the major cations/anions
-      geochem_plot_data <- get_geochem_plot_data()
-      piper_data <- transform_piper_data(geochem_plot_data)
-      print(ggplot_piper())
+      ions <- get_major_ions(data, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+                             SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+      ions <- convert_mgL_to_meqL(data, Mg=input$Mg, Ca=input$Ca, Na=input$Na, K=input$K, Cl=input$Cl, 
+                                   SO4=input$SO4, HCO3=input$Alk)
+      
+      piper_data <- transform_piper_data(ions, TDS=ions$input$TDS)
+      print(plot_piper(piper_data))
     }
   })
   
