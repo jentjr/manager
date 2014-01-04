@@ -31,20 +31,25 @@ shinyUI(pageWithSidebar(
     textInput(inputId = "Na", label = "Na", value = "Sodium, dissolved"),
     textInput(inputId = "Cl", label = "Cl", value = "Chloride, total"),
     textInput(inputId = "SO4", label = "SO4", value = "Sulfate, total"),
-    textInput(inputId = "Alk", label = "Alkalinity", value = "Alkalinity, total (lab)"),
+    textInput(inputId = "Alk", label = "Alkalinity", 
+              value = "Alkalinity, total (lab)"),
     textInput(inputId = "TDS", label = "TDS", value = "Total Dissolved Solids"),
     checkboxInput(inputId = "TDS_plot",
-                  label = "Scale by Total Dissolved Solids")
+                  label = "Scale by Total Dissolved Solids"),
+    checkboxInput("piper_html", "Plot Piper Time Series"),
+    checkboxInput("stiff_html", "Plot a Stiff Diagram Time Series")
   ),
   mainPanel(
     tabsetPanel(
       tabPanel("Data Table", dataTableOutput("well_table")),
       tabPanel("Ion Table", dataTableOutput("ion_summary")),
       tabPanel("Piper Plot Data", dataTableOutput("piper_plot_data")),
-      tabPanel("Piper Plot", plotOutput("piper_plot")),
-#       tabPanel("Piper Time Plot", htmlOutput("piper_time_plot")),
+      tabPanel("Piper Plot", plotOutput("piper_plot"), height="100%", 
+               width="100%"),
+      tabPanel("Piper Time Plot", htmlOutput("piper_time_plot")),
       tabPanel("Stiff Plot Data", dataTableOutput("stiff_plot_data")),
       tabPanel("Stiff Diagram", plotOutput("stiff_plot")),
+      tabPanel("Stiff Time Series", htmlOutput("stiff_time_plot")),
       tabPanel("Map", plotOutput("well_map"))
     )
   )
