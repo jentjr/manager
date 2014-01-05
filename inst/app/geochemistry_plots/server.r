@@ -109,10 +109,14 @@ shinyServer(function(input, output) {
       ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, 
                              Na=input$Na, K=input$K, Cl=input$Cl, 
                              SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+      ions <- ions[complete.cases(ions), ]
       plot_data <- convert_mgL_to_meqL(ions, Mg=input$Mg, Ca=input$Ca, 
                                        Na=input$Na, K=input$K, Cl=input$Cl, 
                                        SO4=input$SO4, HCO3=input$Alk)
-      stiff_data <- transform_stiff_data(plot_data)
+      stiff_data <- transform_stiff_data(plot_data, Mg=input$Mg, Ca=input$Ca,
+                                         Na=input$Na, K=input$K, Cl=input$Cl,
+                                         SO4=input$SO4, HCO3=input$Alk, 
+                                         TDS=input$TDS)
       return(stiff_data)
     } else {
       print("Upload a file")
@@ -121,7 +125,6 @@ shinyServer(function(input, output) {
                     aLengthMenu = c(5, 10, 15, 25, 50, 100), 
                     iDisplayLength = 15)
   )
-  
     
  # piper plot
   output$piper_plot <- renderPlot({
@@ -180,38 +183,42 @@ shinyServer(function(input, output) {
      end <- max(as.POSIXct(input$date_range, format = "%Y-%m-%d"))
      data_selected <- subset(data, location_id %in% input$well &
                                sample_date >= start & sample_date <= end)
+     ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, 
+                            Na=input$Na, K=input$K, Cl=input$Cl, 
+                            SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+     ions <- ions[complete.cases(ions), ]
      plot_data <- convert_mgL_to_meqL(ions, Mg=input$Mg, Ca=input$Ca, 
                                       Na=input$Na, K=input$K, Cl=input$Cl, 
                                       SO4=input$SO4, HCO3=input$Alk)
-     stiff_data <- transform_stiff_data(plot_data)
-     plot_stiff(stiff_data, TDS=input$TDS_plot)
-   } else{
-     print("Upload a file")
-   }
+     stiff_data <- transform_stiff_data(plot_data, Mg=input$Mg, Ca=input$Ca,
+                                        Na=input$Na, K=input$K, Cl=input$Cl,
+                                        SO4=input$SO4, HCO3=input$Alk, 
+                                        TDS=input$TDS)
+     print(stiff_plot(stiff_data, TDS=input$TDS_plot))
+   } 
  })
  
  # Stiff Diagram Time Series Plot
- output$stiff_time_plot <- renderUI({
+ output$stiff_time_diagram <- renderUI({
    if (!is.null(input$manages_path)){
      if (isTRUE(input$stiff_html)){
        data <- get_data()
-       # get the major cations/anions
        start <- min(as.POSIXct(input$date_range, format = "%Y-%m-%d"))
        end <- max(as.POSIXct(input$date_range, format = "%Y-%m-%d"))
        data_selected <- subset(data, location_id %in% input$well &
                                  sample_date >= start & sample_date <= end)
-       
        ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, 
                               Na=input$Na, K=input$K, Cl=input$Cl, 
                               SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+       ions <- ions[complete.cases(ions), ]
        plot_data <- convert_mgL_to_meqL(ions, Mg=input$Mg, Ca=input$Ca, 
                                         Na=input$Na, K=input$K, Cl=input$Cl, 
                                         SO4=input$SO4, HCO3=input$Alk)
-       stiff_data <- transform_stiff_data(ions, Mg=input$Mg, Ca=input$Ca, 
-                                          Na=input$Na, K=input$K, Cl=input$Cl, 
-                                          SO4=input$SO4, Alk=input$Alk, 
+       stiff_data <- transform_stiff_data(plot_data, Mg=input$Mg, Ca=input$Ca,
+                                          Na=input$Na, K=input$K, Cl=input$Cl,
+                                          SO4=input$SO4, HCO3=input$Alk, 
                                           TDS=input$TDS)
-       stiff_time_html(stiff_data, TDS=input$TDS_plot)
+       stiff_time_html(stiff_data, TDS=input$TDS_plot))
      }else{
        print("Check the box \"Plot Stiff Diagram Time Series\". The plot will 
              open in a new window. It might take some time to complete.")

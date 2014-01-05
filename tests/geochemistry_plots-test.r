@@ -10,7 +10,8 @@ gw_data <- subset(gw_data, location_id %in% wells)
 # grab the variables needed from the file for the geochemistry plots
 ions <- get_major_ions(gw_data)
 
-plot_data <- convert_mgL_to_meqL(ions, Mg="Magnesium, dissolved", Ca="Calcium, dissolved",
+plot_data <- convert_mgL_to_meqL(ions, Mg="Magnesium, dissolved", 
+                                 Ca="Calcium, dissolved",
                              Na="Sodium, dissolved", K="Potassium, dissolved", 
                              Cl="Chloride, total", SO4="Sulfate, total", 
                              HCO3="Alkalinity, total (lab)")
@@ -18,12 +19,21 @@ plot_data <- convert_mgL_to_meqL(ions, Mg="Magnesium, dissolved", Ca="Calcium, d
 plot_data <- plot_data[complete.cases(plot_data),]
 
 # transform the data for a Piper plot meq/L
-piper_data1 <- transform_piper_data(plot_data)
-# transform mg/L
-piper_data2 <- transform_piper_data(ions, Mg="Magnesium, dissolved", Ca="Calcium, dissolved",
-                                    Na="Sodium, dissolved", K="Potassium, dissolved", 
+piper_data1 <- transform_piper_data(plot_data, Mg="Magnesium, dissolved", 
+                                    Ca="Calcium, dissolved",
+                                    Na="Sodium, dissolved", 
+                                    K="Potassium, dissolved", 
                                     Cl="Chloride, total", SO4="Sulfate, total", 
-                                    Alk="Alkalinity, total (lab)", TDS="Total Dissolved Solids")
+                                    Alk="Alkalinity, total (lab)", 
+                                    TDS="Total Dissolved Solids")
+# transform mg/L
+piper_data2 <- transform_piper_data(ions, Mg="Magnesium, dissolved", 
+                                    Ca="Calcium, dissolved",
+                                    Na="Sodium, dissolved", 
+                                    K="Potassium, dissolved", 
+                                    Cl="Chloride, total", SO4="Sulfate, total", 
+                                    Alk="Alkalinity, total (lab)", 
+                                    TDS="Total Dissolved Solids")
 
 # Piper plot
 # plots all wells for all dates
@@ -34,17 +44,29 @@ plot_piper(piper_data2)
 # d_ply(piper_data, .(date), plot_piper, .print = TRUE)
 
 # Or, animated time plot using animation library
-piper_time_plot(piper_data2, TDS=FALSE) 
+piper_time_plot(piper_data1, TDS=FALSE) 
 
 # animated time plot saved to html
 piper_time_html(piper_data2, TDS = FALSE)
 
 # transform data for Stiff Diagram
-stiff_data <- transform_stiff_data(plot_data)
-stiff_data2 <- transform_stiff_data(plot_data, TDS=plot_data$`Total Dissolved Solids`)
+stiff_data <- transform_stiff_data(plot_data, Mg="Magnesium, dissolved", 
+                                   Ca="Calcium, dissolved",
+                                   Na="Sodium, dissolved", 
+                                   K="Potassium, dissolved", 
+                                   Cl="Chloride, total", SO4="Sulfate, total", 
+                                   HCO3="Alkalinity, total (lab)", 
+                                   TDS="Total Dissolved Solids")
 
-one_stiff <- subset(stiff_data2, location_id == "MW-1" & sample_date == as.POSIXct("2007-12-20", format="%Y-%m-%d"))
-two_stiff <- subset(stiff_data2, location_id %in% c("MW-1","MW-2") & sample_date == as.POSIXct("2007-12-20", format="%Y-%m-%d"))
+stiff_data2 <- transform_stiff_data(plot_data, Mg="Magnesium, dissolved", 
+                                    Ca="Calcium, dissolved",
+                                    Na="Sodium, dissolved", 
+                                    K="Potassium, dissolved", 
+                                    Cl="Chloride, total", SO4="Sulfate, total", 
+                                    HCO3="Alkalinity, total (lab)")
+
+one_stiff <- subset(stiff_data, location_id == "MW-1" & sample_date == as.POSIXct("2007-12-20", format="%Y-%m-%d"))
+two_stiff <- subset(stiff_data, location_id %in% c("MW-1","MW-2") & sample_date == as.POSIXct("2007-12-20", format="%Y-%m-%d"))
 # Stiff Diagram
 stiff_plot(one_stiff, TDS=TRUE)
 stiff_plot(two_stiff, TDS=TRUE)

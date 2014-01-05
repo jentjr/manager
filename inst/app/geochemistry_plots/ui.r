@@ -48,8 +48,8 @@ shinyUI(pageWithSidebar(
                width="100%"),
       tabPanel("Piper Time Plot", htmlOutput("piper_time_plot")),
       tabPanel("Stiff Plot Data", dataTableOutput("stiff_plot_data")),
-      tabPanel("Stiff Diagram", plotOutput("stiff_plot")),
-      tabPanel("Stiff Time Series", htmlOutput("stiff_time_plot")),
+      tabPanel("Stiff Diagram", plotOutput("stiff_diagram")),
+      tabPanel("Stiff Time Series", htmlOutput("stiff_time_diagram")),
       tabPanel("Map", plotOutput("well_map"))
     )
   )
