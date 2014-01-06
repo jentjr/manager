@@ -71,8 +71,10 @@ from_csv <- function(path){
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @export
 from_excel <- function(path){
-  excel_data <- XLConnect::readWorksheet(XLConnect::loadWorkbook(path), sheet = "Sheet1",
-                                         forceConversion = TRUE, dateTimeFormat = "%Y-%m-%d %H:%M:%S")
+  excel_data <- XLConnect::readWorksheet(XLConnect::loadWorkbook(path), 
+                                         sheet = "Sheet1",
+                                         forceConversion = TRUE, 
+                                         dateTimeFormat = "%Y-%m-%d %H:%M:%S")
   excel_data$analysis_result <- as.numeric(excel_data$analysis_result)
   excel_data$lt_measure <- factor(excel_data$lt_measure, exclude = NULL)
   excel_data$param_name <- as.factor(excel_data$param_name)

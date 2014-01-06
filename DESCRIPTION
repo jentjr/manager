@@ -7,20 +7,15 @@ Author: Justin Jent <jentjr@gmail.com>, Jason Lessels <jlessels@gmail.com>
 Maintainer: Justin Jent <jentjr@gmail.com>
 Depends:
     R (>= 3.0.2),
-    ggplot2,
-    scales,
-    grid
+    ggplot2
 Imports:
     XLConnect,
     RODBC,
     shiny,
-    plyr,
-    reshape2,
     animation,
     lubridate,
     sp
 Suggests:
-    knitr,
     Hmisc
 License: none
 LazyData: true
