@@ -32,7 +32,8 @@ shinyServer(function(input, output) {
     if (!is.null(input$manages_path)){
       data <- get_data()
       well_names <- get_well_names(data)
-      selectInput("well", "Monitoring Wells", well_names, multiple = TRUE)
+      selectInput("well", "Monitoring Wells", well_names, multiple = TRUE,
+                  selected = well_names[1])
     }
   })
   
@@ -41,7 +42,8 @@ shinyServer(function(input, output) {
     if (!is.null(input$manages_path)){
       data <- get_data()
       analyte_names <- get_analytes(data)
-      selectInput("analyte", "Constituents", analyte_names, multiple = TRUE)
+      selectInput("analyte", "Constituents", analyte_names, multiple = TRUE,
+                  selected = analyte_names[1])
     }
   })
   
@@ -106,7 +108,8 @@ shinyServer(function(input, output) {
           geom_line() + 
           facet_wrap(~location_id, scales="free") + 
           theme_bw() + 
-          xlab("Sample Date") + scale_x_datetime(labels = date_format("%Y")) +
+          xlab("Sample Date") + 
+          scale_x_datetime(labels = scales::date_format("%Y")) +
           ylab("Analysis Result") +
           scale_colour_discrete(name = "Parameter") + 
           theme(axis.title.x = element_text(vjust=-0.3)) +
@@ -125,7 +128,8 @@ shinyServer(function(input, output) {
                                  size=3)) + geom_line() + 
           facet_wrap(~location_id) + 
           theme_bw() + 
-          xlab("Sample Date") + scale_x_datetime(labels = date_format("%Y")) +
+          xlab("Sample Date") + 
+          scale_x_datetime(labels = scales::date_format("%Y")) +
           ylab("Analysis Result") + 
           scale_colour_discrete(name = "Parameter") +
           theme(axis.title.x = element_text(vjust=-0.3)) +
