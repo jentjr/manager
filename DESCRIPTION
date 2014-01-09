@@ -15,7 +15,8 @@ Imports:
     animation,
     lubridate,
     sp,
-    scales
+    scales,
+    grid
 Suggests:
     Hmisc
 License: none

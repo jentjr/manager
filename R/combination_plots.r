@@ -44,7 +44,7 @@ combo_plot <- function(df, facet_col = "param_name", back_date = NULL,
   p <- p + ylab("Analysis Result") +
     xlab("Sample Date") + 
     scale_x_datetime(labels = scales::date_format("%Y")) +
-    theme(plot.margin = unit(c(0.75, 0.75, 0.75, 0.75), "in")) + 
+    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) + 
     theme_bw() +  
     
     # create custom legend using guide

@@ -86,7 +86,7 @@ shinyServer(function(input, output) {
   })
   
   # time series plot output
-  output$time_plot <- renderPlot({
+  ts_out <- reactive({
     if (!is.null(input$manages_path)){
       data <- get_data()
       
@@ -116,6 +116,7 @@ shinyServer(function(input, output) {
           theme(axis.text.x = element_text(angle=0)) +
           theme(axis.title.y = element_text(vjust=0.3)) +
           theme(legend.background = element_rect()) + 
+          theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
           guides(colour = guide_legend(override.aes = list(linetype = 0, 
                                                            fill = NA)), 
                  shape = guide_legend("Measure", 
@@ -135,6 +136,7 @@ shinyServer(function(input, output) {
           theme(axis.title.x = element_text(vjust=-0.3)) +
           theme(axis.text.x = element_text(angle=0)) +
           theme(axis.title.y = element_text(vjust=0.3)) +
+          theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
           guides(colour = guide_legend(override.aes = list(linetype = 0, 
                                                            fill = NA)), 
                  shape = guide_legend("Measure", 
@@ -167,7 +169,11 @@ shinyServer(function(input, output) {
       print(t1)
     }
   })
-  
+  # output ts plot to ui
+  output$time_plot <- renderPlot({
+    ts_out()
+  })
+
 #   # create combinations of all time series plots
 #   # use a check box
 #   # Insert the right number of plot output objects into the web page
@@ -200,7 +206,7 @@ shinyServer(function(input, output) {
 #   
   
  # create boxplots 
-  output$box_plot <- renderPlot({
+  box_out <- reactive({
     if (!is.null(input$manages_path)){
       data <- get_data()
       data_selected <- subset(data, location_id %in% input$well & 
@@ -213,7 +219,8 @@ shinyServer(function(input, output) {
         theme(legend.background = element_rect()) + 
         theme(axis.title.x = element_text(vjust=-0.5)) +
         theme(axis.text.x = element_text(angle=45)) +
-        theme(axis.title.y = element_text(vjust=0.3)) 
+        theme(axis.title.y = element_text(vjust=0.3)) +
+        theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in"))
       if(input$scale_plot){
         b1 <- b + geom_boxplot()  + facet_wrap(~param_name, scale="free")
       } else{
@@ -226,6 +233,11 @@ shinyServer(function(input, output) {
     }
   })
   
+  # boxplot output to ui
+  output$box_plot <- renderPlot({
+    box_out()
+  })
+
  # saptial plot of wells
   output$well_map <- renderPlot({
     if (!is.null(input$manages_path)){
@@ -247,5 +259,33 @@ shinyServer(function(input, output) {
       print(p2)
       
     }
+  })
+
+  output$ts_download <- downloadHandler(
+    filename = function() {
+      paste('time_series_', Sys.Date(), '.pdf', sep="")
+    },
+    content = function(file) {
+      pdf(file, width=17, height=11)
+      print(ts_out())
+      dev.off()
+  })
+
+  output$box_download <- downloadHandler(
+    filename = function() {
+      paste('boxplot_', Sys.Date(), '.pdf', sep="")
+    },
+    content = function(file) {
+      pdf(file, width=17, height=11)
+      print(box_out())
+      dev.off()
+  })
+
+output$data_download <- downloadHandler(
+  filename = function() {
+    paste('data_', Sys.Date(), '.csv', sep="")
+  },
+  content = function(file) {
+    write.csv(get_data(), file, row.names = FALSE)
   })
 })

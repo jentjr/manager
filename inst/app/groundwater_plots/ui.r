@@ -26,7 +26,13 @@ shinyUI(pageWithSidebar(
     conditionalPanel(condition = "input.data == TRUE", uiOutput("date_ranges")),
     checkboxInput(inputId = "scale_plot", label = "Scale Free Plot"),
     checkboxInput(inputId = "date_lines", label = "Show Date Ranges"),
-    checkboxInput(inputId = "coord_flip", label = "Flip Axes")
+    checkboxInput(inputId = "coord_flip", label = "Flip Axes"),
+    checkboxInput(inputId = "facet_plot", label = "Facet Wrap Plot"),
+    conditionalPanel(condition = "facet_plot", 
+          textInput(inputId = "facet_col", label = "Facet column")),
+    downloadButton('ts_download', 'Download Time Series'),
+    downloadButton('box_download', 'Download Boxplot'),
+    downloadButton('data_download', 'Download Data')
   ),
   mainPanel(
     tabsetPanel(
