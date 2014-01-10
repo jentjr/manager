@@ -1,28 +1,16 @@
-#' This function plots groundwater data faceted by parameters with shaded regions
-#' for background and compliance date ranges. Horizontal lines are plotted for 
-#' Groundwater Protection Standards. 
-#' 
-#' @param df data frame in long format containing groundwater monitoring data
-#' assumes column names of location_id, param_name, analysis_result, 
-#' default_unit, lt_measure, sample_date. Dates for sample_date column
-#'  must be in as.POSIXct format
-#' @param facet_col the column to facet the plot by
-#' @param back_date vector of start and end of background dates. Use as.POSIXct()
-#' @param comp_date vector of start and end of compliance dates. Use as.POSIXct()
-#' @param limits column vector of limits e.g. c("EPA_Limits", "DMR_limits")
-#' @export
-
-
-combo_plot <- function(df, facet_col = "param_name", back_date = NULL, 
+# hidden _combo_plot passed to combo_plot
+combo_grid <- function(df, facet_col = "param_name", back_date = NULL, 
                        comp_date = NULL, limit1 = NULL, limit2 = NULL, 
                        name = NULL, pnt = 3){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
 
   if(isTRUE(name == "short")){
-    df$param_name <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
+    df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
+                           sep = "")
   } else {
-    df$param_name <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
+    df$param_name <- paste(df$param_name, " (", df$default_unit, ")", 
+                           sep = "")
   }
   
   # main plot
@@ -91,5 +79,25 @@ combo_plot <- function(df, facet_col = "param_name", back_date = NULL,
                                    linetype = "limit2_name"), 
                         show_guide = TRUE)
   }  
-return(p)
+  return(p)
+}
+
+#' This function plots groundwater data faceted by parameters with shaded regions
+#' for background and compliance date ranges. Horizontal lines are plotted for 
+#' Groundwater Protection Standards. 
+#' 
+#' @param df data frame in long format containing groundwater monitoring data
+#' assumes column names of location_id, param_name, analysis_result, 
+#' default_unit, lt_measure, sample_date. Dates for sample_date column
+#'  must be in as.POSIXct format
+#' @param facet_col the column to facet the plot by
+#' @param back_date vector of start and end of background dates. Use as.POSIXct()
+#' @param comp_date vector of start and end of compliance dates. Use as.POSIXct()
+#' @param limits column vector of limits e.g. c("EPA_Limits", "DMR_limits")
+#' @export
+
+combo_plot <- function(df, ...){
+  
+  plyr::d_ply(df, .(location_id), .progress = "text", combo_grid, ...,
+              .print = TRUE)
 }

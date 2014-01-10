@@ -16,7 +16,8 @@ Imports:
     lubridate,
     sp,
     scales,
-    grid
+    grid,
+    plyr
 Suggests:
     Hmisc
 License: none
