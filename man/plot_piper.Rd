@@ -3,7 +3,7 @@
 \title{Function to plot points from transform_piper_data() onto base ggplot_piper
 background. Points are sized by Total Dissolved Solids}
 \usage{
-plot_piper(df)
+plot_piper(df, TDS = FALSE)
 }
 \arguments{
   \item{df}{data frame of groundwater data transformed into

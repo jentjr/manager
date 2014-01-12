@@ -5,7 +5,6 @@ options(scipen=6, digits = 8)
 
 # load required packages
 library(groundwater)
-library(plyr)
 library(ggmap)
 
 # Define server

@@ -2,10 +2,27 @@
 \alias{convert_mgL_to_meqL}
 \title{function to convert geochemical plot data into meq/L}
 \usage{
-convert_mgL_to_meqL(df, Mg = df$`Magnesium, dissolved`, Ca = df$`Calcium,
-  dissolved`, Na = df$`Sodium, dissolved`, K = df$`Potassium, dissolved`,
-  Cl = df$`Chloride, total`, SO4 = df$`Sulfate, total`,
-  HCO3 = df$`Alkalinity, total (lab)`)
+convert_mgL_to_meqL(df, Mg = "Magnesium, dissolved",
+  Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
+  K = "Potassium, dissolved", Cl = "Chloride, total",
+  SO4 = "Sulfate, total", HCO3 = "Alkalinity, total (lab)")
+}
+\arguments{
+  \item{df}{data frame}
+
+  \item{Mg}{Magnesium}
+
+  \item{Ca}{Calcium}
+
+  \item{Na}{Sodium}
+
+  \item{K}{Potassium}
+
+  \item{Cl}{Chloride}
+
+  \item{SO4}{Sulfate}
+
+  \item{HCO3}{Bicaronate}
 }
 \description{
 function to convert geochemical plot data into meq/L

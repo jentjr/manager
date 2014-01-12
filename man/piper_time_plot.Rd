@@ -3,7 +3,7 @@
 \title{Function to created an animated Piper plot through time
 using the animation package}
 \usage{
-piper_time_plot(df)
+piper_time_plot(df, TDS = FALSE)
 }
 \arguments{
   \item{df}{data frame of groundwater data transformed

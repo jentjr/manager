@@ -2,7 +2,8 @@
 \alias{get_major_ions}
 \title{function to read monitoring well data in the form location_id, sample_date,
 analysis_result, default_unit, param_name and gather parameters needed for
-geochemistry plots. The data is cast by location_id + sample_date ~ param_name}
+geochemistry plots.
+The data is cast by location_id + sample_date ~ param_name}
 \usage{
 get_major_ions(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
   Na = "Sodium, dissolved", K = "Potassium, dissolved",

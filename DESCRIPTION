@@ -7,7 +7,8 @@ Author: Justin Jent <jentjr@gmail.com>, Jason Lessels <jlessels@gmail.com>
 Maintainer: Justin Jent <jentjr@gmail.com>
 Depends:
     R (>= 3.0.2),
-    ggplot2
+    ggplot2,
+    plyr
 Imports:
     XLConnect,
     RODBC,
@@ -16,8 +17,7 @@ Imports:
     lubridate,
     sp,
     scales,
-    grid,
-    plyr
+    grid
 Suggests:
     Hmisc
 License: none

@@ -1,10 +1,10 @@
-\name{combo_plot}
-\alias{combo_plot}
+\name{multi_by_param}
+\alias{multi_by_param}
 \title{This function plots groundwater data faceted by parameters with shaded regions
 for background and compliance date ranges. Horizontal lines are plotted for
 Groundwater Protection Standards.}
 \usage{
-combo_plot(df, by, ...)
+multi_by_param(df, ...)
 }
 \arguments{
   \item{df}{data frame in long format containing
@@ -13,10 +13,16 @@ combo_plot(df, by, ...)
   lt_measure, sample_date. Dates for sample_date column
   must be in as.POSIXct format}
 
-  \item{by}{the column to facet the plot by}
+  \item{facet_col}{the column to facet the plot by}
 
-  \item{...}{other parameters passed to
-  \link(\code(gw_ts_plot))}
+  \item{back_date}{vector of start and end of background
+  dates. Use as.POSIXct()}
+
+  \item{comp_date}{vector of start and end of compliance
+  dates. Use as.POSIXct()}
+
+  \item{limits}{column vector of limits e.g.
+  c("EPA_Limits", "DMR_limits")}
 }
 \description{
 This function plots groundwater data faceted by parameters
