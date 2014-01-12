@@ -1,0 +1,34 @@
+\name{intrawell_prediction}
+\alias{intrawell_prediction}
+\title{Calculate intrawell prediction limit}
+\usage{
+intrawell_prediction(df, back_dates, comp_dates, num_wells, num_params, m,
+  swfpr = 0.05, ne = 2, ord = 1)
+}
+\arguments{
+  \item{df}{data frame of groundwater monitoring data}
+
+  \item{back_datas}{vector of background dates}
+
+  \item{comp_dates}{vector of compliance dates}
+
+  \item{num_wells}{number of wells}
+
+  \item{num_params}{number of parameters}
+
+  \item{m}{type of 1-of-m retesting scheme (usually m= 1,
+  2, 3, or 4)}
+
+  \item{swfpr}{site-wide-false-positive-rate, default is
+  0.05}
+
+  \item{ne}{number of yearly evaluations (4 = quarterly, 2
+  = semi-anually, 1 = annually)}
+
+  \item{ord}{order of the mean to be predicted (for tests
+  on observations, set ord = 1)}
+}
+\description{
+Calculate intrawell prediction limit
+}
+

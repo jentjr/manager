@@ -2,7 +2,7 @@
 \alias{piper_time_html}
 \title{a function to create an aminated Piper plot and save to html}
 \usage{
-piper_time_html(df)
+piper_time_html(df, TDS = FALSE)
 }
 \arguments{
   \item{df}{data frame of groundwater data transformed

@@ -2,11 +2,17 @@
 \alias{stiff_plot}
 \title{Function to plot a Stiff Diagram}
 \usage{
-stiff_plot(df)
+stiff_plot(df, TDS = FALSE)
 }
 \arguments{
   \item{df}{data frame of groundwater data transformed
-  using \code{\link{transform_stiff_data}}}
+  using}
+
+  \item{multiple}{TRUE/FALSE plots multiple locations with
+  facet_wrap}
+
+  \item{TDS}{TRUE/FALSE fills in the color of the stiff
+  diagram by TDS \code{\link{transform_stiff_data}}}
 }
 \description{
 Function to plot a Stiff Diagram

@@ -2,11 +2,14 @@
 \alias{stiff_time_html}
 \title{function to create an animated Stiff Diagram and save to html}
 \usage{
-stiff_time_html(df)
+stiff_time_html(df, TDS = FALSE)
 }
 \arguments{
   \item{df}{data frame of groundwater data transformed
-  using \code{\link{transform_stiff_data}}}
+  using}
+
+  \item{TDS}{TRUE/FALSE fills polygon with color gradient
+  of TDS \code{\link{transform_stiff_data}}}
 }
 \description{
 function to create an animated Stiff Diagram and save to

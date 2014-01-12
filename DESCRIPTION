@@ -8,21 +8,18 @@ Maintainer: Justin Jent <jentjr@gmail.com>
 Depends:
     R (>= 3.0.2),
     ggplot2,
-    ggmap,
-    scales,
-    grid,
-    shiny,
-    RODBC,
+    plyr
+Imports:
     XLConnect,
-    googleVis,
+    RODBC,
+    shiny,
     animation,
-    plyr,
-    reshape,
-    Hmisc,
-    NADA,
-    sp
+    lubridate,
+    sp,
+    scales,
+    grid
 Suggests:
-    knitr
+    Hmisc
 License: none
 LazyData: true
 VignetteBuilder: knitr

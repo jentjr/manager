@@ -4,7 +4,7 @@
 for background and compliance date ranges. Horizontal lines are plotted for
 Groundwater Protection Standards.}
 \usage{
-combo_plot(df, back_date, comp_date)
+combo_plot(df, by, ...)
 }
 \arguments{
   \item{df}{data frame in long format containing
@@ -13,11 +13,10 @@ combo_plot(df, back_date, comp_date)
   lt_measure, sample_date. Dates for sample_date column
   must be in as.POSIXct format}
 
-  \item{back_date}{vector of start and end of background
-  dates. Use as.POSIXct()}
+  \item{by}{the column to facet the plot by}
 
-  \item{comp_date}{vector of start and end of compliance
-  dates. Use as.POSIXct()}
+  \item{...}{other parameters passed to
+  \link(\code(gw_ts_plot))}
 }
 \description{
 This function plots groundwater data faceted by parameters

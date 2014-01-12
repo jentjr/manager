@@ -42,8 +42,4 @@ Solve for kappa given an Site-Wide False Positive Rate
 rate by effective power. Rate power at 3 and 4 SD units
 above BG; use ERPC power values as the reference power.
 }
-\examples{
-calc_kappa(n = 8, w = 10, coc = 28, ne = 4, m = 1)
-}
-\keyword{intrawell}
 
