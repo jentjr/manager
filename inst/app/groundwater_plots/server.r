@@ -217,7 +217,7 @@ shinyServer(function(input, output) {
         guides(fill = guide_legend("Location ID")) +
         theme(legend.background = element_rect()) + 
         theme(axis.title.x = element_text(vjust=-0.5)) +
-        theme(axis.text.x = element_text(angle=45)) +
+        theme(axis.text.x = element_text(angle=90)) +
         theme(axis.title.y = element_text(vjust=0.3)) +
         theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in"))
       if(input$scale_plot){
