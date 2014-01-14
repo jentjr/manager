@@ -1,7 +1,6 @@
-#' Spatio-temporal
-#' 
-
+# Spatio-temporal test using spacetime 
 library(spacetime)
+library(RColorBrewer)
 data(gw_data)
 data(sp_data)
 
@@ -14,15 +13,11 @@ gw_data$name_units <- paste(gw_data$param_name," (", gw_data$default_unit,")", s
 gw_data <- reshape2::dcast(gw_data, value.var = "analysis_result", location_id + sample_date ~ name_units)
 
 gw_long <- join(gw_data, sp_data, by="location_id")
-
 gw_long <- gw_long[order(gw_long$sample_date, gw_long$location_id),]
 
-gw_long.sp <- unique(gw_long[c("location_id", "long_pos", "lat_pos")])
+x = stConstruct(gw_long, c("long_pos", "lat_pos"), "sample_date")
+gwSTSDF = as(x, "STSDF")
+gwSTFDF = as(x, "STFDF")
 
-# create a spatial points data frame
-coordinates(gw_long.sp) <- ~long_pos + lat_pos
-proj4string(gw_long.sp) <- "+longlat"
-
-time <- gw_long$sample_date
-
-cardSTFDF <- STFDF(gw_long.sp, time, gw_long[order(gw_long$sample_date, gw_long$location_id),])
+stplot(gwSTFDF[,,"Sulfate, total (mg/L)"], col.regions = brewer.pal(9, "YlOrRd"),cuts=9)
+stplot(gwSTFDF[,,"Chloride, total (mg/L)"], col.regions = brewer.pal(9, "YlOrRd"),cuts=9)
