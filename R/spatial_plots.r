@@ -18,7 +18,7 @@ get_center <- function(data, longitude, latitude){
 
 
 library(rCharts)
-leaflet_plot <- function(data = sp_data, width = 1600, height = 1000, type = "terrain"){
+leaflet_plot <- function(data = sp_data, width = 1200, height = 800, type = "terrain"){
   center_ <- get_center(data, "long_pos", "lat_pos")
   L1 <- Leaflet$new()
   L1$set(width = width, height = height)

@@ -41,7 +41,7 @@ shinyUI(pageWithSidebar(
       tabPanel("Time Series", plotOutput("time_plot")),
 #       tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
       tabPanel("Boxplot", plotOutput("box_plot")),
-      tabPanel("Map", plotOutput("well_map"))
+      tabPanel("Map", mapOutput('well_map'))
 #       tabPanel("About", htmlOutput(source("external/about.r")))
     )
   )

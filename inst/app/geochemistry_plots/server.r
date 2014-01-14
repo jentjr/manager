@@ -2,7 +2,7 @@
 options(shiny.maxRequestSize=-1)
 library(groundwater)
 library(ggplot2)
-library(ggmap)
+library(rCharts)
 library(plyr)
 library(lubridate)
 
@@ -218,7 +218,7 @@ shinyServer(function(input, output) {
                                           Na=input$Na, K=input$K, Cl=input$Cl,
                                           SO4=input$SO4, HCO3=input$Alk, 
                                           TDS=input$TDS)
-       stiff_time_html(stiff_data, TDS=input$TDS_plot))
+       stiff_time_html(stiff_data, TDS=input$TDS_plot)
      }else{
        print("Check the box \"Plot Stiff Diagram Time Series\". The plot will 
              open in a new window. It might take some time to complete.")
@@ -227,26 +227,10 @@ shinyServer(function(input, output) {
    })
  
  # spatial plot of wells
-  output$well_map <- renderPlot({
+  output$well_map <- renderMap({
     if (!is.null(input$manages_path)){
-      # read in spatial data and coerce long and lat to numeric
       sp_data <- get_spatial_data()
-      sp_data <- na.omit(sp_data)
-      sp_data$long_pos <- as.numeric(as.character(sp_data$long_pos))
-      sp_data$lat_pos <- as.numeric(as.character(sp_data$lat_pos))
-      
-      well_map <- get_map(location = c(lon=mean(sp_data$long_pos), 
-                                       lat=mean(sp_data$lat_pos)), zoom=14)
-      
-      p1 <- ggmap(well_map, extent = "device", maptype = "terrain", 
-                  color = "color")
-      
-      p2 <- p1 + geom_point(data = sp_data, aes(x = long_pos, y = lat_pos, 
-                                      colour = location_id), size = 2.25)
-      
-      print(p2)
-    } else{
-      print("Upload a file")
+      leaflet_plot(sp_data)
     }
   })
 })

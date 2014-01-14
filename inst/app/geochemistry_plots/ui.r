@@ -50,7 +50,7 @@ shinyUI(pageWithSidebar(
       tabPanel("Stiff Plot Data", dataTableOutput("stiff_plot_data")),
       tabPanel("Stiff Diagram", plotOutput("stiff_diagram")),
       tabPanel("Stiff Time Series", htmlOutput("stiff_time_diagram")),
-      tabPanel("Map", plotOutput("well_map"))
+      tabPanel("Map", mapOutput("well_map"))
     )
   )
 ))

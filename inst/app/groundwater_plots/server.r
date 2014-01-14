@@ -5,7 +5,7 @@ options(scipen=6, digits = 8)
 
 # load required packages
 library(groundwater)
-library(ggmap)
+library(rCharts)
 
 # Define server
 shinyServer(function(input, output) {
@@ -177,32 +177,41 @@ shinyServer(function(input, output) {
 #   # use a check box
 #   # Insert the right number of plot output objects into the web page
 #   output$combo_time_plots <- renderUI({
-#     plot_output_list <- lapply(1:input$n, function(i) {
-#       plotname <- paste("plot", i, sep="")
-#       plotOutput(plotname, height = 280, width = 250)
+#     if (!is.null(input$manages_path)){
+#       data <- get_data()
+#       well_names <- get_well_names(data)
+#       num_wells_sel <- length(input$well)
+#       plot_output_list <- lapply(1:num_wells_sel, function(i) {
+#         plotname <- paste("plot", i, sep="")
+#         plotOutput(plotname, height = 1200, width = 800)
 #     })
 #     
 #     # Convert the list to a tagList - this is necessary for the list of items
 #     # to display properly.
 #     do.call(tagList, plot_output_list)
+#     }
 #   })
 #   
 #   # Call renderPlot for each one. Plots are only actually generated when they
 #   # are visible on the web page.
-#   for (i in 1:max_plots) {
-#     # Need local so that each item gets its own number. Without it, the value
-#     # of i in the renderPlot() will be the same across all instances, because
-#     # of when the expression is evaluated.
+#   for (i in 1:10) {
+#   # Need local so that each item gets its own number. Without it, the value
+#   # of i in the renderPlot() will be the same across all instances, because
+#   # of when the expression is evaluated.
 #     local({
 #       my_i <- i
-#       plotname <- paste("plot", my_i, sep="")
-#       
+#       plotname <- paste("plot", my_i, sep="")     
 #       output[[plotname]] <- renderPlot({
-#         plot(1:my_i, 1:my_i, xlim = c(1, max_plots), ylim = c(1, max_plots), main = paste("1:", my_i, ".  n is ", input$n, sep = ""))
+#         multiplot <- reactive({
+#           data <- get_data()
+#           num_wells_sel <- length(input$well)
+#           data_selected <- subset(data, location_id %in% input$well & 
+#                                     param_name %in% input$analyte)
+#           ind_by_loc(data_selected)
+#         })
 #       })
 #     })
 #   }
-#   
   
  # create boxplots 
   box_out <- reactive({
@@ -237,26 +246,11 @@ shinyServer(function(input, output) {
     box_out()
   })
 
- # saptial plot of wells
-  output$well_map <- renderPlot({
+ # spatial plot of wells
+  output$well_map <- renderMap({
     if (!is.null(input$manages_path)){
-      # read in spatial data and coerce long and lat to numeric
       sp_data <- get_spatial_data()
-      sp_data <- na.omit(sp_data)
-      sp_data$long_pos <- as.numeric(as.character(sp_data$long_pos))
-      sp_data$lat_pos <- as.numeric(as.character(sp_data$lat_pos))
-      
-      well_map <- get_map(location = c(lon=mean(sp_data$long_pos), 
-                                       lat=mean(sp_data$lat_pos)), zoom=14)
-      
-      p1 <- ggmap(well_map, extent = "device", maptype = "terrain", 
-                  color = "color")
-      
-      p2 <- p1 + geom_point(data = sp_data, aes(x = long_pos, 
-                            y = lat_pos, colour = location_id), size = 2.25)
-      
-      print(p2)
-      
+      leaflet_plot(sp_data)
     }
   })
 
