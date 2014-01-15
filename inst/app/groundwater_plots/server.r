@@ -173,45 +173,37 @@ shinyServer(function(input, output) {
     ts_out()
   })
 
-#   # create combinations of all time series plots
-#   # use a check box
-#   # Insert the right number of plot output objects into the web page
-#   output$combo_time_plots <- renderUI({
-#     if (!is.null(input$manages_path)){
-#       data <- get_data()
-#       well_names <- get_well_names(data)
-#       num_wells_sel <- length(input$well)
-#       plot_output_list <- lapply(1:num_wells_sel, function(i) {
-#         plotname <- paste("plot", i, sep="")
-#         plotOutput(plotname, height = 1200, width = 800)
-#     })
-#     
-#     # Convert the list to a tagList - this is necessary for the list of items
-#     # to display properly.
-#     do.call(tagList, plot_output_list)
-#     }
-#   })
-#   
-#   # Call renderPlot for each one. Plots are only actually generated when they
-#   # are visible on the web page.
-#   for (i in 1:10) {
-#   # Need local so that each item gets its own number. Without it, the value
-#   # of i in the renderPlot() will be the same across all instances, because
-#   # of when the expression is evaluated.
-#     local({
-#       my_i <- i
-#       plotname <- paste("plot", my_i, sep="")     
-#       output[[plotname]] <- renderPlot({
-#         multiplot <- reactive({
-#           data <- get_data()
-#           num_wells_sel <- length(input$well)
-#           data_selected <- subset(data, location_id %in% input$well & 
-#                                     param_name %in% input$analyte)
-#           ind_by_loc(data_selected)
-#         })
-#       })
-#     })
-#   }
+  # Insert the right number of plot output objects into the web page
+  output$combo_time_plots <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      well_names <- get_well_names(data)
+      num_wells_sel <- length(input$well)
+      data_selected <- subset(data, location_id %in% input$well & 
+                                param_name %in% input$analyte)
+      plot_output_list <- lapply(1:num_wells_sel, function(i) {
+        plotname <- paste("plot", i, sep="")
+        plotOutput(plotname, height = 750, width = 850)
+    })
+    # Call renderPlot for each one. Plots are only actually 
+    # generated when they are visible on the web page.
+    for (i in 1:num_wells_sel) {
+    # Need local so that each item gets its own number. Without it, the value
+    # of i in the renderPlot() will be the same across all instances, because
+    # of when the expression is evaluated.
+      local({
+        my_i <- i
+        plotname <- paste("plot", my_i, sep="")     
+        output[[plotname]] <- renderPlot({
+          ind_by_loc(data_selected)
+        })
+      })
+    }  
+    # Convert the list to a tagList - this is necessary for the list of items
+    # to display properly.
+    do.call(tagList, plot_output_list)
+    }
+  })
   
  # create boxplots 
   box_out <- reactive({

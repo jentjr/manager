@@ -29,7 +29,7 @@ leaflet_plot <- function(data = sp_data, width = 1200, height = 800, type = "ter
   if (type == "satellite"){
     L1$tileLayer(provider = 'Esri.WorldImagery')
   }
-  for(i in 1:nrow(sp_data)){
+  for(i in 1:nrow(data)){
     L1$marker(c(data$lat_pos[i], data$long_pos[i]), bindPopup = paste(data$location_id[i]))
   }
   return(L1)

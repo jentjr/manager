@@ -38,11 +38,11 @@ shinyUI(pageWithSidebar(
     tabsetPanel(
       tabPanel("Data Table", dataTableOutput("well_table")),
       tabPanel("Summary Table", dataTableOutput("gw_summary")),
-      tabPanel("Time Series", plotOutput("time_plot")),
-#       tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
-      tabPanel("Boxplot", plotOutput("box_plot")),
-      tabPanel("Map", mapOutput('well_map'))
-#       tabPanel("About", htmlOutput(source("external/about.r")))
+      tabPanel("Time Series", plotOutput("time_plot",height = 750,width = 850)),
+      tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
+      tabPanel("Boxplot", plotOutput("box_plot",height=750,width=850)),
+      tabPanel("Map", mapOutput('well_map')),
+      tabPanel("About", p("This application is for plotting time series and boxplots"))
     )
   )
 ))
