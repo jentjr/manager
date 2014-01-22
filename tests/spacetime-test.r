@@ -19,5 +19,8 @@ x = stConstruct(gw_long, c("long_pos", "lat_pos"), "sample_date")
 gwSTSDF = as(x, "STSDF")
 gwSTFDF = as(x, "STFDF")
 
-stplot(gwSTFDF[,,"Sulfate, total (mg/L)"], col.regions = brewer.pal(9, "YlOrRd"),cuts=9)
-stplot(gwSTFDF[,,"Chloride, total (mg/L)"], col.regions = brewer.pal(9, "YlOrRd"),cuts=9)
+stplot(gwSTFDF[,,"Arsenic, dissolved (ug/L)"], col.regions = brewer.pal(8, "Greys"),cuts=8, main = "Arsenic, dissolved (ug/L)")
+
+stplot(gwSTFDF[,,"Arsenic, dissolved (ug/L)"], mode = "xt", col.regions = brewer.pal(8, "Greys"),cuts=8, main = "Arsenic, dissolved (ug/L)")
+
+stplot(gwSTFDF[,,"Arsenic, dissolved (ug/L)"], mode = "ts", col.regions = brewer.pal(8, "Greys"),cuts=8, main = "Arsenic, dissolved (ug/L)")

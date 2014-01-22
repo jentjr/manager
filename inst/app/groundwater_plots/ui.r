@@ -41,6 +41,7 @@ shinyUI(pageWithSidebar(
       tabPanel("Time Series", plotOutput("time_plot",height = 750,width = 850)),
       tabPanel("Combination Time Plots", uiOutput("combo_time_plots")),
       tabPanel("Boxplot", plotOutput("box_plot",height=750,width=850)),
+      tabPanel("Correlations", plotOutput("corr_plot", height=750, width=750)),
       tabPanel("Map", mapOutput('well_map')),
       tabPanel("About", p("This application is for plotting time series and boxplots"))
     )
