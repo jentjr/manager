@@ -214,6 +214,8 @@ shinyServer(function(input, output) {
       data <- get_data()
       data_selected <- subset(data, location_id %in% input$well & 
                                 param_name %in% input$analyte)
+      data_selected$name_units <- paste(data_selected$param_name, 
+                          " (", data_selected$default_unit, ")", sep = "")
       # box plot of analyte
       b <- ggplot(data_selected, aes(location_id, y=analysis_result, 
                                      fill=location_id)) + 
@@ -225,9 +227,9 @@ shinyServer(function(input, output) {
         theme(axis.title.y = element_text(vjust=0.3)) +
         theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in"))
       if(input$scale_plot){
-        b1 <- b + geom_boxplot()  + facet_wrap(~param_name, scale="free")
+        b1 <- b + geom_boxplot()  + facet_wrap(~name_units, scale="free")
       } else{
-        b1 <- b + geom_boxplot() + facet_wrap(~param_name)
+        b1 <- b + geom_boxplot() + facet_wrap(~name_units)
       }
       if(input$coord_flip){
         b1 <- b1 + coord_flip()
