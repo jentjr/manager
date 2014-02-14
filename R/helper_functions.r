@@ -74,3 +74,25 @@ groundwater_summary <- function(df){
   
   return(gw)
 }
+
+#' Function to export data from manages to different formats in excel
+#' 
+#' @param df data frame
+#' @param file full file path name with extension for export
+#' @export
+
+export_manages <- function(df, file){
+  
+  wells <- unique(df$location_id)
+  
+  wb <- XLConnect::loadWorkbook(file, create=TRUE)
+  
+  for (i in 1:length(wells)){
+    temp <- subset(df, location_id == wells[i])
+    temp <- temp[order(df$param_name, df$sample_date),]
+    XLConnect::createSheet(wb, name = paste(wells[i]))
+    XLConnect::writeWorksheet(wb, temp, sheet = paste(wells[i]), 
+                              startRow = 1, startCol = 1, header = TRUE )
+  }
+  XLConnect::saveWorkbook(wb)
+}
