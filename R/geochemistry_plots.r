@@ -20,7 +20,7 @@ get_major_ions <- function(df, Mg="Magnesium, dissolved",
   plot_data <- subset(df, param_name %in% plot_params)
  
   plot_data <- reshape2::dcast(plot_data, value.var = "analysis_result", 
-                        location_id + sample_date + default_unit ~ param_name)
+                        location_id + sample_date ~ param_name)
 
   return(plot_data)
 }
@@ -294,23 +294,27 @@ ggplot_piper <- function() {
 plot_piper <- function(df, TDS=FALSE){
   if(isTRUE(TDS)){
     ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
-                                               colour = location_id, 
+                                               colour = sample_date,
+                                               shape = location_id,
                                                size = TDS)) +
-      geom_point(data = df, aes(x = anion_x, y = anion_y, colour = location_id, 
-                                size = TDS)) +
-      geom_point(data = df, aes(x = diam_x, y = diam_y, colour = location_id, 
-                                size = TDS)) +
+      geom_point(data = df, aes(x = anion_x, y = anion_y, shape = location_id, 
+                                size = TDS, colour = sample_date)) +
+      geom_point(data = df, aes(x = diam_x, y = diam_y, shape = location_id, 
+                                size = TDS, colour = sample_date)) +
       scale_size("TDS", range = c(1, 20)) +
-      ggtitle("Piper Diagram") + guides(colour = guide_legend("Location ID"),
-                                        fill = guide_legend("TDS"))
+      ggtitle("Piper Diagram") + guides(shape = guide_legend("Location ID"),
+                                        fill = guide_legend("TDS"),
+                                        colour = guide_legend("Sample Date"))
   }else{
   ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
-                                             colour = location_id), size = 3) +
-    geom_point(data = df, aes(x = anion_x, y = anion_y, colour = location_id), 
-               size = 3) +
-    geom_point(data = df, aes(x = diam_x, y = diam_y, colour = location_id), 
-               size = 3) +
-    ggtitle("Piper Diagram") + guides(colour = guide_legend("Location ID"))
+                                             shape = location_id,
+                                             colour = sample_date), size = 3) +
+    geom_point(data = df, aes(x = anion_x, y = anion_y, shape = location_id, 
+                              colour = sample_date), size = 3) +
+    geom_point(data = df, aes(x = diam_x, y = diam_y, shape = location_id,
+                              colour = sample_date), size = 3) +
+    ggtitle("Piper Diagram") + guides(shape = guide_legend("Location ID"),
+                                      colour = guide_legend("Sample Date"))
   }
 }
 
