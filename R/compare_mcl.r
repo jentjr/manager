@@ -1,7 +1,7 @@
 #' Function to compare groundwater results to EPA primary and seconday standards
 #' 
 
-compare_MCL <- function(df) {
+compare_MCL <- function(df, format = "summary") {
   data(mcl)
   df$exceedance <- NA
   for (i in 1:nrow(mcl)){
@@ -10,23 +10,28 @@ compare_MCL <- function(df) {
     # check units before proceeding
     # TODO
     df[rws,"exceedance"] <- ifelse(df[rws,"analysis_result"] > mcl$upper_limit[i] | 
-                              df[rws,"analysis_result"] < mcl$lower_limit[i], 1, 0)
+                              df[rws,"analysis_result"] < mcl$lower_limit[i],1,0)
   }
   # dangerous to use na.omit
-  return(na.omit(df))
+  if(isTRUE(format == "summary")){
+    out <- reshape2::dcast(na.omit(df), value.var = "exceedance", 
+                           location_id ~ param_name, sum)
+
+  } else {
+    out <- na.omit(df)
+  }
+  return(out)
   rm(mcl)
 }
   
-
 # Spacetime plot for each mcl with location on y axis, time on x axis
-#  solid color if exceeds mcl
+# solid color if exceeds mcl
 gw_heatmap <- function(df){
-  tmp <- reshape2::dcast(df, value.var = "exceedance", location_id + param_name ~ 
-                           sample_date)
-  row.names(tmp) <- tmp$location_id
-  tmp <- tmp[, -1]
-  tmp <- data.matrix(tmp)
-  heatmap(tmp, Rowv=NA, Colv=NA, main = df$param_name[1])
+  df$exceedance <- ifelse(df$exceedance == 1, 1, NA)
+  ggplot(df, aes(sample_date, location_id, 
+                 fill = exceedance)) + 
+    facet_wrap(~param_name) + 
+    geom_tile(size=4) 
 }
 
 gw_heatmap_multi <- function(df) {
