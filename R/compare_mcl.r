@@ -2,31 +2,27 @@
 #' 
 
 compare_MCL <- function(df) {
-  ddply(df, .(param_name), )
+  data(mcl)
+  df$exceedance <- NA
+  for (i in 1:nrow(mcl)){
+    element <- mcl$param_name[i]
+    rws <- grepl(paste(element), df$param_name)
+    # check units before proceeding
+    # TODO
+    df[rws,"exceedance"] <- ifelse(df[rws,"analysis_result"] > mcl$upper_limit[i] | 
+                              df[rws,"analysis_result"] < mcl$lower_limit[i], 1, 0)
+  }
+  # dangerous to use na.omit
+  return(na.omit(df))
+  rm(mcl)
 }
   
-
-parse_mcl <- function(df) {
-  element <- mcl$param_name[1]
-  tmp <- gw_data[grepl(paste(element), gw_data$param_name)==1,]
-  tmp$exceedances <- ifelse(tmp$analysis_result > mcl$upper_limit[1] | 
-                              tmp$analysis_result < mcl$lower_limit[1], 1, 0)
-  ddply(tmp, .(location_id), summarise, total_exceed = sum(exceedances))
-}
-
-
-# for each param in mcl
-#   match to data param
-#   compare mcl to results
-#     if greater or less than limit exceedance = 1
-#   count exceedances and summarize (1 row)
-#   combine rows
-# return new data frame
 
 # Spacetime plot for each mcl with location on y axis, time on x axis
 #  solid color if exceeds mcl
 gw_heatmap <- function(df){
-  tmp <- dcast(df, value.var = "analysis_result", location_id ~ sample_date)
+  tmp <- reshape2::dcast(df, value.var = "exceedance", location_id + param_name ~ 
+                           sample_date)
   row.names(tmp) <- tmp$location_id
   tmp <- tmp[, -1]
   tmp <- data.matrix(tmp)
