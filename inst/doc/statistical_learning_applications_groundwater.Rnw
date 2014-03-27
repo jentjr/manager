@@ -1,232 +1,232 @@
-\documentclass{article}
-
-\begin{document}
-
-\title{Statistical Learning Applications for Groundwater Monitoring}
-\author{Justin Jent}
-\date{}
-
-Ower/operators of RCRA solid waste facilites are required to monitor groundwater for long list of chemical constituents to determine if there has been any impact from leachate. 
-
-Statistical learning methods can be applied to aide in determing if the increase is a result of natural groundwater variation, or if there has been an impact from leachate. There are supervised and unsupervised learning methods that can be applied in different circumstances. If there are leachate samples available, then a supervised learning method can be applied. If there are no leachate data available, a unsupervised learning procedure could be applied. 
-
-<<>>==
-card <- connect_manages("H:/INTERNAL/MANAGES_DATA/Cardinal/Cardinal/Site.mdb")
-
-card <- remove_dup(card)
-
-card$name_units <- paste(card$param_name," (", card$default_unit,")", sep = "")
-
-#card$name <- unlist(strsplit(card$name_units, ",", fixed=TRUE)[[1]])
-
-leachate <- c("CA-1","CA-2", "CA-3", "CA-4", "CA-5", "Outfall 019", "Underdrain", "Face of Dam", "Jules Verne")
-
-params <- c("Specific Conductance @ 25C (field)","pH (field)",
-            "Alkalinity, total (lab)","Total Dissolved Solids",
-            "Calcium, dissolved","Magnesium, dissolved",
-            "Sodium, dissolved","Potassium, dissolved",
-            "Chloride, total","Sulfate, total","Fluoride, total",
-            "Arsenic, dissolved","Barium, dissolved",
-            "Boron, dissolved","Cadmium, dissolved","Chromium, dissolved",
-            "Iron, dissolved","Lead, dissolved","Manganese, dissolved",
-            "Molybdenum, dissolved","Strontium, dissolved",
-            "Vanadium, dissolved","Selenium, dissolved",
-            "Mercury, dissolved","Copper, dissolved","Thallium, dissolved",
-            "Silver, dissolved","Zinc, dissolved",
-            "Antimony, dissolved","Tin, dissolved","Aluminum, dissolved",
-            "Lithium, dissolved",
-            "Total Suspended Solids","Uranium, dissolved","Temperature (field)")
-
-card <- subset(card, param_name %in% params)
-
-card$group <- ifelse(card$location_id %in% leachate, "leachate", "groundwater")
-
-card_cast <- cast(card, value = "analysis_result", location_id + sample_date + group ~ param_name)
-
-card_cast$group <- as.factor(card_cast$group)
-
-card_cast <- rename(card_cast, 
-                    replace=c("Specific Conductance @ 25C (field)" = "conductance",
-                    "pH (field)" = "pH",
-                    "Alkalinity, total (lab)" = "alkalinity",
-                    "Total Dissolved Solids" = "TDS",
-                    "Calcium, dissolved" = "calcium",
-                    "Magnesium, dissolved" = "magnesium",
-                    "Sodium, dissolved" = "sodium",
-                    "Potassium, dissolved" = "potassium",
-                    "Chloride, total" = "chloride",
-                    "Sulfate, total" = "sulfate",
-                    "Fluoride, total" = "fluoride",
-                    "Arsenic, dissolved" = "arsenic",
-                    "Barium, dissolved" = "barium",
-                    "Boron, dissolved" = "boron",
-                    "Cadmium, dissolved" = "cadmium",
-                    "Chromium, dissolved" = "chromium",
-                    "Iron, dissolved" = "iron",
-                    "Lead, dissolved" = "lead",
-                    "Manganese, dissolved" = "manganese",
-                    "Molybdenum, dissolved" = "molybdenum",
-                    "Strontium, dissolved" = "strontium",
-                    "Vanadium, dissolved" = "vanadium",
-                    "Selenium, dissolved" = "selenium",
-                    "Mercury, dissolved" = "mercury",
-                    "Copper, dissolved" = "copper",
-                    "Thallium, dissolved" = "thallium",
-                    "Silver, dissolved" = "silver",
-                    "Zinc, dissolved" = "zinc",
-                    "Antimony, dissolved" = "antimony",
-                    "Tin, dissolved" = "tin",
-                    "Aluminum, dissolved" = "aluminum",
-                    "Lithium, dissolved" = "lithium",
-                    "Total Suspended Solids" = "TSS",
-                    "Uranium, dissolved" = "uranium",
-                    "Temperature (field)" = "temperature"))
-
-summary(card_cast)
-
-# Impute missing values
-card_imputed <- rfImpute(group ~., card_cast[, -c(1:2)])
-
-
-card_rf <- randomForest(group~., card_imputed)
-print(card_rf)
-round(importance(card_rf), 2)
-varImpPlot(card_rf)
-
-
-# unsupervised case
-card_urf <- randomForest(card_imputed[, -1])
-MDSplot(card_urf, card_imputed$group)
-@
-
-
-<<>>==
-# load groundwater data from MANAGES
-tc <- connect_manages("H:/INTERNAL/MANAGES_DATA/Tanners/Tanners/Site.mdb")
-
-# remove blanks from analysis
-unique(tc$location_id)
-rem <- c("Blank #1", "Blank #2")
-tc <- subset(tc, location_id %nin% rem)
-
-# group wells by gradient
-dg_wells <- c("MW-1", "MW-2", "MW-3", "MW-5")
-tc$group <- ifelse(tc$location_id %in% dg_wells, "downgradient", "upgradient")
-tc[grep("*Ohio*", tc$location_id),"group"] <- "river"
-# tc$group <- "groundwater"
-tc$name_units <- paste(tc$param_name," (", tc$default_unit,")", sep = "")
-
-# load leachate data from excel file
-wb <- loadWorkbook("H:/INTERNAL/JRJ/Tanners Creek/Tanners Creek -VUE/Groundwater Monitoring/Leachate Data/all_leachate_data_1-2-2014.xls")
-tc_leachate <- readWorksheet(wb, sheet = "Sheet1")
-tc_leachate$analysis_result <- as.numeric(tc_leachate$analysis_result)
-tc_leachate$group <- "leachate"
-tc_leachate[grep("*Ohio*", tc_leachate$location_id),"group"] <- "river"
-# tc_leachate[grep("*Ohio*", tc_leachate$location_id),"group"] <- "groundwater"
-tc_leachate$name_units <- paste(tc_leachate$param_name," (", 
-                                tc_leachate$default_unit,")", sep = "")
-
-# combine the data
-combined_data <- merge(tc, tc_leachate, all=TRUE)
-
-all_tc_cast <- cast(combined_data, value = "analysis_result", location_id + sample_date + group ~ name_units)
-
-all_tc_cast$group <- as.factor(all_tc_cast$group)
-
-# Impute missing values
-tc_imputed <- rfImpute(group ~., all_tc_cast[, -c(1:2)])
-
-# using cforest to see effect of correlated variables
-tc_crf <- cforest(group~ tc_imputed$`Alkalinity, total (lab) (mg/L)`+
-                        tc_imputed$`Aluminum, dissolved (ug/L)`+
-                        tc_imputed$`Antimony, dissolved (ug/L)`+
-                        tc_imputed$`Arsenic, dissolved (ug/L)`+
-                        tc_imputed$`Barium, dissolved (ug/L)`+
-                        tc_imputed$`Beryllium, dissolved (ug/L)`+
-                        tc_imputed$`Boron, dissolved (mg/L)`+
-                        tc_imputed$`Cadmium, dissolved (ug/L)`+
-                        tc_imputed$`Calcium, dissolved (mg/L)`+
-                        tc_imputed$`Chloride, total (mg/L)`+
-                        tc_imputed$`Chromium, dissolved (ug/L)`+
-                        tc_imputed$`Chromium, hexavalent (ug/L)`+
-                        tc_imputed$`Cobalt, dissolved (ug/L)`+
-                        tc_imputed$`Copper, dissolved (ug/L)`+
-                        tc_imputed$`Dissolved Oxygen (mg/L)`+
-                        tc_imputed$`Fluoride, total (mg/L)`+
-                        tc_imputed$`Groundwater Elevation (ref MSL) (ft)`+
-                        tc_imputed$`Hardness, total (mg/L as CaCO3) (mg/L)`+
-                        tc_imputed$`Iron, dissolved (mg/L)`+
-                        tc_imputed$`Lead, dissolved (ug/L)`+
-                        tc_imputed$`Magnesium, dissolved (mg/L)`+
-                        tc_imputed$`Manganese, dissolved (mg/L)`+
-                        tc_imputed$`Mercury, total (ug/L)`+
-                        tc_imputed$`Molybdenum, dissolved (mg/L)`+
-                        tc_imputed$`Nickel, dissolved (ug/L)`+
-                        tc_imputed$`Nitrate nitrogen, total (mg/L)`+
-                        tc_imputed$`Nitrite + Nitrate, total (mg/L)`+
-                        tc_imputed$`Nitrite nitrogen, total (mg/L)`+
-                        tc_imputed$`Orthophosphate (as PO4) (mg/L)`+
-                        tc_imputed$`Oxidation Reduction Potential (mV)`+
-                        tc_imputed$`pH (field) (STD)`+
-                        tc_imputed$`Phosphorus, total (mg/L)`+
-                        tc_imputed$`Potassium, dissolved (mg/L)`+
-                        tc_imputed$`Selenium, dissolved (ug/L)`+
-                        tc_imputed$`Silver, dissolved (ug/L)`+
-                        tc_imputed$`SiO2, dissolved (mg/L)`+
-                        tc_imputed$`Sodium, dissolved (mg/L)`+
-                        tc_imputed$`Specific Conductance @ 25C (field) (micromhos/cm)`+
-                        tc_imputed$`Strontium, dissolved (mg/L)`+
-                        tc_imputed$`Sulfate, total (mg/L)`+
-                        tc_imputed$`Temperature (Celsius) (degrees C)`+
-                        tc_imputed$`Thallium, dissolved (ug/L)`+
-                        tc_imputed$`Tin, dissolved (ug/L)`+
-                        tc_imputed$`Total Dissolved Solids (mg/L)`+
-                        tc_imputed$`Turbidity, field (NTU)`+
-                        tc_imputed$`Uranium, dissolved (ug/L)`+
-                        tc_imputed$`Vanadium, dissolved (ug/L)`+
-                        tc_imputed$`Zinc, dissolved (ug/L)`, 
-                  control = cforest_unbiased(ntree=10000),
-                      data = tc_imputed)
-
-table(Predict(tc_crf), all_tc_cast$group)
-
-tc_crf_imp <- as.data.frame(varimp(tc_crf))
-var_names <- rownames(tc_crf_imp)
-m <- gregexpr("(?<=`)[^`]*(?=`)", var_names, perl=TRUE)
-var_names <- regmatches(var_names, m)
-var_data <- cbind(unlist(var_names), tc_crf_imp)
-colnames(var_data) <- c("parameter", "importance")
-var_data$parameter <- reorder(var_data$parameter, var_data$importance)
-ggplot(var_data, aes(x=factor(parameter), y=importance)) + 
-  geom_point() + coord_flip() + xlab("\nParameter") + 
-  ylab("Importance") + ggtitle("Variable Importance from Random Forest\n")
-
-
-
-
-tc_crf_imp_cond <- as.data.frame(varimp(tc_crf, conditional=TRUE))
-var_names_cond <- rownames(tc_crf_imp_cond)
-m2 <- gregexpr("(?<=`)[^`]*(?=`)", var_names_cond, perl=TRUE)
-var_names_cond <- regmatches(var_names_cond, m2)
-var_data_cond <- cbind(unlist(var_names_cond), tc_crf_imp_cond)
-colnames(var_data_cond) <- c("parameter", "importance")
-var_data_cond$parameter <- reorder(var_data_cond$parameter, var_data_cond$importance)
-ggplot(var_data_cond, aes(x=factor(parameter), y=importance)) +
-  geom_point() + coord_flip() + xlab("\nParameter") + 
-  ylab("Importance") + ggtitle("Variable Importance from Conditional Random Forest\n")
-
-
-
-# look at boxplots of the variables by group
-As_Fe <- subset(combined_data, param_name %in% 
-                c("Arsenic, dissolved", "Iron, dissolved"))
-                
-ggplot(As_Fe, aes(y=analysis_result, x=group, fill = factor(group))) + 
-  geom_boxplot()  + xlab("\nSource") + ylab("Analysis Result\n") + 
-  ggtitle("Boxplots for Iron and Arsenic\n Grouped by Source\n") + 
-  guides(fill = guide_legend("Source")) + 
-  facet_wrap(~name_units, scale="free") + 
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-@
-
-\end{document}
+% \documentclass{article}
+% 
+% \begin{document}
+% 
+% \title{Statistical Learning Applications for Groundwater Monitoring}
+% \author{Justin Jent}
+% \date{}
+% 
+% Ower/operators of RCRA solid waste facilites are required to monitor groundwater for long list of chemical constituents to determine if there has been any impact from leachate. 
+% 
+% Statistical learning methods can be applied to aide in determing if the increase is a result of natural groundwater variation, or if there has been an impact from leachate. There are supervised and unsupervised learning methods that can be applied in different circumstances. If there are leachate samples available, then a supervised learning method can be applied. If there are no leachate data available, a unsupervised learning procedure could be applied. 
+% 
+% <<>>==
+% card <- connect_manages("H:/INTERNAL/MANAGES_DATA/Cardinal/Cardinal/Site.mdb")
+% 
+% card <- remove_dup(card)
+% 
+% card$name_units <- paste(card$param_name," (", card$default_unit,")", sep = "")
+% 
+% #card$name <- unlist(strsplit(card$name_units, ",", fixed=TRUE)[[1]])
+% 
+% leachate <- c("CA-1","CA-2", "CA-3", "CA-4", "CA-5", "Outfall 019", "Underdrain", "Face of Dam", "Jules Verne")
+% 
+% params <- c("Specific Conductance @ 25C (field)","pH (field)",
+%             "Alkalinity, total (lab)","Total Dissolved Solids",
+%             "Calcium, dissolved","Magnesium, dissolved",
+%             "Sodium, dissolved","Potassium, dissolved",
+%             "Chloride, total","Sulfate, total","Fluoride, total",
+%             "Arsenic, dissolved","Barium, dissolved",
+%             "Boron, dissolved","Cadmium, dissolved","Chromium, dissolved",
+%             "Iron, dissolved","Lead, dissolved","Manganese, dissolved",
+%             "Molybdenum, dissolved","Strontium, dissolved",
+%             "Vanadium, dissolved","Selenium, dissolved",
+%             "Mercury, dissolved","Copper, dissolved","Thallium, dissolved",
+%             "Silver, dissolved","Zinc, dissolved",
+%             "Antimony, dissolved","Tin, dissolved","Aluminum, dissolved",
+%             "Lithium, dissolved",
+%             "Total Suspended Solids","Uranium, dissolved","Temperature (field)")
+% 
+% card <- subset(card, param_name %in% params)
+% 
+% card$group <- ifelse(card$location_id %in% leachate, "leachate", "groundwater")
+% 
+% card_cast <- cast(card, value = "analysis_result", location_id + sample_date + group ~ param_name)
+% 
+% card_cast$group <- as.factor(card_cast$group)
+% 
+% card_cast <- rename(card_cast, 
+%                     replace=c("Specific Conductance @ 25C (field)" = "conductance",
+%                     "pH (field)" = "pH",
+%                     "Alkalinity, total (lab)" = "alkalinity",
+%                     "Total Dissolved Solids" = "TDS",
+%                     "Calcium, dissolved" = "calcium",
+%                     "Magnesium, dissolved" = "magnesium",
+%                     "Sodium, dissolved" = "sodium",
+%                     "Potassium, dissolved" = "potassium",
+%                     "Chloride, total" = "chloride",
+%                     "Sulfate, total" = "sulfate",
+%                     "Fluoride, total" = "fluoride",
+%                     "Arsenic, dissolved" = "arsenic",
+%                     "Barium, dissolved" = "barium",
+%                     "Boron, dissolved" = "boron",
+%                     "Cadmium, dissolved" = "cadmium",
+%                     "Chromium, dissolved" = "chromium",
+%                     "Iron, dissolved" = "iron",
+%                     "Lead, dissolved" = "lead",
+%                     "Manganese, dissolved" = "manganese",
+%                     "Molybdenum, dissolved" = "molybdenum",
+%                     "Strontium, dissolved" = "strontium",
+%                     "Vanadium, dissolved" = "vanadium",
+%                     "Selenium, dissolved" = "selenium",
+%                     "Mercury, dissolved" = "mercury",
+%                     "Copper, dissolved" = "copper",
+%                     "Thallium, dissolved" = "thallium",
+%                     "Silver, dissolved" = "silver",
+%                     "Zinc, dissolved" = "zinc",
+%                     "Antimony, dissolved" = "antimony",
+%                     "Tin, dissolved" = "tin",
+%                     "Aluminum, dissolved" = "aluminum",
+%                     "Lithium, dissolved" = "lithium",
+%                     "Total Suspended Solids" = "TSS",
+%                     "Uranium, dissolved" = "uranium",
+%                     "Temperature (field)" = "temperature"))
+% 
+% summary(card_cast)
+% 
+% # Impute missing values
+% card_imputed <- rfImpute(group ~., card_cast[, -c(1:2)])
+% 
+% 
+% card_rf <- randomForest(group~., card_imputed)
+% print(card_rf)
+% round(importance(card_rf), 2)
+% varImpPlot(card_rf)
+% 
+% 
+% # unsupervised case
+% card_urf <- randomForest(card_imputed[, -1])
+% MDSplot(card_urf, card_imputed$group)
+% @
+% 
+% 
+% <<>>==
+% # load groundwater data from MANAGES
+% tc <- connect_manages("H:/INTERNAL/MANAGES_DATA/Tanners/Tanners/Site.mdb")
+% 
+% # remove blanks from analysis
+% unique(tc$location_id)
+% rem <- c("Blank #1", "Blank #2")
+% tc <- subset(tc, location_id %nin% rem)
+% 
+% # group wells by gradient
+% dg_wells <- c("MW-1", "MW-2", "MW-3", "MW-5")
+% tc$group <- ifelse(tc$location_id %in% dg_wells, "downgradient", "upgradient")
+% tc[grep("*Ohio*", tc$location_id),"group"] <- "river"
+% # tc$group <- "groundwater"
+% tc$name_units <- paste(tc$param_name," (", tc$default_unit,")", sep = "")
+% 
+% # load leachate data from excel file
+% wb <- loadWorkbook("H:/INTERNAL/JRJ/Tanners Creek/Tanners Creek -VUE/Groundwater Monitoring/Leachate Data/all_leachate_data_1-2-2014.xls")
+% tc_leachate <- readWorksheet(wb, sheet = "Sheet1")
+% tc_leachate$analysis_result <- as.numeric(tc_leachate$analysis_result)
+% tc_leachate$group <- "leachate"
+% tc_leachate[grep("*Ohio*", tc_leachate$location_id),"group"] <- "river"
+% # tc_leachate[grep("*Ohio*", tc_leachate$location_id),"group"] <- "groundwater"
+% tc_leachate$name_units <- paste(tc_leachate$param_name," (", 
+%                                 tc_leachate$default_unit,")", sep = "")
+% 
+% # combine the data
+% combined_data <- merge(tc, tc_leachate, all=TRUE)
+% 
+% all_tc_cast <- cast(combined_data, value = "analysis_result", location_id + sample_date + group ~ name_units)
+% 
+% all_tc_cast$group <- as.factor(all_tc_cast$group)
+% 
+% # Impute missing values
+% tc_imputed <- rfImpute(group ~., all_tc_cast[, -c(1:2)])
+% 
+% # using cforest to see effect of correlated variables
+% tc_crf <- cforest(group~ tc_imputed$`Alkalinity, total (lab) (mg/L)`+
+%                         tc_imputed$`Aluminum, dissolved (ug/L)`+
+%                         tc_imputed$`Antimony, dissolved (ug/L)`+
+%                         tc_imputed$`Arsenic, dissolved (ug/L)`+
+%                         tc_imputed$`Barium, dissolved (ug/L)`+
+%                         tc_imputed$`Beryllium, dissolved (ug/L)`+
+%                         tc_imputed$`Boron, dissolved (mg/L)`+
+%                         tc_imputed$`Cadmium, dissolved (ug/L)`+
+%                         tc_imputed$`Calcium, dissolved (mg/L)`+
+%                         tc_imputed$`Chloride, total (mg/L)`+
+%                         tc_imputed$`Chromium, dissolved (ug/L)`+
+%                         tc_imputed$`Chromium, hexavalent (ug/L)`+
+%                         tc_imputed$`Cobalt, dissolved (ug/L)`+
+%                         tc_imputed$`Copper, dissolved (ug/L)`+
+%                         tc_imputed$`Dissolved Oxygen (mg/L)`+
+%                         tc_imputed$`Fluoride, total (mg/L)`+
+%                         tc_imputed$`Groundwater Elevation (ref MSL) (ft)`+
+%                         tc_imputed$`Hardness, total (mg/L as CaCO3) (mg/L)`+
+%                         tc_imputed$`Iron, dissolved (mg/L)`+
+%                         tc_imputed$`Lead, dissolved (ug/L)`+
+%                         tc_imputed$`Magnesium, dissolved (mg/L)`+
+%                         tc_imputed$`Manganese, dissolved (mg/L)`+
+%                         tc_imputed$`Mercury, total (ug/L)`+
+%                         tc_imputed$`Molybdenum, dissolved (mg/L)`+
+%                         tc_imputed$`Nickel, dissolved (ug/L)`+
+%                         tc_imputed$`Nitrate nitrogen, total (mg/L)`+
+%                         tc_imputed$`Nitrite + Nitrate, total (mg/L)`+
+%                         tc_imputed$`Nitrite nitrogen, total (mg/L)`+
+%                         tc_imputed$`Orthophosphate (as PO4) (mg/L)`+
+%                         tc_imputed$`Oxidation Reduction Potential (mV)`+
+%                         tc_imputed$`pH (field) (STD)`+
+%                         tc_imputed$`Phosphorus, total (mg/L)`+
+%                         tc_imputed$`Potassium, dissolved (mg/L)`+
+%                         tc_imputed$`Selenium, dissolved (ug/L)`+
+%                         tc_imputed$`Silver, dissolved (ug/L)`+
+%                         tc_imputed$`SiO2, dissolved (mg/L)`+
+%                         tc_imputed$`Sodium, dissolved (mg/L)`+
+%                         tc_imputed$`Specific Conductance @ 25C (field) (micromhos/cm)`+
+%                         tc_imputed$`Strontium, dissolved (mg/L)`+
+%                         tc_imputed$`Sulfate, total (mg/L)`+
+%                         tc_imputed$`Temperature (Celsius) (degrees C)`+
+%                         tc_imputed$`Thallium, dissolved (ug/L)`+
+%                         tc_imputed$`Tin, dissolved (ug/L)`+
+%                         tc_imputed$`Total Dissolved Solids (mg/L)`+
+%                         tc_imputed$`Turbidity, field (NTU)`+
+%                         tc_imputed$`Uranium, dissolved (ug/L)`+
+%                         tc_imputed$`Vanadium, dissolved (ug/L)`+
+%                         tc_imputed$`Zinc, dissolved (ug/L)`, 
+%                   control = cforest_unbiased(ntree=10000),
+%                       data = tc_imputed)
+% 
+% table(Predict(tc_crf), all_tc_cast$group)
+% 
+% tc_crf_imp <- as.data.frame(varimp(tc_crf))
+% var_names <- rownames(tc_crf_imp)
+% m <- gregexpr("(?<=`)[^`]*(?=`)", var_names, perl=TRUE)
+% var_names <- regmatches(var_names, m)
+% var_data <- cbind(unlist(var_names), tc_crf_imp)
+% colnames(var_data) <- c("parameter", "importance")
+% var_data$parameter <- reorder(var_data$parameter, var_data$importance)
+% ggplot(var_data, aes(x=factor(parameter), y=importance)) + 
+%   geom_point() + coord_flip() + xlab("\nParameter") + 
+%   ylab("Importance") + ggtitle("Variable Importance from Random Forest\n")
+% 
+% 
+% 
+% 
+% tc_crf_imp_cond <- as.data.frame(varimp(tc_crf, conditional=TRUE))
+% var_names_cond <- rownames(tc_crf_imp_cond)
+% m2 <- gregexpr("(?<=`)[^`]*(?=`)", var_names_cond, perl=TRUE)
+% var_names_cond <- regmatches(var_names_cond, m2)
+% var_data_cond <- cbind(unlist(var_names_cond), tc_crf_imp_cond)
+% colnames(var_data_cond) <- c("parameter", "importance")
+% var_data_cond$parameter <- reorder(var_data_cond$parameter, var_data_cond$importance)
+% ggplot(var_data_cond, aes(x=factor(parameter), y=importance)) +
+%   geom_point() + coord_flip() + xlab("\nParameter") + 
+%   ylab("Importance") + ggtitle("Variable Importance from Conditional Random Forest\n")
+% 
+% 
+% 
+% # look at boxplots of the variables by group
+% As_Fe <- subset(combined_data, param_name %in% 
+%                 c("Arsenic, dissolved", "Iron, dissolved"))
+%                 
+% ggplot(As_Fe, aes(y=analysis_result, x=group, fill = factor(group))) + 
+%   geom_boxplot()  + xlab("\nSource") + ylab("Analysis Result\n") + 
+%   ggtitle("Boxplots for Iron and Arsenic\n Grouped by Source\n") + 
+%   guides(fill = guide_legend("Source")) + 
+%   facet_wrap(~name_units, scale="free") + 
+%   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+% @
+% 
+% \end{document}

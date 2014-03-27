@@ -17,7 +17,8 @@ Imports:
     lubridate,
     sp,
     scales,
-    grid
+    grid,
+    udunits2
 Suggests:
     Hmisc
 License: none
