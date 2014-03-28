@@ -3,7 +3,7 @@
 #' @param df dataframe of groundwater data
 #' @export
 
-get_MCL_params <- function(df, type="all"){
+get_mcl_params <- function(df, type="all"){
   data(mcl)
   
   if(isTRUE(type=="primary")){
@@ -28,44 +28,20 @@ get_MCL_params <- function(df, type="all"){
 #' @param df dataframe of groundwater data
 #' @export 
 
-check_units <- function(df){
-  data(mcl)
-  to_conv <- data.frame(element = character(), data_unit = character(), 
-                        mcl_unit = character())
-  for(i in 1:nrow(mcl)){
-    element <- mcl$param_name[i]
-    unit <- mcl$default_unit[i]
-    rws <- grepl(paste(element), df$param_name)
-    tmp <- df[rws,]
-    for(j in 1:nrow(tmp)){
-      if(as.character(tmp[j, "default_unit"]) != unit){
-        x <- cbind(element = element, 
-                   data_unit = as.character(tmp[j, "default_unit"]), 
-                   mcl_unit = unit)
-        to_conv <- rbind(x)
-        # need to ensure units are the same for all records
-        break
-      }
+convert_mcl_units <- function(df){
+  for(i in 1:nrow(df)){
+    if(df[i,"default_unit"]=="ug/L"){
+      df[i,"analysis_result"] <- udunits2::ud.convert(df[i,"analysis_result"],
+                                                      "ug/L", "mg/L")
+      df[i,"default_unit"] <- "mg/L"
+    }
+    else{
+      next
     }
   }
-  return(to_conv)
-}
-
-#' Function to convert units
-#' 
-#' @param df dataframe of groundwater data
-#' @param element element name to convert
-#' @param from original units
-#' @param to new units
-#' @export
-
-convert_units <- function(df, element, from, to){
-  rws <- grepl(paste(element), df$param_name)
-  df[rws, "analysis_result"] <- udunits2::ud.convert(df[rws, "analysis_result"],
-                                                     from, to)
-  df[rws, "default_unit"] <- to
   return(df)
 }
+
 
 #' Function to compare result to EPA's MCL
 #' 
@@ -74,10 +50,7 @@ convert_units <- function(df, element, from, to){
 #' @param type default is all
 #' @export
 
-compare_MCL <- function(df, format = "summary", type = "all") {
-  data(mcl)
-  df <- get_MCL_params(df, type=type)
-  check_units(df)
+compare_mcl <- function(df, format = "summary", type = "all") {
   df$exceedance <- NA
   for (i in 1:nrow(mcl)){
     element <- mcl$param_name[i]
@@ -89,9 +62,11 @@ compare_MCL <- function(df, format = "summary", type = "all") {
   }
   # dangerous to use na.omit
   if(isTRUE(format == "summary")){
-    out <- reshape2::dcast(na.omit(df), value.var = "exceedance", 
-                           location_id ~ param_name, sum)
-
+    mcl_perc <- ddply(na.omit(df), .(location_id, param_name), 
+                      function(x) sum(x$exceedance, na.rm=TRUE)/nrow(x)*100)
+    colnames(mcl_perc) <- c("location_id", "param_name", "pct_mcl_exceed")
+    out <- reshape2::dcast(mcl_perc, value.var = "pct_mcl_exceed", 
+                           location_id ~ param_name)
   } else {
     out <- na.omit(df)
   }
@@ -108,8 +83,8 @@ mcl_heatmap <- function(df, title){
   ggplot(mcl_heat, aes(location_id, variable, fill=value)) + geom_tile() +
     scale_fill_gradient(low = "white", high = "steelblue") + 
     theme(axis.text.x = element_text(angle=90), axis.ticks.x=element_blank(),
-          axis.ticks.y=element_blank()) + 
-    guides(fill=guide_legend(title="Number of\nExceedances")) + 
+          axis.ticks.y=element_blank(), panel.background = element_blank()) + 
+    guides(fill=guide_legend(title="Percent\nExceedance")) + 
     xlab("") + ylab("")  + ggtitle(paste(title))
 }
 
