@@ -30,20 +30,25 @@ get_MCL_params <- function(df, type="all"){
 
 check_units <- function(df){
   data(mcl)
+  to_conv <- data.frame(element = character(), data_unit = character(), 
+                        mcl_unit = character())
   for(i in 1:nrow(mcl)){
     element <- mcl$param_name[i]
     unit <- mcl$default_unit[i]
     rws <- grepl(paste(element), df$param_name)
     tmp <- df[rws,]
     for(j in 1:nrow(tmp)){
-      if(tmp[j, "default_unit"] != unit){
-        cat(paste("Convert units units for", element, "\n"))
-        cat(paste("Data frame units are", tmp[j, "default_unit"], "\n"))
-        cat(paste("MCL units are", unit, "\n"))
+      if(as.character(tmp[j, "default_unit"]) != unit){
+        x <- cbind(element = element, 
+                   data_unit = as.character(tmp[j, "default_unit"]), 
+                   mcl_unit = unit)
+        to_conv <- rbind(x)
+        # need to ensure units are the same for all records
         break
-      } 
+      }
     }
   }
+  return(to_conv)
 }
 
 #' Function to convert units
@@ -71,6 +76,8 @@ convert_units <- function(df, element, from, to){
 
 compare_MCL <- function(df, format = "summary", type = "all") {
   data(mcl)
+  df <- get_MCL_params(df, type=type)
+  check_units(df)
   df$exceedance <- NA
   for (i in 1:nrow(mcl)){
     element <- mcl$param_name[i]
