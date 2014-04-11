@@ -1,8 +1,8 @@
-\name{compare_MCL}
-\alias{compare_MCL}
+\name{compare_mcl}
+\alias{compare_mcl}
 \title{Function to compare result to EPA's MCL}
 \usage{
-compare_MCL(df, format = "summary", type = "all")
+compare_mcl(df, format = "summary", type = "all")
 }
 \arguments{
   \item{df}{dataframe of groundwater data that has been

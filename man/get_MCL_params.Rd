@@ -1,8 +1,8 @@
-\name{get_MCL_params}
-\alias{get_MCL_params}
+\name{get_mcl_params}
+\alias{get_mcl_params}
 \title{Function to find EPA primary and seconday water constituents}
 \usage{
-get_MCL_params(df, type = "all")
+get_mcl_params(df, type = "all")
 }
 \arguments{
   \item{df}{dataframe of groundwater data}

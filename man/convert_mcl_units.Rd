@@ -1,0 +1,14 @@
+\name{convert_mcl_units}
+\alias{convert_mcl_units}
+\title{Function to compare groundwater parameter units to EPA MCL data}
+\usage{
+convert_mcl_units(df)
+}
+\arguments{
+  \item{df}{dataframe of groundwater data}
+}
+\description{
+Function to compare groundwater parameter units to EPA MCL
+data
+}
+

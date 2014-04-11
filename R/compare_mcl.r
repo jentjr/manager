@@ -1,7 +1,7 @@
 #' Function to find EPA primary and seconday water constituents
 #' 
 #' @param df dataframe of groundwater data
-#' @export
+
 
 get_mcl_params <- function(df, type="all"){
   data(mcl)
@@ -26,7 +26,7 @@ get_mcl_params <- function(df, type="all"){
 #' Function to compare groundwater parameter units to EPA MCL data
 #' 
 #' @param df dataframe of groundwater data
-#' @export 
+
 
 convert_mcl_units <- function(df){
   for(i in 1:nrow(df)){
@@ -48,7 +48,7 @@ convert_mcl_units <- function(df){
 #' @param df dataframe of groundwater data that has been unit checked
 #' @param format default summary
 #' @param type default is all
-#' @export
+
 
 compare_mcl <- function(df, format = "summary", type = "all") {
   df$exceedance <- NA
@@ -62,7 +62,7 @@ compare_mcl <- function(df, format = "summary", type = "all") {
   }
   # dangerous to use na.omit
   if(isTRUE(format == "summary")){
-    mcl_perc <- ddply(na.omit(df), .(location_id, param_name), 
+    mcl_perc <- plyr::ddply(na.omit(df), .(location_id, param_name), 
                       function(x) sum(x$exceedance, na.rm=TRUE)/nrow(x)*100)
     colnames(mcl_perc) <- c("location_id", "param_name", "pct_mcl_exceed")
     out <- reshape2::dcast(mcl_perc, value.var = "pct_mcl_exceed", 
@@ -76,8 +76,12 @@ compare_mcl <- function(df, format = "summary", type = "all") {
 
 
 
-# Spacetime plot for each mcl with location on y axis, time on x axis
-# solid color if exceeds mcl
+#' Plot for each mcl with location on x axis, MCL parameters on x axis
+#' 
+#' @param df dataframe of mcl summary
+#' @param title title of plot
+
+
 mcl_heatmap <- function(df, title){
   mcl_heat <- reshape2::melt(df, id.vars = "location_id")
   ggplot(mcl_heat, aes(location_id, variable, fill=value)) + geom_tile() +
@@ -88,9 +92,9 @@ mcl_heatmap <- function(df, title){
     xlab("") + ylab("")  + ggtitle(paste(title))
 }
 
-gw_heatmap_multi <- function(df) {
-  d_ply(df, .(param_name), gw_heatmap, .print=TRUE)
-}
+# gw_heatmap_multi <- function(df) {
+#   d_ply(df, .(param_name), gw_heatmap, .print=TRUE)
+# }
 
 # # example exceedance table output
 # 
