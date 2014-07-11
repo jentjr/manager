@@ -10,28 +10,28 @@
 # p1 + geom_point(data = well_data, aes(x = longitude, y = latitude), size = 4)
 
 
-get_center <- function(data, longitude, latitude){
-  lat = mean(data[,latitude], na.rm=TRUE)
-  lng = mean(data[,longitude], na.rm=TRUE)
-  return(list(lat = lat, lng = lng))
-}
-
-
-library(rCharts)
-leaflet_plot <- function(data = sp_data, width = 1200, height = 800, type = "terrain"){
-  center_ <- get_center(data, "long_pos", "lat_pos")
-  L1 <- Leaflet$new()
-  L1$set(width = width, height = height)
-  L1$setView(c(center_$lat, center_$lng), 14)
-  if (type == "terrain"){
-    L1$tileLayer(provider = 'Stamen.Terrain')
-  }
-  if (type == "satellite"){
-    L1$tileLayer(provider = 'Esri.WorldImagery')
-  }
-  for(i in 1:nrow(data)){
-    L1$marker(c(data$lat_pos[i], data$long_pos[i]), bindPopup = paste(data$location_id[i]))
-  }
-  return(L1)
-}
+# get_center <- function(data, longitude, latitude){
+#   lat = mean(data[,latitude], na.rm=TRUE)
+#   lng = mean(data[,longitude], na.rm=TRUE)
+#   return(list(lat = lat, lng = lng))
+# }
+# 
+# 
+# library(rCharts)
+# leaflet_plot <- function(data = sp_data, width = 1200, height = 800, type = "terrain"){
+#   center_ <- get_center(data, "long_pos", "lat_pos")
+#   L1 <- Leaflet$new()
+#   L1$set(width = width, height = height)
+#   L1$setView(c(center_$lat, center_$lng), 14)
+#   if (type == "terrain"){
+#     L1$tileLayer(provider = 'Stamen.Terrain')
+#   }
+#   if (type == "satellite"){
+#     L1$tileLayer(provider = 'Esri.WorldImagery')
+#   }
+#   for(i in 1:nrow(data)){
+#     L1$marker(c(data$lat_pos[i], data$long_pos[i]), bindPopup = paste(data$location_id[i]))
+#   }
+#   return(L1)
+# }
 

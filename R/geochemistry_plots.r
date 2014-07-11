@@ -98,8 +98,14 @@ convert_mgL_to_meqL <- function(df, Mg="Magnesium, dissolved",
 #' @keywords piper diagram
 #' @export
 
-transform_piper_data <- function(df, Mg="Mg", Ca="Ca", Na="Na", K="K", Cl="Cl", 
-                                 SO4="SO4", CO3=NULL, Alk="HCO3", 
+transform_piper_data <- function(df, Mg="Magnesium, dissolved", 
+                                 Ca="Calcium, dissolved", 
+                                 Na="Sodium, dissolved", 
+                                 K="Potassium, dissolved", 
+                                 Cl="Chloride, total", 
+                                 SO4="Sulfate, total", 
+                                 CO3=NULL, 
+                                 Alk="Alkalinity, total (lab)", 
                                  TDS="Total Dissolved Solids", 
                                  name = "location_id", date = "sample_date", 
                                  units = NULL){
@@ -157,130 +163,141 @@ return(piper_data)
 
 ggplot_piper <- function() {
   
-  # gridlines
-  grid1p1 <<- data.frame(x1 = c(20, 40, 60, 80), 
-                         x2= c(10, 20, 30, 40), 
-                         y1 = c(0, 0, 0, 0), 
-                         y2 = c(17.3206, 34.6412, 51.9618, 69.2824))
-  
-  grid1p2 <<- data.frame(x1 = c(20, 40, 60, 80), 
-                         x2= c(60, 70, 80, 90), 
-                         y1 = c(0, 0, 0, 0), 
-                         y2 = c(69.2824, 51.9618, 34.6412, 17.3206))
-  
-  grid1p3 <<- data.frame(x1 = c(10, 20, 30, 40), 
-                         x2= c(90, 80, 70, 60), 
-                         y1 = c(17.3206, 34.6412, 51.9618, 69.2824), 
-                         y2 = c(17.3206, 34.6412, 51.9618, 69.2824))
-  
-  # left slant gridlines for anion triangle
-  grid2p1 <<- grid1p1 
-  grid2p1$x1 <<- grid2p1$x1+120
-  grid2p1$x2 <<- grid2p1$x2+120
-  
-  # right slant lines for anion triangle
-  grid2p2 <<- grid1p2
-  grid2p2$x1 <<- grid2p2$x1+120
-  grid2p2$x2 <<- grid2p2$x2+120
-  
-  # horizontal lines for anion triangle
-  grid2p3 <<- grid1p3
-  grid2p3$x1 <<- grid2p3$x1+120
-  grid2p3$x2 <<- grid2p3$x2+120
-  
-  #
-  grid3p1 <<- data.frame(x1=c(100,90, 80, 70), 
-                         y1=c(34.6412, 51.9618, 69.2824, 86.603), 
-                         x2=c(150, 140, 130, 120), 
-                         y2=c(121.2442, 138.5648, 155.8854, 173.2060))
-  
-  grid3p2 <<- data.frame(x1=c(70, 80, 90, 100), 
-                         y1=c(121.2442, 138.5648, 155.8854, 173.2060), 
-                         x2=c(120, 130, 140, 150), 
-                         y2=c(34.6412, 51.9618, 69.2824, 86.603))
-  
   p <- ggplot() +
 
     ## left hand ternary plot
-    geom_segment(aes(x=0,y=0, xend=100, yend=0)) +
-    geom_segment(aes(x=0,y=0, xend=50, yend=86.603)) +
-    geom_segment(aes(x=50,y=86.603, xend=100, yend=0)) +
+    geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0)) +
+    geom_segment(aes(x = 0, y = 0, xend = 50, yend = 86.603)) +
+    geom_segment(aes(x = 50, y = 86.603, xend = 100, yend = 0)) +
     
     ## right hand ternary plot
     ## shifted right by 20 points 
-    geom_segment(aes(x=120,y=0, xend=220, yend=0)) +
-    geom_segment(aes(x=120,y=0, xend=170, yend=86.603)) +
-    geom_segment(aes(x=170,y=86.603, xend=220, yend=0)) +
+    geom_segment(aes(x = 120, y = 0, xend = 220, yend = 0)) +
+    geom_segment(aes(x = 120, y = 0, xend = 170, yend = 86.603)) +
+    geom_segment(aes(x = 170, y = 86.603, xend = 220, yend = 0)) +
     
     ## Upper diamond
-    geom_segment(aes(x=110, y=190.5266, xend=60, yend=103.9236)) +
-    geom_segment(aes(x=110, y=190.5266, xend=160, yend=103.9236)) +
-    geom_segment(aes(x=110, y=17.3206, xend=160, yend=103.9236)) +
-    geom_segment(aes(x=110, y=17.3206, xend=60, yend=103.9236)) +
+    geom_segment(aes(x = 110, y = 190.5266, xend = 60, yend = 103.9236)) +
+    geom_segment(aes(x = 110, y = 190.5266, xend = 160, yend = 103.9236)) +
+    geom_segment(aes(x = 110, y = 17.3206, xend = 160, yend = 103.9236)) +
+    geom_segment(aes(x = 110, y = 17.3206, xend = 60, yend = 103.9236)) +
     
     ## Add grid lines to the plots
-    geom_segment(aes(x=x1, y=y1, yend=y2, xend=x2), data=grid1p1, 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
+                 data=data.frame(x1 = c(20, 40, 60, 80), 
+                                 x2 = c(10, 20, 30, 40), 
+                                 y1 = c(0, 0, 0, 0), 
+                                 y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x=x1, y=y1, yend=y2, xend=x2), data=grid1p2, 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
+                 data=data.frame(x1 = c(20, 40, 60, 80), 
+                                 x2 = c(60, 70, 80, 90), 
+                                 y1 = c(0, 0, 0, 0), 
+                                 y2 = c(69.2824, 51.9618, 34.6412, 17.3206)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x=x1, y=y1, yend=y2, xend=x2), data=grid1p3, 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
+                 data=data.frame(x1 = c(10, 20, 30, 40), 
+                                 x2 = c(90, 80, 70, 60), 
+                                 y1 = c(17.3206, 34.6412, 51.9618, 69.2824), 
+                                 y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x=x1, y=y1, yend=y2, xend=x2), data=grid2p1, 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
+                 data=data.frame(x1 = c(140, 160, 180, 200), 
+                                 x2 = c(130, 140, 150, 160), 
+                                 y1 = c(0, 0, 0, 0), 
+                                 y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x=x1, y=y1, yend=y2, xend=x2), data=grid2p2, 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
+                 data=data.frame(x1 = c(140, 160, 180, 200), 
+                                 x2 = c(180, 190, 200, 210), 
+                                 y1 = c(0, 0, 0, 0), 
+                                 y2 = c(69.2824, 51.9618, 34.6412, 17.3206)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x=x1, y=y1, yend=y2, xend=x2), data=grid2p3, 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
+                 data=data.frame(x1 = c(130, 140, 150, 160), 
+                                 x2 = c(210, 200, 190, 180), 
+                                 y1 = c(17.3206, 34.6412, 51.9618, 69.2824), 
+                                 y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x=x1, y=y1, yend=y2, xend=x2), data=grid3p1, 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
+                 data=data.frame(x1 = c(100,90, 80, 70), 
+                                 y1 = c(34.6412, 51.9618, 69.2824, 86.603), 
+                                 x2 = c(150, 140, 130, 120), 
+                                 y2 = c(121.2442, 138.5648, 155.8854, 173.2060)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x=x1, y=y1, yend=y2, xend=x2), data=grid3p2, 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
+                 data=data.frame(x1 = c(70, 80, 90, 100), 
+                                 y1 = c(121.2442, 138.5648, 155.8854, 173.2060), 
+                                 x2 = c(120, 130, 140, 150), 
+                                 y2 = c(34.6412, 51.9618, 69.2824, 86.603)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    
-    geom_text(aes(c(20,40,60,80),c(-5,-5,-5,-5), label=c(80, 60, 40, 20)), 
-              size=3) +
-    geom_text(aes(c(35,25,15,5), grid1p2$y2, label=c(80, 60, 40, 20)), 
-              size=3) +
-    geom_text(aes(c(95,85,75,65), grid1p3$y2, label=c(80, 60, 40, 20)), 
-              size=3) +
-    
-    # geom_text(aes(17,50, label="Mg^2"), parse=T, angle=60, size=4) +
+    geom_text(aes(x = c(20, 40, 60, 80), y = c(-5,-5,-5,-5), 
+                  label=c(80, 60, 40, 20)), size=3) +
+    geom_text(aes(x = c(35, 25, 15, 5), 
+                  y = c(69.2824, 51.9618, 34.6412, 17.3206), 
+                  label=c(80, 60, 40, 20)), size=3) +
+    geom_text(aes(x = c(95, 85, 75, 65), 
+                  y = c(17.3206, 34.6412, 51.9618, 69.2824),
+                  label=c(80, 60, 40, 20)), size=3) +
     coord_equal(ratio=1) +  
-    geom_text(aes(17,50, label="Mg^+2"), angle=60, size=4, parse=TRUE) +  
-    geom_text(aes(82.5,50, label="Na + K"), angle=-60, size=4) +
-    geom_text(aes(50,-10, label="Ca^+2"), size=4, parse=TRUE) +
+    
+    # Labels for cations
+    geom_text(aes(x = 17, y = 50, label="-phantom()~Mg^+2 %->%phantom()"), 
+          angle=60, size=4, parse=TRUE) +  
+    geom_text(aes(x = 82, y = 50, 
+          label="-phantom()~Na^+phantom()~+~K^+phantom() %->%phantom()"),
+          angle=-60, size=4, parse=TRUE) +
+    geom_text(aes(x = 50,y = -10, 
+          label="phantom()%<-%phantom()~Ca^+2~-phantom()"), 
+          size=4, parse=TRUE) +
     
     # labels for anion plot
-    geom_text(aes(170,-10, label="Cl^-phantom()"), size=4, parse=TRUE) +
-    geom_text(aes(205,50, label="SO[4]^+2"), angle=-60, size=4, parse=TRUE) +
-    geom_text(aes(137.5,50, label="Alkalinity"), angle=60, size=4, parse=TRUE) +
+    geom_text(aes(x = 170, y = -10, 
+          label="- Cl^-phantom() %->%phantom()"), size=4, parse=TRUE) +
+    geom_text(aes(x = 205, y = 50, 
+          label="phantom()%<-%phantom()~SO[4]^+2~-phantom()"), 
+          angle=-60, size=4, parse=TRUE) +
+    geom_text(aes(x = 138.5, y = 50, 
+          label="phantom()%<-%phantom()~Alkalinity~-phantom()"), 
+          angle=60, size=4, parse=TRUE) +
     
-    # 
-    geom_text(aes(72.5,150, label="SO[4]^+2~+~Cl^-phantom()"), angle=60, 
-              size=4, parse=TRUE) +
-    geom_text(aes(147.5,150, label="Ca^+2~+~Mg^+2"), angle=-60, size=4, 
-              parse=TRUE) + 
-
-    geom_text(aes(c(155,145,135,125), grid2p2$y2, label=c(20, 40, 60, 80)), 
-              size=3) +
-    geom_text(aes(c(215,205,195,185), grid2p3$y2, label=c(20, 40, 60, 80)), 
-              size=3) +
-    geom_text(aes(c(140,160,180,200), c(-5,-5,-5,-5), label=c(20, 40, 60, 80)), 
-              size=3) +
-    geom_text(aes(grid3p1$x1-5, grid3p1$y1, label=c(80, 60, 40, 20)), size=3) +
-    geom_text(aes(grid3p1$x2+5, grid3p1$y2, label=c(20, 40, 60, 80)), size=3) +
-    geom_text(aes(grid3p2$x1-5, grid3p2$y1, label=c(20, 40, 60, 80)), size=3) +
-    geom_text(aes(grid3p2$x2+5, grid3p2$y2, label=c(80, 60, 40, 20)), size=3) +
-    
+    # Diamond Labels
+    geom_text(aes(x = 72.5, y = 150, 
+          label="-phantom()~SO[4]^+2~+~Cl^-phantom()~phantom()%->%phantom()"),
+          angle=60, size=4, parse=TRUE) +
+    geom_text(aes(x = 147.5, y = 150, 
+          label="phantom()%<-%phantom()~Ca^+2~+~Mg^+2~-phantom()"), 
+          angle=-60, size=4, parse=TRUE) + 
+    geom_text(aes(x = c(155, 145, 135, 125), 
+                  y = c(69.2824, 51.9618, 34.6412, 17.3206),
+                  label=c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(x = c(215, 205, 195, 185), 
+                  y = c(17.3206, 34.6412, 51.9618, 69.2824),
+                  label = c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(x = c(140, 160, 180, 200), 
+                  y = c(-5, -5, -5, -5), 
+                  label = c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(x = c(95, 85, 75, 65), 
+                  y = c(34.6412, 51.9618, 69.2824, 86.603), 
+                  label = c(80, 60, 40, 20)), size=3) +
+    geom_text(aes(x = c(155, 145, 135, 125), 
+                  y = c(121.2442, 138.5648, 155.8854, 173.2060),
+                  label = c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(x = c(65, 75, 85, 95), 
+                  y = c(121.2442, 138.5648, 155.8854, 173.2060),
+                  label = c(20, 40, 60, 80)), size=3) +
+    geom_text(aes(x = c(125, 135, 145, 155), 
+                  y = c(34.6412, 51.9618, 69.2824, 86.603),
+                  label = c(80, 60, 40, 20)), size=3) +
     theme_bw() +
-    
     theme(panel.grid.major = element_blank(), 
           panel.grid.minor = element_blank(),
           panel.border = element_blank(), axis.ticks = element_blank(),
           axis.text.x = element_blank(), axis.text.y = element_blank(),
           axis.title.x = element_blank(), axis.title.y = element_blank())
-  
+ 
   return(p)
-
+  
 }
 
 #' Function to plot points from transform_piper_data() onto base ggplot_piper
@@ -291,30 +308,41 @@ ggplot_piper <- function() {
 #'  
 #' @export
   
-plot_piper <- function(df, TDS=FALSE){
+piper_plot <- function(df, TDS=FALSE, title){
   if(isTRUE(TDS)){
     ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
-                                               colour = sample_date,
+                                               colour = location_id,
                                                shape = location_id,
-                                               size = TDS)) +
-      geom_point(data = df, aes(x = anion_x, y = anion_y, shape = location_id, 
-                                size = TDS, colour = sample_date)) +
-      geom_point(data = df, aes(x = diam_x, y = diam_y, shape = location_id, 
-                                size = TDS, colour = sample_date)) +
-      scale_size("TDS", range = c(1, 20)) +
-      ggtitle("Piper Diagram") + guides(shape = guide_legend("Location ID"),
-                                        fill = guide_legend("TDS"),
-                                        colour = guide_legend("Sample Date"))
+                                               size = TDS, alpha = 0.2)) +
+      geom_point(data = df, aes(x = anion_x, y = anion_y, shape = location_id,
+                                size = TDS, colour = location_id, 
+                                alpha = 0.2)) +
+      geom_point(data = df, aes(x = diam_x, y = diam_y, shape = location_id,
+                                size = TDS, colour = location_id, 
+                                alpha = 0.2)) +
+      scale_size("TDS", range = c(5, 25)) +
+      scale_colour_brewer(type = "div" , palette = "RdBu") +
+      ggtitle(paste(title)) + guides(size = guide_legend("TDS"),
+                                        colour = guide_legend("Location ID"),
+                                        shape = guide_legend("Location ID"),
+                                        alpha = guide_legend("none"))
   }else{
   ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
+                                             colour = location_id, 
                                              shape = location_id,
-                                             colour = sample_date), size = 3) +
-    geom_point(data = df, aes(x = anion_x, y = anion_y, shape = location_id, 
-                              colour = sample_date), size = 3) +
-    geom_point(data = df, aes(x = diam_x, y = diam_y, shape = location_id,
-                              colour = sample_date), size = 3) +
-    ggtitle("Piper Diagram") + guides(shape = guide_legend("Location ID"),
-                                      colour = guide_legend("Sample Date"))
+                                             alpha = 0.2), size = 5) +
+    geom_point(data = df, aes(x = anion_x, y = anion_y, 
+                              colour = location_id,
+                              shape = location_id,
+                              alpha = 0.2), size = 5) +
+    geom_point(data = df, aes(x = diam_x, y = diam_y, 
+                              colour = location_id,
+                              shape = location_id,
+                              alpha = 0.2), size = 5) +
+    scale_colour_brewer(type = "div" , palette = "RdBu") +
+    ggtitle(paste(title)) + guides(colour = guide_legend("Location ID"),
+                                      shape = guide_legend("Location ID"),
+                                      alpha = guide_legend("none"))
   }
 }
 
@@ -325,16 +353,18 @@ plot_piper <- function(df, TDS=FALSE){
 #' \code{\link{transform_piper_data}}
 #' @export
 
-piper_time_plot <- function(df, TDS = FALSE){
+piper_time_plot <- function(df, TDS = FALSE, title){
   ggplot_piper()
   dev.hold()
   for(i in 1:length(unique(df$sample_date))){
     if(isTRUE(TDS)){
       print(plot_piper(subset(df, sample_date == df$sample_date[i]), 
-                       TDS = TRUE))
+                       TDS = TRUE, title=paste(title, df$sample_date[i], 
+                                               sep="\n")))
       animation::ani.pause()
     }else{
-      print(plot_piper(subset(df, sample_date == df$sample_date[i])))
+      print(plot_piper(subset(df, sample_date == df$sample_date[i]), 
+                       title=paste(title, df$sample_date[i], sep="\n")))
       animation::ani.pause()
     }
   }
@@ -380,9 +410,17 @@ piper_time_html <- function(df, TDS = FALSE){
 #' @param df data frame of groundwater data from \code{\link{get_major_ions}}
 #' @export
 
-transform_stiff_data <- function(df, Mg="Mg", Ca="Ca", Na="Na", K="K", Cl="Cl", 
-                                 SO4="SO4", HCO3="HCO3", name="location_id", 
-                                 date="sample_date", TDS = NULL, units = NULL){
+transform_stiff_data <- function(df, Mg="Magnesium, dissolved", 
+                                 Ca="Calcium, dissolved", 
+                                 Na="Sodium, dissolved", 
+                                 K="Potassium, dissolved", 
+                                 Cl="Chloride, total", 
+                                 SO4="Sulfate, total", 
+                                 HCO3="Alkalinity, total (lab)", 
+                                 name="location_id", 
+                                 date="sample_date", 
+                                 TDS = NULL, 
+                                 units = NULL){
   
   temp <- data.frame(df[,name], df[,date], df[,Mg], df[,Ca], df[,Na] + df[,K], 
                      df[,SO4], df[,HCO3], df[,Cl])
