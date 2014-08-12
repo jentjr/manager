@@ -2,7 +2,7 @@
 options(shiny.maxRequestSize=-1)
 library(groundwater)
 library(ggplot2)
-library(rCharts)
+# library(rCharts)
 library(plyr)
 library(lubridate)
 
@@ -226,11 +226,11 @@ shinyServer(function(input, output) {
      }
    })
  
- # spatial plot of wells
-  output$well_map <- renderMap({
-    if (!is.null(input$manages_path)){
-      sp_data <- get_spatial_data()
-      leaflet_plot(sp_data)
-    }
-  })
+#  # spatial plot of wells
+#   output$well_map <- renderMap({
+#     if (!is.null(input$manages_path)){
+#       sp_data <- get_spatial_data()
+#       leaflet_plot(sp_data)
+#     }
+#   })
 })

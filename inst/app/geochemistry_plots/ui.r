@@ -17,7 +17,7 @@ shinyUI(pageWithSidebar(
       condition = "input.data == FALSE",
       radioButtons(inputId = "file_type", 
                    label = "File Extension", 
-                   choices = c(".mdb", ".csv", ".xls"))),
+                   choices = c("MANAGES Site.mdb", ".csv", ".xls"))),
     conditionalPanel(
       condition = "input.data == TRUE",
       uiOutput("well_list")),
@@ -49,8 +49,8 @@ shinyUI(pageWithSidebar(
       tabPanel("Piper Time Plot", htmlOutput("piper_time_plot")),
       tabPanel("Stiff Plot Data", dataTableOutput("stiff_plot_data")),
       tabPanel("Stiff Diagram", plotOutput("stiff_diagram")),
-      tabPanel("Stiff Time Series", htmlOutput("stiff_time_diagram")),
-      tabPanel("Map", mapOutput("well_map"))
+      tabPanel("Stiff Time Series", htmlOutput("stiff_time_diagram"))
+#       tabPanel("Map", mapOutput("well_map"))
     )
   )
 ))

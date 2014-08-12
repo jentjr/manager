@@ -5,8 +5,8 @@ options(scipen=6, digits = 8)
 
 # load required packages
 library(groundwater)
-library(rCharts)
-library(PerformanceAnalytics)
+# library(rCharts)
+# library(PerformanceAnalytics)
 
 # Define server
 shinyServer(function(input, output) {
@@ -243,23 +243,23 @@ shinyServer(function(input, output) {
     box_out()
   })
 
-  # correlation plot
-  output$corr_plot <- renderPlot({
-    data <- get_data()
-    data_selected <- subset(data, location_id %in% input$well & 
-                              param_name %in% input$analyte)
-    data_cast <- reshape2::dcast(data_selected, 
-      value.var = "analysis_result",location_id + sample_date ~ param_name)
-    chart.Correlation(data_cast[-c(1:2)], method = "spearman", pch=21)
-  })
+#   # correlation plot
+#   output$corr_plot <- renderPlot({
+#     data <- get_data()
+#     data_selected <- subset(data, location_id %in% input$well & 
+#                               param_name %in% input$analyte)
+#     data_cast <- reshape2::dcast(data_selected, 
+#       value.var = "analysis_result",location_id + sample_date ~ param_name)
+#     chart.Correlation(data_cast[-c(1:2)], method = "spearman", pch=21)
+#   })
   
- # spatial plot of wells
-  output$well_map <- renderMap({
-    if (!is.null(input$manages_path)){
-      sp_data <- get_spatial_data()
-      leaflet_plot(sp_data)
-    }
-  })
+#  # spatial plot of wells
+#   output$well_map <- renderMap({
+#     if (!is.null(input$manages_path)){
+#       sp_data <- get_spatial_data()
+#       leaflet_plot(sp_data)
+#     }
+#   })
 
   output$ts_download <- downloadHandler(
     filename = function() {
