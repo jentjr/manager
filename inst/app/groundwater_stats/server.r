@@ -68,7 +68,7 @@ shinyServer(function(input, output, session) {
     get_data() %>%
       subset(location_id %in% input$well & 
             param_name %in% input$analyte) %>%
-      ggvis(~analysis_result, ~sample_date) %>%
+      ggvis(~sample_date, ~analysis_result) %>%
       layer_points() %>%
       layer_lines() 
   }) %>%
