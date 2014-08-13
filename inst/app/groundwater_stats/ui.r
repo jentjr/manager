@@ -1,41 +1,41 @@
 shinyUI(navbarPage("Groundwater Monitoring Statistics",
-   tabPanel("Data",
-      sidebarLayout(
-        sidebarPanel(
-          fileInput(inputId = "manages_path", 
-                    label = "Browse to MANAGES Site.mdb file",
-                    accept = c(".mdb", ".csv", ".xls")),
+  tabPanel("Data",
+    sidebarLayout(
+      sidebarPanel(
+        fileInput(inputId = "manages_path", 
+                  label = "Browse to MANAGES Site.mdb file",
+                  accept = c(".mdb", ".csv", ".xls")),
           conditionalPanel(
             condition = "input.data == FALSE",
-            radioButtons(inputId = "file_type", 
-                         label = "File Extension", 
-                         choices = c(".mdb", ".csv", ".xls")))
+              radioButtons(inputId = "file_type", 
+                           label = "File Extension", 
+                           choices = c(".mdb", ".csv", ".xls")))
+      ),
+      mainPanel(
+        dataTableOutput("well_table")
+      )
+    )          
+  ),
+  navbarMenu("Plots",
+    tabPanel("Boxplots"),
+    tabPanel("Time series",
+      sidebarLayout(
+        sidebarPanel(
+          uiOutput("wells"),
+          uiOutput("analytes"),
+          uiOutput("date_ranges"),
+          checkboxInput(inputId = "scale_plot", label = "Scale Free Plot"),
+          checkboxInput(inputId = "date_lines", label = "Show Date Ranges")
         ),
         mainPanel(
-          dataTableOutput("well_table")
+          plotOutput("time_plot")
         )
-      )          
-   ),
-   navbarMenu("Plots",
-      tabPanel("Boxplots"),
-      tabPanel("Time series",
-        sidebarLayout(
-          sidebarPanel(
-#             uiOutput("time_plot_ui"),
-            uiOutput("wells"),
-            uiOutput("analytes"),
-            uiOutput("date_ranges")
-          ),
-          mainPanel(
-           ggvisOutput("time_plot")
-#            uiOutput("time_plot_ui")
-          )
-        )       
-      ),
-      tabPanel("Piper Diagram")
-   ),
-   navbarMenu("Statistics",
-      tabPanel("Prediction Limit"),
-      tabPanel("Tolerance Interval")
-   )
+      )       
+    ),
+    tabPanel("Piper Diagram")
+  ),
+  navbarMenu("Statistics",
+    tabPanel("Prediction Limit"),
+    tabPanel("Tolerance Interval")
+  )
 ))
