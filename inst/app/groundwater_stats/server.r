@@ -4,7 +4,6 @@ options(shiny.maxRequestSize=-1)
 options(scipen=6, digits = 8)
 
 library(EnvStats)
-library(ggvis)
 
 shinyServer(function(input, output, session) {
   # reactive function to upload data
@@ -16,43 +15,8 @@ shinyServer(function(input, output, session) {
              ".xls" = from_excel(input$manages_path$datapath))
     }      
   })
-
-  # return a list of well names
-  output$wells <- renderUI({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      well_names <- as.character(get_well_names(data))
-      selectInput("well", "Monitoring Wells", well_names, multiple = TRUE,
-                  selected = well_names[1])
-    }
-  })
   
-  # return a list of constituents
-  output$analytes <- renderUI({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      analyte_names <- as.character(get_analytes(data))
-      selectInput("analyte", "Constituents", analyte_names, multiple = TRUE,
-                  selected = analyte_names[1])
-    }
-  })
-  
-  # return start and end date of background data
-  output$date_ranges <- renderUI({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      tagList(
-        dateRangeInput("back_date_range", "Background Date Range", 
-                       start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE)),
-        dateRangeInput("comp_date_range", "Compliance Date Range", 
-                       start = max(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE))  
-      )
-    }
-  })
-  
-  # Output a googleTable of the data
+  # Output a googleTable of the data to be displayed on Data page
   output$well_table <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
@@ -63,14 +27,51 @@ shinyServer(function(input, output, session) {
                     iDisplayLength = 10)
   ) 
   
+  # Begin Boxplot Page
+  # return a list of well names for boxplot page
+  output$wells_box <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      well_names <- as.character(get_well_names(data))
+      selectInput("well_box", "Monitoring Wells", well_names, multiple = TRUE,
+                  selected = well_names[1])
+    }
+  })
+  
+  # return a list of constituents for boxplot page
+  output$analytes_box <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      analyte_names <- as.character(get_analytes(data))
+      selectInput("analyte_box", "Constituents", analyte_names, multiple = TRUE,
+                  selected = analyte_names[1])
+    }
+  })
+  
+#   # return start and end date of background data for boxplot page
+#   output$date_ranges_box <- renderUI({
+#     if (!is.null(input$manages_path)){
+#       data <- get_data()
+#       tagList(
+#         dateRangeInput("back_date_range_box", "Background Date Range", 
+#                        start = min(data$sample_date, na.rm = TRUE),
+#                        end = max(data$sample_date, na.rm = TRUE)),
+#         dateRangeInput("comp_date_range_box", "Compliance Date Range", 
+#                        start = max(data$sample_date, na.rm = TRUE),
+#                        end = max(data$sample_date, na.rm = TRUE))  
+#       )
+#     }
+#   })
+  
   # create boxplots 
   box_out <- reactive({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      data_selected <- subset(data, location_id %in% input$well & 
-                                param_name %in% input$analyte)
-      data_selected$name_units <- paste(data_selected$param_name, 
-                                        " (", data_selected$default_unit, ")", sep = "")
+      data_selected <- subset(data, location_id %in% input$well_box & 
+                                param_name %in% input$analyte_box)
+      data_selected$name_units <- paste(data_selected$param_name,
+                              " (", data_selected$default_unit, ")", sep = "")
+      
       # box plot of analyte
       b <- ggplot(data_selected, aes(location_id, y=analysis_result, 
                                      fill=location_id)) + 
@@ -81,12 +82,12 @@ shinyServer(function(input, output, session) {
         theme(axis.text.x = element_text(angle=90)) +
         theme(axis.title.y = element_text(vjust=0.3)) +
         theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in"))
-      if(input$scale_plot){
+      if(input$scale_plot_box){
         b1 <- b + geom_boxplot()  + facet_wrap(~name_units, scale="free")
       } else{
         b1 <- b + geom_boxplot() + facet_wrap(~name_units)
       }
-      if(input$coord_flip){
+      if(input$coord_flip_box){
         b1 <- b1 + coord_flip()
       }
       print(b1)
@@ -97,6 +98,45 @@ shinyServer(function(input, output, session) {
   output$box_plot <- renderPlot({
     box_out()
   })
+  # End Boxplot Page
+  
+  # Time Series Page
+  # return a list of well names for time series page
+  output$wells_time <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      well_names <- as.character(get_well_names(data))
+      selectInput("well_time", "Monitoring Wells", well_names, 
+                  multiple = TRUE,
+                  selected = well_names[1])
+    }
+  })
+  
+  # return a list of constituents for time series page
+  output$analytes_time <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      analyte_names <- as.character(get_analytes(data))
+      selectInput("analyte_time", "Constituents", analyte_names, 
+                  multiple = TRUE,
+                  selected = analyte_names[1])
+    }
+  })
+  
+  # return start and end date of background data for time series page
+  output$date_ranges_time <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      tagList(
+        dateRangeInput("back_date_range_time", "Background Date Range", 
+                       start = min(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE)),
+        dateRangeInput("comp_date_range_time", "Compliance Date Range", 
+                       start = max(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE))  
+      )
+    }
+  })
   
   # time series plot output
   ts_out <- reactive({
@@ -105,16 +145,14 @@ shinyServer(function(input, output, session) {
       
       data$non_detect <- ifelse(data$lt_measure == "<", 
                                 "non-detect", "detected")
-      #       df$param_name <- paste(df$short_name, " (", 
-      #                              df$default_unit, ")", sep = "")
       
-      data_selected <- subset(data, location_id %in% input$well & 
-                                param_name %in% input$analyte)
+      data_selected <- subset(data, location_id %in% input$well_time & 
+                                param_name %in% input$analyte_time)
       
       t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, 
                                      colour = param_name)) 
       
-      if(input$scale_plot){
+      if(input$scale_plot_time){
         # time series plot of analytes gridded by wells
         t1 <- t + geom_point(aes(colour=param_name, shape=factor(non_detect), 
                                  size=3)) + 
@@ -161,18 +199,18 @@ shinyServer(function(input, output, session) {
       if(input$date_lines){
         # create separate data.frame for geom_rect data
         # change dates to POSIXct which is same as MANAGES database dates
-        b1 <- min(as.POSIXct(input$back_date_range, format = "%Y-%m-%d"))
-        c1 <- min(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))
-        b2 <- max(as.POSIXct(input$back_date_range, format = "%Y-%m-%d"))
-        c2 <- max(as.POSIXct(input$comp_date_range, format = "%Y-%m-%d"))
+        b1 <- min(as.POSIXct(input$back_date_range_time, format = "%Y-%m-%d"))
+        c1 <- min(as.POSIXct(input$comp_date_range_time, format = "%Y-%m-%d"))
+        b2 <- max(as.POSIXct(input$back_date_range_time, format = "%Y-%m-%d"))
+        c2 <- max(as.POSIXct(input$comp_date_range_time, format = "%Y-%m-%d"))
         shaded_dates <- data.frame(xmin = c(b1, c1), xmax = c(b2, c2),
                                    ymin = c(-Inf, -Inf), ymax = c(Inf, Inf),
                                    Years = c("background", "compliance"))
         # draw shaded rectangle for background dates and compliance dates
-        t1 <- t1 + geom_rect(data = shaded_dates, aes(xmin = xmin, ymin = ymin,
-                                                      xmax = xmax, 
-                                                      ymax = ymax, fill = Years),
-                             alpha = 0.2, inherit.aes = FALSE) +
+        t1 <- t1 + geom_rect(data = shaded_dates, 
+                             aes(xmin = xmin, ymin = ymin,
+                                 xmax = xmax, ymax = ymax, fill = Years),
+                                 alpha = 0.2, inherit.aes = FALSE) +
           scale_fill_manual(values=c("blue","green")) +
           guides(fill = guide_legend(override.aes = list(linetype = 0)))
       }
@@ -183,5 +221,70 @@ shinyServer(function(input, output, session) {
   output$time_plot <- renderPlot({
     ts_out()
   })
+  # End Time Series page
   
+  # Begin Piper Diagram Page
+  # return a list of well names
+  output$wells_piper <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      well_names <- as.character(get_well_names(data))
+      selectInput("well_piper", "Monitoring Wells", well_names, 
+                  multiple = TRUE, selected = well_names[1])
+    }
+  })
+  
+  # return start and end dates of data
+  output$date_ranges_piper <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      dateRangeInput("date_range_piper", "Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE), 
+                     end = max(data$sample_date, na.rm = TRUE))
+    }
+  })
+  
+  # gather major ions and conver for Piper diagram
+  output$piper_data <- reactive({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      # get the major cations/anions
+      start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
+      end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
+      data_selected <- subset(data, location_id %in% input$well_piper &
+                                sample_date >= start & sample_date <= end)      
+      ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca,
+                             Na=input$Na, K=input$K, Cl=input$Cl, 
+                             SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+      piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca,
+                                         Na=input$Na, K=input$K, Cl=input$Cl, 
+                                         SO4=input$SO4, Alk=input$Alk, 
+                                         TDS=input$TDS)
+      return(piper_data)
+    } 
+  })
+
+  # piper plot
+  output$piper_plot <- renderPlot({
+   if (!is.null(input$manages_path)){
+    data <- get_data()
+    # get the major cations/anions
+    start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
+    end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
+    data_selected <- subset(data, location_id %in% input$well_piper &
+                              sample_date >= start & sample_date <= end)
+    
+    ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, 
+                           Na=input$Na, K=input$K, Cl=input$Cl, 
+                           SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+    piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca, 
+                                       Na=input$Na, K=input$K, Cl=input$Cl, 
+                                       SO4=input$SO4, Alk=input$Alk, 
+                                       TDS=input$TDS)
+
+    piper_plot(piper_data, TDS=input$TDS_plot)
+    }
+  })
+  # End Piper Diagram Page
+
 })

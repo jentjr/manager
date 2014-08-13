@@ -308,7 +308,7 @@ ggplot_piper <- function() {
 #'  
 #' @export
   
-piper_plot <- function(df, TDS=FALSE, title){
+piper_plot <- function(df, TDS=FALSE, title=NULL){
   if(isTRUE(TDS)){
     ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
                                                colour = location_id,
