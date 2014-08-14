@@ -287,4 +287,103 @@ shinyServer(function(input, output, session) {
   })
   # End Piper Diagram Page
 
+  # Begin Prediction Limits
+  output$wells_upl <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      well_names <- as.character(get_well_names(data))
+      selectInput("well_upl", "Monitoring Wells", well_names, 
+                  multiple = FALSE,
+                  selected = well_names[1])
+    }
+  })
+
+  # return a list of constituents for time series page
+  output$analytes_upl <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      analyte_names <- as.character(get_analytes(data))
+      selectInput("analyte_upl", "Constituents", analyte_names, 
+                  multiple = FALSE,
+                  selected = analyte_names[1])
+    }
+  })
+
+  # return start and end date of background data for time series page
+  output$date_ranges_upl <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      tagList(
+        dateRangeInput("back_date_range_upl", "Background Date Range", 
+                       start = min(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE))
+#         dateRangeInput("comp_date_range_upl", "Compliance Date Range", 
+#                        start = max(data$sample_date, na.rm = TRUE),
+#                        end = max(data$sample_date, na.rm = TRUE))  
+      )
+    }
+  })
+
+  bkgd_data <- reactive({
+    if (!is.null(input$manages_path)){
+      df <- get_data()
+      start <- min(as.POSIXct(input$back_date_range_upl, format = "%Y-%m-%d"))
+      end <- max(as.POSIXct(input$back_date_range_upl, format = "%Y-%m-%d"))
+      data_selected <- subset(df, location_id %in% input$well_upl &
+                                param_name %in% input$analyte_upl &
+                                sample_date >= start & sample_date <= end)
+      data_selected
+    }
+  })
+
+  output$gof <- renderPlot({
+    if (!is.null(input$manages_path)){
+      df <- bkgd_data()
+      if (input$int_type == "Normal" || input$int_type == "Non-parametric"){
+        out <- gofTest(df$analysis_result)
+      }
+      if (input$int_type == "Lognormal"){
+        out <- gofTest(df$analysis_result, distribution = "lnorm")
+      }
+      if (input$int_type == "Gamma"){
+        out <- gofTest(df$analysis_result, distribution = "gamma")
+      }
+      plot(out)
+    }
+  })
+
+  output$upl <- renderPrint({
+    if (!is.null(input$manages_path)){
+      
+      df <- bkgd_data()
+      nw <- input$nw
+      nc <- input$nc
+      swfpr <- input$swfpr
+      conf.level = (1 - swfpr)^(1/(nc*nw))
+      
+      if (input$int_type == "Normal"){
+        out <- predIntNormSimultaneous(df$analysis_result, k = input$k, 
+                                     m = input$m, r = input$r, 
+                                     conf.level = conf.level)
+        
+      }
+      if (input$int_type == "Lognormal"){
+        out <- predIntLnormSimultaneous(df$analysis_result, k = input$k,
+                                        m = input$m, r = input$r, 
+                                        conf.level = conf.level)
+      }
+      if (input$int_type == "Gamma"){
+        out <- predIntGammaSimultaneous(df$analysis_result, k = input$k,
+                                        m = input$m, r = input$r,
+                                        conf.level = conf.level)
+      }
+      if (input$int_type == "Non-parametric"){
+        out <- predIntNparSimultaneous(df$analysis_result, k = input$k,
+                                       m = input$m, r = input$r)                            
+      }
+      out
+    }
+  })
+  # End Prediction Limits
+
 })

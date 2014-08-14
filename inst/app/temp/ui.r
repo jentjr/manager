@@ -1,3 +1,4 @@
+library(ggvis)
 library(shiny)
 shinyUI(fluidPage(
   

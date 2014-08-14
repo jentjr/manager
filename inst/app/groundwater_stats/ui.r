@@ -70,7 +70,38 @@ shinyUI(navbarPage("Groundwater Monitoring Statistics",
     )
   ),
   navbarMenu("Statistics",
-    tabPanel("Prediction Limit"),
+    tabPanel("Prediction Limit",
+      sidebarLayout(
+       sidebarPanel(
+        uiOutput("wells_upl"),
+        uiOutput("analytes_upl"),
+        uiOutput("date_ranges_upl"),
+        numericInput("nc", "Number of Constituents", 1),
+        numericInput("nw", "Number of Wells", 1),
+        numericInput("swfpr", "Site-Wide False Positive Rate (0-1)", 0.1),
+        numericInput("k", "Specify a positive integer specifying the 
+                     minimum number of observations (or averages) out of m  
+                     observations (or averages) (all obtained on one future
+                     sampling “occassion”) the prediction interval should 
+                     contain with confidence level conf.level.The default 
+                     value is k=1.", 1),
+        numericInput("m", "Specify a positive integer specifying the maximum
+                     number of future observations (or averages) on one future
+                     sampling “occasion”. The default value is m=2", 2),
+        numericInput("r", "Sampling frequency", 2, 
+                     min=1, max=4),
+        radioButtons("int_type", "Type of Prediction Limit", 
+                     c("Normal", "Lognormal", "Gamma", 
+                       "Non-parametric"), 
+                     selected="Normal")
+       ),
+       mainPanel(
+        plotOutput("gof"),
+        br(),
+        verbatimTextOutput("upl")  
+       )
+      )       
+    ),
     tabPanel("Tolerance Interval")
   )
 ))
