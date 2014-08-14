@@ -1,3 +1,5 @@
+library(ggvis)
+
 shinyUI(navbarPage("Groundwater Monitoring Statistics",
   tabPanel("Data",
     sidebarLayout(
@@ -41,7 +43,9 @@ shinyUI(navbarPage("Groundwater Monitoring Statistics",
           checkboxInput("date_lines", "Show Date Ranges")
         ),
         mainPanel(
-          plotOutput("time_plot")
+          plotOutput("time_plot"),
+          br(),
+          ggvisOutput("plot1")
         )
       )       
     ),
@@ -78,7 +82,7 @@ shinyUI(navbarPage("Groundwater Monitoring Statistics",
         uiOutput("date_ranges_upl"),
         numericInput("nc", "Number of Constituents", 1),
         numericInput("nw", "Number of Wells", 1),
-        numericInput("swfpr", "Site-Wide False Positive Rate (0-1)", 0.1),
+        numericInput("swfpr", "Site-Wide False Positive Rate", 0.1),
         numericInput("k", "Specify a positive integer specifying the 
                      minimum number of observations (or averages) out of m  
                      observations (or averages) (all obtained on one future

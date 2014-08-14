@@ -4,6 +4,7 @@ options(shiny.maxRequestSize=-1)
 options(scipen=6, digits = 8)
 
 library(EnvStats)
+library(ggvis)
 
 shinyServer(function(input, output, session) {
   # reactive function to upload data
@@ -138,6 +139,27 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  # ggvis section for time series
+  ts_data <- reactive({
+    if (!is.null(input$manages_path)){
+      df <- get_data() %>%
+        filter(
+          location_id == local(input$well_time),
+          param_name == local(input$analyte_time)
+        )
+    }
+  })
+
+  reactive({
+    t <- ts_data %>%
+      ggvis(x = ~sample_date, y = ~analysis_result) %>%
+      layer_points() %>%
+      layer_lines() %>%
+      add_axis("x", title = "Sample Date") %>%
+      add_axis("y", title = "Analysis Result")
+  }) %>% bind_shiny("plot1")
+  # end ggvis time series section
+
   # time series plot output
   ts_out <- reactive({
     if (!is.null(input$manages_path)){
@@ -157,7 +179,7 @@ shinyServer(function(input, output, session) {
         t1 <- t + geom_point(aes(colour=param_name, shape=factor(non_detect), 
                                  size=3)) + 
           geom_line() + 
-          facet_wrap(~location_id, scales="free") + 
+          facet_wrap(~location_id, scales="free_y") + 
           theme_bw() + 
           xlab("Sample Date") + 
           scale_x_datetime(labels = scales::date_format("%Y")) +
@@ -317,9 +339,6 @@ shinyServer(function(input, output, session) {
         dateRangeInput("back_date_range_upl", "Background Date Range", 
                        start = min(data$sample_date, na.rm = TRUE),
                        end = max(data$sample_date, na.rm = TRUE))
-#         dateRangeInput("comp_date_range_upl", "Compliance Date Range", 
-#                        start = max(data$sample_date, na.rm = TRUE),
-#                        end = max(data$sample_date, na.rm = TRUE))  
       )
     }
   })
@@ -341,12 +360,15 @@ shinyServer(function(input, output, session) {
       df <- bkgd_data()
       if (input$int_type == "Normal" || input$int_type == "Non-parametric"){
         out <- gofTest(df$analysis_result)
+        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       if (input$int_type == "Lognormal"){
         out <- gofTest(df$analysis_result, distribution = "lnorm")
+        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       if (input$int_type == "Gamma"){
         out <- gofTest(df$analysis_result, distribution = "gamma")
+        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       plot(out)
     }
@@ -365,12 +387,13 @@ shinyServer(function(input, output, session) {
         out <- predIntNormSimultaneous(df$analysis_result, k = input$k, 
                                      m = input$m, r = input$r, 
                                      conf.level = conf.level)
-        
+        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ") 
       }
       if (input$int_type == "Lognormal"){
         out <- predIntLnormSimultaneous(df$analysis_result, k = input$k,
                                         m = input$m, r = input$r, 
                                         conf.level = conf.level)
+        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       if (input$int_type == "Gamma"){
         out <- predIntGammaSimultaneous(df$analysis_result, k = input$k,
@@ -379,7 +402,8 @@ shinyServer(function(input, output, session) {
       }
       if (input$int_type == "Non-parametric"){
         out <- predIntNparSimultaneous(df$analysis_result, k = input$k,
-                                       m = input$m, r = input$r)                            
+                                       m = input$m, r = input$r)  
+        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       out
     }
