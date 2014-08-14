@@ -37,3 +37,15 @@ connect_manages <- function(manages_path) {
   
   return(data)
 }
+
+ggvis_time <- function(df){
+  df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
+  df %>%
+    dplyr::mutate(param = factor(param_name)) %>%
+    ggvis(~sample_date, ~analysis_result, stroke = ~param) %>%
+    layer_points(shape = ~factor(non_detect)) %>%
+    layer_lines() %>%
+    add_axis("x", title = "Sample Date") %>%
+    add_axis("y", title = "Analysis Result", title_offset = 55) %>%
+    add_legend(c("shape", "stroke"))
+}
