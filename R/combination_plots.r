@@ -17,7 +17,7 @@ ind_by_loc_grid <- function(df, back_date = NULL,
   p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
     geom_line(data = df) +
     geom_point(data = df, aes(shape = factor(non_detect)), size = pnt) +
-    facet_wrap(~param_name, scale="free") + 
+    facet_wrap(~param_name, scale="free_y", ncol=1) + 
     ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep=" ")) +
     ylab("Analysis Result") +
     xlab("Sample Date") + 

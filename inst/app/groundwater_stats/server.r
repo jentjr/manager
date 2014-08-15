@@ -140,110 +140,71 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  # ggvis section for time series
-  vis <- reactive({
-    if (!is.null(input$manages_path)){
-      df <- get_data() 
-      df <- subset(df, location_id == input$well_time &
-            param_name == input$analyte_time)
-      df$non_detect <- ifelse(df$lt_measure == "<", 
-                                "non-detect", "detected")
-      df %>%
-      ggvis(x = ~sample_date, y = ~analysis_result, 
-            stroke = ~factor(param_name)) %>%
-        layer_points() %>%
-        layer_lines() %>%
-        add_axis("x", title = "Sample Date") %>%
-        add_axis("y", title = "Analysis Result") 
-    }else{
-      df <- data.frame(x = 1:2, y = 1:1,
-                       labels = c("enter", "data"))
-      df %>% ggvis(~x, ~y, text := ~labels, font = ~labels, fontSize := 40) %>%
-        layer_text() 
-    }
-  })
-  
-  vis %>% bind_shiny("plot1")
+#   # ggvis section for time series
+#   vis <- reactive({
+#     if (!is.null(input$manages_path)){
+#       df <- get_data() 
+#       df <- subset(df, location_id == input$well_time &
+#             param_name == input$analyte_time)
+#       df$non_detect <- ifelse(df$lt_measure == "<", 
+#                                 "non-detect", "detected")
+#       df %>%
+#       dplyr::mutate(param = factor(param_name)) %>%
+#       dplyr::mutate(lt = factor(non_detect)) %>%
+#       ggvis(x = ~sample_date, y = ~analysis_result, stroke = ~param) %>%
+#         layer_points(shape = ~lt) %>%
+#         layer_lines() %>%
+#         add_axis("x", title = "Sample Date") %>%
+#         add_axis("y", title = "Analysis Result", title_offset = 55) %>%
+#         add_legend("shape", "Detected")
+#     }else{
+#       df <- data.frame(x = 1:2, y = 1:1,
+#                        labels = c("enter", "data"))
+#       df %>% ggvis(~x, ~y, text := ~labels, font = ~labels, fontSize := 40) %>%
+#         layer_text() 
+#     }
+#   })
+#   
+#   vis %>% bind_shiny("plot1")
    
   # end ggvis time series section
-
+  
   # time series plot output
   ts_out <- reactive({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      
-      data$non_detect <- ifelse(data$lt_measure == "<", 
-                                "non-detect", "detected")
-      
+                  
       data_selected <- subset(data, location_id %in% input$well_time & 
                                 param_name %in% input$analyte_time)
       
-      t <- ggplot(data_selected, aes(x=sample_date, y=analysis_result, 
-                                     colour = param_name)) 
-      
-      if(input$scale_plot_time){
-        # time series plot of analytes gridded by wells
-        t1 <- t + geom_point(aes(colour=param_name, shape=factor(non_detect), 
-                                 size=3)) + 
-          geom_line() + 
-          facet_wrap(~location_id, scales="free_y") + 
-          theme_bw() + 
-          xlab("Sample Date") + 
-          scale_x_datetime(labels = scales::date_format("%Y")) +
-          ylab("Analysis Result") +
-          scale_colour_discrete(name = "Parameter") + 
-          theme(axis.title.x = element_text(vjust=-0.3)) +
-          theme(axis.text.x = element_text(angle=0)) +
-          theme(axis.title.y = element_text(vjust=0.3)) +
-          theme(legend.background = element_rect()) + 
-          theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
-          guides(colour = guide_legend(override.aes = list(linetype = 0, 
-                                                           fill = NA)), 
-                 shape = guide_legend("Measure", 
-                                      override.aes = list(linetype = 0)),
-                 size = guide_legend("none"),
-                 linetype = guide_legend("Limits")) +
-          scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
-      } else {
-        t1 <- t + geom_point(aes(colour=param_name, shape=factor(non_detect), 
-                                 size=3)) + geom_line() + 
-          facet_wrap(~location_id) + 
-          theme_bw() + 
-          xlab("Sample Date") + 
-          scale_x_datetime(labels = scales::date_format("%Y")) +
-          ylab("Analysis Result") + 
-          scale_colour_discrete(name = "Parameter") +
-          theme(axis.title.x = element_text(vjust=-0.3)) +
-          theme(axis.text.x = element_text(angle=0)) +
-          theme(axis.title.y = element_text(vjust=0.3)) +
-          theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
-          guides(colour = guide_legend(override.aes = list(linetype = 0, 
-                                                           fill = NA)), 
-                 shape = guide_legend("Measure", 
-                                      override.aes = list(linetype = 0)),
-                 size = guide_legend("none"),
-                 linetype = guide_legend("Limits")) +
-          scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
-      }
-      if(input$date_lines){
+      t1 <- ind_by_loc_grid(data_selected)
+              
+      if (input$date_lines){
         # create separate data.frame for geom_rect data
         # change dates to POSIXct which is same as MANAGES database dates
         b1 <- min(as.POSIXct(input$back_date_range_time, format = "%Y-%m-%d"))
         c1 <- min(as.POSIXct(input$comp_date_range_time, format = "%Y-%m-%d"))
         b2 <- max(as.POSIXct(input$back_date_range_time, format = "%Y-%m-%d"))
         c2 <- max(as.POSIXct(input$comp_date_range_time, format = "%Y-%m-%d"))
-        shaded_dates <- data.frame(xmin = c(b1, c1), xmax = c(b2, c2),
-                                   ymin = c(-Inf, -Inf), ymax = c(Inf, Inf),
-                                   Years = c("background", "compliance"))
-        # draw shaded rectangle for background dates and compliance dates
-        t1 <- t1 + geom_rect(data = shaded_dates, 
-                             aes(xmin = xmin, ymin = ymin,
-                                 xmax = xmax, ymax = ymax, fill = Years),
-                                 alpha = 0.2, inherit.aes = FALSE) +
-          scale_fill_manual(values=c("blue","green")) +
-          guides(fill = guide_legend(override.aes = list(linetype = 0)))
+        
+        t1 <- ind_by_loc_grid(data_selected, back_date = c(b1, b2), 
+                              comp_date = c(c1, c2))
       }
-      print(t1)
+      if (input$short_name){
+        t1 <- ind_by_loc_grid(data_selected, name="short")
+      }
+      if (input$short_name & input$date_lines){
+        # create separate data.frame for geom_rect data
+        # change dates to POSIXct which is same as MANAGES database dates
+        b1 <- min(as.POSIXct(input$back_date_range_time, format = "%Y-%m-%d"))
+        c1 <- min(as.POSIXct(input$comp_date_range_time, format = "%Y-%m-%d"))
+        b2 <- max(as.POSIXct(input$back_date_range_time, format = "%Y-%m-%d"))
+        c2 <- max(as.POSIXct(input$comp_date_range_time, format = "%Y-%m-%d"))
+        
+        t1 <- ind_by_loc_grid(data_selected, back_date = c(b1, b2), 
+                              comp_date = c(c1, c2), name = "short")
+      }
+      t1
     }
   })
   # output ts plot to ui

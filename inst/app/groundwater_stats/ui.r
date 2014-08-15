@@ -29,7 +29,7 @@ shinyUI(navbarPage("Groundwater Monitoring Statistics",
          checkboxInput("coord_flip_box", "Flip Coordinates")
         ),
         mainPanel(
-          plotOutput("box_plot")
+          plotOutput("box_plot", height = 675, width = 825)
         )
       )       
     ),
@@ -39,13 +39,13 @@ shinyUI(navbarPage("Groundwater Monitoring Statistics",
           uiOutput("wells_time"),
           uiOutput("analytes_time"),
           uiOutput("date_ranges_time"),
-          checkboxInput("scale_plot_time", "Scale Free Plot"),
+          checkboxInput("short_name", "Abbreviate Constituent Name"),
           checkboxInput("date_lines", "Show Date Ranges")
         ),
         mainPanel(
-#           plotOutput("time_plot"),
+          plotOutput("time_plot", height = 675, width = 825)
 #           br(),
-          ggvisOutput("plot1")
+#           ggvisOutput("plot1")
         )
       )       
     ),
@@ -68,7 +68,7 @@ shinyUI(navbarPage("Groundwater Monitoring Statistics",
                      label = "Scale by Total Dissolved Solids")
       ),
       mainPanel(
-       plotOutput("piper_plot")  
+       plotOutput("piper_plot", height = 700, width = 800)  
       )
      )
     )
