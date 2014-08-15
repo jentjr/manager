@@ -43,8 +43,8 @@ shinyUI(navbarPage("Groundwater Monitoring Statistics",
           checkboxInput("date_lines", "Show Date Ranges")
         ),
         mainPanel(
-          plotOutput("time_plot"),
-          br(),
+#           plotOutput("time_plot"),
+#           br(),
           ggvisOutput("plot1")
         )
       )       

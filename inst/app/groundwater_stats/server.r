@@ -13,14 +13,15 @@ shinyServer(function(input, output, session) {
       switch(input$file_type, 
              ".csv" = from_csv(input$manages_path$datapath),
              ".mdb" = connect_manages(input$manages_path$datapath),
-             ".xls" = from_excel(input$manages_path$datapath))
+             ".xls" = from_excel(input$manages_path$datapath)) %>%
+        arrange(location_id, sample_date, param_name)
     }      
   })
   
   # Output a googleTable of the data to be displayed on Data page
   output$well_table <- renderDataTable({
     if (!is.null(input$manages_path)){
-      data <- get_data()
+      data <- get_data() 
       return(data)
     }
   }, options = list(sScrollY = "100%", sScrollX = "100%", 
@@ -140,24 +141,30 @@ shinyServer(function(input, output, session) {
   })
   
   # ggvis section for time series
-  ts_data <- reactive({
+  vis <- reactive({
     if (!is.null(input$manages_path)){
-      df <- get_data() %>%
-        filter(
-          location_id == local(input$well_time),
-          param_name == local(input$analyte_time)
-        )
+      df <- get_data() 
+      df <- subset(df, location_id == input$well_time &
+            param_name == input$analyte_time)
+      df$non_detect <- ifelse(df$lt_measure == "<", 
+                                "non-detect", "detected")
+      df %>%
+      ggvis(x = ~sample_date, y = ~analysis_result, 
+            stroke = ~factor(param_name)) %>%
+        layer_points() %>%
+        layer_lines() %>%
+        add_axis("x", title = "Sample Date") %>%
+        add_axis("y", title = "Analysis Result") 
+    }else{
+      df <- data.frame(x = 1:2, y = 1:1,
+                       labels = c("enter", "data"))
+      df %>% ggvis(~x, ~y, text := ~labels, font = ~labels, fontSize := 40) %>%
+        layer_text() 
     }
   })
-
-  reactive({
-    t <- ts_data %>%
-      ggvis(x = ~sample_date, y = ~analysis_result) %>%
-      layer_points() %>%
-      layer_lines() %>%
-      add_axis("x", title = "Sample Date") %>%
-      add_axis("y", title = "Analysis Result")
-  }) %>% bind_shiny("plot1")
+  
+  vis %>% bind_shiny("plot1")
+   
   # end ggvis time series section
 
   # time series plot output
