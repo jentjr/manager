@@ -321,7 +321,7 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
                                 size = TDS, colour = location_id, 
                                 alpha = 0.2)) +
       scale_size("TDS", range = c(5, 25)) +
-      scale_colour_brewer(type = "div" , palette = "RdBu") +
+      scale_colour_brewer(palette = "Dark2") +
       ggtitle(paste(title)) + guides(size = guide_legend("TDS"),
                                         colour = guide_legend("Location ID"),
                                         shape = guide_legend("Location ID"),
@@ -339,7 +339,7 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
                               colour = location_id,
                               shape = location_id,
                               alpha = 0.2), size = 5) +
-    scale_colour_brewer(type = "div" , palette = "RdBu") +
+    scale_colour_brewer(palette = "Dark2") +
     ggtitle(paste(title)) + guides(colour = guide_legend("Location ID"),
                                       shape = guide_legend("Location ID"),
                                       alpha = guide_legend("none"))

@@ -44,8 +44,6 @@ shinyUI(navbarPage("Groundwater Monitoring Statistics",
         ),
         mainPanel(
           plotOutput("time_plot", height = 675, width = 825)
-#           br(),
-#           ggvisOutput("plot1")
         )
       )       
     ),

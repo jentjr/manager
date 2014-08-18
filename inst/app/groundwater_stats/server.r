@@ -50,27 +50,14 @@ shinyServer(function(input, output, session) {
     }
   })
   
-#   # return start and end date of background data for boxplot page
-#   output$date_ranges_box <- renderUI({
-#     if (!is.null(input$manages_path)){
-#       data <- get_data()
-#       tagList(
-#         dateRangeInput("back_date_range_box", "Background Date Range", 
-#                        start = min(data$sample_date, na.rm = TRUE),
-#                        end = max(data$sample_date, na.rm = TRUE)),
-#         dateRangeInput("comp_date_range_box", "Compliance Date Range", 
-#                        start = max(data$sample_date, na.rm = TRUE),
-#                        end = max(data$sample_date, na.rm = TRUE))  
-#       )
-#     }
-#   })
-  
   # create boxplots 
   box_out <- reactive({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      data_selected <- subset(data, location_id %in% input$well_box & 
-                                param_name %in% input$analyte_box)
+      wells <- input$well_box
+      analytes <- input$analyte_box
+      data_selected <- data[data$location_id %in% wells & 
+                                data$param_name %in% analytes, ]
       data_selected$name_units <- paste(data_selected$param_name,
                               " (", data_selected$default_unit, ")", sep = "")
       
@@ -140,42 +127,15 @@ shinyServer(function(input, output, session) {
     }
   })
   
-#   # ggvis section for time series
-#   vis <- reactive({
-#     if (!is.null(input$manages_path)){
-#       df <- get_data() 
-#       df <- subset(df, location_id == input$well_time &
-#             param_name == input$analyte_time)
-#       df$non_detect <- ifelse(df$lt_measure == "<", 
-#                                 "non-detect", "detected")
-#       df %>%
-#       dplyr::mutate(param = factor(param_name)) %>%
-#       dplyr::mutate(lt = factor(non_detect)) %>%
-#       ggvis(x = ~sample_date, y = ~analysis_result, stroke = ~param) %>%
-#         layer_points(shape = ~lt) %>%
-#         layer_lines() %>%
-#         add_axis("x", title = "Sample Date") %>%
-#         add_axis("y", title = "Analysis Result", title_offset = 55) %>%
-#         add_legend("shape", "Detected")
-#     }else{
-#       df <- data.frame(x = 1:2, y = 1:1,
-#                        labels = c("enter", "data"))
-#       df %>% ggvis(~x, ~y, text := ~labels, font = ~labels, fontSize := 40) %>%
-#         layer_text() 
-#     }
-#   })
-#   
-#   vis %>% bind_shiny("plot1")
-   
-  # end ggvis time series section
-  
   # time series plot output
   ts_out <- reactive({
     if (!is.null(input$manages_path)){
+      
       data <- get_data()
-                  
-      data_selected <- subset(data, location_id %in% input$well_time & 
-                                param_name %in% input$analyte_time)
+      wells <- input$well_time
+      analytes <- input$analyte_time
+      data_selected <- data[data$location_id %in% wells &
+                              data$param_name %in% analytes, ]
       
       t1 <- ind_by_loc_grid(data_selected)
               
@@ -211,10 +171,9 @@ shinyServer(function(input, output, session) {
   output$time_plot <- renderPlot({
     ts_out()
   })
-  # End Time Series page
+  # End Time Series page-------------------------------------------------------
   
-  # Begin Piper Diagram Page
-  # return a list of well names
+  # Begin Piper Diagram Page---------------------------------------------------
   output$wells_piper <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
@@ -224,7 +183,6 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  # return start and end dates of data
   output$date_ranges_piper <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
@@ -234,36 +192,38 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  # gather major ions and conver for Piper diagram
-  output$piper_data <- reactive({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      # get the major cations/anions
-      start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
-      end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
-      data_selected <- subset(data, location_id %in% input$well_piper &
-                                sample_date >= start & sample_date <= end)      
-      ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca,
-                             Na=input$Na, K=input$K, Cl=input$Cl, 
-                             SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
-      piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca,
-                                         Na=input$Na, K=input$K, Cl=input$Cl, 
-                                         SO4=input$SO4, Alk=input$Alk, 
-                                         TDS=input$TDS)
-      return(piper_data)
-    } 
-  })
+#   # gather major ions and conver for Piper diagram
+#   output$piper_data <- reactive({
+#     if (!is.null(input$manages_path)){
+#       data <- get_data()
+#       # get the major cations/anions
+#       start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
+#       end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
+#       wells <- input$well_piper
+#       data_selected <- data[data$location_id %in% wells &
+#                             data$sample_date >= start & 
+#                             data$sample_date <= end, ]      
+#       ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca,
+#                              Na=input$Na, K=input$K, Cl=input$Cl, 
+#                              SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
+#       piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca,
+#                                          Na=input$Na, K=input$K, Cl=input$Cl, 
+#                                          SO4=input$SO4, Alk=input$Alk, 
+#                                          TDS=input$TDS)
+#       return(piper_data)
+#     } 
+#   })
 
-  # piper plot
   output$piper_plot <- renderPlot({
    if (!is.null(input$manages_path)){
     data <- get_data()
     # get the major cations/anions
     start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
     end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
-    data_selected <- subset(data, location_id %in% input$well_piper &
-                              sample_date >= start & sample_date <= end)
-    
+    wells <- input$well_piper
+    data_selected <- data[data$location_id %in% wells &
+                            data$sample_date >= start & 
+                            data$sample_date <= end, ]  
     ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, 
                            Na=input$Na, K=input$K, Cl=input$Cl, 
                            SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
@@ -275,7 +235,7 @@ shinyServer(function(input, output, session) {
     piper_plot(piper_data, TDS=input$TDS_plot)
     }
   })
-  # End Piper Diagram Page
+  # End Piper Diagram Page-----------------------------------------------------
 
   # Begin Prediction Limits
   output$wells_upl <- renderUI({
