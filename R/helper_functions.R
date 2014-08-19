@@ -88,7 +88,7 @@ export_manages <- function(df, file){
   wb <- XLConnect::loadWorkbook(file, create=TRUE)
   
   for (i in 1:length(wells)){
-    temp <- subset(df, location_id == wells[i])
+    temp <- df[df$location_id == wells[i], ]
     temp <- temp[order(df$param_name, df$sample_date),]
     XLConnect::createSheet(wb, name=paste(wells[i]))
     XLConnect::writeWorksheet(wb, temp, sheet=paste(wells[i]), 
