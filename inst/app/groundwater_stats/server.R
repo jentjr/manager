@@ -428,6 +428,54 @@ shinyServer(function(input, output, session) {
   })
   # End Piper Diagram Page-----------------------------------------------------
 
+  # Begin Stiff Diagram Page --------------------------------------------------
+  output$wells_stiff <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      well_names <- as.character(get_well_names(data))
+      selectInput("well_stiff", "Monitoring Wells", well_names, 
+                  multiple = FALSE, selected = well_names[1])
+    }
+  })
+  
+  output$date_ranges_stiff <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      dateRangeInput("date_range_stiff", "Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE), 
+                     end = max(data$sample_date, na.rm = TRUE))
+    }
+  })
+
+  output$stiff_diagram <- renderPlot({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      start <- min(as.POSIXct(input$date_range_stiff, format = "%Y-%m-%d"))
+      end <- max(as.POSIXct(input$date_range_stiff, format = "%Y-%m-%d"))
+      data_selected <- data[data$location_id %in% input$well_stiff &
+                              data$sample_date >= start & 
+                              data$sample_date <= end, ]
+      ions <- get_major_ions(data_selected, Mg=input$Mg_stiff, 
+                             Ca=input$Ca_stiff, Na=input$Na_stiff, 
+                             K=input$K_stiff, Cl=input$Cl_stiff, 
+                             SO4=input$SO4_stiff, Alk=input$Alk_stiff, 
+                             TDS=input$TDS_stiff)
+      ions <- ions[complete.cases(ions), ]
+      plot_data <- convert_mgL_to_meqL(ions, Mg=input$Mg_stiff, 
+                                       Ca=input$Ca_stiff, Na=input$Na_stiff, 
+                                       K=input$K_stiff, Cl=input$Cl_stiff, 
+                                       SO4=input$SO4_stiff, HCO3=input$Alk_stiff)
+      stiff_data <- transform_stiff_data(plot_data, Mg=input$Mg_stiff, 
+                                         Ca=input$Ca_stiff, Na=input$Na_stiff, 
+                                         K=input$K_stiff, Cl=input$Cl_stiff,
+                                         SO4=input$SO4_stiff, 
+                                         HCO3=input$Alk_stiff, 
+                                         TDS=input$TDS_stiff)
+      stiff_plot(stiff_data, TDS=input$TDS_plot_stiff)
+    } 
+  })
+  # End Stiff Diagram Page ----------------------------------------------------
+  
   # Begin Prediction Limits
   output$wells_upl <- renderUI({
     if (!is.null(input$manages_path)){

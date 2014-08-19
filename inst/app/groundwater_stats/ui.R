@@ -118,7 +118,35 @@ shinyUI(navbarPage("GWSTATS",
         )
       )
     ),
-    tabPanel("Stiff Diagram")
+    tabPanel("Stiff Diagram",
+      sidebarLayout(
+        sidebarPanel(
+          uiOutput("wells_stiff"),
+          uiOutput("date_ranges_stiff"),
+          textInput(inputId = "Mg_stiff", label = "Mg", 
+                    value = "Magnesium, dissolved"),
+          textInput(inputId = "Ca_stiff", label = "Ca", 
+                    value = "Calcium, dissolved"),
+          textInput(inputId = "K_stiff", label = "K", 
+                    value = "Potassium, dissolved"),
+          textInput(inputId = "Na_stiff", label = "Na", 
+                    value = "Sodium, dissolved"),
+          textInput(inputId = "Cl_stiff", label = "Cl", 
+                    value = "Chloride, total"),
+          textInput(inputId = "SO4_stiff", label = "SO4", 
+                    value = "Sulfate, total"),
+          textInput(inputId = "Alk_stiff", label = "Alkalinity", 
+                    value = "Alkalinity, total (lab)"),
+          textInput(inputId = "TDS_stiff", label = "TDS", 
+                    value = "Total Dissolved Solids"),
+          checkboxInput(inputId = "TDS_plot_stiff",
+                        label = "Scale by Total Dissolved Solids")
+        ),
+        mainPanel(
+          plotOutput("stiff_diagram")  
+        )
+      )         
+    )
   ),
   navbarMenu("Prediction Intervals",
     tabPanel("Intra-well",

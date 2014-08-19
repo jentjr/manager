@@ -473,7 +473,7 @@ stiff_plot <- function(df, TDS = FALSE){
       p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y))
       }
     
-    p <- p + facet_wrap(~location_id, scale = "free") +
+    p <- p + facet_wrap(~sample_date, scale = "free") +
       geom_hline(yintercept = 1, linetype = "dashed") +
       geom_hline(yintercept = 2, linetype = "dashed") +
       geom_hline(yintercept = 3, linetype = "dashed") +

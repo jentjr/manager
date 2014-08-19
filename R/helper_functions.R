@@ -64,13 +64,24 @@ intrawell_prediction <- function(df, back_dates, comp_dates, num_wells, num_para
 #' @param df data frame of groundwater monitoring network data 
 #' @export
 
-groundwater_summary <- function(df){
+gw_summary <- function(df, bkgd_start, bkgd_end){
   
-  gw <- plyr::ddply(df, .(location_id, param_name, default_unit), summarise, 
-              n = length(analysis_result),
-              mean = round(mean(analysis_result), digits = 3), 
-              sd = round(sd(analysis_result), digits = 3),
-              percent_lt = round(percent_lt(lt_measure), digits = 3))
+  df$sampling_period <- ifelse(df$sample_date >= bkgd_start & 
+                               df$sample_date <= bkgd_end, "background", 
+                               "compliance")
+  detection <- dplyr::group_by(df, location_id, param_name, default_unit,
+                               sampling_period)
+  
+  gw <- summarise(detection,
+                  count = n(),
+                  mean = mean(analysis_result, na.rm = TRUE),
+                  sd = sd(analysis_result, na.rm = TRUE),
+                  percent_lt = round(percent_lt(lt_measure), digits = 3))
+#   gw <- dplyr::ddply(df, .(location_id, param_name, default_unit), summarise, 
+#               n = length(analysis_result),
+#               mean = round(mean(analysis_result), digits = 3), 
+#               sd = round(sd(analysis_result), digits = 3),
+#               percent_lt = round(percent_lt(lt_measure), digits = 3))
   
   return(gw)
 }
