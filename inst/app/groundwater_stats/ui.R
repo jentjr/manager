@@ -189,14 +189,17 @@ shinyUI(navbarPage("GWSTATS",
         sidebarPanel(
           uiOutput("ros_wells"),
           uiOutput("ros_analytes"),
-          uiOutput("ros_date_ranges")
+          uiOutput("ros_date_ranges"),
+          helpText("Input > 80% censored -- Results are tenuous")
         ),
         mainPanel(
           dataTableOutput("ros_summary_table"),
           br(),
           verbatimTextOutput("ros_out"),
           br(),
-          plotOutput("ros_plot")
+          plotOutput("ros_plot"),
+          br(),
+          verbatimTextOutput("ros_out_2")
         )
       )         
     ),
