@@ -182,5 +182,34 @@ shinyUI(navbarPage("GWSTATS",
       )       
     ),
     tabPanel("Inter-well")
-  ) 
+  ),
+  navbarMenu("NADA",
+    tabPanel("ROS",
+      sidebarLayout(
+        sidebarPanel(
+          uiOutput("ros_wells"),
+          uiOutput("ros_analytes"),
+          uiOutput("ros_date_ranges")
+        ),
+        mainPanel(
+          dataTableOutput("ros_summary_table"),
+          br(),
+          verbatimTextOutput("ros_out"),
+          br(),
+          plotOutput("ros_plot")
+        )
+      )         
+    ),
+    tabPanel("Kaplan-Meier",
+      sidebarLayout(
+        sidebarPanel(
+          uiOutput("kp_wells"),
+          uiOutput("kp_analytes")
+        ),
+        mainPanel(
+          verbatimTextOutput("kp_out")  
+        )
+      )         
+    )
+  )
 ))

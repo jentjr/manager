@@ -72,18 +72,14 @@ gw_summary <- function(df, bkgd_start, bkgd_end){
   detection <- dplyr::group_by(df, location_id, param_name, default_unit,
                                sampling_period)
   
-  gw <- summarise(detection,
+  gw <- dplyr::summarise(detection,
                   count = n(),
-                  mean = mean(analysis_result, na.rm = TRUE),
-                  sd = sd(analysis_result, na.rm = TRUE),
-                  percent_lt = round(percent_lt(lt_measure), digits = 3))
-#   gw <- dplyr::ddply(df, .(location_id, param_name, default_unit), summarise, 
-#               n = length(analysis_result),
-#               mean = round(mean(analysis_result), digits = 3), 
-#               sd = round(sd(analysis_result), digits = 3),
-#               percent_lt = round(percent_lt(lt_measure), digits = 3))
-  
-  return(gw)
+                  mean = round(mean(analysis_result, na.rm = TRUE), digits = 3),
+                  sd = round(sd(analysis_result, na.rm = TRUE), digits = 3),
+                  percent_lt = round(percent_lt(lt_measure), digits = 2))
+
+  gw <- as.data.frame(gw)
+  gw
 }
 
 #' Function to export data from manages to different formats in excel

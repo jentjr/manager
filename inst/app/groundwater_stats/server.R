@@ -42,7 +42,9 @@ shinyServer(function(input, output, session) {
   output$summary_table <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      groundwater_summary(data)
+      start <- min(lubridate::ymd(input$background_date_range))
+      end <- max(lubridate::ymd(input$background_date_range))
+      gw_summary(data, start, end)
     }
   }, options = list(sScrollY = "100%", sScrollX = "100%", 
                     aLengthMenu = c(5, 10, 15, 25, 50, 100), 
@@ -575,6 +577,115 @@ shinyServer(function(input, output, session) {
       out
     }
   })
-  # End Prediction Limits
+  # End Prediction Limits -----------------------------------------------------
+
+  # Begin NADA Page -----------------------------------------------------------
+
+  # ROS
+  output$ros_wells <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      well_names <- as.character(get_well_names(data))
+      selectInput("ros_well", "Monitoring Wells", well_names, 
+                  multiple = FALSE,
+                  selected = well_names[1])
+    }
+  })
+
+  output$ros_analytes <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      analyte_names <- as.character(get_analytes(data))
+      selectInput("ros_analyte", "Constituents", analyte_names, 
+                  multiple = FALSE,
+                  selected = analyte_names[1])
+    }
+  })
+
+  output$ros_date_ranges <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      tagList(
+        dateRangeInput("bkgd_date_range_ros", "Background Date Range", 
+                       start = min(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE)) 
+      )
+    }
+  })
+  output$ros_summary_table <- renderDataTable({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      wells <- input$ros_well
+      const <- input$ros_analyte
+      data <- data[data$location_id %in% wells &
+                  data$param_name %in% const, ]
+      start <- min(lubridate::ymd(input$bkgd_date_range_ros))
+      end <- max(lubridate::ymd(input$bkgd_date_range_ros))
+      gw_summary(data, start, end)
+    }
+  }, options = list(sScrollY = "100%", sScrollX = "100%", 
+                    aLengthMenu = c(5, 10, 15, 25, 50, 100), 
+                    iDisplayLength = 10)
+  )
+
+  output$ros_out <- renderPrint({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      wells <- input$ros_well
+      const <- input$ros_analyte
+      start <- min(lubridate::ymd(input$bkgd_date_range_ros))
+      end <- max(lubridate::ymd(input$bkgd_date_range_ros))
+      data <- data[data$location_id %in% wells &
+                     data$param_name %in% const &
+                     data$sample_date >= start &
+                     data$sample_date <= end, ]
+      data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
+      data <- as.data.frame(data)
+      ros <- cenros(data$analysis_result, data$censored)
+      ros
+    }
+  })
+
+  output$ros_plot <- renderPlot({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      wells <- input$ros_well
+      const <- input$ros_analyte
+      start <- min(lubridate::ymd(input$bkgd_date_range_ros))
+      end <- max(lubridate::ymd(input$bkgd_date_range_ros))
+      data <- data[data$location_id %in% wells &
+                     data$param_name %in% const &
+                     data$sample_date >= start &
+                     data$sample_date <= end, ]
+      data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
+      data <- as.data.frame(data)
+      ros <- cenros(data$analysis_result, data$censored)
+      plot(ros)
+  }
+})
+  # End ROS
+  
+  # begin Kaplan-Meier
+  output$kp_wells <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      well_names <- as.character(get_well_names(data))
+      selectInput("kp_well", "Monitoring Wells", well_names, 
+                  multiple = FALSE,
+                  selected = well_names[1])
+    }
+  })
+
+  output$kp_analytes <- renderUI({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      analyte_names <- as.character(get_analytes(data))
+      selectInput("kp_analyte", "Constituents", analyte_names, 
+                  multiple = FALSE,
+                  selected = analyte_names[1])
+    }
+  })
+  # End Kaplan-Meier
+  # End NADA Page -------------------------------------------------------------
 
 })
