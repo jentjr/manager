@@ -635,17 +635,36 @@ shinyServer(function(input, output, session) {
       const <- input$ros_analyte
       start <- min(lubridate::ymd(input$bkgd_date_range_ros))
       end <- max(lubridate::ymd(input$bkgd_date_range_ros))
-      data <- data[data$location_id %in% wells &
-                     data$param_name %in% const &
+      data <- data[data$location_id == wells &
+                     data$param_name == const &
                      data$sample_date >= start &
                      data$sample_date <= end, ]
       data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
       data <- as.data.frame(data)
-      ros <- cenros(data$analysis_result, data$censored)
-      ros
+      ros <- NADA::ros(data$analysis_result, data$censored)
+      summary(ros)
+      print(ros)
     }
   })
-
+  
+    output$ros_out_2 <- renderPrint({
+    if (!is.null(input$manages_path)){
+      data <- get_data()
+      wells <- input$ros_well
+      const <- input$ros_analyte
+      start <- min(lubridate::ymd(input$bkgd_date_range_ros))
+      end <- max(lubridate::ymd(input$bkgd_date_range_ros))
+      data <- data[data$location_id == wells &
+                   data$param_name == const &
+                   data$sample_date >= start &
+                   data$sample_date <= end, ]
+      data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
+      data <- as.data.frame(data)
+      ros <- NADA::ros(data$analysis_result, data$censored)
+      summary(ros)
+    }
+  })
+  
   output$ros_plot <- renderPlot({
     if (!is.null(input$manages_path)){
       data <- get_data()
