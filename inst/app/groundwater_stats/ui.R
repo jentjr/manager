@@ -1,5 +1,3 @@
-library(ggvis)
-
 shinyUI(navbarPage("GWSTATS",
   tabPanel("Data Input",
       sidebarLayout(

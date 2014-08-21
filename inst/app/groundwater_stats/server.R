@@ -3,22 +3,17 @@ options(shiny.maxRequestSize=-1)
 # force numbers to be decimal instead of scientific
 options(scipen=6, digits = 8)
 
-library(EnvStats)
-library(ggvis)
-
 shinyServer(function(input, output, session) {
-  # reactive function to upload data
   get_data <- reactive({
     if (!is.null(input$manages_path)){
       switch(input$file_type, 
              ".csv" = from_csv(input$manages_path$datapath),
              ".mdb" = connect_manages(input$manages_path$datapath),
              ".xls" = from_excel(input$manages_path$datapath)) %>%
-        arrange(location_id, sample_date, param_name)
+        dplyr::arrange(location_id, sample_date, param_name)
     }      
   })
   
-  # Output a googleTable of the data to be displayed on Data page
   output$well_table <- renderDataTable({
     if (!is.null(input$manages_path)){
       data <- get_data() 
@@ -171,7 +166,7 @@ shinyServer(function(input, output, session) {
         ggtitle(paste("Boxplot for", data_selected$location_id, "\n", 
                 sep = " "))
       
-      if (input$coord_flip_box_const){
+      if (input$coord_flip_box_well){
         b <- b + coord_flip()
       }      
       b
@@ -364,7 +359,7 @@ shinyServer(function(input, output, session) {
     ts_by_const_out()
   })
   
-  # end Time Series by constituent page ---------------------------------------
+  # End Time Series by constituent page ---------------------------------------
   
   # Begin Piper Diagram Page---------------------------------------------------
   output$wells_piper <- renderUI({
@@ -410,7 +405,6 @@ shinyServer(function(input, output, session) {
   output$piper_plot <- renderPlot({
    if (!is.null(input$manages_path)){
     data <- get_data()
-    # get the major cations/anions
     start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
     end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
     wells <- input$well_piper
@@ -478,7 +472,7 @@ shinyServer(function(input, output, session) {
   })
   # End Stiff Diagram Page ----------------------------------------------------
   
-  # Begin Prediction Limits
+  # Begin Prediction Limits ---------------------------------------------------
   output$wells_upl <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
@@ -528,18 +522,18 @@ shinyServer(function(input, output, session) {
     if (!is.null(input$manages_path)){
       df <- bkgd_data()
       if (input$int_type == "Normal" || input$int_type == "Non-parametric"){
-        out <- gofTest(df$analysis_result)
+        out <- EnvStats::gofTest(df$analysis_result)
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       if (input$int_type == "Lognormal"){
-        out <- gofTest(df$analysis_result, distribution = "lnorm")
+        out <- EnvStats::gofTest(df$analysis_result, distribution = "lnorm")
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       if (input$int_type == "Gamma"){
-        out <- gofTest(df$analysis_result, distribution = "gamma")
+        out <- EnvStats::gofTest(df$analysis_result, distribution = "gamma")
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
-      plot(out)
+      EnvStats::plot(out)
     }
   })
 
@@ -553,25 +547,29 @@ shinyServer(function(input, output, session) {
       conf.level = (1 - swfpr)^(1/(nc*nw))
       
       if (input$int_type == "Normal"){
-        out <- predIntNormSimultaneous(df$analysis_result, k = input$k, 
-                                     m = input$m, r = input$r, 
-                                     conf.level = conf.level)
+        out <- EnvStats::predIntNormSimultaneous(df$analysis_result, 
+                                                 k = input$k, m = input$m, 
+                                                 r = input$r, 
+                                                 conf.level = conf.level)
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ") 
       }
       if (input$int_type == "Lognormal"){
-        out <- predIntLnormSimultaneous(df$analysis_result, k = input$k,
-                                        m = input$m, r = input$r, 
-                                        conf.level = conf.level)
+        out <- EnvStats::predIntLnormSimultaneous(df$analysis_result, 
+                                                  k = input$k, m = input$m, 
+                                                  r = input$r, 
+                                                  conf.level = conf.level)
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       if (input$int_type == "Gamma"){
-        out <- predIntGammaSimultaneous(df$analysis_result, k = input$k,
-                                        m = input$m, r = input$r,
-                                        conf.level = conf.level)
+        out <- EnvStats::predIntGammaSimultaneous(df$analysis_result, 
+                                                  k = input$k, m = input$m, 
+                                                  r = input$r,
+                                                  conf.level = conf.level)
       }
       if (input$int_type == "Non-parametric"){
-        out <- predIntNparSimultaneous(df$analysis_result, k = input$k,
-                                       m = input$m, r = input$r)  
+        out <- EnvStats::predIntNparSimultaneous(df$analysis_result, 
+                                                 k = input$k, m = input$m, 
+                                                 r = input$r)  
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       out
@@ -642,8 +640,7 @@ shinyServer(function(input, output, session) {
       data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
       data <- as.data.frame(data)
       ros <- NADA::ros(data$analysis_result, data$censored)
-      summary(ros)
-      print(ros)
+      NADA::print(ros)
     }
   })
   
@@ -678,8 +675,8 @@ shinyServer(function(input, output, session) {
                      data$sample_date <= end, ]
       data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
       data <- as.data.frame(data)
-      ros <- cenros(data$analysis_result, data$censored)
-      plot(ros)
+      ros <- NADA::ros(data$analysis_result, data$censored)
+      NADA::plot(ros)
   }
 })
   # End ROS
