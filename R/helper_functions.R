@@ -82,24 +82,81 @@ gw_summary <- function(df, bkgd_start, bkgd_end){
   gw
 }
 
-#' Function to export data from manages to different formats in excel
+#' Function to export data from manages to excel format required by OEPA
 #' 
 #' @param df data frame
+#' @param wells list of wells to be exported
+#' @param constituents list of constituents to be exported
 #' @param file full file path name with extension for export
 #' @export
 
-export_manages <- function(df, file){
+export_OEPA <- function(df, wells, constituents, file, plant, 
+                        export_date = date()){
   
-  wells <- unique(df$location_id)
+  # create a data frame from plant name and date in order to paste into excel
+  h <- data.frame(Facility = plant, Date = export_date)
+  
+  df <- df[df$location_id %in% wells &
+           df$param_name %in% constituents, ]
+  
+  join_lt <- function() {
+    paste(df$lt_measure, df$analysis_result, sep = " ")
+  }
+  
+  df$result <- ifelse(df$lt_measure == "<" | df$lt_measure == ">", 
+                      join_lt(), df$analysis_result)
+  
+  id <- dplyr::group_by(df, location_id, sample_date, param_name)
+  id <- dplyr::mutate(id, group = n())
   
   wb <- XLConnect::loadWorkbook(file, create=TRUE)
   
   for (i in 1:length(wells)){
-    temp <- df[df$location_id == wells[i], ]
-    temp <- temp[order(df$param_name, df$sample_date),]
-    XLConnect::createSheet(wb, name=paste(wells[i]))
+    temp <- id[id$location_id == wells[i], ]
+    temp <- reshape2::dcast(temp, value.var = "result", 
+                            param_name + group + default_unit ~ sample_date, 
+                            margins = FALSE)[-2]
+    XLConnect::createSheet(wb, name = paste(wells[i]))
     XLConnect::writeWorksheet(wb, temp, sheet=paste(wells[i]), 
-                              startRow=1, startCol=1, header=TRUE)
+                              startRow = 4, startCol = 1, header = TRUE,
+                              rownames = FALSE)
+    XLConnect::writeWorksheet(wb, h, sheet = paste(wells[i]), 
+                              startRow = 1, startCol = 1, header = TRUE,
+                              rownames = FALSE)
   }
   XLConnect::saveWorkbook(wb)
+}
+
+#' Function to export summary table for a sampling event
+#' 
+#' @param df data frame in the format location_id, sample_date, param_name,
+#'  lt_measure, default_unit
+#'  @param wells list of wells
+#'  @param constituents list of constituents
+#'  @param start start date
+#'  @param end end date 
+#' 
+
+event_summary <- function(df, wells, constituents, start, end){
+  df <- df[df$location_id %in% wells &
+           df$param_name %in% constituents &
+           df$sample_date >= start &
+           df$sample_date <= end, ]
+  
+  df$param_name <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
+  
+  join_lt <- function() {
+    paste(df$lt_measure, df$analysis_result, sep = " ")
+  }
+  
+  df$result <- ifelse(df$lt_measure == "<" | df$lt_measure == ">", 
+                      join_lt(), df$analysis_result)
+  
+  id <- dplyr::group_by(df, location_id, sample_date, param_name)
+  id <- dplyr::mutate(id, group = n())
+    
+  out <- reshape2::dcast(id, value.var = "result", 
+                          group + location_id + sample_date ~ param_name, 
+                          margins = FALSE)[-1]
+  return(out)
 }

@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
   output$wells_box_const <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("well_box_const", "Monitoring Wells", well_names, 
                   multiple = TRUE, selected = well_names[1])
     }
@@ -117,7 +117,7 @@ shinyServer(function(input, output, session) {
   output$wells_box_well <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("well_box_well", "Monitoring Wells", well_names, 
                   multiple = FALSE, selected = well_names[1])
     }
@@ -184,7 +184,7 @@ shinyServer(function(input, output, session) {
   output$wells_time_well <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("well_time_well", "Monitoring Wells", well_names, 
                   multiple = FALSE,
                   selected = well_names[1])
@@ -276,7 +276,7 @@ shinyServer(function(input, output, session) {
   output$wells_time_const <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("well_time_const", "Monitoring Wells", well_names, 
                   multiple = TRUE,
                   selected = well_names[1])
@@ -365,7 +365,7 @@ shinyServer(function(input, output, session) {
   output$wells_piper <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("well_piper", "Monitoring Wells", well_names, 
                   multiple = TRUE, selected = well_names[1])
     }
@@ -428,7 +428,7 @@ shinyServer(function(input, output, session) {
   output$wells_stiff <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("well_stiff", "Monitoring Wells", well_names, 
                   multiple = FALSE, selected = well_names[1])
     }
@@ -476,7 +476,7 @@ shinyServer(function(input, output, session) {
   output$wells_upl <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("well_upl", "Monitoring Wells", well_names, 
                   multiple = FALSE,
                   selected = well_names[1])
@@ -583,7 +583,7 @@ shinyServer(function(input, output, session) {
   output$ros_wells <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("ros_well", "Monitoring Wells", well_names, 
                   multiple = FALSE,
                   selected = well_names[1])
@@ -685,7 +685,7 @@ shinyServer(function(input, output, session) {
   output$kp_wells <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      well_names <- as.character(get_well_names(data))
+      well_names <- as.character(get_wells(data))
       selectInput("kp_well", "Monitoring Wells", well_names, 
                   multiple = FALSE,
                   selected = well_names[1])

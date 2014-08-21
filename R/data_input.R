@@ -37,7 +37,7 @@ connect_manages_spatial <- function(manages_path){
 #' @param df data frame of groundwater data in the format with column names
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @export
-get_well_names <- function(df){
+get_wells <- function(df){
   wells <- unique(df$location_id)
   return(wells)
 }
