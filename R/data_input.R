@@ -59,7 +59,7 @@ get_analytes <- function(df){
 #' @export
 from_csv <- function(path){
   csv_data <- read.csv(path, header = TRUE)
-  csv_data$sample_date <- lubridate::mdy(csv_data$sample_date)
+  csv_data$sample_date <- lubridate::ymd(csv_data$sample_date)
   csv_data$analysis_result <- as.numeric(csv_data$analysis_result)
   csv_data$lt_measure <- factor(csv_data$lt_measure, exclude = NULL)
   return(csv_data)

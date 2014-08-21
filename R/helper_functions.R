@@ -64,13 +64,42 @@ intrawell_prediction <- function(df, back_dates, comp_dates, num_wells, num_para
 #' @param df data frame of groundwater monitoring network data 
 #' @export
 
-groundwater_summary <- function(df){
+gw_summary <- function(df, bkgd_start, bkgd_end){
   
-  gw <- plyr::ddply(df, .(location_id, param_name, default_unit), summarise, 
-              n = length(analysis_result),
-              mean = round(mean(analysis_result), digits = 3), 
-              sd = round(sd(analysis_result), digits = 3),
-              percent_lt = round(percent_lt(lt_measure), digits = 3))
+  df$sampling_period <- ifelse(df$sample_date >= bkgd_start & 
+                               df$sample_date <= bkgd_end, "background", 
+                               "compliance")
+  detection <- dplyr::group_by(df, location_id, param_name, default_unit,
+                               sampling_period)
+
+  gw <- dplyr::summarise(detection,
+                  count = n(),
+                  mean = round(mean(analysis_result, na.rm = TRUE), digits = 3),
+                  sd = round(sd(analysis_result, na.rm = TRUE), digits = 3),
+                  percent_lt = round(percent_lt(lt_measure), digits = 2))
+
+  gw <- as.data.frame(gw)
+  gw
+}
+
+#' Function to export data from manages to different formats in excel
+#' 
+#' @param df data frame
+#' @param file full file path name with extension for export
+#' @export
+
+export_manages <- function(df, file){
   
-  return(gw)
+  wells <- unique(df$location_id)
+  
+  wb <- XLConnect::loadWorkbook(file, create=TRUE)
+  
+  for (i in 1:length(wells)){
+    temp <- df[df$location_id == wells[i], ]
+    temp <- temp[order(df$param_name, df$sample_date),]
+    XLConnect::createSheet(wb, name=paste(wells[i]))
+    XLConnect::writeWorksheet(wb, temp, sheet=paste(wells[i]), 
+                              startRow=1, startCol=1, header=TRUE)
+  }
+  XLConnect::saveWorkbook(wb)
 }

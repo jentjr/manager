@@ -8,16 +8,19 @@ Maintainer: Justin Jent <jentjr@gmail.com>
 Depends:
     R (>= 3.0.2),
     ggplot2,
-    dplyr,
-    XLConnect,
-    RODBC
 Imports:
-    shiny,
+    dplyr,
+    EnvStats,
+    NADA,
+    XLConnect,
+    RODBC,
     animation,
     lubridate,
     sp,
     scales,
-    grid
+    grid,
+    udunits2,
+    shiny
 Suggests:
     Hmisc
 License: none
