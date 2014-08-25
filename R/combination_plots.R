@@ -1,7 +1,7 @@
 # hidden _combo_plot passed to combo_plot
 ind_by_loc_grid <- function(df, back_date = NULL, 
                        comp_date = NULL, limit1 = NULL, limit2 = NULL, 
-                       name = NULL, pnt = 3){
+                       name = NULL, pnt = 3, ncol = 1){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
@@ -17,7 +17,7 @@ ind_by_loc_grid <- function(df, back_date = NULL,
   p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
     geom_line(data = df) +
     geom_point(data = df, aes(shape = factor(non_detect)), size = pnt) +
-    facet_wrap(~param_name, scale = "free_y", ncol = 1) + 
+    facet_wrap(~param_name, scale = "free", ncol = ncol) + 
     ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep=" ")) +
     ylab("Analysis Result") +
     xlab("Sample Date") + 
@@ -97,7 +97,7 @@ ind_by_loc <- function(df, ...){
 # hidden function to plot gw data by parameter and faceted by location  
 ind_by_param_grid <- function(df, back_date = NULL, comp_date = NULL, 
                               limit1 = NULL, limit2 = NULL, name = NULL, 
-                              pnt = 3){
+                              pnt = 3, ncol = 1){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
@@ -113,7 +113,7 @@ ind_by_param_grid <- function(df, back_date = NULL, comp_date = NULL,
   p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
     geom_line(data = df) +
     geom_point(data = df, aes(shape = factor(non_detect)), size = pnt) +
-    facet_wrap(~location_id, scale = "free_y", ncol = 1) + 
+    facet_wrap(~location_id, scale = "free", ncol = ncol) + 
     ggtitle(paste("Time Series Plots for", df$param_name[1], "\n", sep = " ")) +
     ylab("Analysis Result") +
     xlab("Sample Date") + 
