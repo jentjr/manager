@@ -188,7 +188,9 @@ shinyUI(navbarPage("GWSTATS",
           uiOutput("ros_wells"),
           uiOutput("ros_analytes"),
           uiOutput("ros_date_ranges"),
-          helpText("Input > 80% censored -- Results are tenuous")
+          helpText("Input > 80% censored -- Results are tenuous"),
+          helpText("Censored values that exceed max of uncensored values will
+                   be dropped.")
         ),
         mainPanel(
           dataTableOutput("ros_summary_table"),

@@ -26,8 +26,8 @@ ind_by_loc_grid <- function(df, back_date = NULL,
     theme_bw() +  
     
     # create custom legend using guide
-    theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
-    theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
+    theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
+    theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
     guides(colour = guide_legend(override.aes = list(linetype = 0)), 
            shape = guide_legend("Measure", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
@@ -122,8 +122,8 @@ ind_by_param_grid <- function(df, back_date = NULL, comp_date = NULL,
     theme_bw() +  
     
     # create custom legend using guide
-    theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
-    theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
+    theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
+    theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
     guides(colour = guide_legend(override.aes = list(linetype = 0)), 
            shape = guide_legend("Measure", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
@@ -216,8 +216,8 @@ multi_by_param_grid <- function(df, back_date = NULL,
     theme_bw() +  
     
     # create custom legend using guide
-    theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
-    theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
+    theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
+    theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
     guides(colour = guide_legend("Location ID", override.aes = list(linetype = 0)), 
            shape = guide_legend("Measure", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
@@ -310,8 +310,8 @@ multi_by_loc_grid <- function(df, back_date = NULL,
     theme_bw() +  
     
     # create custom legend using guide
-    theme(axis.title.x = element_text(size = 15, vjust=-0.3)) +
-    theme(axis.title.y = element_text(size = 15, vjust=0.3)) +
+    theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
+    theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
     guides(colour = guide_legend("Parameter", override.aes = list(linetype = 0)), 
            shape = guide_legend("Measure", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
@@ -372,3 +372,77 @@ multi_by_loc <- function(df, ...){
   d_ply(df, .(location_id), .progress = "text", multi_by_loc_grid, ...,
         .print = TRUE)
 }
+
+#------------------------------------------------------------------------------
+# Boxplots
+#------------------------------------------------------------------------------
+
+boxplot_by_param_grid <- function(df, name = NULL, flip_coords = FALSE){
+
+  if (isTRUE(name == "short")){
+    df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
+  } else {
+    df$name_units <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
+  }
+
+  b <- ggplot(df, aes(location_id, y=analysis_result, fill=location_id)) + 
+    theme_bw() + 
+    ylab(paste("Analysis Result"," (", df$default_unit[1], ")", sep = "")) + 
+    xlab("Location ID") +
+    guides(fill = guide_legend("Location ID")) +
+    theme(legend.background = element_rect()) + 
+    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+    theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
+    theme(axis.text.x = element_text(angle = 90, size = 13)) +
+    theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
+    theme(axis.text.y = element_text(size = 13)) +
+    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+    geom_boxplot() + 
+    ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
+
+  if (isTRUE(flip_coords)){
+    b <- b + coord_flip()
+  }      
+  b
+}
+
+boxplot_by_param <- function(df, ...){
+  
+  d_ply(df, .(param_name), .progress = "text", boxplot_by_param_grid, ...,
+        .print = TRUE)
+}
+
+
+boxplot_by_well_grid <- function(df, name = NULL, coord_flip = FALSE){
+  if (isTRUE(name == "short")){
+    df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
+  } else {
+    df$name_units <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
+  }
+
+  b <- ggplot(df, aes(name_units, y=analysis_result, fill=name_units)) + 
+    theme_bw() + ylab("Analysis Result") + 
+    xlab("Constituent") +
+    guides(fill = guide_legend("Constituent")) +
+    theme(legend.background = element_rect()) + 
+    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+    theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
+    theme(axis.text.x = element_text(angle = 90, size = 13)) +
+    theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
+    theme(axis.text.y = element_text(size = 13)) +
+    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+    geom_boxplot() + 
+    ggtitle(paste("Boxplot for", df$location_id, "\n", sep = " "))
+  
+  if (isTRUE(coord_flip)){
+    b <- b + coord_flip()
+  }      
+  b
+}
+
+boxplot_by_well <- function(df, ...){
+  
+  d_ply(df, .(location_id), .progress = "text", boxplot_by_well_grid, ...,
+        .print = TRUE)
+}
+

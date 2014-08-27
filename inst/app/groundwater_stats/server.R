@@ -76,34 +76,13 @@ shinyServer(function(input, output, session) {
                             data$param_name %in% analytes, ]
       
       if (input$short_name_box_const){
-        data_selected$name_units <- paste(data_selected$short_name, " (",
-                                          data_selected$default_unit, ")", 
-                                          sep = "")
-      } else {
-        data_selected$name_units <- paste(data_selected$param_name, " (",
-                                          data_selected$default_unit, ")", 
-                                          sep = "")
+        boxplot_by_param_grid(data_selected, name = "short")
       }
-      
-      # box plot of analyte
-      b <- ggplot(data_selected, aes(location_id, y=analysis_result, 
-                                     fill=location_id)) + 
-        theme_bw() + ylab(paste("Analysis Result"," (", 
-                          data_selected$default_unit[1], ")", sep = "")) + 
-        xlab("Location ID") +
-        guides(fill = guide_legend("Location ID")) +
-        theme(legend.background = element_rect()) + 
-        theme(axis.title.x = element_text(vjust=-0.5)) +
-        theme(axis.text.x = element_text(angle=90)) +
-        theme(axis.title.y = element_text(vjust=0.3)) +
-        theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
-        geom_boxplot() + 
-        ggtitle(paste("Boxplot for", data_selected$name_units, "\n", sep = " "))
-      
-      if (input$coord_flip_box_const){
-        b <- b + coord_flip()
-      }      
-      b
+      if (input$short_name_box_const & input$coord_flip_box_const){
+          boxplot_by_param_grid(data_selected, name = "short", coord_flip = TRUE)
+      } else {
+          boxplot_by_param_grid(data_selected)
+      }
     }
   })
   
@@ -142,34 +121,13 @@ shinyServer(function(input, output, session) {
                               data$param_name %in% analytes, ]
       
       if (input$short_name_box_well){
-        data_selected$name_units <- paste(data_selected$short_name, " (",
-                                          data_selected$default_unit, ")", 
-                                          sep = "")
-      } else {
-        data_selected$name_units <- paste(data_selected$param_name, " (",
-                                          data_selected$default_unit, ")", 
-                                          sep = "")
+        boxplot_by_well_grid(data_selected, name = "short")
       }
-      
-      # box plot of analyte
-      b <- ggplot(data_selected, aes(name_units, y=analysis_result, 
-                                     fill=name_units)) + 
-        theme_bw() + ylab("Analysis Result") + 
-        xlab("Constituent") +
-        guides(fill = guide_legend("Constituent")) +
-        theme(legend.background = element_rect()) + 
-        theme(axis.title.x = element_text(vjust=-0.5)) +
-        theme(axis.text.x = element_text(angle=90)) +
-        theme(axis.title.y = element_text(vjust=0.3)) +
-        theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
-        geom_boxplot() + 
-        ggtitle(paste("Boxplot for", data_selected$location_id, "\n", 
-                sep = " "))
-      
-      if (input$coord_flip_box_well){
-        b <- b + coord_flip()
-      }      
-      b
+      if (input$short_name_box_well & input$coord_flip_box_well){
+        boxplot_by_well_grid(data_selected, name = "short", coord_flip = TRUE)
+      } else {
+          boxplot_by_well_grid(data_selected)
+      }            
     }
   })
   
