@@ -491,7 +491,7 @@ shinyServer(function(input, output, session) {
         out <- EnvStats::gofTest(df$analysis_result, distribution = "gamma")
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
-      EnvStats::plot(out)
+      plot(out)
     }
   })
 
