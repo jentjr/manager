@@ -1,3 +1,4 @@
+library(gwstats)
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
 # force numbers to be decimal instead of scientific
@@ -9,8 +10,7 @@ shinyServer(function(input, output, session) {
       switch(input$file_type, 
              ".csv" = from_csv(input$manages_path$datapath),
              ".mdb" = connect_manages(input$manages_path$datapath),
-             ".xls" = from_excel(input$manages_path$datapath)) %>%
-        dplyr::arrange(location_id, sample_date, param_name)
+             ".xls" = from_excel(input$manages_path$datapath)) 
     }      
   })
   

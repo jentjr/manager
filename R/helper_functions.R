@@ -5,14 +5,12 @@
 #' the "<" symbol.
 #' @export
 
-
 percent_lt <- function(lt) {
   yes <- length(lt[lt == "<"])
   total <- length(lt)
   p <- (yes / total) * 100
   return(p)
 }
-
 
 #' function to remove duplicate samples
 #' Example: If you have wells named MW-1 and another named MW-1 Duplicate
@@ -26,37 +24,6 @@ remove_dup <- function(df){
   df_nodup <- df[-grep("*Dup", df$location_id), ]
   return(df_nodup)
 }
-
-#' Calculate intrawell prediction limit
-#'
-#' @param df data frame of groundwater monitoring data
-#' @param back_datas vector of background dates
-#' @param comp_dates vector of compliance dates
-#' @param num_wells number of wells
-#' @param num_params number of parameters 
-#' @param m type of 1-of-m retesting scheme (usually m= 1, 2, 3, or 4)
-#' @param swfpr site-wide-false-positive-rate, default is 0.05
-#' @param ne number of yearly evaluations (4 = quarterly, 2 = semi-anually, 1 = annually)
-#' @param ord order of the mean to be predicted (for tests on observations, set ord = 1)
-#' @export 
-
-intrawell_prediction <- function(df, back_dates, comp_dates, num_wells, num_params, m, 
-                                 swfpr = 0.05, ne = 2, ord = 1){
-  back_data <- subset(df, sample_date >= back_dates[1] & sample_date <= back_dates[2])
-  back_mean <- mean(df$analysis_result, na.rm = TRUE)
-  back_sd <- sd(df$analysis_result, na.rm = TRUE)
-  
-  n_back <- nrow(back_data)
-  
-  kappa <- calc_kappa(n = n_back, w = num_wells, coc = num_params, m = m, 
-                      swfpr = swfpr, ne = ne, ord = ord)$kappa
-  
-  upl <- back_mean + kappa * sqrt(1 + 1 / n_back) * back_sd
-    
-  return(upl)
-
-}
-
 
 #' Function to summarize the number of samples, mean, sd, and percentage of 
 #' non-detects. This is useful for calculating the upper prediction limit.

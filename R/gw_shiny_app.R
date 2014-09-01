@@ -1,13 +1,6 @@
-#' function to launch shiny groundwater app
+#' function to launch shiny app
 #' 
 #' @export
-groundwater_app  <- function(){
-  shiny::runApp(system.file('app/groundwater_plots', package='groundwater'))
-}
-
-#' function to launch shiny geochemistry plot app
-#' 
-#' @export
-geochemistry_app <- function(){
-  shiny::runApp(system.file('app/geochemistry_plots', package='groundwater'))
+gwstats  <- function(){
+  shiny::runApp(system.file('app/gwstats', package='gwstats'))
 }
