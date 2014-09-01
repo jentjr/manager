@@ -1,4 +1,14 @@
-# hidden _combo_plot passed to combo_plot
+#' Function to plot time series by location id
+#' 
+#' @param df groundwater data
+#' @param back_date dates for background date range
+#' @param comp_date dates for compliance date range
+#' @param limit1 horizontal line 1
+#' @param limit2 horizontal line 2
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param pnt size of points on time series plots
+#' @param ncol number of columns
+#' @export
 ind_by_loc_grid <- function(df, back_date = NULL, 
                        comp_date = NULL, limit1 = NULL, limit2 = NULL, 
                        name = NULL, pnt = 3, ncol = 1){
@@ -94,7 +104,17 @@ ind_by_loc <- function(df, ...){
 }
 
 
-# hidden function to plot gw data by parameter and faceted by location  
+#' Function to plot time series by parameter
+#'  
+#' @param df groundwater data
+#' @param back_date dates for background date range
+#' @param comp_date dates for compliance date range
+#' @param limit1 horizontal line 1
+#' @param limit2 horizontal line 2
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param pnt size of points on time series plots
+#' @param ncol number of columns
+#' @export 
 ind_by_param_grid <- function(df, back_date = NULL, comp_date = NULL, 
                               limit1 = NULL, limit2 = NULL, name = NULL, 
                               pnt = 3, ncol = 1){
@@ -188,7 +208,17 @@ ind_by_param <- function(df, ...){
         .print = TRUE)
 }
 
-# hidden _combo_plot passed to combo_plot
+#' Function to plot multiple time series by parameter
+#' 
+#' @param df groundwater data
+#' @param back_date dates for background date range
+#' @param comp_date dates for compliance date range
+#' @param limit1 horizontal line 1
+#' @param limit2 horizontal line 2
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param pnt size of points on time series plots
+#' @param ncol number of columns
+#' @export
 multi_by_param_grid <- function(df, back_date = NULL, 
                               comp_date = NULL, limit1 = NULL, limit2 = NULL, 
                               name = NULL, pnt = 3){
@@ -282,7 +312,18 @@ multi_by_param <- function(df, ...){
         .print = TRUE)
 }
 
-# hidden _combo_plot passed to combo_plot
+#' Function to plot multiple time series by location id
+#' 
+#' @param df groundwater data
+#' @param back_date dates for background date range
+#' @param comp_date dates for compliance date range
+#' @param limit1 horizontal line 1
+#' @param limit2 horizontal line 2
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param pnt size of points on time series plots
+#' @param ncol number of columns
+#' @export
+
 multi_by_loc_grid <- function(df, back_date = NULL, 
                                 comp_date = NULL, limit1 = NULL, limit2 = NULL, 
                                 name = NULL, pnt = 3){
@@ -377,6 +418,13 @@ multi_by_loc <- function(df, ...){
 # Boxplots
 #------------------------------------------------------------------------------
 
+#' Function to plot boxplots by parameter
+#' 
+#' @param df groundwater data
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param flip_coords If TRUE the axes are flipped
+#' @export
+
 boxplot_by_param_grid <- function(df, name = NULL, flip_coords = FALSE){
 
   if (isTRUE(name == "short")){
@@ -406,12 +454,25 @@ boxplot_by_param_grid <- function(df, name = NULL, flip_coords = FALSE){
   b
 }
 
+#' Function to plot boxplots by parameter 
+#' 
+#' @param df groundwater data
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param flip_coords If TRUE the axes are flipped
+#' @export
+
 boxplot_by_param <- function(df, ...){
   
   d_ply(df, .(param_name), .progress = "text", boxplot_by_param_grid, ...,
         .print = TRUE)
 }
 
+#' Function to plot boxplots by location id
+#' 
+#' @param df groundwater data
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param flip_coords If TRUE the axes are flipped
+#' @export
 
 boxplot_by_well_grid <- function(df, name = NULL, coord_flip = FALSE){
   if (isTRUE(name == "short")){
@@ -439,6 +500,13 @@ boxplot_by_well_grid <- function(df, name = NULL, coord_flip = FALSE){
   }      
   b
 }
+
+#' Function to plot boxplots by location
+#' 
+#' @param df groundwater data
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param flip_coords If TRUE the axes are flipped
+#' @export
 
 boxplot_by_well <- function(df, ...){
   
