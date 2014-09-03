@@ -71,39 +71,39 @@ shinyServer(function(input, output, session) {
   output$box_out_const <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      wells <- input$well_box_const
-      analytes <- input$analyte_box_const
-      data_selected <- data[data$location_id %in% wells & 
-                              data$param_name %in% analytes, ]
+      w_box_const <- input$well_box_const
+      a_box_const <- input$analyte_box_const
+      box_const_data <- data[data$location_id %in% w_box_const & 
+                              data$param_name %in% a_box_const, ]
       
-      box_list <- lapply(1:length(analytes), function(i) {
-        plotname <- paste("plot", i, sep="")
-        plotOutput(plotname, height = 675, width = 825)
+      box_list_const <- lapply(1:length(a_box_const), function(i) {
+        box_const_name <- paste("plot", i, sep="")
+        plotOutput(box_const_name, height = 675, width = 825)
       })
       
-      for (i in 1:length(analytes)){
+      for (i in 1:length(a_box_const)){
         local({
-          my_i <- i
-          plotname <- paste("plot", my_i, sep="")
-          output[[plotname]] <- renderPlot({
+          box_const_i <- i
+          box_const_name <- paste("plot", box_const_i, sep="")
+          output[[box_const_name]] <- renderPlot({
             if (input$short_name_box_const){
-              boxplot_by_param_grid(data_selected[data_selected$param_name == 
-                                                   analytes[my_i], ], 
+              boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
+                                                   a_box_const[box_const_i], ], 
                                    name = "short")
             }
             if (input$short_name_box_const & input$coord_flip_box_const){
-              boxplot_by_param_grid(data_selected[data_selected$param_name == 
-                                                   analytes[my_i], ], 
+              boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
+                                                   a_box_const[box_const_i], ], 
                                    name = "short", 
                                    coord_flip = TRUE)
             } else {
-              boxplot_by_param_grid(data_selected[data_selected$param_name == 
-                                                   analytes[my_i], ])
+              boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
+                                                   a_box_const[box_const_i], ])
             }
           })
         })
       }
-      do.call(tagList, box_list)
+      do.call(tagList, box_list_const)
     }
   })
   # End Boxplot by constituent Page--------------------------------------------
@@ -130,39 +130,39 @@ shinyServer(function(input, output, session) {
   output$box_out_well <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
-      wells <- input$well_box_well
-      analytes <- input$analyte_box_well
-      data_selected <- data[data$location_id %in% wells & 
-                              data$param_name %in% analytes, ]
+      w_box_well <- input$well_box_well
+      a_box_well <- input$analyte_box_well
+      data_box_well <- data[data$location_id %in% w_box_well & 
+                              data$param_name %in% a_box_well, ]
       
-      box_list <- lapply(1:length(wells), function(i) {
-        plotname <- paste("plot", i, sep="")
-        plotOutput(plotname, height = 675, width = 825)
+      box_list_well <- lapply(1:length(w_box_well), function(i) {
+        box_well_name <- paste("plot", i, sep="")
+        plotOutput(box_well_name, height = 675, width = 825)
       })
       
-      for (i in 1:length(wells)){
+      for (i in 1:length(w_box_well)){
         local({
-          my_i <- i
-          plotname <- paste("plot", my_i, sep="")
-          output[[plotname]] <- renderPlot({
+          box_well_i <- i
+          box_well_name <- paste("plot", box_well_i, sep="")
+          output[[box_well_name]] <- renderPlot({
             if (input$short_name_box_well){
-              boxplot_by_well_grid(data_selected[data_selected$location_id == 
-                                                   wells[my_i], ], 
+              boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
+                                                 w_box_well[box_well_i], ], 
                                    name = "short")
             }
             if (input$short_name_box_well & input$coord_flip_box_well){
-              boxplot_by_well_grid(data_selected[data_selected$location_id == 
-                                                   wells[my_i], ], 
+              boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
+                                                 w_box_well[box_well_i], ], 
                                    name = "short", 
                                    coord_flip = TRUE)
             } else {
-                boxplot_by_well_grid(data_selected[data_selected$location_id == 
-                                                     wells[my_i], ])
+                boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
+                                                   w_box_well[box_well_i], ])
             }
           })
         })
       }
-      do.call(tagList, box_list)
+      do.call(tagList, box_list_well)
     }
   })
   # End Boxplot by well page --------------------------------------------------
@@ -208,25 +208,24 @@ shinyServer(function(input, output, session) {
   # time series plot output
   output$ts_by_well_out <- renderUI({
     if (!is.null(input$manages_path)){
-      
       data <- get_data()
-      wells <- input$well_time_well
-      analytes <- input$analyte_time_well
-      data_selected <- data[data$location_id %in% wells &
-                              data$param_name %in% analytes, ]
+      w_ts_well <- input$well_time_well
+      a_ts_well <- input$analyte_time_well
+      data_ts_well <- data[data$location_id %in% w_ts_well &
+                           data$param_name %in% a_ts_well, ]
       
-      ts_list <- lapply(1:length(wells), function(i) {
-        plotname <- paste("plot", i, sep="")
-        plotOutput(plotname, height = 675, width = 825)
+      ts_well_list <- lapply(1:length(w_ts_well), function(i) {
+        ts_well_name <- paste("plot", i, sep="")
+        plotOutput(ts_well_name, height = 675, width = 825)
       })
       
-      for (i in 1:length(wells)){
+      for (i in 1:length(w_ts_well)){
         local({
-          my_i <- i
-          plotname <- paste("plot", my_i, sep="")
-          output[[plotname]] <- renderPlot({
-            ts <- ind_by_loc_grid(data_selected[data_selected$location_id == 
-                                          wells[my_i], ], 
+          ts_well_i <- i
+          ts_well_name <- paste("plot", ts_well_i, sep="")
+          output[[ts_well_name]] <- renderPlot({
+            ts_well <- ind_by_loc_grid(data_ts_well[data_ts_well$location_id == 
+                                          w_ts_well[ts_well_i], ], 
                                   ncol = input$ncol_ts_well)
             
             if (input$date_lines_well){
@@ -239,16 +238,16 @@ shinyServer(function(input, output, session) {
               c2 <- max(as.POSIXct(input$comp_date_range_time_well, 
                                    format = "%Y-%m-%d"))
               
-              ts <- ind_by_loc_grid(data_selected[data_selected$location_id == 
-                                                   wells[my_i], ], 
+              ts_well <- ind_by_loc_grid(data_ts_well[data_ts_well$location_id == 
+                                                   w_ts_well[ts_well_i], ], 
                                    back_date = c(b1, b2), 
                                    comp_date = c(c1, c2),
                                    ncol = input$ncol_ts_well)
             }
             if (input$short_name_well){
-              ts <- ind_by_loc_grid(data_selected[data_selected$location_id == 
-                                                      wells[my_i], ], 
-                                      name="short",
+              ts_well <- ind_by_loc_grid(data_ts_well[data_ts_well$location_id == 
+                                                      w_ts_well[ts_well_i], ], 
+                                    name="short",
                                     ncol = input$ncol_ts_well)
             }
             if (input$short_name_well & input$date_lines_well){
@@ -261,22 +260,23 @@ shinyServer(function(input, output, session) {
               c2 <- max(as.POSIXct(input$comp_date_range_time_well, 
                                    format = "%Y-%m-%d"))
               
-              ts <- ind_by_loc_grid(data_selected[data_selected$location_id == 
-                                                    wells[my_i], ], 
+              ts_well <- ind_by_loc_grid(data_ts_well[data_ts_well$location_id == 
+                                                    w_ts_well[ts_well_i], ], 
                                     back_date = c(b1, b2), 
-                                    comp_date = c(c1, c2), name = "short",
+                                    comp_date = c(c1, c2), 
+                                    name = "short",
                                     ncol = input$ncol_ts_well)
             }
-            ts
+            ts_well
           })
         })
       }
-      do.call(tagList, ts_list)
+      do.call(tagList, ts_well_list)
     }
   })
   # End Time Series  by well page-----------------------------------------------
   
-  # Begin Time Series by constituent page -------------------------------------
+  # Begin Time Series by constituent page --------------------------------------
   output$wells_time_const <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
