@@ -11,7 +11,7 @@
 #' @export
 ind_by_loc_grid <- function(df, back_date = NULL, 
                        comp_date = NULL, limit1 = NULL, limit2 = NULL, 
-                       name = NULL, pnt = 3, ncol = 1){
+                       name = NULL, pnt = 3, ncol = NULL){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
@@ -117,7 +117,7 @@ ind_by_loc <- function(df, ...){
 #' @export 
 ind_by_param_grid <- function(df, back_date = NULL, comp_date = NULL, 
                               limit1 = NULL, limit2 = NULL, name = NULL, 
-                              pnt = 3, ncol = 1){
+                              pnt = 3, ncol = NULL){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   

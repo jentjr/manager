@@ -34,10 +34,12 @@ shinyUI(navbarPage("GWSTATS",
           uiOutput("analytes_time_well"),
           uiOutput("date_ranges_time_well"),
           checkboxInput("short_name_well", "Abbreviate Constituent Name"),
-          checkboxInput("date_lines_well", "Show Date Ranges")
+          checkboxInput("date_lines_well", "Show Date Ranges"),
+          numericInput("ncol_ts_well", "Number of Columns in Plot", 
+                       value = 1)
         ),
         mainPanel(
-          plotOutput("ts_by_well", height = 675, width = 825)
+          uiOutput("ts_by_well_out")
         )
       )       
     ),
@@ -48,10 +50,12 @@ shinyUI(navbarPage("GWSTATS",
           uiOutput("analytes_time_const"),
           uiOutput("date_ranges_time_const"),
           checkboxInput("short_name_const", "Abbreviate Constituent Name"),
-          checkboxInput("date_lines_const", "Show Date Ranges")
+          checkboxInput("date_lines_const", "Show Date Ranges"),
+          numericInput("ncol_ts_const", "Number of Columns in Plot",
+                       value = 1)
         ),
         mainPanel(
-          plotOutput("ts_by_const", height = 675, width = 825)  
+          uiOutput("ts_by_const_out")  
         )
       )         
     )
@@ -67,7 +71,7 @@ shinyUI(navbarPage("GWSTATS",
           checkboxInput("coord_flip_box_well", "Flip Coordinates")
         ),
         mainPanel(
-          plotOutput("box_plot_well", height = 675, width = 825)  
+          uiOutput("box_out_well")  
         )
       )         
     ),
@@ -81,7 +85,7 @@ shinyUI(navbarPage("GWSTATS",
           checkboxInput("coord_flip_box_const", "Flip Coordinates")
         ),
         mainPanel(
-          plotOutput("box_plot_const", height = 675, width = 825)
+          uiOutput("box_out_const")
         )
       )       
     )

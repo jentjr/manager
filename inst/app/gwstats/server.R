@@ -1,4 +1,5 @@
 library(gwstats)
+library(dplyr)
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
 # force numbers to be decimal instead of scientific
@@ -10,7 +11,8 @@ shinyServer(function(input, output, session) {
       switch(input$file_type, 
              ".csv" = from_csv(input$manages_path$datapath),
              ".mdb" = connect_manages(input$manages_path$datapath),
-             ".xls" = from_excel(input$manages_path$datapath)) 
+             ".xls" = from_excel(input$manages_path$datapath)) %>%
+        arrange(location_id, param_name, sample_date)
     }      
   })
   
@@ -62,33 +64,47 @@ shinyServer(function(input, output, session) {
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
       selectInput("analyte_box_const", "Constituents", analyte_names, 
-                  multiple = FALSE, selected = analyte_names[1])
+                  multiple = TRUE, selected = analyte_names[1])
     }
   })
   
-  # create boxplots by constituent 
-  box_out_const <- reactive({
+  output$box_out_const <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
       wells <- input$well_box_const
       analytes <- input$analyte_box_const
       data_selected <- data[data$location_id %in% wells & 
-                            data$param_name %in% analytes, ]
+                              data$param_name %in% analytes, ]
       
-      if (input$short_name_box_const){
-        boxplot_by_param_grid(data_selected, name = "short")
+      box_list <- lapply(1:length(analytes), function(i) {
+        plotname <- paste("plot", i, sep="")
+        plotOutput(plotname, height = 675, width = 825)
+      })
+      
+      for (i in 1:length(analytes)){
+        local({
+          my_i <- i
+          plotname <- paste("plot", my_i, sep="")
+          output[[plotname]] <- renderPlot({
+            if (input$short_name_box_const){
+              boxplot_by_param_grid(data_selected[data_selected$param_name == 
+                                                   analytes[my_i], ], 
+                                   name = "short")
+            }
+            if (input$short_name_box_const & input$coord_flip_box_const){
+              boxplot_by_param_grid(data_selected[data_selected$param_name == 
+                                                   analytes[my_i], ], 
+                                   name = "short", 
+                                   coord_flip = TRUE)
+            } else {
+              boxplot_by_param_grid(data_selected[data_selected$param_name == 
+                                                   analytes[my_i], ])
+            }
+          })
+        })
       }
-      if (input$short_name_box_const & input$coord_flip_box_const){
-          boxplot_by_param_grid(data_selected, name = "short", coord_flip = TRUE)
-      } else {
-          boxplot_by_param_grid(data_selected)
-      }
+      do.call(tagList, box_list)
     }
-  })
-  
-  # boxplot output to ui
-  output$box_plot_const <- renderPlot({
-    box_out_const()
   })
   # End Boxplot by constituent Page--------------------------------------------
    
@@ -98,7 +114,7 @@ shinyServer(function(input, output, session) {
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_box_well", "Monitoring Wells", well_names, 
-                  multiple = FALSE, selected = well_names[1])
+                  multiple = TRUE, selected = well_names[1])
     }
   })
   
@@ -111,8 +127,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  # create boxplots by constituent 
-  box_out_well <- reactive({
+  output$box_out_well <- renderUI({
     if (!is.null(input$manages_path)){
       data <- get_data()
       wells <- input$well_box_well
@@ -120,20 +135,35 @@ shinyServer(function(input, output, session) {
       data_selected <- data[data$location_id %in% wells & 
                               data$param_name %in% analytes, ]
       
-      if (input$short_name_box_well){
-        boxplot_by_well_grid(data_selected, name = "short")
+      box_list <- lapply(1:length(wells), function(i) {
+        plotname <- paste("plot", i, sep="")
+        plotOutput(plotname, height = 675, width = 825)
+      })
+      
+      for (i in 1:length(wells)){
+        local({
+          my_i <- i
+          plotname <- paste("plot", my_i, sep="")
+          output[[plotname]] <- renderPlot({
+            if (input$short_name_box_well){
+              boxplot_by_well_grid(data_selected[data_selected$location_id == 
+                                                   wells[my_i], ], 
+                                   name = "short")
+            }
+            if (input$short_name_box_well & input$coord_flip_box_well){
+              boxplot_by_well_grid(data_selected[data_selected$location_id == 
+                                                   wells[my_i], ], 
+                                   name = "short", 
+                                   coord_flip = TRUE)
+            } else {
+                boxplot_by_well_grid(data_selected[data_selected$location_id == 
+                                                     wells[my_i], ])
+            }
+          })
+        })
       }
-      if (input$short_name_box_well & input$coord_flip_box_well){
-        boxplot_by_well_grid(data_selected, name = "short", coord_flip = TRUE)
-      } else {
-          boxplot_by_well_grid(data_selected)
-      }            
+      do.call(tagList, box_list)
     }
-  })
-  
-  # boxplot output to ui
-  output$box_plot_well <- renderPlot({
-    box_out_well()
   })
   # End Boxplot by well page --------------------------------------------------
   
@@ -144,7 +174,7 @@ shinyServer(function(input, output, session) {
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_time_well", "Monitoring Wells", well_names, 
-                  multiple = FALSE,
+                  multiple = TRUE,
                   selected = well_names[1])
     }
   })
@@ -176,7 +206,7 @@ shinyServer(function(input, output, session) {
   })
   
   # time series plot output
-  ts_by_well_out <- reactive({
+  output$ts_by_well_out <- renderUI({
     if (!is.null(input$manages_path)){
       
       data <- get_data()
@@ -185,49 +215,65 @@ shinyServer(function(input, output, session) {
       data_selected <- data[data$location_id %in% wells &
                               data$param_name %in% analytes, ]
       
-      t1 <- ind_by_loc_grid(data_selected)
+      ts_list <- lapply(1:length(wells), function(i) {
+        plotname <- paste("plot", i, sep="")
+        plotOutput(plotname, height = 675, width = 825)
+      })
+      
+      for (i in 1:length(wells)){
+        local({
+          my_i <- i
+          plotname <- paste("plot", my_i, sep="")
+          output[[plotname]] <- renderPlot({
+            ts <- ind_by_loc_grid(data_selected[data_selected$location_id == 
+                                          wells[my_i], ], 
+                                  ncol = input$ncol_ts_well)
+            
+            if (input$date_lines_well){
+              b1 <- min(as.POSIXct(input$back_date_range_time_well, 
+                                   format = "%Y-%m-%d"))
+              c1 <- min(as.POSIXct(input$comp_date_range_time_well, 
+                                   format = "%Y-%m-%d"))
+              b2 <- max(as.POSIXct(input$back_date_range_time_well, 
+                                   format = "%Y-%m-%d"))
+              c2 <- max(as.POSIXct(input$comp_date_range_time_well, 
+                                   format = "%Y-%m-%d"))
               
-      if (input$date_lines_well){
-        # create separate data.frame for geom_rect data
-        # change dates to POSIXct which is same as MANAGES database dates
-        b1 <- min(as.POSIXct(input$back_date_range_time_well, 
-                             format = "%Y-%m-%d"))
-        c1 <- min(as.POSIXct(input$comp_date_range_time_well, 
-                             format = "%Y-%m-%d"))
-        b2 <- max(as.POSIXct(input$back_date_range_time_well, 
-                             format = "%Y-%m-%d"))
-        c2 <- max(as.POSIXct(input$comp_date_range_time_well, 
-                             format = "%Y-%m-%d"))
-        
-        t1 <- ind_by_loc_grid(data_selected, back_date = c(b1, b2), 
-                              comp_date = c(c1, c2))
+              ts <- ind_by_loc_grid(data_selected[data_selected$location_id == 
+                                                   wells[my_i], ], 
+                                   back_date = c(b1, b2), 
+                                   comp_date = c(c1, c2),
+                                   ncol = input$ncol_ts_well)
+            }
+            if (input$short_name_well){
+              ts <- ind_by_loc_grid(data_selected[data_selected$location_id == 
+                                                      wells[my_i], ], 
+                                      name="short",
+                                    ncol = input$ncol_ts_well)
+            }
+            if (input$short_name_well & input$date_lines_well){
+              b1 <- min(as.POSIXct(input$back_date_range_time_well, 
+                                   format = "%Y-%m-%d"))
+              c1 <- min(as.POSIXct(input$comp_date_range_time_well, 
+                                   format = "%Y-%m-%d"))
+              b2 <- max(as.POSIXct(input$back_date_range_time_well,
+                                   format = "%Y-%m-%d"))
+              c2 <- max(as.POSIXct(input$comp_date_range_time_well, 
+                                   format = "%Y-%m-%d"))
+              
+              ts <- ind_by_loc_grid(data_selected[data_selected$location_id == 
+                                                    wells[my_i], ], 
+                                    back_date = c(b1, b2), 
+                                    comp_date = c(c1, c2), name = "short",
+                                    ncol = input$ncol_ts_well)
+            }
+            ts
+          })
+        })
       }
-      if (input$short_name_well){
-        t1 <- ind_by_loc_grid(data_selected, name="short")
-      }
-      if (input$short_name_well & input$date_lines_well){
-        # create separate data.frame for geom_rect data
-        # change dates to POSIXct which is same as MANAGES database dates
-        b1 <- min(as.POSIXct(input$back_date_range_time_well, 
-                             format = "%Y-%m-%d"))
-        c1 <- min(as.POSIXct(input$comp_date_range_time_well, 
-                             format = "%Y-%m-%d"))
-        b2 <- max(as.POSIXct(input$back_date_range_time_well,
-                             format = "%Y-%m-%d"))
-        c2 <- max(as.POSIXct(input$comp_date_range_time_well, 
-                             format = "%Y-%m-%d"))
-        
-        t1 <- ind_by_loc_grid(data_selected, back_date = c(b1, b2), 
-                              comp_date = c(c1, c2), name = "short")
-      }
-      t1
+      do.call(tagList, ts_list)
     }
   })
-  
-  output$ts_by_well <- renderPlot({
-    ts_by_well_out()
-  })
-  
   # End Time Series  by well page-----------------------------------------------
   
   # Begin Time Series by constituent page -------------------------------------
@@ -246,7 +292,7 @@ shinyServer(function(input, output, session) {
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
       selectInput("analyte_time_const", "Constituents", analyte_names, 
-                  multiple = FALSE,
+                  multiple = TRUE,
                   selected = analyte_names[1])
     }
   })
@@ -265,7 +311,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  ts_by_const_out <- reactive({
+  output$ts_by_const_out <- renderUI({
     if (!is.null(input$manages_path)){
       
       data <- get_data()
@@ -274,49 +320,65 @@ shinyServer(function(input, output, session) {
       data_selected <- data[data$location_id %in% wells &
                               data$param_name %in% analytes, ]
       
-      t1 <- ind_by_param_grid(data_selected)
+      ts_list <- lapply(1:length(analytes), function(i) {
+        plotname <- paste("plot", i, sep="")
+        plotOutput(plotname, height = 675, width = 825)
+      })
       
-      if (input$date_lines_const){
-        # create separate data.frame for geom_rect data
-        # change dates to POSIXct which is same as MANAGES database dates
-        b1 <- min(as.POSIXct(input$back_date_range_time_const, 
-                             format = "%Y-%m-%d"))
-        c1 <- min(as.POSIXct(input$comp_date_range_time_const, 
-                             format = "%Y-%m-%d"))
-        b2 <- max(as.POSIXct(input$back_date_range_time_const, 
-                             format = "%Y-%m-%d"))
-        c2 <- max(as.POSIXct(input$comp_date_range_time_const, 
-                             format = "%Y-%m-%d"))
-        
-        t1 <- ind_by_param_grid(data_selected, back_date = c(b1, b2), 
-                                comp_date = c(c1, c2))
+      for (i in 1:length(analytes)){
+        local({
+          my_i <- i
+          plotname <- paste("plot", my_i, sep="")
+          output[[plotname]] <- renderPlot({
+            ts <- ind_by_param_grid(data_selected[data_selected$param_name == 
+                                                  analytes[my_i], ], 
+                                  ncol = input$ncol_ts_const)
+            
+            if (input$date_lines_const){
+              b1 <- min(as.POSIXct(input$back_date_range_time_const, 
+                                   format = "%Y-%m-%d"))
+              c1 <- min(as.POSIXct(input$comp_date_range_time_const, 
+                                   format = "%Y-%m-%d"))
+              b2 <- max(as.POSIXct(input$back_date_range_time_const, 
+                                   format = "%Y-%m-%d"))
+              c2 <- max(as.POSIXct(input$comp_date_range_time_const, 
+                                   format = "%Y-%m-%d"))
+              
+              ts <- ind_by_param_grid(data_selected[data_selected$param_name == 
+                                                      analytes[my_i], ], 
+                                    back_date = c(b1, b2), 
+                                    comp_date = c(c1, c2),
+                                    ncol = input$ncol_ts_const)
+            }
+            if (input$short_name_const){
+              ts <- ind_by_param_grid(data_selected[data_selected$param_name == 
+                                                      analytes[my_i], ], 
+                                    name="short",
+                                    ncol = input$ncol_ts_const)
+            }
+            if (input$short_name_const & input$date_lines_const){
+              b1 <- min(as.POSIXct(input$back_date_range_time_const, 
+                                   format = "%Y-%m-%d"))
+              c1 <- min(as.POSIXct(input$comp_date_range_time_const, 
+                                   format = "%Y-%m-%d"))
+              b2 <- max(as.POSIXct(input$back_date_range_time_const,
+                                   format = "%Y-%m-%d"))
+              c2 <- max(as.POSIXct(input$comp_date_range_time_const, 
+                                   format = "%Y-%m-%d"))
+              
+              ts <- ind_by_param_grid(data_selected[data_selected$param_name == 
+                                                      analytes[my_i], ], 
+                                    back_date = c(b1, b2), 
+                                    comp_date = c(c1, c2), name = "short",
+                                    ncol = input$ncol_ts_const)
+            }
+            ts
+          })
+        })
       }
-      if (input$short_name_const){
-        t1 <- ind_by_param_grid(data_selected, name="short")
-      }
-      if (input$short_name_const & input$date_lines_const){
-        # create separate data.frame for geom_rect data
-        # change dates to POSIXct which is same as MANAGES database dates
-        b1 <- min(as.POSIXct(input$back_date_range_time_const, 
-                             format = "%Y-%m-%d"))
-        c1 <- min(as.POSIXct(input$comp_date_range_time_const, 
-                             format = "%Y-%m-%d"))
-        b2 <- max(as.POSIXct(input$back_date_range_time_const,
-                             format = "%Y-%m-%d"))
-        c2 <- max(as.POSIXct(input$comp_date_range_time_const, 
-                             format = "%Y-%m-%d"))
-        
-        t1 <- ind_by_param_grid(data_selected, back_date = c(b1, b2), 
-                                comp_date = c(c1, c2), name = "short")
-      }
-      t1
+      do.call(tagList, ts_list)
     }
   })
-  
-  output$ts_by_const <- renderPlot({
-    ts_by_const_out()
-  })
-  
   # End Time Series by constituent page ---------------------------------------
   
   # Begin Piper Diagram Page---------------------------------------------------
@@ -338,28 +400,6 @@ shinyServer(function(input, output, session) {
     }
   })
   
-#   # gather major ions and conver for Piper diagram
-#   output$piper_data <- reactive({
-#     if (!is.null(input$manages_path)){
-#       data <- get_data()
-#       # get the major cations/anions
-#       start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
-#       end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
-#       wells <- input$well_piper
-#       data_selected <- data[data$location_id %in% wells &
-#                             data$sample_date >= start & 
-#                             data$sample_date <= end, ]      
-#       ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca,
-#                              Na=input$Na, K=input$K, Cl=input$Cl, 
-#                              SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
-#       piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca,
-#                                          Na=input$Na, K=input$K, Cl=input$Cl, 
-#                                          SO4=input$SO4, Alk=input$Alk, 
-#                                          TDS=input$TDS)
-#       return(piper_data)
-#     } 
-#   })
-
   output$piper_plot <- renderPlot({
    if (!is.null(input$manages_path)){
     data <- get_data()
