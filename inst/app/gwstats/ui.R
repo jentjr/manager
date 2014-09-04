@@ -2,14 +2,19 @@ shinyUI(navbarPage("GWSTATS",
   tabPanel("Data Input",
       sidebarLayout(
         sidebarPanel(
-          fileInput(inputId = "manages_path", 
-                    label = "Browse to MANAGES Site.mdb file",
+          fileInput(inputId = "data_path", 
+                    label = "Browse to file",
                     accept = c(".mdb", ".csv", ".xls")),
             conditionalPanel(
               condition = "input.data == FALSE",
                 radioButtons(inputId = "file_type", 
                              label = "File Extension", 
-                             choices = c(".mdb", ".csv", ".xls")))
+                             choices = c("MANAGES Site.mdb", ".csv", ".xls"))),
+          helpText("The file must have the following columns and labels: \n
+                   location_id, sample_date, param_name, lt_measure, 
+                   analysis_result, default_unit. \n The sample_date column 
+                   should be in the format \"2008-01-01\" 
+                   (i.e. year, month, day).")
         ),
         mainPanel(
           dataTableOutput("well_table")

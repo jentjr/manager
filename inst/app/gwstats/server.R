@@ -7,42 +7,53 @@ options(scipen=6, digits = 8)
 
 shinyServer(function(input, output, session) {
   get_data <- reactive({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+      )
       switch(input$file_type, 
-             ".csv" = from_csv(input$manages_path$datapath),
-             ".mdb" = connect_manages(input$manages_path$datapath),
-             ".xls" = from_excel(input$manages_path$datapath)) %>%
-        arrange(location_id, param_name, sample_date)
-    }      
+             ".csv" = from_csv(input$data_path$datapath),
+             ".mdb" = connect_manages(input$data_path$datapath),
+             ".xls" = from_excel(input$data_path$datapath)) %>%
+        arrange(location_id, param_name, sample_date)    
   })
   
   output$well_table <- renderDataTable({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set. The data should be in the following form: \n\n 
+
+location_id | sample_date | param_name | lt_measure | analysis_result | default_unit  
+-------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
+MW-1         | 2008-01-01  | Arsenic, diss  |      <            |     0.01             |       ug/L
+-------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
+MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24             |       mg/L ")
+    
+    )
       data <- get_data() 
       return(data)
-    }
   }, options = list(sScrollY = "100%", sScrollX = "100%", 
                     aLengthMenu = c(5, 10, 15, 25, 50, 100), 
                     iDisplayLength = 10)
   ) 
   # Begin Summary Table page ---------------------------------------------------  
   output$summary_date_ranges <- renderUI({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      tagList(
-        dateRangeInput("background_date_range", "Background Date Range", 
-                       start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE)) 
-      )
-    }
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    tagList(
+      dateRangeInput("background_date_range", "Background Date Range", 
+                      start = min(data$sample_date, na.rm = TRUE),
+                      end = max(data$sample_date, na.rm = TRUE)) 
+    )
   })
   output$summary_table <- renderDataTable({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      start <- min(lubridate::ymd(input$background_date_range))
-      end <- max(lubridate::ymd(input$background_date_range))
-      gw_summary(data, start, end)
-    }
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    data <- get_data()
+    start <- min(lubridate::ymd(input$background_date_range))
+    end <- max(lubridate::ymd(input$background_date_range))
+    gw_summary(data, start, end)
   }, options = list(sScrollY = "100%", sScrollX = "100%", 
                     aLengthMenu = c(5, 10, 15, 25, 50, 100), 
                     iDisplayLength = 10)
@@ -51,25 +62,29 @@ shinyServer(function(input, output, session) {
   
   # Begin Boxplot by constituent page-------------------------------------------
   output$wells_box_const <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_box_const", "Monitoring Wells", well_names, 
                   multiple = TRUE, selected = well_names[1])
-    }
   })
   
   output$analytes_box_const <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
       selectInput("analyte_box_const", "Constituents", analyte_names, 
                   multiple = TRUE, selected = analyte_names[1])
-    }
   })
   
   output$box_out_const <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
       data <- get_data()
       w_box_const <- input$well_box_const
       a_box_const <- input$analyte_box_const
@@ -100,31 +115,34 @@ shinyServer(function(input, output, session) {
         })
       }
       do.call(tagList, box_list_const)
-    }
   })
   # End Boxplot by constituent Page---------------------------------------------
    
   # Begin Boxplot by well page -------------------------------------------------
   output$wells_box_well <- renderUI({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      well_names <- as.character(get_wells(data))
-      selectInput("well_box_well", "Monitoring Wells", well_names, 
-                  multiple = TRUE, selected = well_names[1])
-    }
+    validate(
+      need(input$data_path != "", "")
+    )  
+    data <- get_data()
+    well_names <- as.character(get_wells(data))
+    selectInput("well_box_well", "Monitoring Wells", well_names, 
+                 multiple = TRUE, selected = well_names[1])
   })
   
   output$analytes_box_well <- renderUI({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      analyte_names <- as.character(get_analytes(data))
-      selectInput("analyte_box_well", "Constituents", analyte_names, 
-                  multiple = TRUE, selected = analyte_names[1])
-    }
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    analyte_names <- as.character(get_analytes(data))
+    selectInput("analyte_box_well", "Constituents", analyte_names, 
+                 multiple = TRUE, selected = analyte_names[1])
   })
   
   output$box_out_well <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
       data <- get_data()
       w_box_well <- input$well_box_well
       a_box_well <- input$analyte_box_well
@@ -155,51 +173,55 @@ shinyServer(function(input, output, session) {
         })
       }
       do.call(tagList, box_list_well)
-    }
   })
   # End Boxplot by well page ---------------------------------------------------
   
   # Time Series by well Page ---------------------------------------------------
   # return a list of well names for time series page
   output$wells_time_well <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_time_well", "Monitoring Wells", well_names, 
                   multiple = TRUE,
                   selected = well_names[1])
-    }
   })
   
   # return a list of constituents for time series page
   output$analytes_time_well <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
       selectInput("analyte_time_well", "Constituents", analyte_names, 
                   multiple = TRUE,
                   selected = analyte_names[1])
-    }
   })
   
   # return start and end date of background data for time series page
   output$date_ranges_time_well <- renderUI({
-    if (!is.null(input$manages_path)){
-      data <- get_data()
-      tagList(
-        dateRangeInput("back_date_range_time_well", "Background Date Range", 
-                       start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE)),
-        dateRangeInput("comp_date_range_time_well", "Compliance Date Range", 
-                       start = max(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE))  
-      )
-    }
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    tagList(
+      dateRangeInput("back_date_range_time_well", "Background Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE)),
+      dateRangeInput("comp_date_range_time_well", "Compliance Date Range", 
+                     start = max(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))  
+    )
   })
   
   # time series plot output
   output$ts_by_well_out <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
       data <- get_data()
       w_ts_well <- input$well_time_well
       a_ts_well <- input$analyte_time_well
@@ -264,33 +286,36 @@ shinyServer(function(input, output, session) {
         })
       }
       do.call(tagList, ts_well_list)
-    }
   })
   # End Time Series  by well page-----------------------------------------------
   
   # Begin Time Series by constituent page --------------------------------------
   output$wells_time_const <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_time_const", "Monitoring Wells", well_names, 
                   multiple = TRUE,
                   selected = well_names[1])
-    }
   })
   
   output$analytes_time_const <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
       selectInput("analyte_time_const", "Constituents", analyte_names, 
                   multiple = TRUE,
                   selected = analyte_names[1])
-    }
   })
   
   output$date_ranges_time_const <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       tagList(
         dateRangeInput("back_date_range_time_const", "Background Date Range", 
@@ -300,11 +325,12 @@ shinyServer(function(input, output, session) {
                        start = max(data$sample_date, na.rm = TRUE),
                        end = max(data$sample_date, na.rm = TRUE))  
       )
-    }
   })
   
   output$ts_by_const_out <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
       data <- get_data()
       w_ts_const <- input$well_time_const
       a_ts_const <- input$analyte_time_const
@@ -369,31 +395,34 @@ shinyServer(function(input, output, session) {
         })
       }
       do.call(tagList, ts_const_list)
-    }
   })
   # End Time Series by constituent page ---------------------------------------
   
   # Begin Piper Diagram Page---------------------------------------------------
   output$wells_piper <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_piper", "Monitoring Wells", well_names, 
                   multiple = TRUE, selected = well_names[1])
-    }
   })
   
   output$date_ranges_piper <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       dateRangeInput("date_range_piper", "Date Range", 
                      start = min(data$sample_date, na.rm = TRUE), 
                      end = max(data$sample_date, na.rm = TRUE))
-    }
   })
   
   output$piper_plot <- renderPlot({
-   if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
     data <- get_data()
     start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
     end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
@@ -410,31 +439,34 @@ shinyServer(function(input, output, session) {
                                        TDS=input$TDS)
 
     piper_plot(piper_data, TDS=input$TDS_plot)
-    }
   })
   # End Piper Diagram Page-----------------------------------------------------
 
   # Begin Stiff Diagram Page --------------------------------------------------
   output$wells_stiff <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_stiff", "Monitoring Wells", well_names, 
                   multiple = FALSE, selected = well_names[1])
-    }
   })
   
   output$date_ranges_stiff <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       dateRangeInput("date_range_stiff", "Date Range", 
                      start = min(data$sample_date, na.rm = TRUE), 
                      end = max(data$sample_date, na.rm = TRUE))
-    }
   })
 
   output$stiff_diagram <- renderPlot({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
       data <- get_data()
       start <- min(as.POSIXct(input$date_range_stiff, format = "%Y-%m-%d"))
       end <- max(as.POSIXct(input$date_range_stiff, format = "%Y-%m-%d"))
@@ -458,46 +490,50 @@ shinyServer(function(input, output, session) {
                                          HCO3=input$Alk_stiff, 
                                          TDS=input$TDS_stiff)
       stiff_plot(stiff_data, TDS=input$TDS_plot_stiff)
-    } 
   })
   # End Stiff Diagram Page ----------------------------------------------------
   
   # Begin Prediction Limits ---------------------------------------------------
   output$wells_upl <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_upl", "Monitoring Wells", well_names, 
                   multiple = FALSE,
                   selected = well_names[1])
-    }
   })
 
   # return a list of constituents for time series page
   output$analytes_upl <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
       selectInput("analyte_upl", "Constituents", analyte_names, 
                   multiple = FALSE,
                   selected = analyte_names[1])
-    }
   })
 
   # return start and end date of background data for time series page
   output$date_ranges_upl <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       tagList(
         dateRangeInput("back_date_range_upl", "Background Date Range", 
                        start = min(data$sample_date, na.rm = TRUE),
                        end = max(data$sample_date, na.rm = TRUE))
       )
-    }
   })
 
   bkgd_data <- reactive({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       df <- get_data()
       start <- min(as.POSIXct(input$back_date_range_upl, format = "%Y-%m-%d"))
       end <- max(as.POSIXct(input$back_date_range_upl, format = "%Y-%m-%d"))
@@ -505,11 +541,12 @@ shinyServer(function(input, output, session) {
                                 param_name %in% input$analyte_upl &
                                 sample_date >= start & sample_date <= end)
       data_selected
-    }
   })
 
   output$gof <- renderPlot({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
       df <- bkgd_data()
       if (input$int_type == "Normal" || input$int_type == "Non-parametric"){
         out <- EnvStats::gofTest(df$analysis_result)
@@ -524,11 +561,12 @@ shinyServer(function(input, output, session) {
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       plot(out)
-    }
   })
 
   output$upl <- renderPrint({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       
       df <- bkgd_data()
       nw <- input$nw
@@ -563,7 +601,6 @@ shinyServer(function(input, output, session) {
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
       }
       out
-    }
   })
   # End Prediction Limits -----------------------------------------------------
 
@@ -571,37 +608,42 @@ shinyServer(function(input, output, session) {
 
   # ROS
   output$ros_wells <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("ros_well", "Monitoring Wells", well_names, 
                   multiple = FALSE,
                   selected = well_names[1])
-    }
   })
 
   output$ros_analytes <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
       selectInput("ros_analyte", "Constituents", analyte_names, 
                   multiple = FALSE,
                   selected = analyte_names[1])
-    }
   })
 
   output$ros_date_ranges <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       tagList(
         dateRangeInput("bkgd_date_range_ros", "Background Date Range", 
                        start = min(data$sample_date, na.rm = TRUE),
                        end = max(data$sample_date, na.rm = TRUE)) 
       )
-    }
   })
   output$ros_summary_table <- renderDataTable({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
       data <- get_data()
       wells <- input$ros_well
       const <- input$ros_analyte
@@ -610,14 +652,15 @@ shinyServer(function(input, output, session) {
       start <- min(lubridate::ymd(input$bkgd_date_range_ros))
       end <- max(lubridate::ymd(input$bkgd_date_range_ros))
       gw_summary(data, start, end)
-    }
   }, options = list(sScrollY = "100%", sScrollX = "100%", 
                     aLengthMenu = c(5, 10, 15, 25, 50, 100), 
                     iDisplayLength = 10)
   )
 
   output$ros_out <- renderPrint({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       wells <- input$ros_well
       const <- input$ros_analyte
@@ -631,11 +674,12 @@ shinyServer(function(input, output, session) {
       data <- as.data.frame(data)
       ros <- NADA::ros(data$analysis_result, data$censored)
       NADA::print(ros)
-    }
   })
   
     output$ros_out_2 <- renderPrint({
-    if (!is.null(input$manages_path)){
+      validate(
+        need(input$data_path != "", "")
+      )
       data <- get_data()
       wells <- input$ros_well
       const <- input$ros_analyte
@@ -649,11 +693,12 @@ shinyServer(function(input, output, session) {
       data <- as.data.frame(data)
       ros <- NADA::ros(data$analysis_result, data$censored)
       summary(ros)
-    }
   })
   
   output$ros_plot <- renderPlot({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       wells <- input$ros_well
       const <- input$ros_analyte
@@ -667,29 +712,30 @@ shinyServer(function(input, output, session) {
       data <- as.data.frame(data)
       ros <- NADA::ros(data$analysis_result, data$censored)
       NADA::plot(ros)
-  }
 })
   # End ROS
   
   # begin Kaplan-Meier
   output$kp_wells <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("kp_well", "Monitoring Wells", well_names, 
                   multiple = FALSE,
                   selected = well_names[1])
-    }
   })
 
   output$kp_analytes <- renderUI({
-    if (!is.null(input$manages_path)){
+    validate(
+      need(input$data_path != "", "")
+    )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
       selectInput("kp_analyte", "Constituents", analyte_names, 
                   multiple = FALSE,
                   selected = analyte_names[1])
-    }
   })
   # End Kaplan-Meier
   # End NADA Page -------------------------------------------------------------
