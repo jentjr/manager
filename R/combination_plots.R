@@ -425,7 +425,7 @@ multi_by_loc <- function(df, ...){
 #' @param flip_coords If TRUE the axes are flipped
 #' @export
 
-boxplot_by_param_grid <- function(df, name = NULL, flip_coords = FALSE){
+boxplot_by_param_grid <- function(df, name = NULL, coord_flip = FALSE){
 
   if (isTRUE(name == "short")){
     df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
@@ -448,7 +448,7 @@ boxplot_by_param_grid <- function(df, name = NULL, flip_coords = FALSE){
     geom_boxplot() + 
     ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
 
-  if (isTRUE(flip_coords)){
+  if (isTRUE(coord_flip)){
     b <- b + coord_flip()
   }      
   b

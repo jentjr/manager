@@ -86,20 +86,16 @@ shinyServer(function(input, output, session) {
           box_const_i <- i
           box_const_name <- paste("box_list_plot", box_const_i, sep="")
           output[[box_const_name]] <- renderPlot({
+            box_const <- boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
+                                               a_box_const[box_const_i], ],
+                                               coord_flip = input$coord_flip_box_const)
             if (input$short_name_box_const){
-              boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
+              box_const <- boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
                                     a_box_const[box_const_i], ], 
-                                    name = "short")
+                                    name = "short",
+                                    coord_flip = input$coord_flip_box_const)
             }
-            if (input$short_name_box_const & input$coord_flip_box_const){
-              boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
-                                    a_box_const[box_const_i], ], 
-                                    name = "short", 
-                                    coord_flip = TRUE)
-            } else {
-              boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
-                                    a_box_const[box_const_i], ])
-            }
+            box_const
           })
         })
       }
@@ -145,20 +141,16 @@ shinyServer(function(input, output, session) {
           box_well_i <- i
           box_well_name <- paste("box_well_plot", box_well_i, sep="")
           output[[box_well_name]] <- renderPlot({
+            box_well <- boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
+                                             w_box_well[box_well_i], ],
+                                             coord_flip = input$coord_flip_box_well)
             if (input$short_name_box_well){
-              boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
+              box_well <- boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
                                    w_box_well[box_well_i], ], 
-                                   name = "short")
+                                   name = "short",
+                                   coord_flip = input$coord_flip_box_well)
             }
-            if (input$short_name_box_well & input$coord_flip_box_well){
-              boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
-                                   w_box_well[box_well_i], ], 
-                                   name = "short", 
-                                   coord_flip = TRUE)
-            } else {
-                boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
-                                     w_box_well[box_well_i], ])
-            }
+            box_well
           })
         })
       }
