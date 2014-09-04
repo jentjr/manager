@@ -11,7 +11,7 @@
 #' @export
 ind_by_loc_grid <- function(df, back_date = NULL, 
                        comp_date = NULL, limit1 = NULL, limit2 = NULL, 
-                       name = NULL, pnt = 3, ncol = 1){
+                       name = NULL, pnt = 3, ncol = NULL){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
@@ -117,7 +117,7 @@ ind_by_loc <- function(df, ...){
 #' @export 
 ind_by_param_grid <- function(df, back_date = NULL, comp_date = NULL, 
                               limit1 = NULL, limit2 = NULL, name = NULL, 
-                              pnt = 3, ncol = 1){
+                              pnt = 3, ncol = NULL){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
@@ -425,7 +425,7 @@ multi_by_loc <- function(df, ...){
 #' @param flip_coords If TRUE the axes are flipped
 #' @export
 
-boxplot_by_param_grid <- function(df, name = NULL, flip_coords = FALSE){
+boxplot_by_param_grid <- function(df, name = NULL, coord_flip = FALSE){
 
   if (isTRUE(name == "short")){
     df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
@@ -448,7 +448,7 @@ boxplot_by_param_grid <- function(df, name = NULL, flip_coords = FALSE){
     geom_boxplot() + 
     ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
 
-  if (isTRUE(flip_coords)){
+  if (isTRUE(coord_flip)){
     b <- b + coord_flip()
   }      
   b
