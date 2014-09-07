@@ -41,7 +41,8 @@ shinyUI(navbarPage("GWSTATS",
           checkboxInput("short_name_well", "Abbreviate Constituent Name"),
           checkboxInput("date_lines_well", "Show Date Ranges"),
           numericInput("ncol_ts_well", "Number of Columns in Plot", 
-                       value = 1)
+                       value = 1),
+          downloadButton("ts_well_download", "Download Plots")
         ),
         mainPanel(
           uiOutput("ts_by_well_out")
@@ -57,7 +58,8 @@ shinyUI(navbarPage("GWSTATS",
           checkboxInput("short_name_const", "Abbreviate Constituent Name"),
           checkboxInput("date_lines_const", "Show Date Ranges"),
           numericInput("ncol_ts_const", "Number of Columns in Plot",
-                       value = 1)
+                       value = 1),
+          downloadButton("ts_const_download", "Download Plots")
         ),
         mainPanel(
           uiOutput("ts_by_const_out")  
@@ -118,7 +120,8 @@ shinyUI(navbarPage("GWSTATS",
           textInput(inputId = "TDS", label = "TDS", 
                     value = "Total Dissolved Solids"),
           checkboxInput(inputId = "TDS_plot",
-                        label = "Scale by Total Dissolved Solids")
+                        label = "Scale by Total Dissolved Solids"),
+          downloadButton("piper_download", "Download Plot")
         ),
         mainPanel(
           plotOutput("piper_plot", height = 700, width = 800)  
