@@ -548,6 +548,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "Please upload a data set")
     )
       df <- bkgd_data()
+    validate(
+      need(length(unique(df$analysis_result)) > 2, "")
+    )
       if (input$int_type == "Normal" || input$int_type == "Non-parametric"){
         out <- EnvStats::gofTest(df$analysis_result)
         out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
@@ -573,7 +576,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       nc <- input$nc
       swfpr <- input$swfpr
       conf.level = (1 - swfpr)^(1/(nc*nw))
-      
+    validate(
+      need(length(unique(df$analysis_result)) > 2, 
+           "One of the input variables has fewer than 2 unique data points.")
+      )  
       if (input$int_type == "Normal"){
         out <- EnvStats::predIntNormSimultaneous(df$analysis_result, 
                                                  k = input$k, m = input$m, 
