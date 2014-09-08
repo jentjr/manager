@@ -99,7 +99,7 @@ ind_by_loc_grid <- function(df, back_date = NULL,
 
 ind_by_loc <- function(df, ...){
   
-  d_ply(df, .(location_id), .progress = "text", ind_by_loc_grid, ...,
+  plyr::d_ply(df, .(location_id), .progress = "text", ind_by_loc_grid, ...,
               .print = TRUE)
 }
 
@@ -204,7 +204,7 @@ ind_by_param_grid <- function(df, back_date = NULL, comp_date = NULL,
 
 ind_by_param <- function(df, ...){
   
-  d_ply(df, .(param_name), .progress = "text", ind_by_param_grid, ...,
+  plyr::d_ply(df, .(param_name), .progress = "text", ind_by_param_grid, ...,
         .print = TRUE)
 }
 
@@ -308,7 +308,7 @@ multi_by_param_grid <- function(df, back_date = NULL,
 
 multi_by_param <- function(df, ...){
   
-  d_ply(df, .(param_name), .progress = "text", multi_by_param_grid, ...,
+  plyr::d_ply(df, .(param_name), .progress = "text", multi_by_param_grid, ...,
         .print = TRUE)
 }
 
@@ -410,7 +410,7 @@ multi_by_loc_grid <- function(df, back_date = NULL,
 
 multi_by_loc <- function(df, ...){
   
-  d_ply(df, .(location_id), .progress = "text", multi_by_loc_grid, ...,
+  plyr::d_ply(df, .(location_id), .progress = "text", multi_by_loc_grid, ...,
         .print = TRUE)
 }
 
@@ -463,7 +463,7 @@ boxplot_by_param_grid <- function(df, name = NULL, coord_flip = FALSE){
 
 boxplot_by_param <- function(df, ...){
   
-  d_ply(df, .(param_name), .progress = "text", boxplot_by_param_grid, ...,
+  plyr::d_ply(df, .(param_name), .progress = "text", boxplot_by_param_grid, ...,
         .print = TRUE)
 }
 
@@ -510,7 +510,7 @@ boxplot_by_well_grid <- function(df, name = NULL, coord_flip = FALSE){
 
 boxplot_by_well <- function(df, ...){
   
-  d_ply(df, .(location_id), .progress = "text", boxplot_by_well_grid, ...,
+  plyr::d_ply(df, .(location_id), .progress = "text", boxplot_by_well_grid, ...,
         .print = TRUE)
 }
 
