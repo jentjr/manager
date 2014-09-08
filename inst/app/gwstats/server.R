@@ -12,7 +12,7 @@ shinyServer(function(input, output, session) {
       )
       switch(input$file_type, 
              ".csv" = from_csv(input$data_path$datapath),
-             ".mdb" = connect_manages(input$data_path$datapath),
+             "MANAGES Site.mdb" = connect_manages(input$data_path$datapath),
              ".xls" = from_excel(input$data_path$datapath)) %>%
         arrange(location_id, param_name, sample_date)    
   })
