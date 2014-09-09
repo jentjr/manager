@@ -38,7 +38,7 @@ get_major_ions <- function(df, Mg="Magnesium, dissolved",
 #' 
 #' @export
 
-convert_mgL_to_meqL <- function(df, Mg="Magnesium, dissolved", 
+conc_to_meq <- function(df, Mg="Magnesium, dissolved", 
                                 Ca="Calcium, dissolved", Na="Sodium, dissolved", 
                                 K="Potassium, dissolved", Cl="Chloride, total", 
                                 SO4="Sulfate, total", 
@@ -465,39 +465,92 @@ transform_stiff_data <- function(df, Mg="Magnesium, dissolved",
 #' \code{\link{transform_stiff_data}}
 #' @export
 
-stiff_plot <- function(df, TDS = FALSE){
+stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
+  xmin <- min(df$stiff_x)
+  xmin_lab <- xmin - 0.2
+  xmin_line <- xmin + 0.3
+  xmax <- max(df$stiff_x)
+  xmax_lab = xmax + 0.2
+  xmax_line <- xmax - 0.3
+  
+  df2 <- data.frame(y = c(3, 2, 1), cations = c("Mg", "Ca", "Na + K"), 
+                    anions = c("SO4", "HCO3", "Cl"))
+  
     if(isTRUE(TDS)){
       # try to fix error message when only 1 location plotted
-      p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS))
+      p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS),
+                                     colour = "black")
+      for (i in 1:length(df2$anions)) {
+        p <- p + annotation_custom(
+          grob = textGrob(label = df2$anions[i], hjust = 0.4, 
+                          gp = gpar(cex = 0.5)),
+          ymin = df2$y[i],
+          ymax = df2$y[i],
+          xmin = xmax_lab,
+          xmax = xmax_lab
+        )
+      }
+      
+      for (i in 1:length(df2$cations)) {
+        p <- p + annotation_custom(
+          grob = textGrob(label = df2$cations[i], hjust = 0.3, 
+                          gp = gpar(cex = 0.5)),
+          ymin = df2$y[i],
+          ymax = df2$y[i],
+          xmin = xmin_lab,
+          xmax = xmin_lab
+        )
+      }
+      
       } else{
-      p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y))
+      p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y), 
+                                     fill = "GREY50", colour = "black")
+      for (i in 1:length(df2$anions)) {
+        p <- p + annotation_custom(
+          grob = textGrob(label = df2$anions[i], hjust = 0.4, 
+                          gp = gpar(cex = 0.5)),
+          ymin = df2$y[i],
+          ymax = df2$y[i],
+          xmin = xmax_lab,
+          xmax = xmax_lab
+        )
+      }
+      
+      for (i in 1:length(df2$cations)) {
+        p <- p + annotation_custom(
+          grob = textGrob(label = df2$cations[i], hjust = 0.3, 
+                          gp = gpar(cex = 0.5)),
+          ymin = df2$y[i],
+          ymax = df2$y[i],
+          xmin = xmin_lab,
+          xmax = xmin_lab
+        )
+      }
       }
     
-    p <- p + facet_wrap(~sample_date, scale = "free") +
-      geom_hline(yintercept = 1, linetype = "dashed") +
-      geom_hline(yintercept = 2, linetype = "dashed") +
-      geom_hline(yintercept = 3, linetype = "dashed") +
-      xlab("\nmeq/L") + xlim(-15,15) +
-      annotate("text", x = -14, y = 1.1, label = "Na^+1 + K^+1", 
-               size = 3, parse = TRUE) +
-      annotate("text", x = -14, y = 2.1, label = "Ca^+2", size = 3, 
-               parse = TRUE) +
-      annotate("text", x = -14, y = 3.1, label = "Mg^+2", size = 3, 
-               parse = TRUE) +
-      annotate("text", x = 14, y = 1.1, label = "Cl^-phantom()", size = 3, 
-               parse = TRUE) +
-      annotate("text", x = 14, y = 2.1, label = "HCO[3]^-1", size = 3, 
-               parse = TRUE) +
-      annotate("text", x = 14, y = 3.1, label = "SO[4]^-2", size = 3, 
-               parse = TRUE) +
-      theme_bw() +
+    p <- p + facet_wrap(~sample_date, scale = "free_x") +
+      xlab("\nmeq/L") + theme_bw() + 
+      scale_x_continuous(limits = c(xmin, xmax)) +
       theme(panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-          panel.border = element_blank(), axis.ticks = element_blank(),
-          axis.text.y = element_blank(), axis.title.y = element_blank()) +
+            axis.title.y = element_blank(),
+            panel.border = element_blank(),
+            axis.ticks = element_blank(),
+            axis.text.y = element_blank(),
+            plot.margin = unit(c(1, 1, 1, 1), "lines")) +
       ggtitle("Stiff Diagram \n")
-    
-  return(p)
+  
+    if (isTRUE(lines)) {
+      p <- p + geom_segment(x = xmin, xend = xmax, y = 1, yend = 1,  
+                            linetype = "dotted") +
+        geom_segment(x = xmin, xend = xmax, y = 2,, yend = 2, 
+                     linetype = "dotted") +
+        geom_segment(x = xmin, xend = xmax, y = 3, yend = 3, 
+                     linetype = "dotted")
+    }
+  gt <- ggplot_gtable(ggplot_build(p))
+  gt$layout$clip[grep("panel", gt$layout$name)] <- "off"
+  grid.draw(gt)
 }
 
 #' function to create an animated Stiff Diagram 

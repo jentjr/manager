@@ -1,5 +1,4 @@
 library(gwstats)
-library(dplyr)
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
 # force numbers to be decimal instead of scientific
@@ -30,9 +29,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     )
       data <- get_data() 
       return(data)
-  }, options = list(sScrollY = "100%", sScrollX = "100%", 
-                    aLengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    iDisplayLength = 10)
+  }, options = list(scrollY = "100%", scrollX = "100%", 
+                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
+                    pageLength = 10)
   ) 
   # Begin Summary Table page ---------------------------------------------------  
   output$summary_date_ranges <- renderUI({
@@ -54,9 +53,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     start <- min(lubridate::ymd(input$background_date_range))
     end <- max(lubridate::ymd(input$background_date_range))
     gw_summary(data, start, end)
-  }, options = list(sScrollY = "100%", sScrollX = "100%", 
-                    aLengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    iDisplayLength = 10)
+  }, options = list(scrollY = "100%", scrollX = "100%", 
+                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
+                    pageLength = 10)
   )
   # End Summary Table page -----------------------------------------------------
   
@@ -81,7 +80,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                   multiple = TRUE, selected = analyte_names[1])
   })
   
-  output$box_out_const <- renderUI({
+  box_const <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
@@ -101,14 +100,18 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           box_const_i <- i
           box_const_name <- paste("box_list_plot", box_const_i, sep="")
           output[[box_const_name]] <- renderPlot({
-            box_const <- boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
-                                               a_box_const[box_const_i], ],
-                                               coord_flip = input$coord_flip_box_const)
+            box_const <- boxplot_by_param_grid(
+              box_const_data[box_const_data$param_name == 
+                             a_box_const[box_const_i], ],
+                             coord_flip = input$coord_flip_box_const
+              )
             if (input$short_name_box_const){
-              box_const <- boxplot_by_param_grid(box_const_data[box_const_data$param_name == 
-                                    a_box_const[box_const_i], ], 
-                                    name = "short",
-                                    coord_flip = input$coord_flip_box_const)
+              box_const <- boxplot_by_param_grid(
+                box_const_data[box_const_data$param_name == 
+                               a_box_const[box_const_i], ], 
+                               name = "short",
+                               coord_flip = input$coord_flip_box_const
+                )
             }
             box_const
           })
@@ -116,6 +119,34 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       }
       do.call(tagList, box_list_const)
   })
+  
+  output$box_out_const <- renderUI({
+    box_const()
+  })
+  
+  get_box_const_data <- reactive({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    w_box_const <- input$well_box_const
+    a_box_const <- input$analyte_box_const
+    box_const_data <- data[data$location_id %in% w_box_const & 
+                             data$param_name %in% a_box_const, ]
+    box_const_data
+  })
+  
+  output$box_const_download <- downloadHandler(
+    filename = function() {
+      paste("box_const_", Sys.Date(), ".pdf", sep = "")
+    },
+    content = function(file) {
+      pdf(file = file, width = 17, height = 11)
+      boxplot_by_param(get_box_const_data())
+      dev.off()
+    }
+  )
+  
   # End Boxplot by constituent Page---------------------------------------------
    
   # Begin Boxplot by well page -------------------------------------------------
@@ -139,7 +170,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                  multiple = TRUE, selected = analyte_names[1])
   })
   
-  output$box_out_well <- renderUI({
+  box_well <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
@@ -159,14 +190,18 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           box_well_i <- i
           box_well_name <- paste("box_well_plot", box_well_i, sep="")
           output[[box_well_name]] <- renderPlot({
-            box_well <- boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
-                                             w_box_well[box_well_i], ],
-                                             coord_flip = input$coord_flip_box_well)
+            box_well <- boxplot_by_well_grid(
+              data_box_well[data_box_well$location_id == 
+                            w_box_well[box_well_i], ],
+                            coord_flip = input$coord_flip_box_well
+              )
             if (input$short_name_box_well){
-              box_well <- boxplot_by_well_grid(data_box_well[data_box_well$location_id == 
-                                   w_box_well[box_well_i], ], 
-                                   name = "short",
-                                   coord_flip = input$coord_flip_box_well)
+              box_well <- boxplot_by_well_grid(
+                data_box_well[data_box_well$location_id == 
+                              w_box_well[box_well_i], ], 
+                              name = "short",
+                              coord_flip = input$coord_flip_box_well
+                )
             }
             box_well
           })
@@ -174,6 +209,33 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       }
       do.call(tagList, box_list_well)
   })
+  
+  output$box_out_well <- renderUI({
+    box_well()
+  })
+  
+  get_box_well_data <- reactive({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    data <- get_data()
+    w_box_well <- input$well_box_well
+    a_box_well <- input$analyte_box_well
+    data_box_well <- data[data$location_id %in% w_box_well & 
+                            data$param_name %in% a_box_well, ]
+    data_box_well
+  })
+  
+  output$box_well_download <- downloadHandler(
+    filename = function() {
+      paste("box_well_", Sys.Date(), ".pdf", sep = "")
+    },
+    content = function(file) {
+      pdf(file = file, width = 17, height = 11)
+      boxplot_by_well(get_box_well_data())
+      dev.off()
+    }
+  )
   # End Boxplot by well page ---------------------------------------------------
   
   # Time Series by well Page ---------------------------------------------------
@@ -218,7 +280,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
   })
   
   # time series plot output
-  output$ts_by_well_out <- renderUI({
+  ts_by_well <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
@@ -238,48 +300,48 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           ts_well_i <- i
           ts_well_name <- paste("ts_well_plot", ts_well_i, sep="")
           output[[ts_well_name]] <- renderPlot({
-            ts_well <- ind_by_loc_grid(data_ts_well[data_ts_well$location_id == 
-                                       w_ts_well[ts_well_i], ], 
-                                       ncol = input$ncol_ts_well)
+            ts_well <- ind_by_loc_grid(
+              data_ts_well[data_ts_well$location_id == 
+                           w_ts_well[ts_well_i], ], 
+                           ncol = input$ncol_ts_well
+              )
             
             if (input$date_lines_well){
-              b1 <- min(as.POSIXct(input$back_date_range_time_well, 
-                                   format = "%Y-%m-%d"))
-              c1 <- min(as.POSIXct(input$comp_date_range_time_well, 
-                                   format = "%Y-%m-%d"))
-              b2 <- max(as.POSIXct(input$back_date_range_time_well, 
-                                   format = "%Y-%m-%d"))
-              c2 <- max(as.POSIXct(input$comp_date_range_time_well, 
-                                   format = "%Y-%m-%d"))
+              b1 <- min(lubridate::ymd(input$back_date_range_time_well))
+              c1 <- min(lubridate::ymd(input$comp_date_range_time_well))
+              b2 <- max(lubridate::ymd(input$back_date_range_time_well))
+              c2 <- max(lubridate::ymd(input$comp_date_range_time_well))
               
-              ts_well <- ind_by_loc_grid(data_ts_well[data_ts_well$location_id == 
-                                         w_ts_well[ts_well_i], ], 
-                                         back_date = c(b1, b2), 
-                                         comp_date = c(c1, c2),
-                                         ncol = input$ncol_ts_well)
+              ts_well <- ind_by_loc_grid(
+                data_ts_well[data_ts_well$location_id == 
+                             w_ts_well[ts_well_i], ], 
+                             back_date = c(b1, b2), 
+                             comp_date = c(c1, c2),
+                             ncol = input$ncol_ts_well
+                )
             }
             if (input$short_name_well){
-              ts_well <- ind_by_loc_grid(data_ts_well[data_ts_well$location_id == 
-                                        w_ts_well[ts_well_i], ], 
-                                        name="short",
-                                        ncol = input$ncol_ts_well)
+              ts_well <- ind_by_loc_grid(
+                data_ts_well[data_ts_well$location_id == 
+                             w_ts_well[ts_well_i], ], 
+                             name="short",
+                             ncol = input$ncol_ts_well
+                )
             }
             if (input$short_name_well & input$date_lines_well){
-              b1 <- min(as.POSIXct(input$back_date_range_time_well, 
-                                   format = "%Y-%m-%d"))
-              c1 <- min(as.POSIXct(input$comp_date_range_time_well, 
-                                   format = "%Y-%m-%d"))
-              b2 <- max(as.POSIXct(input$back_date_range_time_well,
-                                   format = "%Y-%m-%d"))
-              c2 <- max(as.POSIXct(input$comp_date_range_time_well, 
-                                   format = "%Y-%m-%d"))
+              b1 <- min(lubridate::ymd(input$back_date_range_time_well))
+              c1 <- min(lubridate::ymd(input$comp_date_range_time_well))
+              b2 <- max(lubridate::ymd(input$back_date_range_time_well))
+              c2 <- max(lubridate::ymd(input$comp_date_range_time_well))
               
-              ts_well <- ind_by_loc_grid(data_ts_well[data_ts_well$location_id == 
-                                         w_ts_well[ts_well_i], ], 
-                                         back_date = c(b1, b2), 
-                                         comp_date = c(c1, c2), 
-                                         name = "short",
-                                         ncol = input$ncol_ts_well)
+              ts_well <- ind_by_loc_grid(
+                data_ts_well[data_ts_well$location_id == 
+                             w_ts_well[ts_well_i], ], 
+                             back_date = c(b1, b2), 
+                             comp_date = c(c1, c2), 
+                             name = "short",
+                             ncol = input$ncol_ts_well
+                )
             }
             ts_well
           })
@@ -287,6 +349,65 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       }
       do.call(tagList, ts_well_list)
   })
+  
+  output$ts_by_well_out <- renderUI({
+    ts_by_well()
+  })
+
+  # Begin Time Series by Well Download Page ------------------------------------
+  get_ts_well_data <- reactive({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    data <- get_data()
+    w_ts_well <- input$well_time_well
+    a_ts_well <- input$analyte_time_well
+    data_ts_well <- data[data$location_id %in% w_ts_well &
+                           data$param_name %in% a_ts_well, ]
+    data_ts_well
+  })
+  
+  output$ts_well_download <- downloadHandler(
+    filename = function() {
+      paste("ts_well_plot_", Sys.Date(), ".pdf", sep = "")
+    },
+    content = function(file) {
+      if (input$date_lines_well){
+        b1 <- min(lubridate::ymd(input$back_date_range_time_well))
+        c1 <- min(lubridate::ymd(input$comp_date_range_time_well))
+        b2 <- max(lubridate::ymd(input$back_date_range_time_well))
+        c2 <- max(lubridate::ymd(input$comp_date_range_time_well))
+        
+        pdf(file = file, width = 17, height = 11)
+        ind_by_loc(get_ts_well_data(), back_date = c(b1, b2), 
+                   comp_date = c(c1, c2), ncol = input$ncol_ts_well)
+        dev.off()
+      }
+      if (input$short_name_well){
+        pdf(file = file, width = 17, height = 11)
+        ind_by_loc(get_ts_well_data(), name = "short", 
+                   ncol = input$ncol_ts_well)
+        dev.off()
+      }
+      if (input$short_name_well & input$date_lines_well){
+        b1 <- min(lubridate::ymd(input$back_date_range_time_well))
+        c1 <- min(lubridate::ymd(input$comp_date_range_time_well))
+        b2 <- max(lubridate::ymd(input$back_date_range_time_well))
+        c2 <- max(lubridate::ymd(input$comp_date_range_time_well))
+        
+        pdf(file = file, width = 17, height = 11)
+        ind_by_loc(get_ts_well_data(), back_date = c(b1, b2), 
+                   comp_date = c(c1, c2), name = "short",
+                   ncol = input$ncol_ts_well)
+        dev.off()
+      } else {
+        pdf(file = file, width = 17, height = 11)
+        ind_by_loc(get_ts_well_data(), ncol = input$ncol_ts_well)
+        dev.off()
+      }
+    }
+  )
+  # End Time Series by Well Download Page --------------------------------------
   # End Time Series  by well page-----------------------------------------------
   
   # Begin Time Series by constituent page --------------------------------------
@@ -327,7 +448,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       )
   })
   
-  output$ts_by_const_out <- renderUI({
+  ts_by_const <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
@@ -347,58 +468,117 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           ts_const_i <- i
           name_ts_const <- paste("ts_const_plot", ts_const_i, sep="")
           output[[name_ts_const]] <- renderPlot({
-            ts_const <- ind_by_param_grid(data_ts_const[data_ts_const$param_name == 
-                                          a_ts_const[ts_const_i], ], 
-                                          ncol = input$ncol_ts_const)
+            ts_const <- ind_by_param_grid(
+              data_ts_const[data_ts_const$param_name == 
+                            a_ts_const[ts_const_i], ], 
+                            ncol = input$ncol_ts_const
+              )
             
             if (input$date_lines_const){
-              b1 <- min(as.POSIXct(input$back_date_range_time_const, 
-                                   format = "%Y-%m-%d"))
-              c1 <- min(as.POSIXct(input$comp_date_range_time_const, 
-                                   format = "%Y-%m-%d"))
-              b2 <- max(as.POSIXct(input$back_date_range_time_const, 
-                                   format = "%Y-%m-%d"))
-              c2 <- max(as.POSIXct(input$comp_date_range_time_const, 
-                                   format = "%Y-%m-%d"))
+              b1 <- min(lubridate::ymd(input$back_date_range_time_const))
+              c1 <- min(lubridate::ymd(input$comp_date_range_time_const))
+              b2 <- max(lubridate::ymd(input$back_date_range_time_const))
+              c2 <- max(lubridate::ymd(input$comp_date_range_time_const))
               
-              ts_const <- ind_by_param_grid(data_ts_const[data_ts_const$param_name == 
-                                            a_ts_const[ts_const_i], ], 
-                                            back_date = c(b1, b2), 
-                                            comp_date = c(c1, c2),
-                                            ncol = input$ncol_ts_const)
+              ts_const <- ind_by_param_grid(
+                data_ts_const[data_ts_const$param_name == 
+                              a_ts_const[ts_const_i], ], 
+                              back_date = c(b1, b2), 
+                              comp_date = c(c1, c2),
+                              ncol = input$ncol_ts_const
+                )
             }
             if (input$short_name_const){
-              ts_const <- ind_by_param_grid(data_ts_const[data_ts_const$param_name == 
-                                            a_ts_const[ts_const_i], ], 
-                                            name="short",
-                                            ncol = input$ncol_ts_const)
+              ts_const <- ind_by_param_grid(
+                data_ts_const[data_ts_const$param_name == 
+                              a_ts_const[ts_const_i], ], 
+                              name="short",
+                              ncol = input$ncol_ts_const
+                )
             }
             if (input$short_name_const & input$date_lines_const){
-              b1 <- min(as.POSIXct(input$back_date_range_time_const, 
-                                   format = "%Y-%m-%d"))
-              c1 <- min(as.POSIXct(input$comp_date_range_time_const, 
-                                   format = "%Y-%m-%d"))
-              b2 <- max(as.POSIXct(input$back_date_range_time_const,
-                                   format = "%Y-%m-%d"))
-              c2 <- max(as.POSIXct(input$comp_date_range_time_const, 
-                                   format = "%Y-%m-%d"))
+              b1 <- min(lubridate::ymd(input$back_date_range_time_const))
+              c1 <- min(lubridate::ymd(input$comp_date_range_time_const))
+              b2 <- max(lubridate::ymd(input$back_date_range_time_const))
+              c2 <- max(lubridate::ymd(input$comp_date_range_time_const))
               
-              ts_const <- ind_by_param_grid(data_ts_const[data_ts_const$param_name == 
-                                            a_ts_const[ts_const_i], ], 
-                                            back_date = c(b1, b2), 
-                                            comp_date = c(c1, c2), 
-                                            name = "short",
-                                            ncol = input$ncol_ts_const)
-            }
+              ts_const <- ind_by_param_grid(
+                data_ts_const[data_ts_const$param_name == 
+                              a_ts_const[ts_const_i], ], 
+                              back_date = c(b1, b2), 
+                              comp_date = c(c1, c2), 
+                              name = "short",
+                              ncol = input$ncol_ts_const
+                )
+            } 
             ts_const
           })
         })
       }
       do.call(tagList, ts_const_list)
   })
-  # End Time Series by constituent page ---------------------------------------
   
-  # Begin Piper Diagram Page---------------------------------------------------
+  output$ts_by_const_out <- renderUI({
+    ts_by_const()
+  })
+  
+  # Begin Time Series by Constituent Download Page -----------------------------
+  get_ts_const_data <- reactive({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    data <- get_data()
+    w_ts_const <- input$well_time_const
+    a_ts_const <- input$analyte_time_const
+    data_ts_const <- data[data$location_id %in% w_ts_const &
+                            data$param_name %in% a_ts_const, ]
+    data_ts_const
+  })
+  
+  output$ts_const_download <- downloadHandler(
+    filename = function() {
+      paste("ts_const_plot_", Sys.Date(), ".pdf", sep = "")
+    },
+    content = function(file) {
+      if (input$short_name_const){
+        pdf(file = file, width = 17, height = 11)
+        ind_by_param(get_ts_const_data(), name = "short", 
+                     ncol = input$ncol_ts_const)
+        dev.off()
+      }
+      if (input$date_lines_const){
+        b1 <- min(lubridate::ymd(input$back_date_range_time_const))
+        c1 <- min(lubridate::ymd(input$comp_date_range_time_const))
+        b2 <- max(lubridate::ymd(input$back_date_range_time_const))
+        c2 <- max(lubridate::ymd(input$comp_date_range_time_const))
+        
+        pdf(file = file, width = 17, height = 11)
+        ind_by_param(get_ts_const_data(), back_date = c(b1, b2), 
+                     comp_date = c(c1, c2), ncol = input$ncol_ts_const)
+        dev.off()
+      } 
+      if (input$date_lines_const & input$short_name_const){
+        b1 <- min(lubridate::ymd(input$back_date_range_time_const))
+        c1 <- min(lubridate::ymd(input$comp_date_range_time_const))
+        b2 <- max(lubridate::ymd(input$back_date_range_time_const))
+        c2 <- max(lubridate::ymd(input$comp_date_range_time_const))
+        
+        pdf(file = file, width = 17, height = 11)
+        ind_by_param(get_ts_const_data(), back_date = c(b1, b2), 
+                     comp_date = c(c1, c2), name = "short",
+                     ncol = input$ncol_ts_const)
+        dev.off()
+      } else {
+        pdf(file = file, width = 17, height = 11)
+        ind_by_param(get_ts_const_data(), ncol = input$ncol_ts_const)
+        dev.off()
+      }
+    }
+  )
+  # End Time Series by Constituent Download Page -------------------------------
+  # End Time Series by constituent page ----------------------------------------
+  
+  # Begin Piper Diagram Page----------------------------------------------------
   output$wells_piper <- renderUI({
     validate(
       need(input$data_path != "", "")
@@ -419,13 +599,13 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                      end = max(data$sample_date, na.rm = TRUE))
   })
   
-  output$piper_plot <- renderPlot({
+  get_piper_data <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
     data <- get_data()
-    start <- min(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
-    end <- max(as.POSIXct(input$date_range_piper, format = "%Y-%m-%d"))
+    start <- min(lubridate::ymd(input$date_range_piper))
+    end <- max(lubridate::ymd(input$date_range_piper))
     wells <- input$well_piper
     data_selected <- data[data$location_id %in% wells &
                             data$sample_date >= start & 
@@ -437,12 +617,30 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                                        Na=input$Na, K=input$K, Cl=input$Cl, 
                                        SO4=input$SO4, Alk=input$Alk, 
                                        TDS=input$TDS)
-
-    piper_plot(piper_data, TDS=input$TDS_plot)
+    piper_data
   })
-  # End Piper Diagram Page-----------------------------------------------------
+  
+  plot_piper <- reactive({
+    piper_plot(get_piper_data(), TDS=input$TDS_plot)
+  })
+  
+  output$piper_plot <- renderPlot({
+    plot_piper()
+  })
+  
+  output$piper_download <- downloadHandler(
+    filename = function() {
+      paste("piper_plot_", Sys.Date(), ".pdf", sep = "")
+    },
+    content = function(file) {
+      pdf(file = file, width = 17, height = 11)
+      print(piper_plot(df = get_piper_data(), TDS=input$TDS_plot))
+      dev.off()
+    }
+  )
+  # End Piper Diagram Page------------------------------------------------------
 
-  # Begin Stiff Diagram Page --------------------------------------------------
+  # Begin Stiff Diagram Page ---------------------------------------------------
   output$wells_stiff <- renderUI({
     validate(
       need(input$data_path != "", "")
@@ -468,8 +666,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "Please upload a data set")
     )
       data <- get_data()
-      start <- min(as.POSIXct(input$date_range_stiff, format = "%Y-%m-%d"))
-      end <- max(as.POSIXct(input$date_range_stiff, format = "%Y-%m-%d"))
+      start <- min(lubridate::ymd(input$date_range_stiff))
+      end <- max(lubridate::ymd(input$date_range_stiff))
       data_selected <- data[data$location_id %in% input$well_stiff &
                               data$sample_date >= start & 
                               data$sample_date <= end, ]
@@ -479,10 +677,11 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                              SO4=input$SO4_stiff, Alk=input$Alk_stiff, 
                              TDS=input$TDS_stiff)
       ions <- ions[complete.cases(ions), ]
-      plot_data <- convert_mgL_to_meqL(ions, Mg=input$Mg_stiff, 
+      plot_data <- conc_to_meq(ions, Mg=input$Mg_stiff, 
                                        Ca=input$Ca_stiff, Na=input$Na_stiff, 
                                        K=input$K_stiff, Cl=input$Cl_stiff, 
-                                       SO4=input$SO4_stiff, HCO3=input$Alk_stiff)
+                                       SO4=input$SO4_stiff, 
+                                       HCO3=input$Alk_stiff)
       stiff_data <- transform_stiff_data(plot_data, Mg=input$Mg_stiff, 
                                          Ca=input$Ca_stiff, Na=input$Na_stiff, 
                                          K=input$K_stiff, Cl=input$Cl_stiff,
@@ -491,9 +690,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                                          TDS=input$TDS_stiff)
       stiff_plot(stiff_data, TDS=input$TDS_plot_stiff)
   })
-  # End Stiff Diagram Page ----------------------------------------------------
+  # End Stiff Diagram Page -----------------------------------------------------
   
-  # Begin Prediction Limits ---------------------------------------------------
+  # Begin Prediction Limits ----------------------------------------------------
   output$wells_upl <- renderUI({
     validate(
       need(input$data_path != "", "")
@@ -535,8 +734,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "")
     )
       df <- get_data()
-      start <- min(as.POSIXct(input$back_date_range_upl, format = "%Y-%m-%d"))
-      end <- max(as.POSIXct(input$back_date_range_upl, format = "%Y-%m-%d"))
+      start <- min(lubridate::ymd(input$back_date_range_upl))
+      end <- max(lubridate::ymd(input$back_date_range_upl))
       data_selected <- subset(df, location_id %in% input$well_upl &
                                 param_name %in% input$analyte_upl &
                                 sample_date >= start & sample_date <= end)
@@ -608,9 +807,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       }
       out
   })
-  # End Prediction Limits -----------------------------------------------------
+  # End Prediction Limits ------------------------------------------------------
 
-  # Begin NADA Page -----------------------------------------------------------
+  # Begin NADA Page ------------------------------------------------------------
 
   # ROS
   output$ros_wells <- renderUI({
