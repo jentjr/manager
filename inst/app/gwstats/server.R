@@ -677,7 +677,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                              SO4=input$SO4_stiff, Alk=input$Alk_stiff, 
                              TDS=input$TDS_stiff)
       ions <- ions[complete.cases(ions), ]
-      plot_data <- convert_mgL_to_meqL(ions, Mg=input$Mg_stiff, 
+      plot_data <- conc_to_meq(ions, Mg=input$Mg_stiff, 
                                        Ca=input$Ca_stiff, Na=input$Na_stiff, 
                                        K=input$K_stiff, Cl=input$Cl_stiff, 
                                        SO4=input$SO4_stiff, 
