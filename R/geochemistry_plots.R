@@ -482,8 +482,8 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
                                      colour = "black")
       for (i in 1:length(df2$anions)) {
         p <- p + annotation_custom(
-          grob = textGrob(label = df2$anions[i], hjust = 0.4, 
-                          gp = gpar(cex = 0.5)),
+          grob = grid::textGrob(label = df2$anions[i], hjust = 0.4, 
+                          gp = grid::gpar(cex = 0.5)),
           ymin = df2$y[i],
           ymax = df2$y[i],
           xmin = xmax_lab,
@@ -493,8 +493,8 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
       
       for (i in 1:length(df2$cations)) {
         p <- p + annotation_custom(
-          grob = textGrob(label = df2$cations[i], hjust = 0.3, 
-                          gp = gpar(cex = 0.5)),
+          grob = grid::textGrob(label = df2$cations[i], hjust = 0.3, 
+                          gp = grid::gpar(cex = 0.5)),
           ymin = df2$y[i],
           ymax = df2$y[i],
           xmin = xmin_lab,
@@ -507,8 +507,8 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
                                      fill = "GREY50", colour = "black")
       for (i in 1:length(df2$anions)) {
         p <- p + annotation_custom(
-          grob = textGrob(label = df2$anions[i], hjust = 0.4, 
-                          gp = gpar(cex = 0.5)),
+          grob = grid::textGrob(label = df2$anions[i], hjust = 0.4, 
+                          gp = grid::gpar(cex = 0.5)),
           ymin = df2$y[i],
           ymax = df2$y[i],
           xmin = xmax_lab,
@@ -518,8 +518,8 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
       
       for (i in 1:length(df2$cations)) {
         p <- p + annotation_custom(
-          grob = textGrob(label = df2$cations[i], hjust = 0.3, 
-                          gp = gpar(cex = 0.5)),
+          grob = grid::textGrob(label = df2$cations[i], hjust = 0.3, 
+                          gp = grid::gpar(cex = 0.5)),
           ymin = df2$y[i],
           ymax = df2$y[i],
           xmin = xmin_lab,
@@ -537,7 +537,7 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
             panel.border = element_blank(),
             axis.ticks = element_blank(),
             axis.text.y = element_blank(),
-            plot.margin = unit(c(1, 1, 1, 1), "lines")) +
+            plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
       ggtitle("Stiff Diagram \n")
   
     if (isTRUE(lines)) {
@@ -550,7 +550,7 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
     }
   gt <- ggplot_gtable(ggplot_build(p))
   gt$layout$clip[grep("panel", gt$layout$name)] <- "off"
-  grid.draw(gt)
+  grid::grid.draw(gt)
 }
 
 #' function to create an animated Stiff Diagram 

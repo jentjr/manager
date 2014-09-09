@@ -19,7 +19,7 @@ Imports:
     lubridate,
     sp,
     scales,
-    grid,
+    gtable,
     shiny
 Suggests:
     Hmisc
