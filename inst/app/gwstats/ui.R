@@ -1,26 +1,37 @@
 shinyUI(navbarPage("GWSTATS",
   tabPanel("Data Input",
-      sidebarLayout(
-        sidebarPanel(
-          fileInput(inputId = "data_path", 
-                    label = "Browse to file",
-                    accept = c(".mdb", ".csv", ".xls")),
-            conditionalPanel(
-              condition = "input.data == FALSE",
-                radioButtons(inputId = "file_type", 
-                             label = "File Extension", 
-                             choices = c("MANAGES Site.mdb", ".csv", ".xls"))),
-          helpText("The file must have the following columns and labels: \n
-                   location_id, sample_date, param_name, lt_measure, 
-                   analysis_result, default_unit. \n The sample_date column 
-                   should be in the format \"2008-01-01\" 
-                   (i.e. year, month, day).")
-        ),
-        mainPanel(
-          dataTableOutput("well_table")
-        )
-      )          
-    ),
+    sidebarLayout(
+      sidebarPanel(
+#         fileInput(inputId = "data_path", label = "Browse to file",
+#                   accept = c(".mdb", ".csv", ".xls", ".xlsx")),
+        radioButtons(inputId = "file_type", label = "File Type", 
+                    choices = c("MANAGES database", 
+                                "csv", 
+                                "excel")),
+        conditionalPanel(condition = "input.file_type == 'MANAGES database'",
+                         fileInput(inputId = "data_path", 
+                                   label = "Browse to file",
+                                   accept = ".mdb")),
+        conditionalPanel(condition = "input.file_type == 'csv'",
+                         textInput(inputId = "csv_date_format", 
+                                   label = "Date format",
+                                   value = "mdy"),
+                         fileInput(inputId = "data_path", 
+                                   label = "Browse to file",
+                                   accept = ".csv")),
+        conditionalPanel(condition = "input.file_type == 'excel'",
+                         textInput(inputId = "excel_sheet", 
+                                   label = "Sheet name",
+                                   value = "Sheet1"),
+                         fileInput(inputId = "data_path", 
+                                   label = "Browse to file",
+                                   accept = c(".xls", "xlsx")))
+      ),
+      mainPanel(
+        dataTableOutput("well_table")
+      )
+    )
+  ),
   tabPanel("Data Summary",
     sidebarLayout(
       sidebarPanel(

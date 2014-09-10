@@ -10,9 +10,11 @@ shinyServer(function(input, output, session) {
       need(input$data_path != "", "Please upload a data set")
       )
       switch(input$file_type, 
-             ".csv" = from_csv(input$data_path$datapath),
-             "MANAGES Site.mdb" = connect_manages(input$data_path$datapath),
-             ".xls" = from_excel(input$data_path$datapath)) %>%
+             "csv" = from_csv(path = input$data_path$datapath, 
+                               date_format = input$csv_date_format),
+             "MANAGES database" = connect_manages(input$data_path$datapath),
+             "excel" = from_excel(path = input$data_path$datapath, 
+                                 sheet = input$excel_sheet)) %>%
         arrange(location_id, param_name, sample_date)    
   })
   
@@ -610,18 +612,19 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     data_selected <- data[data$location_id %in% wells &
                             data$sample_date >= start & 
                             data$sample_date <= end, ]  
-    ions <- get_major_ions(data_selected, Mg=input$Mg, Ca=input$Ca, 
-                           Na=input$Na, K=input$K, Cl=input$Cl, 
-                           SO4=input$SO4, Alk=input$Alk, TDS=input$TDS)
-    piper_data <- transform_piper_data(ions, Mg=input$Mg, Ca=input$Ca, 
-                                       Na=input$Na, K=input$K, Cl=input$Cl, 
-                                       SO4=input$SO4, Alk=input$Alk, 
-                                       TDS=input$TDS)
+    ions <- get_major_ions(data_selected, Mg = input$Mg, Ca = input$Ca, 
+                           Na = input$Na, K = input$K, Cl = input$Cl, 
+                           SO4 = input$SO4, Alk = input$Alk, TDS = input$TDS)
+    piper_data <- transform_piper_data(ions, Mg = input$Mg, Ca = input$Ca, 
+                                       Na = input$Na, K = input$K, 
+                                       Cl = input$Cl, 
+                                       SO4 = input$SO4, Alk = input$Alk, 
+                                       TDS = input$TDS)
     piper_data
   })
   
   plot_piper <- reactive({
-    piper_plot(get_piper_data(), TDS=input$TDS_plot)
+    piper_plot(df = get_piper_data(), TDS = input$TDS_plot)
   })
   
   output$piper_plot <- renderPlot({
@@ -634,7 +637,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      print(piper_plot(df = get_piper_data(), TDS=input$TDS_plot))
+      print(piper_plot(df = get_piper_data(), TDS = input$TDS_plot))
       dev.off()
     }
   )
@@ -671,23 +674,25 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       data_selected <- data[data$location_id %in% input$well_stiff &
                               data$sample_date >= start & 
                               data$sample_date <= end, ]
-      ions <- get_major_ions(data_selected, Mg=input$Mg_stiff, 
-                             Ca=input$Ca_stiff, Na=input$Na_stiff, 
-                             K=input$K_stiff, Cl=input$Cl_stiff, 
-                             SO4=input$SO4_stiff, Alk=input$Alk_stiff, 
-                             TDS=input$TDS_stiff)
+      ions <- get_major_ions(data_selected, Mg = input$Mg_stiff, 
+                             Ca = input$Ca_stiff, Na = input$Na_stiff, 
+                             K = input$K_stiff, Cl = input$Cl_stiff, 
+                             SO4 = input$SO4_stiff, Alk = input$Alk_stiff, 
+                             TDS = input$TDS_stiff)
       ions <- ions[complete.cases(ions), ]
-      plot_data <- conc_to_meq(ions, Mg=input$Mg_stiff, 
-                                       Ca=input$Ca_stiff, Na=input$Na_stiff, 
-                                       K=input$K_stiff, Cl=input$Cl_stiff, 
-                                       SO4=input$SO4_stiff, 
-                                       HCO3=input$Alk_stiff)
-      stiff_data <- transform_stiff_data(plot_data, Mg=input$Mg_stiff, 
-                                         Ca=input$Ca_stiff, Na=input$Na_stiff, 
-                                         K=input$K_stiff, Cl=input$Cl_stiff,
-                                         SO4=input$SO4_stiff, 
-                                         HCO3=input$Alk_stiff, 
-                                         TDS=input$TDS_stiff)
+      plot_data <- conc_to_meq(ions, Mg = input$Mg_stiff, 
+                                       Ca = input$Ca_stiff, Na = input$Na_stiff, 
+                                       K = input$K_stiff, Cl = input$Cl_stiff, 
+                                       SO4 = input$SO4_stiff, 
+                                       HCO3 = input$Alk_stiff)
+      stiff_data <- transform_stiff_data(plot_data, Mg = input$Mg_stiff, 
+                                         Ca = input$Ca_stiff, 
+                                         Na = input$Na_stiff, 
+                                         K = input$K_stiff, 
+                                         Cl = input$Cl_stiff,
+                                         SO4 = input$SO4_stiff, 
+                                         HCO3 = input$Alk_stiff, 
+                                         TDS = input$TDS_stiff)
       stiff_data
   })
   

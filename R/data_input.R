@@ -71,12 +71,19 @@ get_analytes <- function(df){
 
 #' function to read data in csv format and convert date to POSIXct with lubridate
 #' 
-#' @param path path to the csv file of groundwater data in the format with column names
+#' @param path path to the csv file of groundwater data in the format 
+#' with column names
 #' location_id, param_name, default_unit, lt_measure, analysis_result
+#' @param date_format date format as either mdy, or ymd passed to lubridate
 #' @export
-from_csv <- function(path){
+from_csv <- function(path, date_format = "mdy"){
   csv_data <- read.csv(path, header = TRUE)
-  csv_data$sample_date <- lubridate::ymd(csv_data$sample_date)
+  if (date_format == "ymd") {
+    csv_data$sample_date <- lubridate::ymd(csv_data$sample_date)
+  }
+  if (date_format == "mdy") {
+    csv_data$sample_date <- lubridate::mdy(csv_data$sample_date)
+  }
   csv_data$analysis_result <- as.numeric(csv_data$analysis_result)
   csv_data$lt_measure <- factor(csv_data$lt_measure, exclude = NULL)
   return(csv_data)
@@ -84,12 +91,14 @@ from_csv <- function(path){
 
 #' function to read data in excel format 
 #' 
-#' @param path path to the csv file of groundwater data in the format with column names
+#' @param path path to the csv file of groundwater data in the format
+#'  with column names
 #' location_id, param_name, default_unit, lt_measure, analysis_result
+#' @param sheet sheet name in spreadhsheet
 #' @export
-from_excel <- function(path){
+from_excel <- function(path, sheet = "Sheet1"){
   excel_data <- XLConnect::readWorksheet(XLConnect::loadWorkbook(path), 
-                                         sheet = "Sheet1",
+                                         sheet = sheet,
                                          forceConversion = TRUE, 
                                          dateTimeFormat = "%Y-%m-%d %H:%M:%S")
   excel_data$analysis_result <- as.numeric(excel_data$analysis_result)
