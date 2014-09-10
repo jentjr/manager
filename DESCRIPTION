@@ -17,13 +17,14 @@ Imports:
     RODBC,
     animation,
     lubridate,
-    sp,
+    reshape2,
     scales,
-    gtable,
+    grid,
     shiny,
     knitr
 Suggests:
-    Hmisc
+    Hmisc,
+    sp
 License: none
 LazyData: true
 VignetteBuilder: knitr
