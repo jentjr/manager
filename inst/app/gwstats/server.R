@@ -857,9 +857,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       start <- min(lubridate::ymd(input$bkgd_date_range_ros))
       end <- max(lubridate::ymd(input$bkgd_date_range_ros))
       gw_summary(data, start, end)
-  }, options = list(sScrollY = "100%", sScrollX = "100%", 
-                    aLengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    iDisplayLength = 10)
+  }, options = list(scrollY = "100%", scrollX = "100%", 
+                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
+                    pageLength = 10)
   )
 
   output$ros_out <- renderPrint({
