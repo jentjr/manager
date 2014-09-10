@@ -648,7 +648,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_stiff", "Monitoring Wells", well_names, 
-                  multiple = FALSE, selected = well_names[1])
+                  multiple = TRUE, selected = well_names[1])
   })
   
   output$date_ranges_stiff <- renderUI({
@@ -661,7 +661,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                      end = max(data$sample_date, na.rm = TRUE))
   })
 
-  output$stiff_diagram <- renderPlot({
+  get_stiff_data <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
@@ -688,8 +688,52 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                                          SO4=input$SO4_stiff, 
                                          HCO3=input$Alk_stiff, 
                                          TDS=input$TDS_stiff)
-      stiff_plot(stiff_data, TDS=input$TDS_plot_stiff)
+      stiff_data
   })
+  
+  stiff_diagram <- reactive({
+      validate(
+        need(input$data_path != "", "")
+      )
+      data <- get_stiff_data()
+      wells <- unique(data$location_id)
+      
+      stiff_list <- lapply(1:length(wells), function(i) {
+        name_stiff <- paste("stiff_plot", i, sep="")
+        plotOutput(name_stiff, height = 675, width = 825)
+      })
+      
+      for (i in 1:length(wells)){
+        local({
+          stiff_i <- i
+          name_stiff <- paste("stiff_plot", stiff_i, sep="")
+          output[[name_stiff]] <- renderPlot({
+            stiff_plot(
+              data[data$location_id == wells[stiff_i], ], 
+              TDS=input$TDS_plot_stiff,
+              lines = input$stiff_lines
+            )
+          })
+        })
+      }
+      do.call(tagList, stiff_list)
+  })
+  
+  output$stiff_diagram_out <- renderUI({
+    stiff_diagram()
+  })
+  
+  output$stiff_download <- downloadHandler(
+    filename = function() {
+      paste("stiff_plot_", Sys.Date(), ".pdf", sep = "")
+    },
+    content = function(file) {
+      pdf(file = file, width = 17, height = 11)
+      stiff_by_loc(df = get_stiff_data(), TDS=input$TDS_plot_stiff,
+            lines = input$stiff_lines)
+      dev.off()
+    }
+  )
   # End Stiff Diagram Page -----------------------------------------------------
   
   # Begin Prediction Limits ----------------------------------------------------

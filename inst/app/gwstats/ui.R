@@ -152,10 +152,12 @@ shinyUI(navbarPage("GWSTATS",
           textInput(inputId = "TDS_stiff", label = "TDS", 
                     value = "Total Dissolved Solids"),
           checkboxInput(inputId = "TDS_plot_stiff",
-                        label = "Scale by Total Dissolved Solids")
+                        label = "Scale by Total Dissolved Solids"),
+          checkboxInput(inputId = "stiff_lines", label = "Display lines"),
+          downloadButton("stiff_download", "Download Plots")
         ),
         mainPanel(
-          plotOutput("stiff_diagram")  
+          uiOutput("stiff_diagram_out")  
         )
       )         
     )

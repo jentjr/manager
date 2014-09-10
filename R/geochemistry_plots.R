@@ -466,6 +466,7 @@ transform_stiff_data <- function(df, Mg="Magnesium, dissolved",
 #' @export
 
 stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
+  grid::grid.newpage()
   xmin <- min(df$stiff_x)
   xmin_lab <- xmin - 0.2
   xmin_line <- xmin + 0.3
@@ -538,7 +539,7 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
             axis.ticks = element_blank(),
             axis.text.y = element_blank(),
             plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
-      ggtitle("Stiff Diagram \n")
+      ggtitle(paste0("Stiff Diagram for ", df$location_id[1], "\n"))
   
     if (isTRUE(lines)) {
       p <- p + geom_segment(x = xmin, xend = xmax, y = 1, yend = 1,  
@@ -551,6 +552,15 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
   gt <- ggplot_gtable(ggplot_build(p))
   gt$layout$clip[grep("panel", gt$layout$name)] <- "off"
   grid::grid.draw(gt)
+}
+
+#' Function to plot multiple stiff plots by location
+#' @param df groundwater data frame
+#' @export
+stiff_by_loc <- function(df, ...){
+  
+  plyr::d_ply(df, .(location_id), .progress = "text", stiff_plot, ...,
+              .print = TRUE)
 }
 
 #' function to create an animated Stiff Diagram 

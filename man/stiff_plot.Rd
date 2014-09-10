@@ -3,7 +3,7 @@
 \alias{stiff_plot}
 \title{Function to plot a Stiff Diagram}
 \usage{
-stiff_plot(df, TDS = FALSE)
+stiff_plot(df, lines = FALSE, TDS = FALSE)
 }
 \arguments{
 \item{df}{data frame of groundwater data transformed using}
