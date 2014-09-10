@@ -20,7 +20,8 @@ Imports:
     sp,
     scales,
     gtable,
-    shiny
+    shiny,
+    knitr
 Suggests:
     Hmisc
 License: none
