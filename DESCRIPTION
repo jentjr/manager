@@ -24,7 +24,8 @@ Imports:
     knitr
 Suggests:
     Hmisc,
-    sp
+    sp,
+    testthat
 License: none
 LazyData: true
 VignetteBuilder: knitr
