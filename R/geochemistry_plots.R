@@ -465,7 +465,7 @@ transform_stiff_data <- function(df, Mg="Magnesium, dissolved",
 #' \code{\link{transform_stiff_data}}
 #' @export
 
-stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
+stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1){
   grid::grid.newpage()
   xmin <- min(df$stiff_x)
   xmin_lab <- xmin - 0.2
@@ -476,6 +476,8 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
   
   df2 <- data.frame(y = c(3, 2, 1), cations = c("Mg", "Ca", "Na + K"), 
                     anions = c("SO4", "HCO3", "Cl"))
+  df2$y <- df2$y*cex
+  df$stiff_y <- df$stiff_y*cex
   
     if(isTRUE(TDS)){
       # try to fix error message when only 1 location plotted
@@ -483,8 +485,9 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
                                      colour = "black")
       for (i in 1:length(df2$anions)) {
         p <- p + annotation_custom(
-          grob = grid::textGrob(label = df2$anions[i], hjust = 0.4, 
-                          gp = grid::gpar(cex = 0.5)),
+          grob = grid::textGrob(label = df2$anions[i], 
+                                hjust = 0.4, 
+                                gp = grid::gpar(cex = 0.5)),
           ymin = df2$y[i],
           ymax = df2$y[i],
           xmin = xmax_lab,
@@ -494,8 +497,9 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
       
       for (i in 1:length(df2$cations)) {
         p <- p + annotation_custom(
-          grob = grid::textGrob(label = df2$cations[i], hjust = 0.3, 
-                          gp = grid::gpar(cex = 0.5)),
+          grob = grid::textGrob(label = df2$cations[i], 
+                                hjust = 0.3, 
+                                gp = grid::gpar(cex = 0.5)),
           ymin = df2$y[i],
           ymax = df2$y[i],
           xmin = xmin_lab,
@@ -508,8 +512,9 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
                                      fill = "GREY50", colour = "black")
       for (i in 1:length(df2$anions)) {
         p <- p + annotation_custom(
-          grob = grid::textGrob(label = df2$anions[i], hjust = 0.4, 
-                          gp = grid::gpar(cex = 0.5)),
+          grob = grid::textGrob(label = df2$anions[i], 
+                                hjust = 0.4, 
+                                gp = grid::gpar(cex = 0.5)),
           ymin = df2$y[i],
           ymax = df2$y[i],
           xmin = xmax_lab,
@@ -519,8 +524,9 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE){
       
       for (i in 1:length(df2$cations)) {
         p <- p + annotation_custom(
-          grob = grid::textGrob(label = df2$cations[i], hjust = 0.3, 
-                          gp = grid::gpar(cex = 0.5)),
+          grob = grid::textGrob(label = df2$cations[i], 
+                                hjust = 0.3,
+                                gp = grid::gpar(cex = 0.5)),
           ymin = df2$y[i],
           ymax = df2$y[i],
           xmin = xmin_lab,
@@ -600,4 +606,76 @@ stiff_time_html <- function(df, TDS = FALSE){
            img.name = "StiffPlot", htmlfile = "Stiff_plot.html",
            autobrowse = TRUE, title = "Stiff Diagram"
   )
+}
+
+#-------------------------------------------------------------------------------
+# Schoeller Diagrams
+#-------------------------------------------------------------------------------
+
+transform_schoeller <- function(df, Mg="Magnesium, dissolved", 
+                                Ca="Calcium, dissolved", 
+                                Na="Sodium, dissolved", 
+                                K="Potassium, dissolved", 
+                                Cl="Chloride, total", 
+                                SO4="Sulfate, total", 
+                                HCO3="Alkalinity, total (lab)", 
+                                name="location_id", 
+                                date="sample_date", 
+                                TDS = NULL, 
+                                units = NULL){
+  
+  temp <- data.frame(df[,name], df[,date], df[,Mg], df[,Ca], df[,Na] + df[,K], 
+                     df[,SO4], df[,HCO3], df[,Cl])
+  colnames(temp) <- c("location_id", "sample_date", "Mg", "Ca", "Na + K", 
+                      "SO4", "HCO3", "Cl")
+  
+  df_melt <- reshape2::melt(temp, id.vars = c("location_id", "sample_date"))
+  
+  colnames(df_melt) <- c("location_id", "sample_date", 
+                         "param_name", "analysis_result")
+  
+  return(df_melt)
+}
+
+schoeller <- function(df, facet_by = NULL){
+  p <- ggplot(df, aes(x = param_name, y = analysis_result, group = 1)) + 
+    theme_bw() +
+    scale_y_log10() +
+    theme(axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+  if (is.null(facet_by)){
+    p <- p + geom_line()
+  }
+  if (!is.null(facet_by)){
+    if (facet_by == "sample_date"){
+      p <- p + facet_wrap(~sample_date, scale = "free_y") + 
+        geom_line(aes(colour = location_id, group = location_id))
+    }
+    if (facet_by == "location_id"){
+      p <- p + facet_wrap(~location_id, scale = "free_y") +
+        geom_line(aes(colour = sample_date, group = sample_date))
+    }
+  }
+  return(p)
+}
+
+#-------------------------------------------------------------------------------
+# Series Plot
+#-------------------------------------------------------------------------------
+
+series_plot <- function(df, facet_by = NULL){
+  p <- ggplot(df, aes(x = location_id, y = analysis_result, group = 1)) + 
+    theme_bw() +
+    theme(axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+  if (is.null(facet_by)){
+    p <- p + geom_line(aes(colour = param_name, group = param_name))
+  }
+  if (!is.null(facet_by)){
+    if (facet_by == "sample_date"){
+      p <- p + facet_wrap(~sample_date, scale = "free_y") + 
+        geom_line(aes(colour = param_name, group = param_name))
+    }
+  }
+  return(p)
 }
