@@ -4,6 +4,14 @@
 #' The data is cast by location_id + sample_date ~ param_name
 #'
 #' @param df data frame of groundwater monitoring data
+#' @param Mg Magnesium
+#' @param Ca Calcium
+#' @param Na Sodium
+#' @param K Potassium
+#' @param Cl Chloride
+#' @param SO4 Sulfate
+#' @param Alk Alkalinity
+#' @param TDS Total Dissolved Solids
 #' @export
 
 get_major_ions <- function(df, Mg="Magnesium, dissolved", 
@@ -17,7 +25,7 @@ get_major_ions <- function(df, Mg="Magnesium, dissolved",
   
   plot_params <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
   
-  plot_data <- subset(df, param_name %in% plot_params)
+  plot_data <- df[df$param_name %in% plot_params, ]
  
   plot_data <- reshape2::dcast(plot_data, value.var = "analysis_result", 
                         location_id + sample_date ~ param_name)
@@ -305,7 +313,8 @@ ggplot_piper <- function() {
 #' 
 #' @param df data frame of groundwater data transformed into piper coordinates 
 #'  using \code{\link{transform_piper_data}}
-#'  
+#' @param TDS Scale plot by Total Dissolved Solids, default = FALSE
+#' @param title Title for plot, default = NULL
 #' @export
   
 piper_plot <- function(df, TDS=FALSE, title=NULL){
@@ -351,6 +360,7 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
 #' 
 #' @param df data frame of groundwater data transformed using 
 #' \code{\link{transform_piper_data}}
+#' @param TDS Scale by Total Dissolved Solids
 #' @export
 
 piper_time_plot <- function(df, TDS = FALSE, title){
@@ -374,6 +384,7 @@ piper_time_plot <- function(df, TDS = FALSE, title){
 #'
 #' @param df data frame of groundwater data transformed using 
 #' \code{\link{transform_piper_data}}
+#' @param TDS Scale by Total Dissolved Solids
 #' @export
 
 piper_time_html <- function(df, TDS = FALSE){
@@ -408,6 +419,17 @@ piper_time_html <- function(df, TDS = FALSE){
 #' correct path for geom_polygon of ggplot
 #' 
 #' @param df data frame of groundwater data from \code{\link{get_major_ions}}
+#' @param Mg Magnesium 
+#' @param Ca Calcium 
+#' @param Na Sodium, 
+#' @param K Potassium 
+#' @param Cl Chloride 
+#' @param SO4 Sulfate 
+#' @param HCO3 Alkalinity 
+#' @param name location_id 
+#' @param date sample_date 
+#' @param TDS Total Dissolved Solids 
+#' @param units Units of data
 #' @export
 
 transform_stiff_data <- function(df, Mg="Magnesium, dissolved", 
@@ -460,8 +482,9 @@ transform_stiff_data <- function(df, Mg="Magnesium, dissolved",
 #' Function to plot a Stiff Diagram 
 #' 
 #' @param df data frame of groundwater data transformed using 
-#' @param multiple TRUE/FALSE plots multiple locations with facet_wrap
+#' @param lines TRUE/FALSE plots lines
 #' @param TDS TRUE/FALSE fills in the color of the stiff diagram by TDS
+#' @param cex multiplier to scale plot height
 #' \code{\link{transform_stiff_data}}
 #' @export
 
