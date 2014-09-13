@@ -2,6 +2,7 @@
 
 Tools for plotting and analyzing groundwater data.  
   
+[![Build Status](https://travis-ci.org/jentjr/gwstats.svg?branch=master)](https://travis-ci.org/jentjr/gwstats)  
 
 To install the `gwstats` package you must first make sure you have a working 
 development environment.  
