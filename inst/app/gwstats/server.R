@@ -61,184 +61,116 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
   )
   # End Summary Table page -----------------------------------------------------
   
-  # Begin Boxplot by constituent page-------------------------------------------
-  output$wells_box_const <- renderUI({
+  # Begin Boxplot Page----------------------------------------------------------
+  output$box_wells <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       well_names <- as.character(get_wells(data))
-      selectInput("well_box_const", "Monitoring Wells", well_names, 
+      selectInput("box_well", "Monitoring Wells", well_names, 
                   multiple = TRUE, selected = well_names[1])
   })
   
-  output$analytes_box_const <- renderUI({
+  output$box_analytes <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
-      selectInput("analyte_box_const", "Constituents", analyte_names, 
+      selectInput("box_analyte", "Constituents", analyte_names, 
                   multiple = TRUE, selected = analyte_names[1])
   })
   
-  box_const <- reactive({
+  boxplot <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
       data <- get_data()
-      w_box_const <- input$well_box_const
-      a_box_const <- input$analyte_box_const
-      box_const_data <- data[data$location_id %in% w_box_const & 
-                             data$param_name %in% a_box_const, ]
-      
-      box_list_const <- lapply(1:length(a_box_const), function(i) {
-        box_const_name <- paste("box_list_plot", i, sep="")
-        plotOutput(box_const_name, height = 675, width = 825)
+      box_wells <- input$box_well
+      box_analytes <- input$box_analyte
+      box_data <- data[data$location_id %in% box_wells & 
+                             data$param_name %in% box_analytes, ]
+    if (input$box_facet_by == "param_name") {
+      box_list <- lapply(1:length(box_analytes), function(i) {
+        box_name <- paste("box_plot", i, sep="")
+        plotOutput(box_name, height = 675, width = 825)
       })
       
-      for (i in 1:length(a_box_const)){
+      for (i in 1:length(box_analytes)){
         local({
-          box_const_i <- i
-          box_const_name <- paste("box_list_plot", box_const_i, sep="")
-          output[[box_const_name]] <- renderPlot({
-            box_const <- boxplot_by_param_grid(
-              box_const_data[box_const_data$param_name == 
-                             a_box_const[box_const_i], ],
-                             coord_flip = input$coord_flip_box_const
-              )
-            if (input$short_name_box_const){
-              box_const <- boxplot_by_param_grid(
-                box_const_data[box_const_data$param_name == 
-                               a_box_const[box_const_i], ], 
-                               name = "short",
-                               coord_flip = input$coord_flip_box_const
-                )
-            }
-            box_const
+          box_i <- i
+          box_name <- paste("box_plot", box_i, sep="")
+          output[[box_name]] <- renderPlot({
+            box <- gw_boxplot(
+              box_data[box_data$param_name == 
+                         box_analytes[box_i], ], 
+              facet_by = input$box_facet_by,
+              short_name = input$box_short_name,
+              coord_flip = input$coord_flip_box
+            )
+            box
           })
         })
       }
-      do.call(tagList, box_list_const)
+    }
+    if (input$box_facet_by == "location_id") {
+      box_list <- lapply(1:length(box_wells), function(i) {
+        box_name <- paste("box_plot", i, sep="")
+        plotOutput(box_name, height = 675, width = 825)
+      })
+      
+      for (i in 1:length(box_wells)){
+        local({
+          box_i <- i
+          box_name <- paste("box_plot", box_i, sep="")
+          output[[box_name]] <- renderPlot({
+            box <- gw_boxplot(
+              box_data[box_data$location_id == 
+                         box_wells[box_i], ], 
+              facet_by = input$box_facet_by,
+              short_name = input$box_short_name,
+              coord_flip = input$coord_flip_box
+            )
+            box
+          })
+        })
+      }
+    }
+    do.call(tagList, box_list)
   })
   
-  output$box_out_const <- renderUI({
-    box_const()
+  output$boxplot_out <- renderUI({
+    boxplot()
   })
   
-  get_box_const_data <- reactive({
+  # Begin Boxplot Download Page-------------------------------------------------
+  get_box_data <- reactive({
     validate(
       need(input$data_path != "", "")
     )
     data <- get_data()
-    w_box_const <- input$well_box_const
-    a_box_const <- input$analyte_box_const
-    box_const_data <- data[data$location_id %in% w_box_const & 
-                             data$param_name %in% a_box_const, ]
-    box_const_data
+    box_wells <- input$box_well
+    box_analytes <- input$box_analyte
+    box_data <- data[data$location_id %in% box_wells & 
+                             data$param_name %in% box_analytes, ]
+    box_data
   })
   
-  output$box_const_download <- downloadHandler(
+  output$box_download <- downloadHandler(
     filename = function() {
-      paste("box_const_", Sys.Date(), ".pdf", sep = "")
+      paste("boxplot_", Sys.Date(), ".pdf", sep = "")
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      boxplot_by_param(get_box_const_data())
+      multi_gw_boxplot(get_box_data(), facet_by = input$box_facet_by, 
+                       short_name = input$box_short_name, 
+                       coord_flip = input$box_coord_flip)
       dev.off()
     }
   )
   
-  # End Boxplot by constituent Page---------------------------------------------
-   
-  # Begin Boxplot by well page -------------------------------------------------
-  output$wells_box_well <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )  
-    data <- get_data()
-    well_names <- as.character(get_wells(data))
-    selectInput("well_box_well", "Monitoring Wells", well_names, 
-                 multiple = TRUE, selected = well_names[1])
-  })
-  
-  output$analytes_box_well <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
-    analyte_names <- as.character(get_analytes(data))
-    selectInput("analyte_box_well", "Constituents", analyte_names, 
-                 multiple = TRUE, selected = analyte_names[1])
-  })
-  
-  box_well <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-      data <- get_data()
-      w_box_well <- input$well_box_well
-      a_box_well <- input$analyte_box_well
-      data_box_well <- data[data$location_id %in% w_box_well & 
-                            data$param_name %in% a_box_well, ]
-      
-      box_list_well <- lapply(1:length(w_box_well), function(i) {
-        box_well_name <- paste("box_well_plot", i, sep="")
-        plotOutput(box_well_name, height = 675, width = 825)
-      })
-      
-      for (i in 1:length(w_box_well)){
-        local({
-          box_well_i <- i
-          box_well_name <- paste("box_well_plot", box_well_i, sep="")
-          output[[box_well_name]] <- renderPlot({
-            box_well <- boxplot_by_well_grid(
-              data_box_well[data_box_well$location_id == 
-                            w_box_well[box_well_i], ],
-                            coord_flip = input$coord_flip_box_well
-              )
-            if (input$short_name_box_well){
-              box_well <- boxplot_by_well_grid(
-                data_box_well[data_box_well$location_id == 
-                              w_box_well[box_well_i], ], 
-                              name = "short",
-                              coord_flip = input$coord_flip_box_well
-                )
-            }
-            box_well
-          })
-        })
-      }
-      do.call(tagList, box_list_well)
-  })
-  
-  output$box_out_well <- renderUI({
-    box_well()
-  })
-  
-  get_box_well_data <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    data <- get_data()
-    w_box_well <- input$well_box_well
-    a_box_well <- input$analyte_box_well
-    data_box_well <- data[data$location_id %in% w_box_well & 
-                            data$param_name %in% a_box_well, ]
-    data_box_well
-  })
-  
-  output$box_well_download <- downloadHandler(
-    filename = function() {
-      paste("box_well_", Sys.Date(), ".pdf", sep = "")
-    },
-    content = function(file) {
-      pdf(file = file, width = 17, height = 11)
-      boxplot_by_well(get_box_well_data())
-      dev.off()
-    }
-  )
-  # End Boxplot by well page ---------------------------------------------------
+  # End Boxplot Page------------------------------------------------------------
   
   # Time Series Page -----------------------------------------------------------
   output$ts_wells <- renderUI({
@@ -305,7 +237,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           output[[ts_name]] <- renderPlot({
             
             ts <- gw_ts_plot(ts_data[ts_data$location_id == ts_well[ts_i], ],
-                             facet_by = "location_id", ncol = input$ncol_ts)
+                             facet_by = "location_id", 
+                             short_name = input$ts_short_name, 
+                             ncol = input$ncol_ts)
             
             if (input$ts_date_lines){
               b1 <- min(lubridate::ymd(input$ts_back_dates))
@@ -317,33 +251,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                 ts_data[ts_data$location_id == 
                                ts_well[ts_i], ], 
                 facet_by = "location_id",
+                short_name = input$ts_short_name,
                 back_date = c(b1, b2), 
                 comp_date = c(c1, c2),
-                ncol = input$ncol_ts
-              )
-            }
-            if (input$ts_short_name){
-              ts <- gw_ts_plot(
-                ts_data[ts_data$location_id == 
-                               ts_well[ts_i], ], 
-                facet_by = "location_id",
-                name="short",
-                ncol = input$ncol_ts
-              )
-            }
-            if (input$ts_short_name & input$ts_date_lines){
-              b1 <- min(lubridate::ymd(input$ts_back_dates))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates))
-              b2 <- max(lubridate::ymd(input$ts_back_dates))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates))
-              
-              ts <- gw_ts_plot(
-                ts_data[ts_data$location_id == 
-                               ts_well[ts_i], ],
-                facet_by = "location_id",
-                back_date = c(b1, b2), 
-                comp_date = c(c1, c2), 
-                name = "short",
                 ncol = input$ncol_ts
               )
             }
@@ -366,7 +276,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           output[[ts_name]] <- renderPlot({
             
             ts <- gw_ts_plot(ts_data[ts_data$param_name == ts_analyte[ts_i], ],
-                             facet_by = "param_name", ncol = input$ncol_ts)
+                             facet_by = "param_name", 
+                             short_name = input$ts_short_name,
+                             ncol = input$ncol_ts)
             
             if (input$ts_date_lines){
               b1 <- min(lubridate::ymd(input$ts_back_dates))
@@ -378,33 +290,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                 ts_data[ts_data$param_name == 
                           ts_analyte[ts_i], ], 
                 facet_by = "param_name",
+                short_name = input$ts_short_name,
                 back_date = c(b1, b2), 
                 comp_date = c(c1, c2),
-                ncol = input$ncol_ts
-              )
-            }
-            if (input$ts_short_name){
-              ts <- gw_ts_plot(
-                ts_data[ts_data$param_name == 
-                          ts_analyte[ts_i], ], 
-                facet_by = "param_name",
-                name="short",
-                ncol = input$ncol_ts
-              )
-            }
-            if (input$ts_short_name & input$ts_date_lines){
-              b1 <- min(lubridate::ymd(input$ts_back_dates))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates))
-              b2 <- max(lubridate::ymd(input$ts_back_dates))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates))
-              
-              ts <- gw_ts_plot(
-                ts_data[ts_data$param_name == 
-                          ts_analyte[ts_i], ],
-                facet_by = "param_name",
-                back_date = c(b1, b2), 
-                comp_date = c(c1, c2), 
-                name = "short",
                 ncol = input$ncol_ts
               )
             }
@@ -447,31 +335,13 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
         pdf(file = file, width = 17, height = 11)
         multi_gw_ts_plot(get_ts_data(), back_date = c(b1, b2), 
                          facet_by = input$ts_facet_by,
+                         short_name = input$ts_short_name,
                          comp_date = c(c1, c2), ncol = input$ncol_ts)
-        dev.off()
-      }
-      if (input$ts_short_name){
-        pdf(file = file, width = 17, height = 11)
-        multi_gw_ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
-                         name = "short", 
-                         ncol = input$ncol_ts)
-        dev.off()
-      }
-      if (input$ts_short_name & input$ts_date_lines){
-        b1 <- min(lubridate::ymd(input$ts_back_dates))
-        c1 <- min(lubridate::ymd(input$ts_comp_dates))
-        b2 <- max(lubridate::ymd(input$ts_back_dates))
-        c2 <- max(lubridate::ymd(input$ts_comp_dates))
-        
-        pdf(file = file, width = 17, height = 11)
-        multi_gw_ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
-                         back_date = c(b1, b2), 
-                        comp_date = c(c1, c2), name = "short",
-                        ncol = input$ncol_ts)
         dev.off()
       } else {
         pdf(file = file, width = 17, height = 11)
         multi_gw_ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
+                         short_name = input$ts_short_name,
                          ncol = input$ncol_ts)
         dev.off()
       }

@@ -4,7 +4,8 @@
 \title{Function for plotting time series of groundwater data}
 \usage{
 gw_ts_plot(df, facet_by = NULL, back_date = NULL, comp_date = NULL,
-  limit1 = NULL, limit2 = NULL, name = NULL, pnt = 3, ncol = NULL)
+  limit1 = NULL, limit2 = NULL, short_name = FALSE, pnt = 3,
+  ncol = NULL)
 }
 \arguments{
 \item{df}{groundwater data}
@@ -19,7 +20,7 @@ gw_ts_plot(df, facet_by = NULL, back_date = NULL, comp_date = NULL,
 
 \item{limit2}{horizontal line 2}
 
-\item{name}{If name = "short" the analyte will be abbreviated}
+\item{short_name}{If TRUE, the analyte name will be abbreviated}
 
 \item{pnt}{size of points on time series plots}
 

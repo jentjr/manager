@@ -6,18 +6,18 @@
 #' @param comp_date dates for compliance date range
 #' @param limit1 horizontal line 1
 #' @param limit2 horizontal line 2
-#' @param name If name = "short" the analyte will be abbreviated
+#' @param short_name If TRUE, the analyte name will be abbreviated
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
 #' @export
 
 gw_ts_plot <- function(df, facet_by = NULL, back_date = NULL, 
                        comp_date = NULL, limit1 = NULL, limit2 = NULL, 
-                       name = NULL, pnt = 3, ncol = NULL){
+                       short_name = FALSE, pnt = 3, ncol = NULL){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
-  if(isTRUE(name == "short")){
+  if(isTRUE(short_name)){
     df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
                            sep = "")
   } else {
@@ -322,14 +322,14 @@ multi_by_loc <- function(df, ...){
 #' 
 #' @param df groundwater data
 #' @param facet_by parameter to group data by
-#' @param name If name = "short" the analyte will be abbreviated
+#' @param short_name If TRUE, the analyte name will be abbreviated
 #' @param flip_coords If TRUE the axes are flipped
 #' @export
 
-gw_boxplot <- function(df, facet_by = "location_id", name = NULL, 
+gw_boxplot <- function(df, facet_by = "location_id", short_name = FALSE, 
                        coord_flip = FALSE){
 
-  if (isTRUE(name == "short")){
+  if (isTRUE(short_name)){
     df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
   } else {
     df$name_units <- paste(df$param_name, " (", df$default_unit, ")", sep = "")

@@ -3,14 +3,15 @@
 \alias{gw_boxplot}
 \title{Function to plot boxplots for groundwater data}
 \usage{
-gw_boxplot(df, facet_by = "location_id", name = NULL, coord_flip = FALSE)
+gw_boxplot(df, facet_by = "location_id", short_name = FALSE,
+  coord_flip = FALSE)
 }
 \arguments{
 \item{df}{groundwater data}
 
 \item{facet_by}{parameter to group data by}
 
-\item{name}{If name = "short" the analyte will be abbreviated}
+\item{short_name}{If TRUE, the analyte name will be abbreviated}
 
 \item{flip_coords}{If TRUE the axes are flipped}
 }
