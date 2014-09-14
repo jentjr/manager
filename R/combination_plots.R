@@ -1,21 +1,23 @@
-#' Function to plot time series by location id
+#' Function for plotting time series of groundwater data
 #' 
 #' @param df groundwater data
+#' @param facet_by parameter to group plots by
 #' @param back_date dates for background date range
 #' @param comp_date dates for compliance date range
 #' @param limit1 horizontal line 1
 #' @param limit2 horizontal line 2
-#' @param name If name = "short" the analyte will be abbreviated
+#' @param short_name If TRUE, the analyte name will be abbreviated
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
 #' @export
-ind_by_loc_grid <- function(df, back_date = NULL, 
+
+gw_ts_plot <- function(df, facet_by = NULL, back_date = NULL, 
                        comp_date = NULL, limit1 = NULL, limit2 = NULL, 
-                       name = NULL, pnt = 3, ncol = NULL){
+                       short_name = FALSE, pnt = 3, ncol = NULL){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
-  if(isTRUE(name == "short")){
+  if(isTRUE(short_name)){
     df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
                            sep = "")
   } else {
@@ -27,15 +29,11 @@ ind_by_loc_grid <- function(df, back_date = NULL,
   p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
     geom_line(data = df) +
     geom_point(data = df, aes(shape = factor(non_detect)), size = pnt) +
-    facet_wrap(~param_name, scale = "free", ncol = ncol) + 
-    ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep=" ")) +
     ylab("Analysis Result") +
     xlab("Sample Date") + 
     scale_x_datetime(labels = scales::date_format("%Y")) +
     theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) + 
     theme_bw() +  
-    
-    # create custom legend using guide
     theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
     theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
     guides(colour = guide_legend(override.aes = list(linetype = 0)), 
@@ -44,9 +42,15 @@ ind_by_loc_grid <- function(df, back_date = NULL,
            linetype = guide_legend("Limits")) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
   
-  # shaded background and compliance date regions
-  if(!missing(back_date)){
-    # add rectangles for date ranges
+  if (facet_by == "location_id"){
+    p <- p +facet_wrap(~param_name, scale = "free", ncol = ncol) + 
+      ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep=" ")) 
+  }
+  if (facet_by == "param_name"){
+    p <- p +facet_wrap(~location_id, scale = "free", ncol = ncol) + 
+      ggtitle(paste("Time Series Plots for", df$param_name[1], "\n", sep = " "))
+  }
+  if (!missing(back_date)){
     shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
                                xmax = c(back_date[2], comp_date[2]),
                                ymin = c(-Inf, -Inf), 
@@ -60,8 +64,6 @@ ind_by_loc_grid <- function(df, back_date = NULL,
       scale_fill_manual(values=c("blue","green")) +
       guides(fill = guide_legend(override.aes = list(linetype = 0)))
   }
-  
-  # add horizontal line for limit1
   if(!missing(limit1)){
     limit1 <- as.quoted(limit1)
     df$limit1_name <- paste(limit1[[1]])
@@ -70,7 +72,6 @@ ind_by_loc_grid <- function(df, back_date = NULL,
                                    linetype = "limit1_name"), 
                         show_guide = TRUE)
   }
-  # add horizontal line for limit2
   if(!missing(limit2)){
     limit2 <- as.quoted(limit2)
     df$limit2_name <- paste(limit2[[1]])
@@ -82,130 +83,28 @@ ind_by_loc_grid <- function(df, back_date = NULL,
   return(p)
 }
 
-#' This function plots groundwater data by location and faceted by parameters. 
-#' Other variables like shaded regions for background and compliance date ranges, 
-#' horizontal lines are for Groundwater Protection Standards can be passed to 
+#' This function plots multiple groundwater data time series by location, 
+#' or constituent. Other variables from \code{\link{gw_ts_plot}} can be passed to 
 #' the funcion. 
 #' 
 #' @param df data frame in long format containing groundwater monitoring data
 #' assumes column names of location_id, param_name, analysis_result, 
 #' default_unit, lt_measure, sample_date. Dates for sample_date column
 #'  must be in as.POSIXct format
-#' @param back_date vector of start and end of background dates. Use as.POSIXct()
-#' @param comp_date vector of start and end of compliance dates. Use as.POSIXct()
-#' @param limit1 Plots a vertical line for limit
-#' @param limit2 Plots a vertical line for a second limit
+#' @param facet_by parameter to group by. Can be either location_id, 
+#' or param_name. Defaults to location_id.
 #' @export
 
-ind_by_loc <- function(df, ...){
-  
-  plyr::d_ply(df, .(location_id), .progress = "text", ind_by_loc_grid, ...,
-              .print = TRUE)
-}
-
-
-#' Function to plot time series by parameter
-#'  
-#' @param df groundwater data
-#' @param back_date dates for background date range
-#' @param comp_date dates for compliance date range
-#' @param limit1 horizontal line 1
-#' @param limit2 horizontal line 2
-#' @param name If name = "short" the analyte will be abbreviated
-#' @param pnt size of points on time series plots
-#' @param ncol number of columns
-#' @export 
-ind_by_param_grid <- function(df, back_date = NULL, comp_date = NULL, 
-                              limit1 = NULL, limit2 = NULL, name = NULL, 
-                              pnt = 3, ncol = NULL){
-  
-  df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
-  
-  if(isTRUE(name == "short")){
-    df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
-                           sep = "")
-  } else {
-    df$param_name <- paste(df$param_name, " (", df$default_unit, ")", 
-                           sep = "")
+multi_gw_ts_plot <- function(df, facet_by = "location_id", ...){
+  if (facet_by == "param_name") {
+    plyr::d_ply(df, .(param_name), .progress = "text", gw_ts_plot, 
+                facet_by = facet_by, ...,
+                .print = TRUE)
+  } else{
+    plyr::d_ply(df, .(location_id), .progress = "text", gw_ts_plot, 
+                facet_by = facet_by, ...,
+                .print = TRUE)
   }
-  
-  # main plot
-  p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
-    geom_line(data = df) +
-    geom_point(data = df, aes(shape = factor(non_detect)), size = pnt) +
-    facet_wrap(~location_id, scale = "free", ncol = ncol) + 
-    ggtitle(paste("Time Series Plots for", df$param_name[1], "\n", sep = " ")) +
-    ylab("Analysis Result") +
-    xlab("Sample Date") + 
-    scale_x_datetime(labels = scales::date_format("%Y")) +
-    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) + 
-    theme_bw() +  
-    
-    # create custom legend using guide
-    theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
-    theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
-    guides(colour = guide_legend(override.aes = list(linetype = 0)), 
-           shape = guide_legend("Measure", override.aes = list(linetype = 0)),
-           size = guide_legend("none"),
-           linetype = guide_legend("Limits")) +
-    scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
-  
-  # shaded background and compliance date regions
-  if(!missing(back_date)){
-    # add rectangles for date ranges
-    shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
-                               xmax = c(back_date[2], comp_date[2]),
-                               ymin = c(-Inf, -Inf), 
-                               ymax = c(Inf, Inf),
-                               Years = c("background", "compliance"))
-    
-    p <- p + geom_rect(data = shaded_dates, 
-                       aes(xmin = xmin, ymin = ymin, xmax = xmax, 
-                           ymax = ymax, fill = Years),
-                       alpha = 0.2, inherit.aes = FALSE) +
-      scale_fill_manual(values=c("blue","green")) +
-      guides(fill = guide_legend(override.aes = list(linetype = 0)))
-  }
-  
-  # add horizontal line for limit1
-  if(!missing(limit1)){
-    limit1 <- as.quoted(limit1)
-    df$limit1_name <- paste(limit1[[1]])
-    p <- p + geom_hline(data = df, 
-                        aes_string(yintercept = limit1, 
-                                   linetype = "limit1_name"), 
-                        show_guide = TRUE)
-  }
-  # add horizontal line for limit2
-  if(!missing(limit2)){
-    limit2 <- as.quoted(limit2)
-    df$limit2_name <- paste(limit2[[1]])
-    p <- p + geom_hline(data = df, 
-                        aes_string(yintercept = limit2, 
-                                   linetype = "limit2_name"), 
-                        show_guide = TRUE)
-  }  
-  return(p)
-}
-
-#' This function plots groundwater data by parameter and faceted by location 
-#' with shaded regions for background and compliance date ranges. 
-#' Horizontal lines are plotted for Groundwater Protection Standards. 
-#' 
-#' @param df data frame in long format containing groundwater monitoring data
-#' assumes column names of location_id, param_name, analysis_result, 
-#' default_unit, lt_measure, sample_date. Dates for sample_date column
-#'  must be in as.POSIXct format
-#' @param facet_col the column to facet the plot by
-#' @param back_date vector of start and end of background dates. Use as.POSIXct()
-#' @param comp_date vector of start and end of compliance dates. Use as.POSIXct()
-#' @param limits column vector of limits e.g. c("EPA_Limits", "DMR_limits")
-#' @export
-
-ind_by_param <- function(df, ...){
-  
-  plyr::d_ply(df, .(param_name), .progress = "text", ind_by_param_grid, ...,
-        .print = TRUE)
 }
 
 #' Function to plot multiple time series by parameter
@@ -219,6 +118,7 @@ ind_by_param <- function(df, ...){
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
 #' @export
+
 multi_by_param_grid <- function(df, back_date = NULL, 
                               comp_date = NULL, limit1 = NULL, limit2 = NULL, 
                               name = NULL, pnt = 3){
@@ -418,99 +318,76 @@ multi_by_loc <- function(df, ...){
 # Boxplots
 #------------------------------------------------------------------------------
 
-#' Function to plot boxplots by parameter
+#' Function to plot boxplots for groundwater data
 #' 
 #' @param df groundwater data
-#' @param name If name = "short" the analyte will be abbreviated
+#' @param facet_by parameter to group data by
+#' @param short_name If TRUE, the analyte name will be abbreviated
 #' @param flip_coords If TRUE the axes are flipped
 #' @export
 
-boxplot_by_param_grid <- function(df, name = NULL, coord_flip = FALSE){
+gw_boxplot <- function(df, facet_by = "location_id", short_name = FALSE, 
+                       coord_flip = FALSE){
 
-  if (isTRUE(name == "short")){
+  if (isTRUE(short_name)){
     df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
   } else {
     df$name_units <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
   }
-
-  b <- ggplot(df, aes(location_id, y=analysis_result, fill=location_id)) + 
-    theme_bw() + 
-    ylab(paste("Analysis Result"," (", df$default_unit[1], ")", sep = "")) + 
-    xlab("Location ID") +
-    guides(fill = guide_legend("Location ID")) +
-    theme(legend.background = element_rect()) + 
-    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
-    theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
-    theme(axis.text.x = element_text(angle = 90, size = 13)) +
-    theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
-    theme(axis.text.y = element_text(size = 13)) +
-    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
-    geom_boxplot() + 
-    ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
-
+  if (facet_by == "param_name") {
+    b <- ggplot(df, aes(location_id, y=analysis_result, fill=location_id)) + 
+      theme_bw() + 
+      ylab(paste("Analysis Result"," (", df$default_unit[1], ")", sep = "")) + 
+      xlab("Location ID") +
+      guides(fill = guide_legend("Location ID")) +
+      theme(legend.background = element_rect()) + 
+      theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+      theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
+      theme(axis.text.x = element_text(angle = 90, size = 13)) +
+      theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
+      theme(axis.text.y = element_text(size = 13)) +
+      theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+      geom_boxplot() + 
+      ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
+  }
+  if (facet_by == "location_id") {
+    b <- ggplot(df, aes(name_units, y=analysis_result, fill=name_units)) + 
+      theme_bw() + ylab("Analysis Result") + 
+      xlab("Constituent") +
+      guides(fill = guide_legend("Constituent")) +
+      theme(legend.background = element_rect()) + 
+      theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+      theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
+      theme(axis.text.x = element_text(angle = 90, size = 13)) +
+      theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
+      theme(axis.text.y = element_text(size = 13)) +
+      theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+      geom_boxplot() + 
+      ggtitle(paste("Boxplot for", df$location_id, "\n", sep = " "))
+  }
   if (isTRUE(coord_flip)){
     b <- b + coord_flip()
   }      
   b
 }
 
-#' Function to plot boxplots by parameter 
+#' Function to plot multiple boxplots for groundwater data 
 #' 
 #' @param df groundwater data
+#' @param facet_by parameter to group data by
 #' @param name If name = "short" the analyte will be abbreviated
 #' @param flip_coords If TRUE the axes are flipped
 #' @export
 
-boxplot_by_param <- function(df, ...){
-  
-  plyr::d_ply(df, .(param_name), .progress = "text", boxplot_by_param_grid, ...,
-        .print = TRUE)
-}
-
-#' Function to plot boxplots by location id
-#' 
-#' @param df groundwater data
-#' @param name If name = "short" the analyte will be abbreviated
-#' @param flip_coords If TRUE the axes are flipped
-#' @export
-
-boxplot_by_well_grid <- function(df, name = NULL, coord_flip = FALSE){
-  if (isTRUE(name == "short")){
-    df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
-  } else {
-    df$name_units <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
+multi_gw_boxplot <- function(df, facet_by = "location_id", ...){
+  if (facet_by == "param_name"){
+    plyr::d_ply(df, .(param_name), .progress = "text", gw_boxplot, 
+                facet_by = "param_name", ...,
+                .print = TRUE)
   }
-
-  b <- ggplot(df, aes(name_units, y=analysis_result, fill=name_units)) + 
-    theme_bw() + ylab("Analysis Result") + 
-    xlab("Constituent") +
-    guides(fill = guide_legend("Constituent")) +
-    theme(legend.background = element_rect()) + 
-    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
-    theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
-    theme(axis.text.x = element_text(angle = 90, size = 13)) +
-    theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
-    theme(axis.text.y = element_text(size = 13)) +
-    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
-    geom_boxplot() + 
-    ggtitle(paste("Boxplot for", df$location_id, "\n", sep = " "))
-  
-  if (isTRUE(coord_flip)){
-    b <- b + coord_flip()
-  }      
-  b
+  if (facet_by == "location_id") {
+    plyr::d_ply(df, .(location_id), .progress = "text", gw_boxplot, 
+                facet_by = "location_id", ...,
+                .print = TRUE)
+  }
 }
-
-#' Function to plot boxplots by location
-#' 
-#' @param df groundwater data
-#' @param name If name = "short" the analyte will be abbreviated
-#' @param flip_coords If TRUE the axes are flipped
-#' @export
-
-boxplot_by_well <- function(df, ...){
-  
-  plyr::d_ply(df, .(location_id), .progress = "text", boxplot_by_well_grid, ...,
-        .print = TRUE)
-}
-

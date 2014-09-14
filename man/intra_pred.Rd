@@ -3,7 +3,8 @@
 \alias{intra_pred}
 \title{Function to calculate intrawell prediction interval}
 \usage{
-intra_pred(df, wells, params, bkgd_dates, SWFPR = 0.1)
+intra_pred(df, wells, params, bkgd_dates, comp_dates, nd_percent = 10,
+  non_par_perc = 50, SWFPR = 0.1)
 }
 \arguments{
 \item{df}{data frame of groundwater data}

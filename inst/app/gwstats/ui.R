@@ -32,72 +32,40 @@ shinyUI(navbarPage("GWSTATS",
       )
     )         
   ),  
-  navbarMenu("Time Series",
-    tabPanel("By Well",
+  navbarMenu("Plots",
+    tabPanel("Time Series",
       sidebarLayout(
         sidebarPanel(
-          uiOutput("wells_time_well"),
-          uiOutput("analytes_time_well"),
-          uiOutput("date_ranges_time_well"),
-          checkboxInput("short_name_well", "Abbreviate Constituent Name"),
-          checkboxInput("date_lines_well", "Show Date Ranges"),
-          numericInput("ncol_ts_well", "Number of Columns in Plot", 
+          uiOutput("ts_wells"),
+          uiOutput("ts_analytes"),
+          uiOutput("ts_date_ranges"),
+          selectInput("ts_facet_by", "Group plots by:", 
+                      c("location_id", "param_name")),
+          checkboxInput("ts_short_name", "Abbreviate Constituent Name"),
+          checkboxInput("ts_date_lines", "Show Date Ranges"),
+          numericInput("ncol_ts", "Number of Columns in Plot", 
                        value = 1),
-          downloadButton("ts_well_download", "Download Plots")
+          downloadButton("ts_download", "Download Plots")
         ),
         mainPanel(
-          uiOutput("ts_by_well_out")
+          uiOutput("ts_out")
         )
       )       
     ),
-    tabPanel("By Constituent",
+    tabPanel("Boxplots",
       sidebarLayout(
         sidebarPanel(
-          uiOutput("wells_time_const"),
-          uiOutput("analytes_time_const"),
-          uiOutput("date_ranges_time_const"),
-          checkboxInput("short_name_const", "Abbreviate Constituent Name"),
-          checkboxInput("date_lines_const", "Show Date Ranges"),
-          numericInput("ncol_ts_const", "Number of Columns in Plot",
-                       value = 1),
-          downloadButton("ts_const_download", "Download Plots")
+          uiOutput("box_wells"),
+          uiOutput("box_analytes"),
+          selectInput("box_facet_by", "Group plot by:",
+                      c("param_name", "location_id")),
+          checkboxInput("box_short_name", "Abbreviate Constituent Name"),
+          downloadButton("box_download", "Download Plots")
         ),
         mainPanel(
-          uiOutput("ts_by_const_out")  
+          uiOutput("boxplot_out")  
         )
       )         
-    )
-  ),
-  navbarMenu("Boxplots",
-    tabPanel("By Well",
-      sidebarLayout(
-        sidebarPanel(
-          uiOutput("wells_box_well"),
-          uiOutput("analytes_box_well"),
-          uiOutput("date_ranges_box_well"),
-          checkboxInput("short_name_box_well", "Abbreviate Constituent Name"),
-          checkboxInput("coord_flip_box_well", "Flip Coordinates"),
-          downloadButton("box_well_download", "Download Plots")
-        ),
-        mainPanel(
-          uiOutput("box_out_well")  
-        )
-      )         
-    ),
-    tabPanel("By Constituent",
-      sidebarLayout(
-        sidebarPanel(
-          uiOutput("wells_box_const"),
-          uiOutput("analytes_box_const"),
-          uiOutput("date_ranges_box_const"),
-          checkboxInput("short_name_box_const", "Abbreviate Constituent Name"),
-          checkboxInput("coord_flip_box_const", "Flip Coordinates"),
-          downloadButton("box_const_download", "Download Plots")
-        ),
-        mainPanel(
-          uiOutput("box_out_const")
-        )
-      )       
     )
   ),
   navbarMenu("Geochemical Plots",

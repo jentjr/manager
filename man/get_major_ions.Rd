@@ -13,6 +13,22 @@ get_major_ions(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
 }
 \arguments{
 \item{df}{data frame of groundwater monitoring data}
+
+\item{Mg}{Magnesium}
+
+\item{Ca}{Calcium}
+
+\item{Na}{Sodium}
+
+\item{K}{Potassium}
+
+\item{Cl}{Chloride}
+
+\item{SO4}{Sulfate}
+
+\item{Alk}{Alkalinity}
+
+\item{TDS}{Total Dissolved Solids}
 }
 \description{
 function to read monitoring well data in the form location_id, sample_date,

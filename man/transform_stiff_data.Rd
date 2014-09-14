@@ -13,6 +13,28 @@ transform_stiff_data(df, Mg = "Magnesium, dissolved",
 }
 \arguments{
 \item{df}{data frame of groundwater data from \code{\link{get_major_ions}}}
+
+\item{Mg}{Magnesium}
+
+\item{Ca}{Calcium}
+
+\item{Na}{Sodium,}
+
+\item{K}{Potassium}
+
+\item{Cl}{Chloride}
+
+\item{SO4}{Sulfate}
+
+\item{HCO3}{Alkalinity}
+
+\item{name}{location_id}
+
+\item{date}{sample_date}
+
+\item{TDS}{Total Dissolved Solids}
+
+\item{units}{Units of data}
 }
 \description{
 Function to transform data from \code{\link{get_major_ions}}

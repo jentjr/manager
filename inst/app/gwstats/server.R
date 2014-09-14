@@ -61,524 +61,294 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
   )
   # End Summary Table page -----------------------------------------------------
   
-  # Begin Boxplot by constituent page-------------------------------------------
-  output$wells_box_const <- renderUI({
+  # Begin Boxplot Page----------------------------------------------------------
+  output$box_wells <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       well_names <- as.character(get_wells(data))
-      selectInput("well_box_const", "Monitoring Wells", well_names, 
+      selectInput("box_well", "Monitoring Wells", well_names, 
                   multiple = TRUE, selected = well_names[1])
   })
   
-  output$analytes_box_const <- renderUI({
+  output$box_analytes <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
-      selectInput("analyte_box_const", "Constituents", analyte_names, 
+      selectInput("box_analyte", "Constituents", analyte_names, 
                   multiple = TRUE, selected = analyte_names[1])
   })
   
-  box_const <- reactive({
+  boxplot <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
       data <- get_data()
-      w_box_const <- input$well_box_const
-      a_box_const <- input$analyte_box_const
-      box_const_data <- data[data$location_id %in% w_box_const & 
-                             data$param_name %in% a_box_const, ]
-      
-      box_list_const <- lapply(1:length(a_box_const), function(i) {
-        box_const_name <- paste("box_list_plot", i, sep="")
-        plotOutput(box_const_name, height = 675, width = 825)
+      box_wells <- input$box_well
+      box_analytes <- input$box_analyte
+      box_data <- data[data$location_id %in% box_wells & 
+                             data$param_name %in% box_analytes, ]
+    if (input$box_facet_by == "param_name") {
+      box_list <- lapply(1:length(box_analytes), function(i) {
+        box_name <- paste("box_plot", i, sep="")
+        plotOutput(box_name, height = 675, width = 825)
       })
       
-      for (i in 1:length(a_box_const)){
+      for (i in 1:length(box_analytes)){
         local({
-          box_const_i <- i
-          box_const_name <- paste("box_list_plot", box_const_i, sep="")
-          output[[box_const_name]] <- renderPlot({
-            box_const <- boxplot_by_param_grid(
-              box_const_data[box_const_data$param_name == 
-                             a_box_const[box_const_i], ],
-                             coord_flip = input$coord_flip_box_const
-              )
-            if (input$short_name_box_const){
-              box_const <- boxplot_by_param_grid(
-                box_const_data[box_const_data$param_name == 
-                               a_box_const[box_const_i], ], 
-                               name = "short",
-                               coord_flip = input$coord_flip_box_const
-                )
-            }
-            box_const
+          box_i <- i
+          box_name <- paste("box_plot", box_i, sep="")
+          output[[box_name]] <- renderPlot({
+            box <- gw_boxplot(
+              box_data[box_data$param_name == 
+                         box_analytes[box_i], ], 
+              facet_by = input$box_facet_by,
+              short_name = input$box_short_name,
+              coord_flip = input$coord_flip_box
+            )
+            box
           })
         })
       }
-      do.call(tagList, box_list_const)
+    }
+    if (input$box_facet_by == "location_id") {
+      box_list <- lapply(1:length(box_wells), function(i) {
+        box_name <- paste("box_plot", i, sep="")
+        plotOutput(box_name, height = 675, width = 825)
+      })
+      
+      for (i in 1:length(box_wells)){
+        local({
+          box_i <- i
+          box_name <- paste("box_plot", box_i, sep="")
+          output[[box_name]] <- renderPlot({
+            box <- gw_boxplot(
+              box_data[box_data$location_id == 
+                         box_wells[box_i], ], 
+              facet_by = input$box_facet_by,
+              short_name = input$box_short_name,
+              coord_flip = input$coord_flip_box
+            )
+            box
+          })
+        })
+      }
+    }
+    do.call(tagList, box_list)
   })
   
-  output$box_out_const <- renderUI({
-    box_const()
+  output$boxplot_out <- renderUI({
+    boxplot()
   })
   
-  get_box_const_data <- reactive({
+  # Begin Boxplot Download Page-------------------------------------------------
+  get_box_data <- reactive({
     validate(
       need(input$data_path != "", "")
     )
     data <- get_data()
-    w_box_const <- input$well_box_const
-    a_box_const <- input$analyte_box_const
-    box_const_data <- data[data$location_id %in% w_box_const & 
-                             data$param_name %in% a_box_const, ]
-    box_const_data
+    box_wells <- input$box_well
+    box_analytes <- input$box_analyte
+    box_data <- data[data$location_id %in% box_wells & 
+                             data$param_name %in% box_analytes, ]
+    box_data
   })
   
-  output$box_const_download <- downloadHandler(
+  output$box_download <- downloadHandler(
     filename = function() {
-      paste("box_const_", Sys.Date(), ".pdf", sep = "")
+      paste("boxplot_", Sys.Date(), ".pdf", sep = "")
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      boxplot_by_param(get_box_const_data())
+      multi_gw_boxplot(get_box_data(), facet_by = input$box_facet_by, 
+                       short_name = input$box_short_name, 
+                       coord_flip = input$box_coord_flip)
       dev.off()
     }
   )
   
-  # End Boxplot by constituent Page---------------------------------------------
-   
-  # Begin Boxplot by well page -------------------------------------------------
-  output$wells_box_well <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )  
-    data <- get_data()
-    well_names <- as.character(get_wells(data))
-    selectInput("well_box_well", "Monitoring Wells", well_names, 
-                 multiple = TRUE, selected = well_names[1])
-  })
+  # End Boxplot Page------------------------------------------------------------
   
-  output$analytes_box_well <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
-    analyte_names <- as.character(get_analytes(data))
-    selectInput("analyte_box_well", "Constituents", analyte_names, 
-                 multiple = TRUE, selected = analyte_names[1])
-  })
-  
-  box_well <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-      data <- get_data()
-      w_box_well <- input$well_box_well
-      a_box_well <- input$analyte_box_well
-      data_box_well <- data[data$location_id %in% w_box_well & 
-                            data$param_name %in% a_box_well, ]
-      
-      box_list_well <- lapply(1:length(w_box_well), function(i) {
-        box_well_name <- paste("box_well_plot", i, sep="")
-        plotOutput(box_well_name, height = 675, width = 825)
-      })
-      
-      for (i in 1:length(w_box_well)){
-        local({
-          box_well_i <- i
-          box_well_name <- paste("box_well_plot", box_well_i, sep="")
-          output[[box_well_name]] <- renderPlot({
-            box_well <- boxplot_by_well_grid(
-              data_box_well[data_box_well$location_id == 
-                            w_box_well[box_well_i], ],
-                            coord_flip = input$coord_flip_box_well
-              )
-            if (input$short_name_box_well){
-              box_well <- boxplot_by_well_grid(
-                data_box_well[data_box_well$location_id == 
-                              w_box_well[box_well_i], ], 
-                              name = "short",
-                              coord_flip = input$coord_flip_box_well
-                )
-            }
-            box_well
-          })
-        })
-      }
-      do.call(tagList, box_list_well)
-  })
-  
-  output$box_out_well <- renderUI({
-    box_well()
-  })
-  
-  get_box_well_data <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    data <- get_data()
-    w_box_well <- input$well_box_well
-    a_box_well <- input$analyte_box_well
-    data_box_well <- data[data$location_id %in% w_box_well & 
-                            data$param_name %in% a_box_well, ]
-    data_box_well
-  })
-  
-  output$box_well_download <- downloadHandler(
-    filename = function() {
-      paste("box_well_", Sys.Date(), ".pdf", sep = "")
-    },
-    content = function(file) {
-      pdf(file = file, width = 17, height = 11)
-      boxplot_by_well(get_box_well_data())
-      dev.off()
-    }
-  )
-  # End Boxplot by well page ---------------------------------------------------
-  
-  # Time Series by well Page ---------------------------------------------------
-  # return a list of well names for time series page
-  output$wells_time_well <- renderUI({
+  # Time Series Page -----------------------------------------------------------
+  output$ts_wells <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       well_names <- as.character(get_wells(data))
-      selectInput("well_time_well", "Monitoring Wells", well_names, 
+      selectInput("ts_well", "Monitoring Wells", well_names, 
                   multiple = TRUE,
                   selected = well_names[1])
   })
   
   # return a list of constituents for time series page
-  output$analytes_time_well <- renderUI({
+  output$ts_analytes <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
-      selectInput("analyte_time_well", "Constituents", analyte_names, 
+      selectInput("ts_analyte", "Constituents", analyte_names, 
                   multiple = TRUE,
                   selected = analyte_names[1])
   })
   
   # return start and end date of background data for time series page
-  output$date_ranges_time_well <- renderUI({
+  output$ts_date_ranges <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
     data <- get_data()
     tagList(
-      dateRangeInput("back_date_range_time_well", "Background Date Range", 
+      dateRangeInput("ts_back_dates", "Background Date Range", 
                      start = min(data$sample_date, na.rm = TRUE),
                      end = max(data$sample_date, na.rm = TRUE)),
-      dateRangeInput("comp_date_range_time_well", "Compliance Date Range", 
+      dateRangeInput("ts_comp_dates", "Compliance Date Range", 
                      start = max(data$sample_date, na.rm = TRUE),
                      end = max(data$sample_date, na.rm = TRUE))  
     )
   })
   
   # time series plot output
-  ts_by_well <- reactive({
+  ts_plot <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
       data <- get_data()
-      w_ts_well <- input$well_time_well
-      a_ts_well <- input$analyte_time_well
-      data_ts_well <- data[data$location_id %in% w_ts_well &
-                           data$param_name %in% a_ts_well, ]
+      ts_well <- input$ts_well
+      ts_analyte <- input$ts_analyte
+      ts_data <- data[data$location_id %in% ts_well &
+                           data$param_name %in% ts_analyte, ]
+    
+    if (input$ts_facet_by == "location_id") {
       
-      ts_well_list <- lapply(1:length(w_ts_well), function(i) {
-        ts_well_name <- paste("ts_well_plot", i, sep="")
-        plotOutput(ts_well_name, height = 675, width = 825)
+      ts_list <- lapply(1:length(ts_well), function(i) {
+        ts_name <- paste("ts_plot", i, sep="")
+        plotOutput(ts_name, height = 675, width = 825)
       })
       
-      for (i in 1:length(w_ts_well)){
+      for (i in 1:length(ts_well)){
         local({
-          ts_well_i <- i
-          ts_well_name <- paste("ts_well_plot", ts_well_i, sep="")
-          output[[ts_well_name]] <- renderPlot({
-            ts_well <- ind_by_loc_grid(
-              data_ts_well[data_ts_well$location_id == 
-                           w_ts_well[ts_well_i], ], 
-                           ncol = input$ncol_ts_well
-              )
+          ts_i <- i
+          ts_name <- paste("ts_plot", ts_i, sep="")
+          output[[ts_name]] <- renderPlot({
             
-            if (input$date_lines_well){
-              b1 <- min(lubridate::ymd(input$back_date_range_time_well))
-              c1 <- min(lubridate::ymd(input$comp_date_range_time_well))
-              b2 <- max(lubridate::ymd(input$back_date_range_time_well))
-              c2 <- max(lubridate::ymd(input$comp_date_range_time_well))
+            ts <- gw_ts_plot(ts_data[ts_data$location_id == ts_well[ts_i], ],
+                             facet_by = "location_id", 
+                             short_name = input$ts_short_name, 
+                             ncol = input$ncol_ts)
+            
+            if (input$ts_date_lines){
+              b1 <- min(lubridate::ymd(input$ts_back_dates))
+              c1 <- min(lubridate::ymd(input$ts_comp_dates))
+              b2 <- max(lubridate::ymd(input$ts_back_dates))
+              c2 <- max(lubridate::ymd(input$ts_comp_dates))
               
-              ts_well <- ind_by_loc_grid(
-                data_ts_well[data_ts_well$location_id == 
-                             w_ts_well[ts_well_i], ], 
-                             back_date = c(b1, b2), 
-                             comp_date = c(c1, c2),
-                             ncol = input$ncol_ts_well
-                )
+              ts <- gw_ts_plot(
+                ts_data[ts_data$location_id == 
+                               ts_well[ts_i], ], 
+                facet_by = "location_id",
+                short_name = input$ts_short_name,
+                back_date = c(b1, b2), 
+                comp_date = c(c1, c2),
+                ncol = input$ncol_ts
+              )
             }
-            if (input$short_name_well){
-              ts_well <- ind_by_loc_grid(
-                data_ts_well[data_ts_well$location_id == 
-                             w_ts_well[ts_well_i], ], 
-                             name="short",
-                             ncol = input$ncol_ts_well
-                )
-            }
-            if (input$short_name_well & input$date_lines_well){
-              b1 <- min(lubridate::ymd(input$back_date_range_time_well))
-              c1 <- min(lubridate::ymd(input$comp_date_range_time_well))
-              b2 <- max(lubridate::ymd(input$back_date_range_time_well))
-              c2 <- max(lubridate::ymd(input$comp_date_range_time_well))
-              
-              ts_well <- ind_by_loc_grid(
-                data_ts_well[data_ts_well$location_id == 
-                             w_ts_well[ts_well_i], ], 
-                             back_date = c(b1, b2), 
-                             comp_date = c(c1, c2), 
-                             name = "short",
-                             ncol = input$ncol_ts_well
-                )
-            }
-            ts_well
+            ts
           })
         })
       }
-      do.call(tagList, ts_well_list)
+    }
+    
+    if (input$ts_facet_by == "param_name") {
+      ts_list <- lapply(1:length(ts_analyte), function(i) {
+        ts_name <- paste("ts_plot", i, sep="")
+        plotOutput(ts_name, height = 675, width = 825)
+      })
+      
+      for (i in 1:length(ts_analyte)){
+        local({
+          ts_i <- i
+          ts_name <- paste("ts_plot", ts_i, sep="")
+          output[[ts_name]] <- renderPlot({
+            
+            ts <- gw_ts_plot(ts_data[ts_data$param_name == ts_analyte[ts_i], ],
+                             facet_by = "param_name", 
+                             short_name = input$ts_short_name,
+                             ncol = input$ncol_ts)
+            
+            if (input$ts_date_lines){
+              b1 <- min(lubridate::ymd(input$ts_back_dates))
+              c1 <- min(lubridate::ymd(input$ts_comp_dates))
+              b2 <- max(lubridate::ymd(input$ts_back_dates))
+              c2 <- max(lubridate::ymd(input$ts_comp_dates))
+              
+              ts <- gw_ts_plot(
+                ts_data[ts_data$param_name == 
+                          ts_analyte[ts_i], ], 
+                facet_by = "param_name",
+                short_name = input$ts_short_name,
+                back_date = c(b1, b2), 
+                comp_date = c(c1, c2),
+                ncol = input$ncol_ts
+              )
+            }
+            ts
+          })
+        })
+      }
+    }
+    do.call(tagList, ts_list)
   })
   
-  output$ts_by_well_out <- renderUI({
-    ts_by_well()
+  output$ts_out <- renderUI({
+    ts_plot()
   })
 
-  # Begin Time Series by Well Download Page ------------------------------------
-  get_ts_well_data <- reactive({
+  # Begin Time Series Download Page --------------------------------------------
+  get_ts_data <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
     data <- get_data()
-    w_ts_well <- input$well_time_well
-    a_ts_well <- input$analyte_time_well
-    data_ts_well <- data[data$location_id %in% w_ts_well &
-                           data$param_name %in% a_ts_well, ]
-    data_ts_well
+    ts_well <- input$ts_well
+    ts_analyte <- input$ts_analyte
+    ts_data <- data[data$location_id %in% ts_well &
+                           data$param_name %in% ts_analyte, ]
+    ts_data
   })
   
-  output$ts_well_download <- downloadHandler(
+  output$ts_download <- downloadHandler(
     filename = function() {
-      paste("ts_well_plot_", Sys.Date(), ".pdf", sep = "")
+      paste("ts_plot_", Sys.Date(), ".pdf", sep = "")
     },
     content = function(file) {
-      if (input$date_lines_well){
-        b1 <- min(lubridate::ymd(input$back_date_range_time_well))
-        c1 <- min(lubridate::ymd(input$comp_date_range_time_well))
-        b2 <- max(lubridate::ymd(input$back_date_range_time_well))
-        c2 <- max(lubridate::ymd(input$comp_date_range_time_well))
+      if (input$ts_date_lines){
+        b1 <- min(lubridate::ymd(input$ts_back_dates))
+        c1 <- min(lubridate::ymd(input$ts_comp_dates))
+        b2 <- max(lubridate::ymd(input$ts_back_dates))
+        c2 <- max(lubridate::ymd(input$ts_comp_dates))
         
         pdf(file = file, width = 17, height = 11)
-        ind_by_loc(get_ts_well_data(), back_date = c(b1, b2), 
-                   comp_date = c(c1, c2), ncol = input$ncol_ts_well)
-        dev.off()
-      }
-      if (input$short_name_well){
-        pdf(file = file, width = 17, height = 11)
-        ind_by_loc(get_ts_well_data(), name = "short", 
-                   ncol = input$ncol_ts_well)
-        dev.off()
-      }
-      if (input$short_name_well & input$date_lines_well){
-        b1 <- min(lubridate::ymd(input$back_date_range_time_well))
-        c1 <- min(lubridate::ymd(input$comp_date_range_time_well))
-        b2 <- max(lubridate::ymd(input$back_date_range_time_well))
-        c2 <- max(lubridate::ymd(input$comp_date_range_time_well))
-        
-        pdf(file = file, width = 17, height = 11)
-        ind_by_loc(get_ts_well_data(), back_date = c(b1, b2), 
-                   comp_date = c(c1, c2), name = "short",
-                   ncol = input$ncol_ts_well)
+        multi_gw_ts_plot(get_ts_data(), back_date = c(b1, b2), 
+                         facet_by = input$ts_facet_by,
+                         short_name = input$ts_short_name,
+                         comp_date = c(c1, c2), ncol = input$ncol_ts)
         dev.off()
       } else {
         pdf(file = file, width = 17, height = 11)
-        ind_by_loc(get_ts_well_data(), ncol = input$ncol_ts_well)
+        multi_gw_ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
+                         short_name = input$ts_short_name,
+                         ncol = input$ncol_ts)
         dev.off()
       }
     }
   )
-  # End Time Series by Well Download Page --------------------------------------
-  # End Time Series  by well page-----------------------------------------------
-  
-  # Begin Time Series by constituent page --------------------------------------
-  output$wells_time_const <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      well_names <- as.character(get_wells(data))
-      selectInput("well_time_const", "Monitoring Wells", well_names, 
-                  multiple = TRUE,
-                  selected = well_names[1])
-  })
-  
-  output$analytes_time_const <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      analyte_names <- as.character(get_analytes(data))
-      selectInput("analyte_time_const", "Constituents", analyte_names, 
-                  multiple = TRUE,
-                  selected = analyte_names[1])
-  })
-  
-  output$date_ranges_time_const <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      tagList(
-        dateRangeInput("back_date_range_time_const", "Background Date Range", 
-                       start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE)),
-        dateRangeInput("comp_date_range_time_const", "Compliance Date Range", 
-                       start = max(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE))  
-      )
-  })
-  
-  ts_by_const <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-      data <- get_data()
-      w_ts_const <- input$well_time_const
-      a_ts_const <- input$analyte_time_const
-      data_ts_const <- data[data$location_id %in% w_ts_const &
-                            data$param_name %in% a_ts_const, ]
-      
-      ts_const_list <- lapply(1:length(a_ts_const), function(i) {
-        name_ts_const <- paste("ts_const_plot", i, sep="")
-        plotOutput(name_ts_const, height = 675, width = 825)
-      })
-      
-      for (i in 1:length(a_ts_const)){
-        local({
-          ts_const_i <- i
-          name_ts_const <- paste("ts_const_plot", ts_const_i, sep="")
-          output[[name_ts_const]] <- renderPlot({
-            ts_const <- ind_by_param_grid(
-              data_ts_const[data_ts_const$param_name == 
-                            a_ts_const[ts_const_i], ], 
-                            ncol = input$ncol_ts_const
-              )
-            
-            if (input$date_lines_const){
-              b1 <- min(lubridate::ymd(input$back_date_range_time_const))
-              c1 <- min(lubridate::ymd(input$comp_date_range_time_const))
-              b2 <- max(lubridate::ymd(input$back_date_range_time_const))
-              c2 <- max(lubridate::ymd(input$comp_date_range_time_const))
-              
-              ts_const <- ind_by_param_grid(
-                data_ts_const[data_ts_const$param_name == 
-                              a_ts_const[ts_const_i], ], 
-                              back_date = c(b1, b2), 
-                              comp_date = c(c1, c2),
-                              ncol = input$ncol_ts_const
-                )
-            }
-            if (input$short_name_const){
-              ts_const <- ind_by_param_grid(
-                data_ts_const[data_ts_const$param_name == 
-                              a_ts_const[ts_const_i], ], 
-                              name="short",
-                              ncol = input$ncol_ts_const
-                )
-            }
-            if (input$short_name_const & input$date_lines_const){
-              b1 <- min(lubridate::ymd(input$back_date_range_time_const))
-              c1 <- min(lubridate::ymd(input$comp_date_range_time_const))
-              b2 <- max(lubridate::ymd(input$back_date_range_time_const))
-              c2 <- max(lubridate::ymd(input$comp_date_range_time_const))
-              
-              ts_const <- ind_by_param_grid(
-                data_ts_const[data_ts_const$param_name == 
-                              a_ts_const[ts_const_i], ], 
-                              back_date = c(b1, b2), 
-                              comp_date = c(c1, c2), 
-                              name = "short",
-                              ncol = input$ncol_ts_const
-                )
-            } 
-            ts_const
-          })
-        })
-      }
-      do.call(tagList, ts_const_list)
-  })
-  
-  output$ts_by_const_out <- renderUI({
-    ts_by_const()
-  })
-  
-  # Begin Time Series by Constituent Download Page -----------------------------
-  get_ts_const_data <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    data <- get_data()
-    w_ts_const <- input$well_time_const
-    a_ts_const <- input$analyte_time_const
-    data_ts_const <- data[data$location_id %in% w_ts_const &
-                            data$param_name %in% a_ts_const, ]
-    data_ts_const
-  })
-  
-  output$ts_const_download <- downloadHandler(
-    filename = function() {
-      paste("ts_const_plot_", Sys.Date(), ".pdf", sep = "")
-    },
-    content = function(file) {
-      if (input$short_name_const){
-        pdf(file = file, width = 17, height = 11)
-        ind_by_param(get_ts_const_data(), name = "short", 
-                     ncol = input$ncol_ts_const)
-        dev.off()
-      }
-      if (input$date_lines_const){
-        b1 <- min(lubridate::ymd(input$back_date_range_time_const))
-        c1 <- min(lubridate::ymd(input$comp_date_range_time_const))
-        b2 <- max(lubridate::ymd(input$back_date_range_time_const))
-        c2 <- max(lubridate::ymd(input$comp_date_range_time_const))
-        
-        pdf(file = file, width = 17, height = 11)
-        ind_by_param(get_ts_const_data(), back_date = c(b1, b2), 
-                     comp_date = c(c1, c2), ncol = input$ncol_ts_const)
-        dev.off()
-      } 
-      if (input$date_lines_const & input$short_name_const){
-        b1 <- min(lubridate::ymd(input$back_date_range_time_const))
-        c1 <- min(lubridate::ymd(input$comp_date_range_time_const))
-        b2 <- max(lubridate::ymd(input$back_date_range_time_const))
-        c2 <- max(lubridate::ymd(input$comp_date_range_time_const))
-        
-        pdf(file = file, width = 17, height = 11)
-        ind_by_param(get_ts_const_data(), back_date = c(b1, b2), 
-                     comp_date = c(c1, c2), name = "short",
-                     ncol = input$ncol_ts_const)
-        dev.off()
-      } else {
-        pdf(file = file, width = 17, height = 11)
-        ind_by_param(get_ts_const_data(), ncol = input$ncol_ts_const)
-        dev.off()
-      }
-    }
-  )
-  # End Time Series by Constituent Download Page -------------------------------
-  # End Time Series by constituent page ----------------------------------------
+  # End Time Series Download Page ----------------------------------------------
+  # End Time Series Page--------------------------------------------------------
   
   # Begin Piper Diagram Page----------------------------------------------------
   output$wells_piper <- renderUI({
