@@ -3,15 +3,17 @@
 \alias{stiff_plot}
 \title{Function to plot a Stiff Diagram}
 \usage{
-stiff_plot(df, lines = FALSE, TDS = FALSE)
+stiff_plot(df, lines = FALSE, TDS = FALSE, cex = 1)
 }
 \arguments{
 \item{df}{data frame of groundwater data transformed using}
 
-\item{TDS}{TRUE/FALSE fills in the color of the stiff diagram by TDS
-\code{\link{transform_stiff_data}}}
+\item{lines}{TRUE/FALSE plots lines}
 
-\item{multiple}{TRUE/FALSE plots multiple locations with facet_wrap}
+\item{TDS}{TRUE/FALSE fills in the color of the stiff diagram by TDS}
+
+\item{cex}{multiplier to scale plot height
+\code{\link{transform_stiff_data}}}
 }
 \description{
 Function to plot a Stiff Diagram

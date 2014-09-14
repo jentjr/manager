@@ -8,6 +8,8 @@ piper_time_html(df, TDS = FALSE)
 \arguments{
 \item{df}{data frame of groundwater data transformed using
 \code{\link{transform_piper_data}}}
+
+\item{TDS}{Scale by Total Dissolved Solids}
 }
 \description{
 a function to create an aminated Piper plot and save to html

@@ -6,7 +6,9 @@
 #' @param SWFPR Site-Wide False Positive Rate
 #' @export
 
-intra_pred <- function(df, wells, params, bkgd_dates, SWFPR = 0.1){
+intra_pred <- function(df, wells, params, bkgd_dates, comp_dates, 
+                       nd_percent = 10, non_par_perc = 50, SWFPR = 0.1){
+  
   df <- df[df$location_id %in% wells & df$param_name %in% params & 
            df$sample_date >= bkgd_dates[1] & df$sample_date <= bkgd_dates[2], ]
   

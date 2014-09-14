@@ -3,11 +3,14 @@
 \alias{from_excel}
 \title{function to read data in excel format}
 \usage{
-from_excel(path)
+from_excel(path, sheet = "Sheet1")
 }
 \arguments{
-\item{path}{path to the csv file of groundwater data in the format with column names
+\item{path}{path to the csv file of groundwater data in the format
+ with column names
 location_id, param_name, default_unit, lt_measure, analysis_result}
+
+\item{sheet}{sheet name in spreadhsheet}
 }
 \description{
 function to read data in excel format

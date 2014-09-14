@@ -8,7 +8,11 @@ piper_plot(df, TDS = FALSE, title = NULL)
 }
 \arguments{
 \item{df}{data frame of groundwater data transformed into piper coordinates
- using \code{\link{transform_piper_data}}}
+using \code{\link{transform_piper_data}}}
+
+\item{TDS}{Scale plot by Total Dissolved Solids, default = FALSE}
+
+\item{title}{Title for plot, default = NULL}
 }
 \description{
 Function to plot points from transform_piper_data() onto base ggplot_piper
