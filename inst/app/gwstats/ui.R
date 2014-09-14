@@ -33,6 +33,21 @@ shinyUI(navbarPage("GWSTATS",
     )         
   ),  
   navbarMenu("Plots",
+    tabPanel("Distribution Plots",
+      sidebarLayout(
+        sidebarPanel(
+          uiOutput("dist_wells"),
+          uiOutput("dist_analytes"),
+          uiOutput("dist_date_ranges"),
+          selectInput("dist_type", "Type of Distribution", 
+                       row.names(Distribution.df), 
+                       selected = "norm")
+        ),
+        mainPanel(
+          plotOutput("gof_plot")  
+        )
+      )  
+    ),
     tabPanel("Time Series",
       sidebarLayout(
         sidebarPanel(

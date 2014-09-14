@@ -1,4 +1,5 @@
 library(gwstats)
+library(EnvStats)
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
 # force numbers to be decimal instead of scientific
@@ -60,6 +61,70 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                     pageLength = 10)
   )
   # End Summary Table page -----------------------------------------------------
+
+  # Begin Distribution Plots ---------------------------------------------------
+  output$dist_wells <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    well_names <- as.character(get_wells(data))
+    selectInput("dist_well", "Monitoring Wells", well_names, 
+                multiple = FALSE,
+                selected = well_names[1])
+  })
+  
+  # return a list of constituents for time series page
+  output$dist_analytes <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    analyte_names <- as.character(get_analytes(data))
+    selectInput("dist_analyte", "Constituents", analyte_names, 
+                multiple = FALSE,
+                selected = analyte_names[1])
+  })
+  
+  # return start and end date of background data for time series page
+  output$dist_date_ranges <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    tagList(
+      dateRangeInput("dist_back_dates", "Background Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))
+    )
+  })
+  
+  get_dist_data <- reactive({
+    validate(
+      need(input$data_path != "", "")
+    )
+    df <- get_data()
+    start <- min(lubridate::ymd(input$dist_back_dates))
+    end <- max(lubridate::ymd(input$dist_back_dates))
+    data_selected <- df[df$location_id %in% input$dist_well &
+                              df$param_name %in% input$dist_analyte &
+                              df$sample_date >= start & df$sample_date <= end, ]
+    data_selected
+  })
+  
+  output$gof_plot <- renderPlot({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    df <- get_dist_data()
+    validate(
+      need(length(unique(df$analysis_result)) > 2, "")
+    )
+    out <- EnvStats::gofTest(df$analysis_result, distribution = input$dist_type)
+    out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep=" ")
+    plot(out)
+  })
+  # End Distribution Plots -----------------------------------------------------
   
   # Begin Boxplot Page----------------------------------------------------------
   output$box_wells <- renderUI({
