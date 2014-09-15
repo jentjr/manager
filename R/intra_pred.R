@@ -57,19 +57,6 @@ gw_gof <- function(df, nd_percent = 10, non_par_perc = 50) {
   return(out)
 }
 
-#' Function to test distribution for multiple groundwater data locations 
-#' and parameters
-#' @param df groundwater data frame
-#' @export
-
-dist_est <- function(df) {
-  gof_result <- df %>%
-    group_by(location_id, param_name, default_unit) %>%
-    do(gof = gw_gof(.))
-  return(gof_result)
-}
-
-
 #' Function to calculate intrawell prediction interval
 #' @param df data frame of groundwater data
 #' @param wells vector of wells to be included
