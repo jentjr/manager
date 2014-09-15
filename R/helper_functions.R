@@ -38,7 +38,7 @@ gw_summary <- function(df, bkgd_start, bkgd_end){
                                "compliance")
   detection <- dplyr::group_by(df, location_id, param_name, default_unit,
                                sampling_period)
-
+  
   gw <- dplyr::summarise(detection,
                   count = n(),
                   mean = round(mean(analysis_result, na.rm = TRUE), digits = 3),

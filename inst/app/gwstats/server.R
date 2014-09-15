@@ -74,7 +74,6 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                 selected = well_names[1])
   })
   
-  # return a list of constituents for time series page
   output$dist_analytes <- renderUI({
     validate(
       need(input$data_path != "", "")
@@ -86,7 +85,6 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                 selected = analyte_names[1])
   })
   
-  # return start and end date of background data for time series page
   output$dist_date_ranges <- renderUI({
     validate(
       need(input$data_path != "", "")
