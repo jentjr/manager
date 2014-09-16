@@ -1,44 +1,46 @@
 #' Function to check if groundwater data has a Normal distribution
 #' 
-#' @param df data frame of groundwater data
+#' @param x analysis_result of groundwater data
 #' @export
 
-is_normal <- function(df) {
-  gof <- gofTest(df$analysis_result, dist = "norm")
-  gof["data.name"] <- paste(df$location_id[1], df$param_name[1], sep = " ")
+is_normal <- function(x) {
+  gof <- gofTest(x, dist = "norm")
   p <- gof$p.value
-  return(p)
+  if (p >= 0.01){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
 }
 
 #' Function to check if groundwater data has a Lognormal distribution
 #' 
-#' @param df data frame of groundwater data
+#' @param x analysis_result of groundwater data
 #' @export
 
-is_lognormal <- function(df) {
-  lgof <- gofTest(df$analysis_result, dist = "lnorm")
-  lgof["data.name"] <- paste(df$location_id[1], df$param_name[1], sep = " ")
+is_lognormal <- function(x) {
+  lgof <- gofTest(x, dist = "lnorm")
   p <- lgof$p.value
   return(p)
 }
 
 #' Function to return distribution based on using p-value 
-#' @param df
+#' @param x analysis_result of groundwater data
 #' @export
 
-dist <- function(df) {
-  n <- is_normal(df)
+dist <- function(x) {
+  n <- is_normal(x)
   if (isTRUE(n >= 0.01)) {
-    print("norm")
+    return("norm")
   }
   if (isTRUE(n < 0.01)) {
-    ln <- is_lognormal(df)
+    ln <- is_lognormal(x)
     if (isTRUE(ln >= 0.01)) {
-      print("lnorm")
+      return("lnorm")
+    } else {
+      return("none")
     }
-  } else {
-    print("none")
-  }
+  } 
 }
 
 #' Function to return either normal, lognormal, or non-parametric multiple 
@@ -49,6 +51,6 @@ dist <- function(df) {
 est_dist <- function(df) {  
   dist_result <- df %>%
     group_by(location_id, param_name, default_unit) %>%
-    do(distribution = dist(.))
+    summarise(distribution = dist(analysis_result))
   return(dist_result)
 }
