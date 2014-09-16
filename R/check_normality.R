@@ -1,5 +1,4 @@
 #' Function to check if groundwater data has a Normal distribution
-#' 
 #' @param x analysis_result of groundwater data
 #' @export
 
@@ -14,7 +13,6 @@ is_normal <- function(x) {
 }
 
 #' Function to check if groundwater data has a Lognormal distribution
-#' 
 #' @param x analysis_result of groundwater data
 #' @export
 

@@ -14,9 +14,9 @@ assumes column names of location_id, param_name, analysis_result,
 default_unit, lt_measure, sample_date. Dates for sample_date column
  must be in as.POSIXct format}
 
-\item{back_date}{vector of start and end of background dates. Use as.POSIXct()}
+\item{back_date}{vector of start and end of background dates.}
 
-\item{comp_date}{vector of start and end of compliance dates. Use as.POSIXct()}
+\item{comp_date}{vector of start and end of compliance dates.}
 
 \item{limit1}{plots a horizontal line for a limit e.g. EPA MCL}
 
