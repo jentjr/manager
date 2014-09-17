@@ -35,5 +35,7 @@ df1 <- rbind(df_norm1, df_lnorm1, df_nonpar1)
 wells <- c("1", "2", "3")
 params <- "test"
 bkgd_dates <- lubridate::ymd(c("2010-01-01", "2013-10-01"))
+comp_dates <- lubridate::ymd(c("2014-01-01", "2014-10-01"))
 
-intra_pred_int(df1, analysis_result, wells, params, bkgd_dates)
+intra_pred_int(df1, analysis_result, wells, params, bkgd_dates, comp_dates, 
+               SWFPR = 0.1)

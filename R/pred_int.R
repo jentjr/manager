@@ -1,7 +1,5 @@
 #' Function to calculate prediction interval 
 #' @param x analysis_result of gw data.frame
-#' @param location_id name of well
-#' @param param_name name of parameter
 #' @param n.mean positive integer specifying the sample size associated 
 #' with the future averages. 
 #' The default value is n.mean=1 (i.e., individual observations). 
@@ -35,11 +33,11 @@
 #' setting K.tol=1e-4 will speed up computation a bit.
 #' @export
 
- pred_int <- function(x, location_id = NULL, param_name = NULL, 
-                      n.mean = 1, k = 1, m = 2, r = 2, 
+ pred_int <- function(x, n.mean = 1, k = 1, m = 2, r = 2, 
                       rule = "k.of.m", pi.type = "upper",
                       conf.level = 0.95, dist = NULL, 
                       K.tol = .Machine$double.eps^0.5) {
+  
   if(is.null(dist)){
     dist <- dist(x)
   }
@@ -48,22 +46,51 @@
     out <- EnvStats::predIntNormSimultaneous(x, k = k, m = m, r = r, 
                                              rule = "k.of.m", 
                                              conf.level = conf.level)
-    out["data.name"] <- paste(location_id[1], param_name[1], sep = " ")    
+    x <- data.frame(
+      variable = c("distribution", "count", "lower_limit", 
+                   "upper_limit", "conf_level"),
+#       variable = c("distribution", "count", "mean", "sd", 
+#                    "lower_limit", "upper_limit", "conf_level"),
+      result = c(out$distribution, out$sample.size, 
+#                  round(out$parameters[["mean"]], digits = 6),
+#                  round(out$parameters[["sd"]], digits = 6), 
+                 round(out$interval$limits[["LPL"]], digits = 6),
+                 round(out$interval$limits[["UPL"]], digits = 6), 
+                 round(out$interval$conf.level, digits = 6)) 
+      )
   }
   
   if (dist == "lnorm") {
     out <- EnvStats::predIntLnormSimultaneous(x, k = k, m = m, r = r, 
                                               rule = "k.of.m", 
-                                              conf.level = conf.level)
-    out["data.name"] <- paste(location_id[1], param_name[1], sep = " ") 
+                                              conf.level = conf.level) 
+    x <- data.frame(
+      variable = c("distribution", "count", "lower_limit", 
+                   "upper_limit", "conf_level"),
+#       variable = c("distribution", "count", "mean", "sd", 
+#                    "lower_limit", "upper_limit", "conf_level"),
+      result = c(out$distribution, out$sample.size, 
+#                  round(out$parameters[["meanlog"]], digits = 6),
+#                  round(out$parameters[["sdlog"]], digits = 6), 
+                 round(out$interval$limits[["LPL"]], digits = 6),
+                 round(out$interval$limits[["UPL"]], digits = 6), 
+                 round(out$interval$conf.level, digits = 6)) 
+    )
   }
   
   if (dist == "none") {
     out <- EnvStats::predIntNparSimultaneous(x, k = k, m = m, r = r, 
-                                             rule = "k.of.m")
-    out["data.name"] <- paste(location_id[1], param_name[1], sep = " ") 
+                                             rule = "k.of.m") 
+    x <- data.frame(
+      variable = c("distribution", "count", "lower_limit", "upper_limit", 
+                   "conf_level"),
+      result = c(out$distribution, out$sample.size, 
+                 round(out$interval$limits[["LPL"]], digits = 6), 
+                 round(out$interval$limits[["UPL"]], digits = 6), 
+                 round(out$interval$conf.level, digits = 6))
+    )
   }
   
-  return(out)
+  return(x)
   
 }
