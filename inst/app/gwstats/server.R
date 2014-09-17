@@ -581,7 +581,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     )
       data <- get_data()
       well_names <- as.character(get_wells(data))
-      selectInput("well_upl", "Monitoring Wells", well_names, 
+      selectInput("well_intra", "Monitoring Wells", well_names, 
                   multiple = TRUE,
                   selected = well_names[1])
   })
