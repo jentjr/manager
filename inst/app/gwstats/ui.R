@@ -150,11 +150,9 @@ shinyUI(navbarPage("GWSTATS",
     tabPanel("Intra-well",
       sidebarLayout(
        sidebarPanel(
-        uiOutput("wells_upl"),
-        uiOutput("analytes_upl"),
-        uiOutput("date_ranges_upl"),
-        numericInput("nc", "Number of Constituents", 1),
-        numericInput("nw", "Number of Wells", 1),
+        uiOutput("wells_intra"),
+        uiOutput("analytes_intra"),
+        uiOutput("date_ranges_intra"),
         numericInput("swfpr", "Site-Wide False Positive Rate", 0.1),
         numericInput("k", "Specify a positive integer specifying the 
                      minimum number of observations (or averages) out of m  
@@ -166,16 +164,10 @@ shinyUI(navbarPage("GWSTATS",
                      number of future observations (or averages) on one future
                      sampling “occasion”. The default value is m=2", 2),
         numericInput("r", "Sampling frequency", 2, 
-                     min=1, max=4),
-        radioButtons("int_type", "Type of Prediction Limit", 
-                     c("Normal", "Lognormal", "Gamma", 
-                       "Non-parametric"), 
-                     selected="Normal")
+                     min=1, max=4)
        ),
        mainPanel(
-        plotOutput("gof"),
-        br(),
-        verbatimTextOutput("upl")  
+        dataTableOutput("intra_limits")  
        )
       )       
     ),

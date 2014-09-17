@@ -574,120 +574,76 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
   )
   # End Stiff Diagram Page -----------------------------------------------------
   
-  # Begin Prediction Limits ----------------------------------------------------
-  output$wells_upl <- renderUI({
+  # Begin Intrawell Prediction Limits ----------------------------------------------------
+  output$wells_intra <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       well_names <- as.character(get_wells(data))
       selectInput("well_upl", "Monitoring Wells", well_names, 
-                  multiple = FALSE,
+                  multiple = TRUE,
                   selected = well_names[1])
   })
 
-  # return a list of constituents for time series page
-  output$analytes_upl <- renderUI({
+  output$analytes_intra <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
-      selectInput("analyte_upl", "Constituents", analyte_names, 
-                  multiple = FALSE,
+      selectInput("analyte_intra", "Constituents", analyte_names, 
+                  multiple = TRUE,
                   selected = analyte_names[1])
   })
 
-  # return start and end date of background data for time series page
-  output$date_ranges_upl <- renderUI({
+  output$date_ranges_intra <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       tagList(
-        dateRangeInput("back_date_range_upl", "Background Date Range", 
+        dateRangeInput("back_dates_intra", "Background Date Range", 
+                       start = min(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE)),
+        dateRangeInput("comp_dates_intra", "Compliance Date Range", 
                        start = min(data$sample_date, na.rm = TRUE),
                        end = max(data$sample_date, na.rm = TRUE))
       )
   })
 
-  bkgd_data <- reactive({
+  output$intra_limits <- renderDataTable({
     validate(
       need(input$data_path != "", "")
     )
-      df <- get_data()
-      start <- min(lubridate::ymd(input$back_date_range_upl))
-      end <- max(lubridate::ymd(input$back_date_range_upl))
-      data_selected <- subset(df, location_id %in% input$well_upl &
-                                param_name %in% input$analyte_upl &
-                                sample_date >= start & sample_date <= end)
-      data_selected
-  })
-
-  output$gof <- renderPlot({
+    
+    df <- get_data()
+    
+    df <- df %>%
+      filter(
+        location_id %in% input$well_intra,
+        param_name %in% input$analyte_intra
+      )
+    
+    bkgd_start <- min(lubridate::ymd(input$back_dates_intra))
+    bkgd_end <- max(lubridate::ymd(input$back_dates_intra))
+    bkgd <- c(bkgd_start, bkgd_end)
+    
+    comp_start <- min(lubridate::ymd(input$comp_dates_intra))
+    comp_end <- max(lubridate::ymd(input$comp_dates_intra))
+    comp <- c(comp_start, comp_end)
+  
     validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-      df <- bkgd_data()
-    validate(
-      need(length(unique(df$analysis_result)) > 2, "")
-    )
-      if (input$int_type == "Normal" || input$int_type == "Non-parametric"){
-        out <- EnvStats::gofTest(df$analysis_result)
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      if (input$int_type == "Lognormal"){
-        out <- EnvStats::gofTest(df$analysis_result, distribution = "lnorm")
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      if (input$int_type == "Gamma"){
-        out <- EnvStats::gofTest(df$analysis_result, distribution = "gamma")
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      plot(out)
-  })
-
-  output$upl <- renderPrint({
-    validate(
-      need(input$data_path != "", "")
-    )
-      
-      df <- bkgd_data()
-      nw <- input$nw
-      nc <- input$nc
-      swfpr <- input$swfpr
-      conf.level = (1 - swfpr)^(1/(nc*nw))
-    validate(
-      need(length(unique(df$analysis_result)) > 2, 
-           "One of the input variables has fewer than 2 unique data points.")
-      )  
-      if (input$int_type == "Normal"){
-        out <- EnvStats::predIntNormSimultaneous(df$analysis_result, 
-                                                 k = input$k, m = input$m, 
-                                                 r = input$r, 
-                                                 conf.level = conf.level)
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ") 
-      }
-      if (input$int_type == "Lognormal"){
-        out <- EnvStats::predIntLnormSimultaneous(df$analysis_result, 
-                                                  k = input$k, m = input$m, 
-                                                  r = input$r, 
-                                                  conf.level = conf.level)
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      if (input$int_type == "Gamma"){
-        out <- EnvStats::predIntGammaSimultaneous(df$analysis_result, 
-                                                  k = input$k, m = input$m, 
-                                                  r = input$r,
-                                                  conf.level = conf.level)
-      }
-      if (input$int_type == "Non-parametric"){
-        out <- EnvStats::predIntNparSimultaneous(df$analysis_result, 
-                                                 k = input$k, m = input$m, 
-                                                 r = input$r)  
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      out
+      need(
+        length(unique(df$analysis_result)) > 2, 
+           "One of the input variables has fewer than 2 unique data points."
+        )
+      )
+    
+    intra_pred_int(df, analysis_result, input$well_intra, input$analyte_intra,
+                   bkgd, comp, SWFPR = input$swfpr, k = input$k, m = input$m,
+                   r = input$r)
+    
   })
   # End Prediction Limits ------------------------------------------------------
 
