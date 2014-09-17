@@ -5,7 +5,10 @@
 #' @param params vector of constituents to be included
 #' @param bkgd_dates background data date range
 #' @param comp_dates compliance data date range
-#' @param SWFPR Site-Wide False Positive Rate
+#' @param intra.conf.level confidence level 
+#' @param SWFPR Site-Wide False Positive Rate. If supplied, then 
+#' intra.conf.level is computed using (1 - SWFPR)^(1/(nc*nw)) where nc is the 
+#' number of constituents and nw is the number of wells
 #' @export
 
 intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates, 

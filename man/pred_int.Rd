@@ -3,16 +3,12 @@
 \alias{pred_int}
 \title{Function to calculate prediction interval}
 \usage{
-pred_int(x, location_id = NULL, param_name = NULL, n.mean = 1, k = 1,
-  m = 2, r = 2, rule = "k.of.m", pi.type = "upper", conf.level = 0.95,
-  dist = NULL, K.tol = .Machine$double.eps^0.5)
+pred_int(x, n.mean = 1, k = 1, m = 2, r = 2, rule = "k.of.m",
+  pi.type = "upper", conf.level = 0.95, dist = NULL,
+  K.tol = .Machine$double.eps^0.5)
 }
 \arguments{
 \item{x}{analysis_result of gw data.frame}
-
-\item{location_id}{name of well}
-
-\item{param_name}{name of parameter}
 
 \item{n.mean}{positive integer specifying the sample size associated
 with the future averages.

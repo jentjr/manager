@@ -4,7 +4,7 @@
 \title{Function to calculate intrawell prediction interval}
 \usage{
 intra_pred_int(df, analysis_result, wells, params, bkgd_dates, comp_dates,
-  SWFPR = 0.1, ...)
+  intra.conf.level = 0.95, SWFPR = NULL, ...)
 }
 \arguments{
 \item{df}{data frame of groundwater data}
@@ -17,7 +17,13 @@ intra_pred_int(df, analysis_result, wells, params, bkgd_dates, comp_dates,
 
 \item{bkgd_dates}{background data date range}
 
-\item{SWFPR}{Site-Wide False Positive Rate}
+\item{comp_dates}{compliance data date range}
+
+\item{intra.conf.level}{confidence level}
+
+\item{SWFPR}{Site-Wide False Positive Rate. If supplied, then
+intra.conf.level is computed using (1 - SWFPR)^(1/(nc*nw)) where nc is the
+number of constituents and nw is the number of wells}
 }
 \description{
 Function to calculate intrawell prediction interval
