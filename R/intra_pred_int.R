@@ -49,7 +49,7 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
     mutate(dist = dist(analysis_result))
   
   limits <- dist %>% 
-    do(pred_int = pred_int(.$analysis_result, dist = .$dist[1], 
+    do(pred_int = pred_int_sim(.$analysis_result, dist = .$dist[1], 
                            conf.level = intra.conf.level, ...))
   
   limits <- limits %>% 

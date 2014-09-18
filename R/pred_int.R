@@ -1,4 +1,4 @@
-#' Function to calculate prediction interval 
+#' Function to calculate simultaneous prediction interval 
 #' @param x analysis_result of gw data.frame
 #' @param n.mean positive integer specifying the sample size associated 
 #' with the future averages. 
@@ -33,7 +33,7 @@
 #' setting K.tol=1e-4 will speed up computation a bit.
 #' @export
 
- pred_int <- function(x, n.mean = 1, k = 1, m = 2, r = 2, 
+ pred_int_sim <- function(x, n.mean = 1, k = 1, m = 2, r = 2, 
                       rule = "k.of.m", pi.type = "upper",
                       conf.level = 0.95, dist = NULL, 
                       K.tol = .Machine$double.eps^0.5) {
@@ -80,6 +80,84 @@
   
   if (dist == "none") {
     out <- EnvStats::predIntNparSimultaneous(x, k = k, m = m, r = r, 
+                                             rule = "k.of.m") 
+    x <- data.frame(
+      variable = c("distribution", "count", "lower_limit", "upper_limit", 
+                   "conf_level"),
+      result = c(out$distribution, out$sample.size, 
+                 round(out$interval$limits[["LPL"]], digits = 6), 
+                 round(out$interval$limits[["UPL"]], digits = 6), 
+                 round(out$interval$conf.level, digits = 6))
+    )
+  }
+  
+  return(x)
+  
+}
+
+#' Function to calculate prediction interval 
+#' @param x analysis_result of gw data.frame
+#' @param n.mean positive integer specifying the sample size associated 
+#' with the future averages. 
+#' The default value is n.mean=1 (i.e., individual observations). 
+#' Note that all future averages must be based on the same sample size.
+#' @param k positive integer specifying the number of future observations or
+#' averages the prediction interval should contain with confidence level 
+#' conf.level. The default value is k=1.
+#' @param pi.type character string indicating what kind of prediction interval 
+#' to compute. The possible values are pi.type="upper" (the default), 
+#' and pi.type="lower".
+#' @param conf.level a scalar between 0 and 1 indicating the confidence level 
+#' of the prediction interval. The default value is conf.level=0.95
+#' @param dist override distribution. Default is NULL, which will check for 
+#' distribution.
+#' @export
+
+pred_int <- function(x, n.mean = 1, k = 1, method = "Bonferroni", 
+                     pi.type = "upper", conf.level = 0.95, dist = NULL) {
+  
+  if(is.null(dist)){
+    dist <- dist(x)
+  }
+  
+  if (dist == "norm") {
+    out <- EnvStats::predIntNorm(x, k = k, m = m, r = r, 
+                                             rule = "k.of.m", 
+                                             conf.level = conf.level)
+    x <- data.frame(
+      variable = c("distribution", "count", "lower_limit", 
+                   "upper_limit", "conf_level"),
+      #       variable = c("distribution", "count", "mean", "sd", 
+      #                    "lower_limit", "upper_limit", "conf_level"),
+      result = c(out$distribution, out$sample.size, 
+                 #                  round(out$parameters[["mean"]], digits = 6),
+                 #                  round(out$parameters[["sd"]], digits = 6), 
+                 round(out$interval$limits[["LPL"]], digits = 6),
+                 round(out$interval$limits[["UPL"]], digits = 6), 
+                 round(out$interval$conf.level, digits = 6)) 
+    )
+  }
+  
+  if (dist == "lnorm") {
+    out <- EnvStats::predIntLnorm(x, k = k, m = m, r = r, 
+                                              rule = "k.of.m", 
+                                              conf.level = conf.level) 
+    x <- data.frame(
+      variable = c("distribution", "count", "lower_limit", 
+                   "upper_limit", "conf_level"),
+      #       variable = c("distribution", "count", "mean", "sd", 
+      #                    "lower_limit", "upper_limit", "conf_level"),
+      result = c(out$distribution, out$sample.size, 
+                 #                  round(out$parameters[["meanlog"]], digits = 6),
+                 #                  round(out$parameters[["sdlog"]], digits = 6), 
+                 round(out$interval$limits[["LPL"]], digits = 6),
+                 round(out$interval$limits[["UPL"]], digits = 6), 
+                 round(out$interval$conf.level, digits = 6)) 
+    )
+  }
+  
+  if (dist == "none") {
+    out <- EnvStats::predIntNpar(x, k = k, m = m, r = r, 
                                              rule = "k.of.m") 
     x <- data.frame(
       variable = c("distribution", "count", "lower_limit", "upper_limit", 
