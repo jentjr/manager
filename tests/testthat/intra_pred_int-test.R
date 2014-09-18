@@ -31,11 +31,17 @@ df_nonpar1 <- data.frame(
 )
 
 df1 <- rbind(df_norm1, df_lnorm1, df_nonpar1)
+df1$location_id <- as.character(df1$location_id)
+df1$default_unit <- as.character(df1$default_unit)
+df1$param_name <- as.character(df1$param_name)
 
 wells <- c("1", "2", "3")
 params <- "test"
 bkgd_dates <- lubridate::ymd(c("2010-01-01", "2013-10-01"))
-comp_dates <- lubridate::ymd(c("2014-01-01", "2014-10-01"))
+comp_dates <- lubridate::ymd(c("2014-06-01", "2014-10-01"))
 
-intra_pred_int(df1, analysis_result, wells, params, bkgd_dates, comp_dates, 
-               SWFPR = 0.1)
+limit_test <- intra_pred_int(df1, analysis_result, wells, params, 
+                             bkgd_dates, comp_dates, 
+                             SWFPR = 0.1)
+
+multi_gw_ts_plot(limit_test, limit1 = "lower_limit", limit2 = "upper_limit")
