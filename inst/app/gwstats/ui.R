@@ -105,6 +105,8 @@ shinyUI(navbarPage("GWSTATS",
                     value = "Alkalinity, total (lab)"),
           textInput(inputId = "TDS", label = "TDS", 
                     value = "Total Dissolved Solids"),
+          textInput(inputId = "piper_title", label = "Enter Plot Title", 
+                    value = "Piper Diagram"),
           checkboxInput(inputId = "TDS_plot",
                         label = "Scale by Total Dissolved Solids"),
           downloadButton("piper_download", "Download Plot")

@@ -438,26 +438,35 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
+    
     data <- get_data()
     start <- min(lubridate::ymd(input$date_range_piper))
     end <- max(lubridate::ymd(input$date_range_piper))
     wells <- input$well_piper
+    Mg = paste(input$Mg)
+    Ca = paste(input$Ca)
+    Na = paste(input$Na)
+    K = paste(input$K)
+    Cl = paste(input$Cl)
+    SO4 = paste(input$SO4)
+    Alk = paste(input$Alk)
+    TDS = paste(input$TDS)
+    
     data_selected <- data[data$location_id %in% wells &
                             data$sample_date >= start & 
                             data$sample_date <= end, ]  
-    ions <- get_major_ions(data_selected, Mg = input$Mg, Ca = input$Ca, 
-                           Na = input$Na, K = input$K, Cl = input$Cl, 
-                           SO4 = input$SO4, Alk = input$Alk, TDS = input$TDS)
-    piper_data <- transform_piper_data(ions, Mg = input$Mg, Ca = input$Ca, 
-                                       Na = input$Na, K = input$K, 
-                                       Cl = input$Cl, 
-                                       SO4 = input$SO4, Alk = input$Alk, 
-                                       TDS = input$TDS)
+    
+    ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, K = K, 
+                           Cl = Cl, SO4 = SO4, Alk = Alk, TDS = TDS)
+    
+    piper_data <- transform_piper_data(ions, Mg = Mg, Ca = Ca, Na = Na, K = K,
+                                       Cl = Cl, SO4 = SO4, Alk = Alk, TDS = TDS)
     piper_data
   })
   
   plot_piper <- reactive({
-    piper_plot(df = get_piper_data(), TDS = input$TDS_plot)
+    piper_plot(df = get_piper_data(), TDS = input$TDS_plot, 
+               title = input$piper_title)
   })
   
   output$piper_plot <- renderPlot({
@@ -470,7 +479,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      print(piper_plot(df = get_piper_data(), TDS = input$TDS_plot))
+      print(piper_plot(df = get_piper_data(), TDS = input$TDS_plot,
+                       title = input$piper_title))
       dev.off()
     }
   )
