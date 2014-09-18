@@ -25,12 +25,12 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
   
   df <- df %>% 
     mutate(
-      sample_type = ifelse(.$sample_date >= bkgd_dates[1] &
-      .$sample_date <= bkgd_dates[2], "background", "")
+      sample_type = ifelse(sample_date >= bkgd_dates[1] &
+      sample_date <= bkgd_dates[2], "background", "")
       ) %>%
     mutate(
-      sample_type = ifelse(.$sample_date >= comp_dates[1] &
-      .$sample_date <= comp_dates[2], "compliance", sample_type)
+      sample_type = ifelse(sample_date >= comp_dates[1] &
+      sample_date <= comp_dates[2], "compliance", sample_type)
       )
 
   bkgd <- filter(
@@ -67,14 +67,13 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
     by = c("location_id", "param_name", "default_unit")
     )
   
-  out <- out %>%
-    mutate(exceed = ifelse(analysis_result > upper_limit, "yes", "no"))
-  
   out <- as.data.frame(out)
-  
   out$conf_level <- as.numeric(out$conf_level)
   out$lower_limit <- as.numeric(out$lower_limit)
   out$upper_limit <- as.numeric(out$upper_limit)
+  
+  out <- out %>%
+    mutate(exceed = ifelse(analysis_result > upper_limit, "yes", "no"))
   
   return(out)
 
