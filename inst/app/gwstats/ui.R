@@ -165,6 +165,46 @@ shinyUI(navbarPage("GWSTATS",
           uiOutput("stiff_diagram_out")  
         )
       )         
+    ),
+    tabPanel("Schoeller Diagram",
+      sidebarLayout(
+        sidebarPanel(
+          uiOutput("wells_schoeller"),
+          uiOutput("date_ranges_schoeller"),
+          textInput(inputId = "Mg_schoeller", label = "Mg", 
+                    value = "Magnesium, dissolved"),
+          textInput(inputId = "Ca_schoeller", label = "Ca", 
+                    value = "Calcium, dissolved"),
+          textInput(inputId = "K_schoeller", label = "K", 
+                    value = "Potassium, dissolved"),
+          textInput(inputId = "Na_schoeller", label = "Na", 
+                    value = "Sodium, dissolved"),
+          textInput(inputId = "Cl_schoeller", label = "Cl", 
+                    value = "Chloride, total"),
+          textInput(inputId = "SO4_schoeller", label = "SO4", 
+                    value = "Sulfate, total"),
+          textInput(inputId = "Alk_schoeller", label = "Alkalinity", 
+                    value = "Alkalinity, total (lab)"),
+          selectInput(inputId = "facet_schoeller", label = "Facet plot by:",
+                       c("location_id", "sample_date")),
+#           conditionalPanel(
+#             condition = "input.schoeller_type == 'separate'",
+#             selectInput(inputId = "group_schoeller", 
+#                         label = "Group plot by:",
+#                         c("location_id", "sample_date"))
+#             ),
+#           conditionalPanel(
+#             condition = "input.schoeller_type == 'group'",
+#             selectInput(inputId = "facet_schoeller_by", 
+#                         label = "Facet plots by:",
+#                         c("location_id", "sample_date"))
+#             ),
+          downloadButton("schoeller_download", "Download Plots")
+        ),
+        mainPanel(
+          plotOutput("schoeller_diagram_out")  
+        )
+      )  
     )
   ),
   navbarMenu("Prediction Intervals",

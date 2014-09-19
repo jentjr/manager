@@ -14,12 +14,14 @@
 #' @param TDS Total Dissolved Solids
 #' @export
 
-get_major_ions <- function(df, Mg="Magnesium, dissolved", 
-                           Ca="Calcium, dissolved", 
-                           Na="Sodium, dissolved", K="Potassium, dissolved", 
-                           Cl="Chloride, total", SO4="Sulfate, total", 
-                           Alk="Alkalinity, total (lab)", 
-                           TDS="Total Dissolved Solids",...){
+get_major_ions <- function(df, Mg = "Magnesium, dissolved", 
+                           Ca = "Calcium, dissolved", 
+                           Na = "Sodium, dissolved", 
+                           K = "Potassium, dissolved", 
+                           Cl = "Chloride, total", 
+                           SO4 = "Sulfate, total", 
+                           Alk = "Alkalinity, total (lab)", 
+                           TDS = NULL,...){
 #   TODO: add other major ions like Fe
 #   input_list <- list(...)
   

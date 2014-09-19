@@ -610,9 +610,133 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       dev.off()
     }
   )
-  # End Stiff Diagram Page -----------------------------------------------------
+  # End Stiff Diagram Page------------------------------------------------------
   
-  # Begin Intrawell Prediction Limits ----------------------------------------------------
+  # Begin Schoeller Diagram Page------------------------------------------------
+  output$wells_schoeller <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    well_names <- as.character(get_wells(data))
+    selectInput("well_schoeller", "Monitoring Wells", well_names, 
+                multiple = TRUE, selected = well_names[1])
+  })
+  
+  output$date_ranges_schoeller <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    dateRangeInput("date_range_schoeller", "Date Range", 
+                   start = min(data$sample_date, na.rm = TRUE), 
+                   end = max(data$sample_date, na.rm = TRUE))
+  })
+  
+  get_schoeller_data <- reactive({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    data <- get_data()
+    start <- min(lubridate::ymd(input$date_range_schoeller))
+    end <- max(lubridate::ymd(input$date_range_schoeller))
+    data_selected <- data[data$location_id %in% input$well_schoeller &
+                            data$sample_date >= start & 
+                            data$sample_date <= end, ]
+    Mg = input$Mg_schoeller
+    Ca = input$Ca_schoeller
+    Na = input$Na_schoeller
+    K = input$K_schoeller
+    Cl = input$Cl_schoeller
+    SO4 = input$SO4_schoeller
+    Alk = input$Alk_schoeller
+    
+    ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, 
+                           K = K, Cl = Cl, SO4 = SO4, Alk = Alk)
+    
+    ions <- ions[complete.cases(ions), ]
+    
+    plot_data <- conc_to_meq(ions, Mg = Mg, Ca = Ca, Na = Na, K = K, 
+                             Cl = Cl, SO4 = SO4, HCO3 = Alk)
+    
+    schoeller_data <- transform_schoeller(plot_data, Mg = Mg, 
+                                       Ca = Ca, 
+                                       Na = Na, 
+                                       K = K, 
+                                       Cl = Cl,
+                                       SO4 = SO4, 
+                                       HCO3 = Alk)
+    schoeller_data
+  })
+  
+  output$schoeller_diagram_out <- renderPlot({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_schoeller_data()
+    wells <- unique(data$location_id)
+    dates <- unique(data$sample_date)
+
+    schoeller(data, facet_by = input$facet_schoeller)
+#     if (input$schoeller_type == "separate") {
+#       if (input$group_schoeller == "sample_date") {
+#         schoeller_list <- lapply(1:length(wells), function(i) {
+#           name_schoeller <- paste("schoeller_plot", i, sep="")
+#           plotOutput(name_schoeller)
+#         })
+#         
+#         for (i in 1:length(wells)) {
+#           local({
+#             schoeller_i <- i
+#             name_schoeller <- paste("schoeller_plot", schoeller_i, sep="")
+#             output[[name_schoeller]] <- renderPlot({
+#               schoeller(
+#                 data[data$location_id == wells[schoeller_i], ]
+#               )
+#             })
+#           })
+#         }
+#       }
+#       
+#       if (input$group_schoeller == "location_id") {
+#         schoeller_list <- lapply(1:length(dates), function(i) {
+#           name_schoeller <- paste("schoeller_plot", i, sep="")
+#           plotOutput(name_schoeller)
+#         })
+#         
+#         for (i in 1:length(dates)) {
+#           local({
+#             schoeller_i <- i
+#             name_schoeller <- paste("schoeller_plot", schoeller_i, sep="")
+#             output[[name_schoeller]] <- renderPlot({
+#               schoeller(
+#                 data[data$sample_date== dates[schoeller_i], ]
+#               )
+#             })
+#           })
+#         }
+#       } 
+#       do.call(tagList, schoeller_list)
+#     }  
+  })
+  
+#   output$schoeller_diagram_out <- renderUI({
+#     schoeller_diagram()
+#   })
+#   
+  output$schoeller_download <- downloadHandler(
+    filename = function() {
+      paste("schoeller_plot_", Sys.Date(), ".pdf", sep = "")
+    },
+    content = function(file) {
+      pdf(file = file, width = 17, height = 11)
+      schoeller(df = get_schoeller_data(), facet_by = input$facet_schoeller)
+      dev.off()
+    }
+  )
+  # End Schoeller Diagram Page--------------------------------------------------
+  
+  # Begin Intrawell Prediction Limits-------------------------------------------
   output$wells_intra <- renderUI({
     validate(
       need(input$data_path != "", "")
