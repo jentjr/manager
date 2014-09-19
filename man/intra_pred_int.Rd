@@ -4,7 +4,7 @@
 \title{Function to calculate intrawell prediction interval}
 \usage{
 intra_pred_int(df, analysis_result, wells, params, bkgd_dates, comp_dates,
-  intra.conf.level = 0.95, SWFPR = NULL, ...)
+  intra.conf.level = 0.95, simultaneous = TRUE, SWFPR = NULL, ...)
 }
 \arguments{
 \item{df}{data frame of groundwater data}
