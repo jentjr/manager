@@ -86,6 +86,8 @@ from_csv <- function(path, date_format = "mdy"){
   }
   csv_data$analysis_result <- as.numeric(csv_data$analysis_result)
   csv_data$lt_measure <- factor(csv_data$lt_measure, exclude = NULL)
+  csv_data$param_name <- as.character(csv_data$param_name)
+  csv_data$default_unit <- as.character(csv_data$default_unit)
   return(csv_data)
 }
 
@@ -103,6 +105,7 @@ from_excel <- function(path, sheet = "Sheet1"){
                                          dateTimeFormat = "%Y-%m-%d %H:%M:%S")
   excel_data$analysis_result <- as.numeric(excel_data$analysis_result)
   excel_data$lt_measure <- factor(excel_data$lt_measure, exclude = NULL)
-  excel_data$param_name <- as.factor(excel_data$param_name)
+  excel_data$param_name <- as.character(excel_data$param_name)
+  excel_data$default_unit <- as.character(excel_data$default_unit)
   return(excel_data)
 }

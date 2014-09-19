@@ -33,6 +33,21 @@ shinyUI(navbarPage("GWSTATS",
     )         
   ),  
   navbarMenu("Plots",
+    tabPanel("Distribution Plots",
+      sidebarLayout(
+        sidebarPanel(
+          uiOutput("dist_wells"),
+          uiOutput("dist_analytes"),
+          uiOutput("dist_date_ranges"),
+          selectInput("dist_type", "Type of Distribution", 
+                       row.names(Distribution.df), 
+                       selected = "norm")
+        ),
+        mainPanel(
+          plotOutput("gof_plot")  
+        )
+      )  
+    ),
     tabPanel("Time Series",
       sidebarLayout(
         sidebarPanel(
@@ -90,6 +105,8 @@ shinyUI(navbarPage("GWSTATS",
                     value = "Alkalinity, total (lab)"),
           textInput(inputId = "TDS", label = "TDS", 
                     value = "Total Dissolved Solids"),
+          textInput(inputId = "piper_title", label = "Enter Plot Title", 
+                    value = "Piper Diagram"),
           checkboxInput(inputId = "TDS_plot",
                         label = "Scale by Total Dissolved Solids"),
           downloadButton("piper_download", "Download Plot")
@@ -135,32 +152,47 @@ shinyUI(navbarPage("GWSTATS",
     tabPanel("Intra-well",
       sidebarLayout(
        sidebarPanel(
-        uiOutput("wells_upl"),
-        uiOutput("analytes_upl"),
-        uiOutput("date_ranges_upl"),
-        numericInput("nc", "Number of Constituents", 1),
-        numericInput("nw", "Number of Wells", 1),
-        numericInput("swfpr", "Site-Wide False Positive Rate", 0.1),
-        numericInput("k", "Specify a positive integer specifying the 
+        uiOutput("wells_intra"),
+        uiOutput("analytes_intra"),
+        uiOutput("date_ranges_intra"),
+        radioButtons(inputId = "pred_int_type", 
+                     label = "Type of Prediction Limit",
+                     choices = c("Simultaneous", "Regular")),
+        conditionalPanel(
+            condition = "input.pred_int_type == 'Simultaneous'",
+            numericInput("swfpr", "Site-Wide False Positive Rate", 0.1),
+            numericInput("k", "Specify a positive integer for the 
                      minimum number of observations (or averages) out of m  
                      observations (or averages) (all obtained on one future
                      sampling “occassion”) the prediction interval should 
-                     contain with confidence level conf.level.The default 
-                     value is k=1.", 1),
-        numericInput("m", "Specify a positive integer specifying the maximum
+                     contain with confidence level.", 1),
+            numericInput("m", "Specify a positive integer for the maximum
                      number of future observations (or averages) on one future
-                     sampling “occasion”. The default value is m=2", 2),
-        numericInput("r", "Sampling frequency", 2, 
-                     min=1, max=4),
-        radioButtons("int_type", "Type of Prediction Limit", 
-                     c("Normal", "Lognormal", "Gamma", 
-                       "Non-parametric"), 
-                     selected="Normal")
+                     sampling “occasion”", 2),
+            numericInput("r", "Sampling frequency", 2, min=1, max=4)
+          ),
+        conditionalPanel(
+            condition = "input.pred_int_type == 'Regular'",
+            numericInput("reg_intra_k", "Specify a positive integer for the number 
+                         of future observations or averages the prediction 
+                         interval should contain with confidence level",
+                         2, min = 0)
+          ),
+        checkboxInput(inputId = "intra_plot", label = "Plot Time Series"),
+        conditionalPanel(
+            condition = "input.intra_plot == true",
+            selectInput("ts_intra_facet_by", "Group plot by:",
+                        c("location_id", "param_name")),
+            checkboxInput("ts_intra_short_name", "Abbreviate Constituent Name"),
+            checkboxInput("ts_intra_date_lines", "Show Date Ranges"),
+            numericInput("ncol_intra_ts", "Number of Columns in Plot", 
+                         value = 1)               
+         )
        ),
        mainPanel(
-        plotOutput("gof"),
+        dataTableOutput("intra_limit_out"),
         br(),
-        verbatimTextOutput("upl")  
+        uiOutput("ts_intra_out")
        )
       )       
     ),

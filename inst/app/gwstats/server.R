@@ -1,4 +1,5 @@
 library(gwstats)
+library(EnvStats)
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
 # force numbers to be decimal instead of scientific
@@ -60,6 +61,68 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                     pageLength = 10)
   )
   # End Summary Table page -----------------------------------------------------
+
+  # Begin Distribution Plots ---------------------------------------------------
+  output$dist_wells <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    well_names <- as.character(get_wells(data))
+    selectInput("dist_well", "Monitoring Wells", well_names, 
+                multiple = FALSE,
+                selected = well_names[1])
+  })
+  
+  output$dist_analytes <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    analyte_names <- as.character(get_analytes(data))
+    selectInput("dist_analyte", "Constituents", analyte_names, 
+                multiple = FALSE,
+                selected = analyte_names[1])
+  })
+  
+  output$dist_date_ranges <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    tagList(
+      dateRangeInput("dist_back_dates", "Background Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))
+    )
+  })
+  
+  get_dist_data <- reactive({
+    validate(
+      need(input$data_path != "", "")
+    )
+    df <- get_data()
+    start <- min(lubridate::ymd(input$dist_back_dates))
+    end <- max(lubridate::ymd(input$dist_back_dates))
+    data_selected <- df[df$location_id %in% input$dist_well &
+                              df$param_name %in% input$dist_analyte &
+                              df$sample_date >= start & df$sample_date <= end, ]
+    data_selected
+  })
+  
+  output$gof_plot <- renderPlot({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    df <- get_dist_data()
+    validate(
+      need(length(unique(df$analysis_result)) > 2, "")
+    )
+    out <- EnvStats::gofTest(df$analysis_result, distribution = input$dist_type)
+    out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep=" ")
+    plot(out)
+  })
+  # End Distribution Plots -----------------------------------------------------
   
   # Begin Boxplot Page----------------------------------------------------------
   output$box_wells <- renderUI({
@@ -94,7 +157,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     if (input$box_facet_by == "param_name") {
       box_list <- lapply(1:length(box_analytes), function(i) {
         box_name <- paste("box_plot", i, sep="")
-        plotOutput(box_name, height = 675, width = 825)
+        plotOutput(box_name)
       })
       
       for (i in 1:length(box_analytes)){
@@ -117,7 +180,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     if (input$box_facet_by == "location_id") {
       box_list <- lapply(1:length(box_wells), function(i) {
         box_name <- paste("box_plot", i, sep="")
-        plotOutput(box_name, height = 675, width = 825)
+        plotOutput(box_name)
       })
       
       for (i in 1:length(box_wells)){
@@ -227,7 +290,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       
       ts_list <- lapply(1:length(ts_well), function(i) {
         ts_name <- paste("ts_plot", i, sep="")
-        plotOutput(ts_name, height = 675, width = 825)
+        plotOutput(ts_name)
       })
       
       for (i in 1:length(ts_well)){
@@ -266,7 +329,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     if (input$ts_facet_by == "param_name") {
       ts_list <- lapply(1:length(ts_analyte), function(i) {
         ts_name <- paste("ts_plot", i, sep="")
-        plotOutput(ts_name, height = 675, width = 825)
+        plotOutput(ts_name)
       })
       
       for (i in 1:length(ts_analyte)){
@@ -375,26 +438,35 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
+    
     data <- get_data()
     start <- min(lubridate::ymd(input$date_range_piper))
     end <- max(lubridate::ymd(input$date_range_piper))
     wells <- input$well_piper
+    Mg = paste(input$Mg)
+    Ca = paste(input$Ca)
+    Na = paste(input$Na)
+    K = paste(input$K)
+    Cl = paste(input$Cl)
+    SO4 = paste(input$SO4)
+    Alk = paste(input$Alk)
+    TDS = paste(input$TDS)
+    
     data_selected <- data[data$location_id %in% wells &
                             data$sample_date >= start & 
                             data$sample_date <= end, ]  
-    ions <- get_major_ions(data_selected, Mg = input$Mg, Ca = input$Ca, 
-                           Na = input$Na, K = input$K, Cl = input$Cl, 
-                           SO4 = input$SO4, Alk = input$Alk, TDS = input$TDS)
-    piper_data <- transform_piper_data(ions, Mg = input$Mg, Ca = input$Ca, 
-                                       Na = input$Na, K = input$K, 
-                                       Cl = input$Cl, 
-                                       SO4 = input$SO4, Alk = input$Alk, 
-                                       TDS = input$TDS)
+    
+    ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, K = K, 
+                           Cl = Cl, SO4 = SO4, Alk = Alk, TDS = TDS)
+    
+    piper_data <- transform_piper_data(ions, Mg = Mg, Ca = Ca, Na = Na, K = K,
+                                       Cl = Cl, SO4 = SO4, Alk = Alk, TDS = TDS)
     piper_data
   })
   
   plot_piper <- reactive({
-    piper_plot(df = get_piper_data(), TDS = input$TDS_plot)
+    piper_plot(df = get_piper_data(), TDS = input$TDS_plot, 
+               title = input$piper_title)
   })
   
   output$piper_plot <- renderPlot({
@@ -407,7 +479,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      print(piper_plot(df = get_piper_data(), TDS = input$TDS_plot))
+      print(piper_plot(df = get_piper_data(), TDS = input$TDS_plot,
+                       title = input$piper_title))
       dev.off()
     }
   )
@@ -451,10 +524,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                              TDS = input$TDS_stiff)
       ions <- ions[complete.cases(ions), ]
       plot_data <- conc_to_meq(ions, Mg = input$Mg_stiff, 
-                                       Ca = input$Ca_stiff, Na = input$Na_stiff, 
-                                       K = input$K_stiff, Cl = input$Cl_stiff, 
-                                       SO4 = input$SO4_stiff, 
-                                       HCO3 = input$Alk_stiff)
+                               Ca = input$Ca_stiff, Na = input$Na_stiff, 
+                               K = input$K_stiff, Cl = input$Cl_stiff, 
+                               SO4 = input$SO4_stiff, 
+                               HCO3 = input$Alk_stiff)
       stiff_data <- transform_stiff_data(plot_data, Mg = input$Mg_stiff, 
                                          Ca = input$Ca_stiff, 
                                          Na = input$Na_stiff, 
@@ -475,7 +548,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       
       stiff_list <- lapply(1:length(wells), function(i) {
         name_stiff <- paste("stiff_plot", i, sep="")
-        plotOutput(name_stiff, height = 675, width = 825)
+        plotOutput(name_stiff)
       })
       
       for (i in 1:length(wells)){
@@ -511,120 +584,203 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
   )
   # End Stiff Diagram Page -----------------------------------------------------
   
-  # Begin Prediction Limits ----------------------------------------------------
-  output$wells_upl <- renderUI({
+  # Begin Intrawell Prediction Limits ----------------------------------------------------
+  output$wells_intra <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       well_names <- as.character(get_wells(data))
-      selectInput("well_upl", "Monitoring Wells", well_names, 
-                  multiple = FALSE,
+      selectInput("well_intra", "Monitoring Wells", well_names, 
+                  multiple = TRUE,
                   selected = well_names[1])
   })
 
-  # return a list of constituents for time series page
-  output$analytes_upl <- renderUI({
+  output$analytes_intra <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       analyte_names <- as.character(get_analytes(data))
-      selectInput("analyte_upl", "Constituents", analyte_names, 
-                  multiple = FALSE,
+      selectInput("analyte_intra", "Constituents", analyte_names, 
+                  multiple = TRUE,
                   selected = analyte_names[1])
   })
 
-  # return start and end date of background data for time series page
-  output$date_ranges_upl <- renderUI({
+  output$date_ranges_intra <- renderUI({
     validate(
       need(input$data_path != "", "")
     )
       data <- get_data()
       tagList(
-        dateRangeInput("back_date_range_upl", "Background Date Range", 
+        dateRangeInput("back_dates_intra", "Background Date Range", 
+                       start = min(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE)),
+        dateRangeInput("comp_dates_intra", "Compliance Date Range", 
                        start = min(data$sample_date, na.rm = TRUE),
                        end = max(data$sample_date, na.rm = TRUE))
       )
   })
 
-  bkgd_data <- reactive({
+  intra_limit <- reactive({
     validate(
       need(input$data_path != "", "")
     )
-      df <- get_data()
-      start <- min(lubridate::ymd(input$back_date_range_upl))
-      end <- max(lubridate::ymd(input$back_date_range_upl))
-      data_selected <- subset(df, location_id %in% input$well_upl &
-                                param_name %in% input$analyte_upl &
-                                sample_date >= start & sample_date <= end)
-      data_selected
+    
+    df <- get_data()
+    
+    df <- df %>%
+      filter(
+        location_id %in% input$well_intra,
+        param_name %in% input$analyte_intra
+      )
+    
+    bkgd_start <- min(lubridate::ymd(input$back_dates_intra))
+    bkgd_end <- max(lubridate::ymd(input$back_dates_intra))
+    bkgd <- c(bkgd_start, bkgd_end)
+    
+    comp_start <- min(lubridate::ymd(input$comp_dates_intra))
+    comp_end <- max(lubridate::ymd(input$comp_dates_intra))
+    comp <- c(comp_start, comp_end)
+  
+    validate(
+      need(
+        length(unique(df$analysis_result)) > 2, 
+           "One of the input variables has fewer than 2 unique data points."
+        )
+      )
+    if(isTRUE(input$pred_int_type == "Simultaneous")) {
+      out <- intra_pred_int(df, analysis_result, input$well_intra, 
+                            input$analyte_intra,
+                            bkgd, comp, SWFPR = input$swfpr, 
+                            k = input$k, m = input$m,
+                            r = input$r)
+    }
+    if(isTRUE(input$pred_int_type == "Regular")) {
+      out <- intra_pred_int(df, analysis_result, input$well_intra, 
+                            input$analyte_intra, bkgd, comp,
+                            k = input$reg_intra_k,
+                            simultaneous = FALSE 
+                            )
+    }
+    out
   })
-
-  output$gof <- renderPlot({
+  
+  output$intra_limit_out <- renderDataTable({
+    intra_limit()
+  }, options = list(scrollY = "100%", scrollX = "100%", 
+                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
+                    pageLength = 10)
+  )
+  
+  ts_intra_plot <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
-      df <- bkgd_data()
-    validate(
-      need(length(unique(df$analysis_result)) > 2, "")
-    )
-      if (input$int_type == "Normal" || input$int_type == "Non-parametric"){
-        out <- EnvStats::gofTest(df$analysis_result)
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      if (input$int_type == "Lognormal"){
-        out <- EnvStats::gofTest(df$analysis_result, distribution = "lnorm")
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      if (input$int_type == "Gamma"){
-        out <- EnvStats::gofTest(df$analysis_result, distribution = "gamma")
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      plot(out)
-  })
-
-  output$upl <- renderPrint({
-    validate(
-      need(input$data_path != "", "")
-    )
+    
+    ts_intra_well <- input$well_intra
+    ts_intra_analyte <- input$analyte_intra
+    ts_intra_data <- intra_limit()
+    
+    if (input$ts_intra_facet_by == "location_id") {
       
-      df <- bkgd_data()
-      nw <- input$nw
-      nc <- input$nc
-      swfpr <- input$swfpr
-      conf.level = (1 - swfpr)^(1/(nc*nw))
-    validate(
-      need(length(unique(df$analysis_result)) > 2, 
-           "One of the input variables has fewer than 2 unique data points.")
-      )  
-      if (input$int_type == "Normal"){
-        out <- EnvStats::predIntNormSimultaneous(df$analysis_result, 
-                                                 k = input$k, m = input$m, 
-                                                 r = input$r, 
-                                                 conf.level = conf.level)
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ") 
+      ts_intra_list <- lapply(1:length(ts_intra_well), function(i) {
+        ts_intra_name <- paste("ts_intra_plot", i, sep="")
+        plotOutput(ts_intra_name)
+      })
+      
+      for (i in 1:length(ts_intra_well)){
+        local({
+          ts_intra_i <- i
+          ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep="")
+          output[[ts_intra_name]] <- renderPlot({
+            
+            ts <- gw_ts_plot(
+              ts_intra_data[ts_intra_data$location_id == 
+              ts_intra_well[ts_intra_i], ],
+              facet_by = "location_id", 
+              short_name = input$ts_intra_short_name, 
+              ncol = input$ncol_intra_ts,
+              limit1 = "lower_limit",
+              limit2 = "upper_limit"
+              )
+            
+            if (input$ts_intra_date_lines){
+              b1 <- min(lubridate::ymd(input$back_dates_intra))
+              c1 <- min(lubridate::ymd(input$comp_dates_intra))
+              b2 <- max(lubridate::ymd(input$back_dates_intra))
+              c2 <- max(lubridate::ymd(input$comp_dates_intra))
+              
+              ts <- gw_ts_plot(
+                ts_intra_data[ts_intra_data$location_id == 
+                          ts_intra_well[ts_intra_i], ], 
+                facet_by = "location_id",
+                short_name = input$ts_intra_short_name,
+                back_date = c(b1, b2), 
+                comp_date = c(c1, c2),
+                ncol = input$ncol_intra_ts,
+                limit1 = "lower_limit",
+                limit2 = "upper_limit"
+              )
+            }
+            ts
+          })
+        })
       }
-      if (input$int_type == "Lognormal"){
-        out <- EnvStats::predIntLnormSimultaneous(df$analysis_result, 
-                                                  k = input$k, m = input$m, 
-                                                  r = input$r, 
-                                                  conf.level = conf.level)
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
+    }
+    
+    if (input$ts_intra_facet_by == "param_name") {
+      ts_intra_list <- lapply(1:length(ts_intra_analyte), function(i) {
+        ts_intra_name <- paste("ts_intra_plot", i, sep="")
+        plotOutput(ts_intra_name)
+      })
+      
+      for (i in 1:length(ts_intra_analyte)){
+        local({
+          ts_intra_i <- i
+          ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep="")
+          output[[ts_intra_name]] <- renderPlot({
+            
+            ts <- gw_ts_plot(
+              ts_intra_data[ts_intra_data$param_name == 
+              ts_intra_analyte[ts_intra_i], ],
+              facet_by = "param_name", 
+              short_name = input$ts_intra_short_name,
+              limit1 = "lower_limit",
+              limit2 = "upper_limit",
+              ncol = input$ncol_intra_ts,
+              )
+            
+            if (input$ts_intra_date_lines){
+              b1 <- min(lubridate::ymd(input$back_dates_intra))
+              c1 <- min(lubridate::ymd(input$comp_dates_intra))
+              b2 <- max(lubridate::ymd(input$back_dates_intra))
+              c2 <- max(lubridate::ymd(input$comp_dates_intra))
+              
+              ts <- gw_ts_plot(
+                ts_intra_data[ts_intra_data$param_name == 
+                ts_intra_analyte[ts_intra_i], ], 
+                facet_by = "param_name",
+                short_name = input$ts_intra_short_name,
+                back_date = c(b1, b2), 
+                comp_date = c(c1, c2),
+                limit1 = "lower_limit",
+                limit2 = "upper_limit",
+                ncol = input$ncol_intra_ts
+              )
+            }
+            ts
+          })
+        })
       }
-      if (input$int_type == "Gamma"){
-        out <- EnvStats::predIntGammaSimultaneous(df$analysis_result, 
-                                                  k = input$k, m = input$m, 
-                                                  r = input$r,
-                                                  conf.level = conf.level)
-      }
-      if (input$int_type == "Non-parametric"){
-        out <- EnvStats::predIntNparSimultaneous(df$analysis_result, 
-                                                 k = input$k, m = input$m, 
-                                                 r = input$r)  
-        out["data.name"] <- paste(input$well_upl, input$analyte_upl, sep=" ")
-      }
-      out
+    }
+    do.call(tagList, ts_intra_list)
+  })
+  
+  output$ts_intra_out <- renderUI({
+    if(input$intra_plot){
+      ts_intra_plot()
+    }
   })
   # End Prediction Limits ------------------------------------------------------
 

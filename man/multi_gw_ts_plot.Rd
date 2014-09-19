@@ -2,8 +2,8 @@
 \name{multi_gw_ts_plot}
 \alias{multi_gw_ts_plot}
 \title{This function plots multiple groundwater data time series by location,
-or constituent. Other variables from \code{\link{gw_ts_plot}} can be passed to
-the funcion.}
+or constituent. Other variables from \code{\link{gw_ts_plot}} can be passed
+to the funcion.}
 \usage{
 multi_gw_ts_plot(df, facet_by = "location_id", ...)
 }
@@ -18,7 +18,7 @@ or param_name. Defaults to location_id.}
 }
 \description{
 This function plots multiple groundwater data time series by location,
-or constituent. Other variables from \code{\link{gw_ts_plot}} can be passed to
-the funcion.
+or constituent. Other variables from \code{\link{gw_ts_plot}} can be passed
+to the funcion.
 }
 
