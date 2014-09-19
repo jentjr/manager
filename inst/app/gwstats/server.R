@@ -36,32 +36,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                     lengthMenu = c(5, 10, 15, 25, 50, 100), 
                     pageLength = 10)
   ) 
-  # Begin Summary Table page ---------------------------------------------------  
-  output$summary_date_ranges <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
-    tagList(
-      dateRangeInput("background_date_range", "Background Date Range", 
-                      start = min(data$sample_date, na.rm = TRUE),
-                      end = max(data$sample_date, na.rm = TRUE)) 
-    )
-  })
-  output$summary_table <- renderDataTable({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    data <- get_data()
-    start <- min(lubridate::ymd(input$background_date_range))
-    end <- max(lubridate::ymd(input$background_date_range))
-    gw_summary(data, start, end)
-  }, options = list(scrollY = "100%", scrollX = "100%", 
-                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    pageLength = 10)
-  )
-  # End Summary Table page -----------------------------------------------------
-
+  
   # Begin Distribution Plots ---------------------------------------------------
   output$dist_wells <- renderUI({
     validate(
@@ -110,6 +85,44 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     data_selected
   })
   
+  output$lt_summary <- renderTable({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    data <- get_dist_data()
+    start <- min(lubridate::ymd(input$dist_back_dates))
+    end <- max(lubridate::ymd(input$dist_back_dates))
+    lt_summary(data, start, end)
+  })
+  
+  output$gof_test <- renderPrint({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    df <- get_dist_data()
+    validate(
+      need(length(unique(df$analysis_result)) > 2, "")
+    )
+    if(isTRUE(input$dist_plot_type == "Censored")){
+      df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
+      out <- EnvStats::gofTestCensored(
+        x = df$analysis_result, censored = df$censored, 
+        censoring.side = input$cen_dist_side,
+        test = input$cen_dist_test,
+        distribution = input$cen_dist_dist,
+        prob.method = input$cen_dist_method,
+        plot.pos.con =  input$cen_dist_plot.pos.con
+        )
+      out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep=" ")
+    } else {
+      out <- EnvStats::gofTest(
+        df$analysis_result, distribution = input$dist_type
+      )
+      out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep=" ")
+    }
+    out
+  })
+  
   output$gof_plot <- renderPlot({
     validate(
       need(input$data_path != "", "Please upload a data set")
@@ -118,8 +131,23 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(length(unique(df$analysis_result)) > 2, "")
     )
-    out <- EnvStats::gofTest(df$analysis_result, distribution = input$dist_type)
-    out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep=" ")
+    if(isTRUE(input$dist_plot_type == "Censored")){
+      df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
+      out <- EnvStats::gofTestCensored(
+        x = df$analysis_result, censored = df$censored, 
+        censoring.side = input$cen_dist_side,
+        test = input$cen_dist_test,
+        distribution = input$cen_dist_dist,
+        prob.method = input$cen_dist_method,
+        plot.pos.con =  input$cen_dist_plot.pos.con
+      )
+      out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep=" ")
+    } else {
+      out <- EnvStats::gofTest(
+        df$analysis_result, distribution = input$dist_type
+      )
+      out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep=" ")
+    }
     plot(out)
   })
   # End Distribution Plots -----------------------------------------------------
@@ -790,141 +818,4 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     }
   })
   # End Prediction Limits ------------------------------------------------------
-
-  # Begin NADA Page ------------------------------------------------------------
-
-  # ROS
-  output$ros_wells <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      well_names <- as.character(get_wells(data))
-      selectInput("ros_well", "Monitoring Wells", well_names, 
-                  multiple = FALSE,
-                  selected = well_names[1])
-  })
-
-  output$ros_analytes <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      analyte_names <- as.character(get_analytes(data))
-      selectInput("ros_analyte", "Constituents", analyte_names, 
-                  multiple = FALSE,
-                  selected = analyte_names[1])
-  })
-
-  output$ros_date_ranges <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      tagList(
-        dateRangeInput("bkgd_date_range_ros", "Background Date Range", 
-                       start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE)) 
-      )
-  })
-  output$ros_summary_table <- renderDataTable({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-      data <- get_data()
-      wells <- input$ros_well
-      const <- input$ros_analyte
-      data <- data[data$location_id %in% wells &
-                  data$param_name %in% const, ]
-      start <- min(lubridate::ymd(input$bkgd_date_range_ros))
-      end <- max(lubridate::ymd(input$bkgd_date_range_ros))
-      gw_summary(data, start, end)
-  }, options = list(scrollY = "100%", scrollX = "100%", 
-                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    pageLength = 10)
-  )
-
-  output$ros_out <- renderPrint({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      wells <- input$ros_well
-      const <- input$ros_analyte
-      start <- min(lubridate::ymd(input$bkgd_date_range_ros))
-      end <- max(lubridate::ymd(input$bkgd_date_range_ros))
-      data <- data[data$location_id == wells &
-                     data$param_name == const &
-                     data$sample_date >= start &
-                     data$sample_date <= end, ]
-      data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
-      data <- as.data.frame(data)
-      ros <- NADA::ros(data$analysis_result, data$censored)
-      NADA::print(ros)
-  })
-  
-    output$ros_out_2 <- renderPrint({
-      validate(
-        need(input$data_path != "", "")
-      )
-      data <- get_data()
-      wells <- input$ros_well
-      const <- input$ros_analyte
-      start <- min(lubridate::ymd(input$bkgd_date_range_ros))
-      end <- max(lubridate::ymd(input$bkgd_date_range_ros))
-      data <- data[data$location_id == wells &
-                   data$param_name == const &
-                   data$sample_date >= start &
-                   data$sample_date <= end, ]
-      data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
-      data <- as.data.frame(data)
-      ros <- NADA::ros(data$analysis_result, data$censored)
-      summary(ros)
-  })
-  
-  output$ros_plot <- renderPlot({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      wells <- input$ros_well
-      const <- input$ros_analyte
-      start <- min(lubridate::ymd(input$bkgd_date_range_ros))
-      end <- max(lubridate::ymd(input$bkgd_date_range_ros))
-      data <- data[data$location_id %in% wells &
-                     data$param_name %in% const &
-                     data$sample_date >= start &
-                     data$sample_date <= end, ]
-      data$censored <- ifelse(data$lt_measure == "<", TRUE, FALSE)
-      data <- as.data.frame(data)
-      ros <- NADA::ros(data$analysis_result, data$censored)
-      NADA::plot(ros)
-})
-  # End ROS
-  
-  # begin Kaplan-Meier
-  output$kp_wells <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      well_names <- as.character(get_wells(data))
-      selectInput("kp_well", "Monitoring Wells", well_names, 
-                  multiple = FALSE,
-                  selected = well_names[1])
-  })
-
-  output$kp_analytes <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      analyte_names <- as.character(get_analytes(data))
-      selectInput("kp_analyte", "Constituents", analyte_names, 
-                  multiple = FALSE,
-                  selected = analyte_names[1])
-  })
-  # End Kaplan-Meier
-  # End NADA Page -------------------------------------------------------------
-
 })

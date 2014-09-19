@@ -25,13 +25,13 @@ remove_dup <- function(df){
   return(df_nodup)
 }
 
-#' Function to summarize the number of samples, mean, sd, and percentage of 
+#' Function to summarize the number of samples and percentage of 
 #' non-detects. This is useful for calculating the upper prediction limit.
 #' 
 #' @param df data frame of groundwater monitoring network data 
 #' @export
 
-gw_summary <- function(df, bkgd_start, bkgd_end){
+lt_summary <- function(df, bkgd_start, bkgd_end){
   
   df$sampling_period <- ifelse(df$sample_date >= bkgd_start & 
                                df$sample_date <= bkgd_end, "background", 
@@ -39,14 +39,12 @@ gw_summary <- function(df, bkgd_start, bkgd_end){
   detection <- dplyr::group_by(df, location_id, param_name, default_unit,
                                sampling_period)
   
-  gw <- dplyr::summarise(detection,
+  lt <- dplyr::summarise(detection,
                   count = n(),
-                  mean = round(mean(analysis_result, na.rm = TRUE), digits = 3),
-                  sd = round(sd(analysis_result, na.rm = TRUE), digits = 3),
                   percent_lt = round(percent_lt(lt_measure), digits = 2))
 
-  gw <- as.data.frame(gw)
-  gw
+  lt <- as.data.frame(lt)
+  return(lt)
 }
 
 #' Function to export data from manages to excel format required by OEPA

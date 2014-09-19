@@ -23,16 +23,6 @@ shinyUI(navbarPage("GWSTATS",
       )
     )
   ),
-  tabPanel("Data Summary",
-    sidebarLayout(
-      sidebarPanel(
-       uiOutput("summary_date_ranges")  
-      ),
-      mainPanel(
-        dataTableOutput("summary_table")  
-      )
-    )         
-  ),  
   navbarMenu("Plots",
     tabPanel("Distribution Plots",
       sidebarLayout(
@@ -40,12 +30,40 @@ shinyUI(navbarPage("GWSTATS",
           uiOutput("dist_wells"),
           uiOutput("dist_analytes"),
           uiOutput("dist_date_ranges"),
-          selectInput("dist_type", "Type of Distribution", 
-                       row.names(Distribution.df), 
-                       selected = "norm")
+          radioButtons(inputId = "dist_plot_type", 
+                       label = "Type of Distribution Plot",
+                       choices = c("Regular", "Censored"),
+                       selected = "Regular"),
+          conditionalPanel(
+              condition = "input.dist_plot_type == 'Censored'",
+              selectInput(inputId = "cen_dist_side", label = "Censoring Side",
+                        c("left", "right")),
+              selectInput(inputId = "cen_dist_test", label = "Select test",
+                          c("Shapiro-Francia" = "sf", "Shapiro-Wilk" = "sw", 
+                            "Prob-Plot-Corr-Coeff" = "ppcc")),
+              selectInput(inputId = "cen_dist_dist", label = "Distribution",
+                          c("Normal" = "norm", "Lognormal" = "lnorm")),
+              selectInput(inputId = "cen_dist_method", 
+                          label = "Select method to compute plotting position",
+                          c("michael-schucany", "modified kaplan-meier", 
+                            "nelson", "hirsch-stedinger")),
+              numericInput(inputId = "cen_dist_plot.pos.con", 
+                           label = "Scalar for plotting position constant",
+                           value = 0.375, min = 0, max = 1)
+            ),
+          conditionalPanel(
+            condition = "input.dist_plot_type == 'Regular'",
+            selectInput("dist_type", "Type of Distribution", 
+                        row.names(Distribution.df), 
+                        selected = "norm")
+            )
         ),
         mainPanel(
-          plotOutput("gof_plot")  
+          tableOutput("lt_summary"),
+          br(),
+          plotOutput("gof_plot"),
+          br(),
+          verbatimTextOutput("gof_test")
         )
       )  
     ),
@@ -239,39 +257,5 @@ shinyUI(navbarPage("GWSTATS",
       )       
     ),
     tabPanel("Inter-well")
-  ),
-  navbarMenu("NADA",
-    tabPanel("ROS",
-      sidebarLayout(
-        sidebarPanel(
-          uiOutput("ros_wells"),
-          uiOutput("ros_analytes"),
-          uiOutput("ros_date_ranges"),
-          helpText("Input > 80% censored -- Results are tenuous"),
-          helpText("Censored values that exceed max of uncensored values will
-                   be dropped.")
-        ),
-        mainPanel(
-          dataTableOutput("ros_summary_table"),
-          br(),
-          verbatimTextOutput("ros_out"),
-          br(),
-          plotOutput("ros_plot"),
-          br(),
-          verbatimTextOutput("ros_out_2")
-        )
-      )         
-    ),
-    tabPanel("Kaplan-Meier",
-      sidebarLayout(
-        sidebarPanel(
-          uiOutput("kp_wells"),
-          uiOutput("kp_analytes")
-        ),
-        mainPanel(
-          verbatimTextOutput("kp_out")  
-        )
-      )         
-    )
   )
 ))
