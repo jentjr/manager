@@ -13,7 +13,7 @@
 
 intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates, 
                            comp_dates, intra.conf.level = 0.95, 
-                           SWFPR = NULL, ...){
+                           simultaneous = TRUE, SWFPR = NULL, ...){
   if(!is.null(SWFPR)){
     nw <- length(wells)
     nc <- length(params)
@@ -48,9 +48,15 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
   dist <- bkgd %>% 
     mutate(dist = dist(analysis_result))
   
-  limits <- dist %>% 
-    do(pred_int = pred_int_sim(.$analysis_result, dist = .$dist[1], 
-                           conf.level = intra.conf.level, ...))
+  if(isTRUE(simultaneous)) {
+    limits <- dist %>% 
+      do(pred_int = pred_int_sim(.$analysis_result, dist = .$dist[1], 
+                                 conf.level = intra.conf.level, ...))
+  } else {
+    limits <- dist %>% 
+      do(pred_int = pred_int(.$analysis_result, dist = .$dist[1], 
+                                 conf.level = intra.conf.level, ...))
+  }
   
   limits <- limits %>% 
     do(data.frame(.))

@@ -41,7 +41,9 @@ bkgd_dates <- lubridate::ymd(c("2010-01-01", "2013-10-01"))
 comp_dates <- lubridate::ymd(c("2014-06-01", "2014-10-01"))
 
 limit_test <- intra_pred_int(df1, analysis_result, wells, params, 
-                             bkgd_dates, comp_dates, 
-                             SWFPR = 0.1)
+                             bkgd_dates, comp_dates, SWFPR = 0.1)
+
+limit_test2 <- intra_pred_int(df1, analysis_result, wells, params, 
+                             bkgd_dates, comp_dates, simultaneous = FALSE)
 
 multi_gw_ts_plot(limit_test, limit1 = "lower_limit", limit2 = "upper_limit")

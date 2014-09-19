@@ -49,11 +49,7 @@
     x <- data.frame(
       variable = c("distribution", "count", "lower_limit", 
                    "upper_limit", "conf_level"),
-#       variable = c("distribution", "count", "mean", "sd", 
-#                    "lower_limit", "upper_limit", "conf_level"),
       result = c(out$distribution, out$sample.size, 
-#                  round(out$parameters[["mean"]], digits = 6),
-#                  round(out$parameters[["sd"]], digits = 6), 
                  round(out$interval$limits[["LPL"]], digits = 6),
                  round(out$interval$limits[["UPL"]], digits = 6), 
                  round(out$interval$conf.level, digits = 6)) 
@@ -67,11 +63,7 @@
     x <- data.frame(
       variable = c("distribution", "count", "lower_limit", 
                    "upper_limit", "conf_level"),
-#       variable = c("distribution", "count", "mean", "sd", 
-#                    "lower_limit", "upper_limit", "conf_level"),
       result = c(out$distribution, out$sample.size, 
-#                  round(out$parameters[["meanlog"]], digits = 6),
-#                  round(out$parameters[["sdlog"]], digits = 6), 
                  round(out$interval$limits[["LPL"]], digits = 6),
                  round(out$interval$limits[["UPL"]], digits = 6), 
                  round(out$interval$conf.level, digits = 6)) 
@@ -113,7 +105,7 @@
 #' distribution.
 #' @export
 
-pred_int <- function(x, n.mean = 1, k = 1, method = "Bonferroni", 
+pred_int <- function(x, n.mean = 1, k = 1, m = 1, method = "Bonferroni", 
                      pi.type = "upper", conf.level = 0.95, dist = NULL) {
   
   if(is.null(dist)){
@@ -121,17 +113,13 @@ pred_int <- function(x, n.mean = 1, k = 1, method = "Bonferroni",
   }
   
   if (dist == "norm") {
-    out <- EnvStats::predIntNorm(x, k = k, m = m, r = r, 
-                                             rule = "k.of.m", 
-                                             conf.level = conf.level)
+    out <- EnvStats::predIntNorm(x, n.mean = n.mean, k = k, method = method,
+                                 pi.type = pi.type, conf.level = conf.level)
     x <- data.frame(
       variable = c("distribution", "count", "lower_limit", 
                    "upper_limit", "conf_level"),
-      #       variable = c("distribution", "count", "mean", "sd", 
-      #                    "lower_limit", "upper_limit", "conf_level"),
+
       result = c(out$distribution, out$sample.size, 
-                 #                  round(out$parameters[["mean"]], digits = 6),
-                 #                  round(out$parameters[["sd"]], digits = 6), 
                  round(out$interval$limits[["LPL"]], digits = 6),
                  round(out$interval$limits[["UPL"]], digits = 6), 
                  round(out$interval$conf.level, digits = 6)) 
@@ -139,17 +127,14 @@ pred_int <- function(x, n.mean = 1, k = 1, method = "Bonferroni",
   }
   
   if (dist == "lnorm") {
-    out <- EnvStats::predIntLnorm(x, k = k, m = m, r = r, 
-                                              rule = "k.of.m", 
-                                              conf.level = conf.level) 
+    out <- EnvStats::predIntLnorm(x, n.geomean = n.mean, k = k, 
+                                  method = method, pi.type = pi.type,
+                                  conf.level = conf.level) 
     x <- data.frame(
       variable = c("distribution", "count", "lower_limit", 
                    "upper_limit", "conf_level"),
-      #       variable = c("distribution", "count", "mean", "sd", 
-      #                    "lower_limit", "upper_limit", "conf_level"),
+
       result = c(out$distribution, out$sample.size, 
-                 #                  round(out$parameters[["meanlog"]], digits = 6),
-                 #                  round(out$parameters[["sdlog"]], digits = 6), 
                  round(out$interval$limits[["LPL"]], digits = 6),
                  round(out$interval$limits[["UPL"]], digits = 6), 
                  round(out$interval$conf.level, digits = 6)) 
@@ -157,8 +142,7 @@ pred_int <- function(x, n.mean = 1, k = 1, method = "Bonferroni",
   }
   
   if (dist == "none") {
-    out <- EnvStats::predIntNpar(x, k = k, m = m, r = r, 
-                                             rule = "k.of.m") 
+    out <- EnvStats::predIntNpar(x, k = k, m = m) 
     x <- data.frame(
       variable = c("distribution", "count", "lower_limit", "upper_limit", 
                    "conf_level"),
