@@ -157,7 +157,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     if (input$box_facet_by == "param_name") {
       box_list <- lapply(1:length(box_analytes), function(i) {
         box_name <- paste("box_plot", i, sep="")
-        plotOutput(box_name, height = 675, width = 825)
+        plotOutput(box_name)
       })
       
       for (i in 1:length(box_analytes)){
@@ -180,7 +180,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     if (input$box_facet_by == "location_id") {
       box_list <- lapply(1:length(box_wells), function(i) {
         box_name <- paste("box_plot", i, sep="")
-        plotOutput(box_name, height = 675, width = 825)
+        plotOutput(box_name)
       })
       
       for (i in 1:length(box_wells)){
@@ -290,7 +290,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       
       ts_list <- lapply(1:length(ts_well), function(i) {
         ts_name <- paste("ts_plot", i, sep="")
-        plotOutput(ts_name, height = 675, width = 825)
+        plotOutput(ts_name)
       })
       
       for (i in 1:length(ts_well)){
@@ -329,7 +329,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     if (input$ts_facet_by == "param_name") {
       ts_list <- lapply(1:length(ts_analyte), function(i) {
         ts_name <- paste("ts_plot", i, sep="")
-        plotOutput(ts_name, height = 675, width = 825)
+        plotOutput(ts_name)
       })
       
       for (i in 1:length(ts_analyte)){
@@ -524,10 +524,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                              TDS = input$TDS_stiff)
       ions <- ions[complete.cases(ions), ]
       plot_data <- conc_to_meq(ions, Mg = input$Mg_stiff, 
-                                       Ca = input$Ca_stiff, Na = input$Na_stiff, 
-                                       K = input$K_stiff, Cl = input$Cl_stiff, 
-                                       SO4 = input$SO4_stiff, 
-                                       HCO3 = input$Alk_stiff)
+                               Ca = input$Ca_stiff, Na = input$Na_stiff, 
+                               K = input$K_stiff, Cl = input$Cl_stiff, 
+                               SO4 = input$SO4_stiff, 
+                               HCO3 = input$Alk_stiff)
       stiff_data <- transform_stiff_data(plot_data, Mg = input$Mg_stiff, 
                                          Ca = input$Ca_stiff, 
                                          Na = input$Na_stiff, 
@@ -548,7 +548,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       
       stiff_list <- lapply(1:length(wells), function(i) {
         name_stiff <- paste("stiff_plot", i, sep="")
-        plotOutput(name_stiff, height = 675, width = 825)
+        plotOutput(name_stiff)
       })
       
       for (i in 1:length(wells)){
@@ -622,7 +622,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       )
   })
 
-  output$intra_limits <- renderDataTable({
+  intra_limit <- reactive({
     validate(
       need(input$data_path != "", "")
     )
@@ -650,10 +650,129 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
         )
       )
     
-    intra_pred_int(df, analysis_result, input$well_intra, input$analyte_intra,
-                   bkgd, comp, SWFPR = input$swfpr, k = input$k, m = input$m,
-                   r = input$r)
+    out <- intra_pred_int(df, analysis_result, input$well_intra, 
+                          input$analyte_intra,
+                          bkgd, comp, SWFPR = input$swfpr, 
+                          k = input$k, m = input$m,
+                          r = input$r)
+    out
+  })
+  
+  output$intra_limit_out <- renderDataTable({
+    intra_limit()
+  }, options = list(scrollY = "100%", scrollX = "100%", 
+                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
+                    pageLength = 10)
+  )
+  
+  ts_intra_plot <- reactive({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
     
+    ts_intra_well <- input$well_intra
+    ts_intra_analyte <- input$analyte_intra
+    ts_intra_data <- intra_limit()
+    
+    if (input$ts_intra_facet_by == "location_id") {
+      
+      ts_intra_list <- lapply(1:length(ts_intra_well), function(i) {
+        ts_intra_name <- paste("ts_intra_plot", i, sep="")
+        plotOutput(ts_intra_name)
+      })
+      
+      for (i in 1:length(ts_intra_well)){
+        local({
+          ts_intra_i <- i
+          ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep="")
+          output[[ts_intra_name]] <- renderPlot({
+            
+            ts <- gw_ts_plot(
+              ts_intra_data[ts_intra_data$location_id == 
+              ts_intra_well[ts_intra_i], ],
+              facet_by = "location_id", 
+              short_name = input$ts_intra_short_name, 
+              ncol = input$ncol_intra_ts,
+              limit1 = "lower_limit",
+              limit2 = "upper_limit"
+              )
+            
+            if (input$ts_intra_date_lines){
+              b1 <- min(lubridate::ymd(input$back_dates_intra))
+              c1 <- min(lubridate::ymd(input$comp_dates_intra))
+              b2 <- max(lubridate::ymd(input$back_dates_intra))
+              c2 <- max(lubridate::ymd(input$comp_dates_intra))
+              
+              ts <- gw_ts_plot(
+                ts_intra_data[ts_intra_data$location_id == 
+                          ts_intra_well[ts_intra_i], ], 
+                facet_by = "location_id",
+                short_name = input$ts_intra_short_name,
+                back_date = c(b1, b2), 
+                comp_date = c(c1, c2),
+                ncol = input$ncol_intra_ts,
+                limit1 = "lower_limit",
+                limit2 = "upper_limit"
+              )
+            }
+            ts
+          })
+        })
+      }
+    }
+    
+    if (input$ts_intra_facet_by == "param_name") {
+      ts_intra_list <- lapply(1:length(ts_intra_analyte), function(i) {
+        ts_intra_name <- paste("ts_intra_plot", i, sep="")
+        plotOutput(ts_intra_name)
+      })
+      
+      for (i in 1:length(ts_intra_analyte)){
+        local({
+          ts_intra_i <- i
+          ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep="")
+          output[[ts_intra_name]] <- renderPlot({
+            
+            ts <- gw_ts_plot(
+              ts_intra_data[ts_intra_data$param_name == 
+              ts_intra_analyte[ts_intra_i], ],
+              facet_by = "param_name", 
+              short_name = input$ts_intra_short_name,
+              limit1 = "lower_limit",
+              limit2 = "upper_limit",
+              ncol = input$ncol_intra_ts,
+              )
+            
+            if (input$ts_intra_date_lines){
+              b1 <- min(lubridate::ymd(input$back_dates_intra))
+              c1 <- min(lubridate::ymd(input$comp_dates_intra))
+              b2 <- max(lubridate::ymd(input$back_dates_intra))
+              c2 <- max(lubridate::ymd(input$comp_dates_intra))
+              
+              ts <- gw_ts_plot(
+                ts_intra_data[ts_intra_data$param_name == 
+                ts_intra_analyte[ts_intra_i], ], 
+                facet_by = "param_name",
+                short_name = input$ts_intra_short_name,
+                back_date = c(b1, b2), 
+                comp_date = c(c1, c2),
+                limit1 = "lower_limit",
+                limit2 = "upper_limit",
+                ncol = input$ncol_intra_ts
+              )
+            }
+            ts
+          })
+        })
+      }
+    }
+    do.call(tagList, ts_intra_list)
+  })
+  
+  output$ts_intra_out <- renderUI({
+    if(input$intra_plot){
+      ts_intra_plot()
+    }
   })
   # End Prediction Limits ------------------------------------------------------
 

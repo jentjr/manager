@@ -166,10 +166,22 @@ shinyUI(navbarPage("GWSTATS",
                      number of future observations (or averages) on one future
                      sampling “occasion”. The default value is m=2", 2),
         numericInput("r", "Sampling frequency", 2, 
-                     min=1, max=4)
+                     min=1, max=4),
+        checkboxInput(inputId = "intra_plot", label = "Plot Time Series"),
+        conditionalPanel(
+            condition = "input.intra_plot == true",
+            selectInput("ts_intra_facet_by", "Group plot by:",
+                        c("location_id", "param_name")),
+            checkboxInput("ts_intra_short_name", "Abbreviate Constituent Name"),
+            checkboxInput("ts_intra_date_lines", "Show Date Ranges"),
+            numericInput("ncol_intra_ts", "Number of Columns in Plot", 
+                         value = 1)               
+         )
        ),
        mainPanel(
-        dataTableOutput("intra_limits")  
+        dataTableOutput("intra_limit_out"),
+        br(),
+        uiOutput("ts_intra_out")
        )
       )       
     ),
