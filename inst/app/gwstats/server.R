@@ -649,12 +649,20 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
            "One of the input variables has fewer than 2 unique data points."
         )
       )
-    
-    out <- intra_pred_int(df, analysis_result, input$well_intra, 
-                          input$analyte_intra,
-                          bkgd, comp, SWFPR = input$swfpr, 
-                          k = input$k, m = input$m,
-                          r = input$r)
+    if(isTRUE(input$pred_int_type == "Simultaneous")) {
+      out <- intra_pred_int(df, analysis_result, input$well_intra, 
+                            input$analyte_intra,
+                            bkgd, comp, SWFPR = input$swfpr, 
+                            k = input$k, m = input$m,
+                            r = input$r)
+    }
+    if(isTRUE(input$pred_int_type == "Regular")) {
+      out <- intra_pred_int(df, analysis_result, input$well_intra, 
+                            input$analyte_intra, bkgd, comp,
+                            k = input$reg_intra_k,
+                            simultaneous = FALSE 
+                            )
+    }
     out
   })
   

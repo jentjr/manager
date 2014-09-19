@@ -155,18 +155,29 @@ shinyUI(navbarPage("GWSTATS",
         uiOutput("wells_intra"),
         uiOutput("analytes_intra"),
         uiOutput("date_ranges_intra"),
-        numericInput("swfpr", "Site-Wide False Positive Rate", 0.1),
-        numericInput("k", "Specify a positive integer specifying the 
+        radioButtons(inputId = "pred_int_type", 
+                     label = "Type of Prediction Limit",
+                     choices = c("Simultaneous", "Regular")),
+        conditionalPanel(
+            condition = "input.pred_int_type == 'Simultaneous'",
+            numericInput("swfpr", "Site-Wide False Positive Rate", 0.1),
+            numericInput("k", "Specify a positive integer for the 
                      minimum number of observations (or averages) out of m  
                      observations (or averages) (all obtained on one future
                      sampling “occassion”) the prediction interval should 
-                     contain with confidence level conf.level.The default 
-                     value is k=1.", 1),
-        numericInput("m", "Specify a positive integer specifying the maximum
+                     contain with confidence level.", 1),
+            numericInput("m", "Specify a positive integer for the maximum
                      number of future observations (or averages) on one future
-                     sampling “occasion”. The default value is m=2", 2),
-        numericInput("r", "Sampling frequency", 2, 
-                     min=1, max=4),
+                     sampling “occasion”", 2),
+            numericInput("r", "Sampling frequency", 2, min=1, max=4)
+          ),
+        conditionalPanel(
+            condition = "input.pred_int_type == 'Regular'",
+            numericInput("reg_intra_k", "Specify a positive integer for the number 
+                         of future observations or averages the prediction 
+                         interval should contain with confidence level",
+                         2, min = 0)
+          ),
         checkboxInput(inputId = "intra_plot", label = "Plot Time Series"),
         conditionalPanel(
             condition = "input.intra_plot == true",
