@@ -539,32 +539,35 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
-      data <- get_data()
-      start <- min(lubridate::ymd(input$date_range_stiff))
-      end <- max(lubridate::ymd(input$date_range_stiff))
-      data_selected <- data[data$location_id %in% input$well_stiff &
-                              data$sample_date >= start & 
-                              data$sample_date <= end, ]
-      ions <- get_major_ions(data_selected, Mg = input$Mg_stiff, 
-                             Ca = input$Ca_stiff, Na = input$Na_stiff, 
-                             K = input$K_stiff, Cl = input$Cl_stiff, 
-                             SO4 = input$SO4_stiff, Alk = input$Alk_stiff, 
-                             TDS = input$TDS_stiff)
-      ions <- ions[complete.cases(ions), ]
-      plot_data <- conc_to_meq(ions, Mg = input$Mg_stiff, 
-                               Ca = input$Ca_stiff, Na = input$Na_stiff, 
-                               K = input$K_stiff, Cl = input$Cl_stiff, 
-                               SO4 = input$SO4_stiff, 
-                               HCO3 = input$Alk_stiff)
-      stiff_data <- transform_stiff_data(plot_data, Mg = input$Mg_stiff, 
-                                         Ca = input$Ca_stiff, 
-                                         Na = input$Na_stiff, 
-                                         K = input$K_stiff, 
-                                         Cl = input$Cl_stiff,
-                                         SO4 = input$SO4_stiff, 
-                                         HCO3 = input$Alk_stiff, 
-                                         TDS = input$TDS_stiff)
-      stiff_data
+    data <- get_data()
+    start <- min(lubridate::ymd(input$date_range_stiff))
+    end <- max(lubridate::ymd(input$date_range_stiff))
+    data_selected <- data[data$location_id %in% input$well_stiff &
+                          data$sample_date >= start & 
+                          data$sample_date <= end, ]
+    Mg = paste(input$Mg_stiff)
+    Ca = paste(input$Ca_stiff)
+    Na = paste(input$Na_stiff)
+    K = paste(input$K_stiff)
+    Cl = paste(input$Cl_stiff)
+    SO4 = paste(input$SO4_stiff)
+    Alk = paste(input$Alk_stiff)
+    TDS = paste(input$TDS_stiff)
+    
+    ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, 
+                           K = K, Cl = Cl, SO4 = SO4, Alk = Alk, 
+                           TDS = TDS)
+    
+    ions <- ions[complete.cases(ions), ]
+    
+    plot_data <- conc_to_meq(ions, Mg = Mg, Ca = Ca, Na = Na, 
+                             K = K, Cl = Cl, SO4 = SO4, HCO3 = Alk)
+    
+    stiff_data <- transform_stiff_data(plot_data, Mg = Mg, Ca = Ca, Na = Na, 
+                                       K = K, Cl = Cl, SO4 = SO4, HCO3 = Alk, 
+                                       TDS = TDS)
+    
+    stiff_data
   })
   
   stiff_diagram <- reactive({
@@ -643,13 +646,13 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     data_selected <- data[data$location_id %in% input$well_schoeller &
                             data$sample_date >= start & 
                             data$sample_date <= end, ]
-    Mg = input$Mg_schoeller
-    Ca = input$Ca_schoeller
-    Na = input$Na_schoeller
-    K = input$K_schoeller
-    Cl = input$Cl_schoeller
-    SO4 = input$SO4_schoeller
-    Alk = input$Alk_schoeller
+    Mg = paste(input$Mg_schoeller)
+    Ca = paste(input$Ca_schoeller)
+    Na = paste(input$Na_schoeller)
+    K = paste(input$K_schoeller)
+    Cl = paste(input$Cl_schoeller)
+    SO4 = paste(input$SO4_schoeller)
+    Alk = paste(input$Alk_schoeller)
     
     ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, 
                            K = K, Cl = Cl, SO4 = SO4, Alk = Alk)
