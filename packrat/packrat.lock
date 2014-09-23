@@ -309,14 +309,10 @@ Version: 2.37-7
 Hash: 09a1e94314fb616ea6f454dee9d75cdc
 
 Package: testthat
-Source: github
-Version: 0.8.1.0.99
-Hash: 77d622c3998e574fefc5a8368d951f240491c1e5
+Source: CRAN
+Version: 0.9
+Hash: cf4f4c18bea62ced914692feb511154c
 Requires: digest
-GithubRepo: testthat
-GithubUsername: hadley
-GithubRef: master
-GithubSha1: 77d622c3998e574fefc5a8368d951f240491c1e5
 
 Package: XLConnect
 Source: CRAN
