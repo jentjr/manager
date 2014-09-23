@@ -33,16 +33,33 @@
 #' setting K.tol=1e-4 will speed up computation a bit.
 #' @export
 
- pred_int_sim <- function(x, n.mean = 1, k = 1, m = 2, r = 2, 
-                      rule = "k.of.m", pi.type = "upper",
-                      conf.level = 0.95, dist = NULL, 
-                      K.tol = .Machine$double.eps^0.5) {
+ pred_int_sim <- function(x, left_censored, non_detect = c(15, 50), 
+                          cen_method = "mle", 
+                          n.mean = 1, k = 1, 
+                          m = 2, r = 2, 
+                          rule = "k.of.m", pi.type = "upper",
+                          conf.level = 0.95, dist = NULL, 
+                          K.tol = .Machine$double.eps^0.5) {
   
   if(is.null(dist)){
     dist <- dist(x)
   }
   
   if (dist == "norm") {
+    if (percent_left > non_detect[1] & percent_left < non_detect[2]){
+      params <- enormCensored(x, left_censored, method = cen_method)
+      out <- predIntNormSimultaneous(x, left_censored, k = k, m = m, r = r, 
+                                     rule = "k.of.m", 
+                                     conf.level = conf.level)
+      x <- data.frame(
+        variable = c("distribution", "count", "lower_limit", 
+                     "upper_limit", "conf_level"),
+        result = c(out$distribution, out$sample.size, 
+                   round(out$interval$limits[["LPL"]], digits = 6),
+                   round(out$interval$limits[["UPL"]], digits = 6), 
+                   round(out$interval$conf.level, digits = 6))
+      )
+    }
     out <- EnvStats::predIntNormSimultaneous(x, k = k, m = m, r = r, 
                                              rule = "k.of.m", 
                                              conf.level = conf.level)
@@ -57,6 +74,20 @@
   }
   
   if (dist == "lnorm") {
+    if (percent_left > non_detect[1] & percent_left < non_detect[2]){
+      params <- elnormCensored(x, left_censored, method = cen_method)
+      out <- predIntLnormSimultaneous(x, left_censored, k = k, m = m, r = r, 
+                                     rule = "k.of.m", 
+                                     conf.level = conf.level)
+      x <- data.frame(
+        variable = c("distribution", "count", "lower_limit", 
+                     "upper_limit", "conf_level"),
+        result = c(out$distribution, out$sample.size, 
+                   round(out$interval$limits[["LPL"]], digits = 6),
+                   round(out$interval$limits[["UPL"]], digits = 6), 
+                   round(out$interval$conf.level, digits = 6))
+      )
+    }
     out <- EnvStats::predIntLnormSimultaneous(x, k = k, m = m, r = r, 
                                               rule = "k.of.m", 
                                               conf.level = conf.level) 
@@ -70,7 +101,7 @@
     )
   }
   
-  if (dist == "none") {
+  if (dist == "none" | percent_left >= non_detect[2]) {
     out <- EnvStats::predIntNparSimultaneous(x, k = k, m = m, r = r, 
                                              rule = "k.of.m") 
     x <- data.frame(

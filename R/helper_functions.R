@@ -1,14 +1,26 @@
-#' calculate the percentage of non-detects
+#' calculate the percentage of left censored data
 #' 
 #' @param df data frame of groundwater monitoring data in long format
-#' @param lt column of non-detects. Default is set to lt_measure which has 
-#' the "<" symbol.
+#' @param lt column of data less than detection limit.
 #' @export
 
 percent_lt <- function(lt) {
   yes <- length(lt[lt == "<"])
   total <- length(lt)
-  p <- (yes / total) * 100
+  p <- (yes/total)*100
+  return(p)
+}
+
+#' calculate the percentage of right censored data
+#' 
+#' @param df data frame of groundwater monitoring data in long format
+#' @param gt column of data greater than detection limit. 
+#' @export
+
+percent_gt <- function(gt) {
+  yes <- length(gt[gt == ">"])
+  total <- length(gt)
+  p <- (yes/total)*100
   return(p)
 }
 
@@ -24,6 +36,25 @@ remove_dup <- function(df){
   df_nodup <- df[-grep("*Dup", df$location_id), ]
   return(df_nodup)
 }
+
+#' Function to convert gwdata frame to censored data frame
+#' @param df data frame of groundwater data
+#' @export
+
+to_censored <- function(df) {
+  
+  df <- df %>%
+    group_by(location_id, param_name, default_unit) %>%
+    mutate(left_censored = ifelse(lt_measure == "<", TRUE, FALSE),
+           right_censored = ifelse(lt_measure == ">", TRUE, FALSE),
+           percent_left = percent_lt(lt_measure),
+           percent_right = percent_gt(lt_measure))
+  
+  df <- as.data.frame(df)
+  
+  return(df)
+}
+
 
 #' Function to summarize the number of samples and percentage of 
 #' non-detects. This is useful for calculating the upper prediction limit.

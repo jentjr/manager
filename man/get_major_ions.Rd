@@ -9,7 +9,7 @@ The data is cast by location_id + sample_date ~ param_name}
 get_major_ions(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
   Na = "Sodium, dissolved", K = "Potassium, dissolved",
   Cl = "Chloride, total", SO4 = "Sulfate, total",
-  Alk = "Alkalinity, total (lab)", TDS = "Total Dissolved Solids", ...)
+  Alk = "Alkalinity, total (lab)", TDS = NULL, ...)
 }
 \arguments{
 \item{df}{data frame of groundwater monitoring data}

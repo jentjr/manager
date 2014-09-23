@@ -3,7 +3,8 @@
 \alias{pred_int_sim}
 \title{Function to calculate simultaneous prediction interval}
 \usage{
-pred_int_sim(x, n.mean = 1, k = 1, m = 2, r = 2, rule = "k.of.m",
+pred_int_sim(x, left_censored, non_detect = c(15, 50), cen_method = "mle",
+  n.mean = 1, k = 1, m = 2, r = 2, rule = "k.of.m",
   pi.type = "upper", conf.level = 0.95, dist = NULL,
   K.tol = .Machine$double.eps^0.5)
 }

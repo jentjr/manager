@@ -8,8 +8,7 @@ transform_piper_data(df, Mg = "Magnesium, dissolved",
   Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
   K = "Potassium, dissolved", Cl = "Chloride, total",
   SO4 = "Sulfate, total", CO3 = NULL, Alk = "Alkalinity, total (lab)",
-  TDS = "Total Dissolved Solids", name = "location_id",
-  date = "sample_date", units = NULL)
+  TDS = NULL, name = "location_id", date = "sample_date", units = NULL)
 }
 \arguments{
 \item{df}{data frame of groundwater data}
