@@ -539,12 +539,14 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(input$data_path != "", "Please upload a data set")
     )
+    
     data <- get_data()
     start <- min(lubridate::ymd(input$date_range_stiff))
     end <- max(lubridate::ymd(input$date_range_stiff))
     data_selected <- data[data$location_id %in% input$well_stiff &
                           data$sample_date >= start & 
                           data$sample_date <= end, ]
+    
     Mg = paste(input$Mg_stiff)
     Ca = paste(input$Ca_stiff)
     Na = paste(input$Na_stiff)
@@ -589,7 +591,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           output[[name_stiff]] <- renderPlot({
             stiff_plot(
               data[data$location_id == wells[stiff_i], ], 
-              TDS=input$TDS_plot_stiff,
+              TDS = input$TDS_plot_stiff,
               lines = input$stiff_lines
             )
           })
@@ -608,7 +610,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      stiff_by_loc(df = get_stiff_data(), TDS=input$TDS_plot_stiff,
+      stiff_by_loc(df = get_stiff_data(), TDS = input$TDS_plot_stiff,
             lines = input$stiff_lines)
       dev.off()
     }
@@ -672,68 +674,27 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     schoeller_data
   })
   
-  output$schoeller_diagram_out <- renderPlot({
+  schoeller_diagram <- reactive({
     validate(
       need(input$data_path != "", "")
     )
+    
     data <- get_schoeller_data()
-    wells <- unique(data$location_id)
-    dates <- unique(data$sample_date)
-
+    
     schoeller(data, facet_by = input$facet_schoeller)
-#     if (input$schoeller_type == "separate") {
-#       if (input$group_schoeller == "sample_date") {
-#         schoeller_list <- lapply(1:length(wells), function(i) {
-#           name_schoeller <- paste("schoeller_plot", i, sep="")
-#           plotOutput(name_schoeller)
-#         })
-#         
-#         for (i in 1:length(wells)) {
-#           local({
-#             schoeller_i <- i
-#             name_schoeller <- paste("schoeller_plot", schoeller_i, sep="")
-#             output[[name_schoeller]] <- renderPlot({
-#               schoeller(
-#                 data[data$location_id == wells[schoeller_i], ]
-#               )
-#             })
-#           })
-#         }
-#       }
-#       
-#       if (input$group_schoeller == "location_id") {
-#         schoeller_list <- lapply(1:length(dates), function(i) {
-#           name_schoeller <- paste("schoeller_plot", i, sep="")
-#           plotOutput(name_schoeller)
-#         })
-#         
-#         for (i in 1:length(dates)) {
-#           local({
-#             schoeller_i <- i
-#             name_schoeller <- paste("schoeller_plot", schoeller_i, sep="")
-#             output[[name_schoeller]] <- renderPlot({
-#               schoeller(
-#                 data[data$sample_date== dates[schoeller_i], ]
-#               )
-#             })
-#           })
-#         }
-#       } 
-#       do.call(tagList, schoeller_list)
-#     }  
   })
   
-#   output$schoeller_diagram_out <- renderUI({
-#     schoeller_diagram()
-#   })
-#   
+  output$schoeller_diagram_out <- renderPlot({
+    schoeller_diagram()
+  })
+  
   output$schoeller_download <- downloadHandler(
     filename = function() {
       paste("schoeller_plot_", Sys.Date(), ".pdf", sep = "")
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      schoeller(df = get_schoeller_data(), facet_by = input$facet_schoeller)
+      schoeller_diagram()
       dev.off()
     }
   )

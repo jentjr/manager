@@ -48,11 +48,13 @@ get_major_ions <- function(df, Mg = "Magnesium, dissolved",
 #' 
 #' @export
 
-conc_to_meq <- function(df, Mg="Magnesium, dissolved", 
-                                Ca="Calcium, dissolved", Na="Sodium, dissolved", 
-                                K="Potassium, dissolved", Cl="Chloride, total", 
-                                SO4="Sulfate, total", 
-                                HCO3="Alkalinity, total (lab)"){
+conc_to_meq <- function(df, Mg = "Magnesium, dissolved", 
+                        Ca = "Calcium, dissolved", 
+                        Na = "Sodium, dissolved", 
+                        K = "Potassium, dissolved", 
+                        Cl = "Chloride, total", 
+                        SO4 = "Sulfate, total", 
+                        HCO3 = "Alkalinity, total (lab)"){
   
   # TODO: add ... feature and a data base of elements perhaps from phreeqc.
   
@@ -108,15 +110,15 @@ conc_to_meq <- function(df, Mg="Magnesium, dissolved",
 #' @keywords piper diagram
 #' @export
 
-transform_piper_data <- function(df, Mg="Magnesium, dissolved", 
-                                 Ca="Calcium, dissolved", 
-                                 Na="Sodium, dissolved", 
-                                 K="Potassium, dissolved", 
-                                 Cl="Chloride, total", 
-                                 SO4="Sulfate, total", 
-                                 CO3=NULL, 
-                                 Alk="Alkalinity, total (lab)", 
-                                 TDS="Total Dissolved Solids", 
+transform_piper_data <- function(df, Mg = "Magnesium, dissolved", 
+                                 Ca = "Calcium, dissolved", 
+                                 Na = "Sodium, dissolved", 
+                                 K = "Potassium, dissolved", 
+                                 Cl = "Chloride, total", 
+                                 SO4 = "Sulfate, total", 
+                                 CO3 = NULL, 
+                                 Alk = "Alkalinity, total (lab)", 
+                                 TDS = NULL, 
                                  name = "location_id", date = "sample_date", 
                                  units = NULL){
 
@@ -434,20 +436,21 @@ piper_time_html <- function(df, TDS = FALSE){
 #' @param units Units of data
 #' @export
 
-transform_stiff_data <- function(df, Mg="Magnesium, dissolved", 
-                                 Ca="Calcium, dissolved", 
-                                 Na="Sodium, dissolved", 
-                                 K="Potassium, dissolved", 
-                                 Cl="Chloride, total", 
-                                 SO4="Sulfate, total", 
-                                 HCO3="Alkalinity, total (lab)", 
-                                 name="location_id", 
-                                 date="sample_date", 
+transform_stiff_data <- function(df, Mg = "Magnesium, dissolved", 
+                                 Ca = "Calcium, dissolved", 
+                                 Na = "Sodium, dissolved", 
+                                 K = "Potassium, dissolved", 
+                                 Cl = "Chloride, total", 
+                                 SO4 = "Sulfate, total", 
+                                 HCO3 = "Alkalinity, total (lab)", 
+                                 name = "location_id", 
+                                 date = "sample_date", 
                                  TDS = NULL, 
                                  units = NULL){
   
-  temp <- data.frame(df[,name], df[,date], df[,Mg], df[,Ca], df[,Na] + df[,K], 
-                     df[,SO4], df[,HCO3], df[,Cl])
+  temp <- data.frame(df[, name], df[, date], df[, Mg], df[, Ca], df[, Na] + 
+                       df[, K], df[, SO4], df[, HCO3], df[, Cl])
+  
   colnames(temp) <- c("location_id", "sample_date", "Mg", "Ca", "Na + K", 
                       "SO4", "HCO3", "Cl")
   
@@ -459,24 +462,24 @@ transform_stiff_data <- function(df, Mg="Magnesium, dissolved",
   df_melt$value <- ifelse(df_melt$variable %in% cations, -1 * df_melt$value, 
                           df_melt$value)
   
-  stiff <- subset(df_melt, variable %in% c("Mg", "SO4", "HCO3", "Cl", "Na + K",
-                                           "Ca", "TDS"))
+  stiff <- df_melt[df_melt$variable %in% c("Mg", "SO4", "HCO3", "Cl", 
+                                             "Na + K", "Ca"), ]
   
   poly_order <-  data.frame(c("Mg", "SO4", "HCO3", "Cl", "Na + K", "Ca"),
                             c(3, 3, 2, 1, 1, 2))
   
   colnames(poly_order) <- c("variable", "stiff_y")
   
-  stiff <- plyr::join(poly_order, stiff, by="variable", type="left")
+  stiff <- plyr::join(poly_order, stiff, by = "variable", type = "left")
   
   stiff <- plyr::rename(stiff, replace=c("value" = "stiff_x"))
   
-  if(!missing(TDS)){
-    stiff <- plyr::join(stiff, df, by=c("location_id", "sample_date"))
+  if(!is.null(TDS)){
+    stiff <- plyr::join(stiff, df, by = c("location_id", "sample_date"))
     stiff <- stiff[, names(stiff) %in% c("location_id", "sample_date", 
                                          "variable", "stiff_x", "stiff_y", 
-                                         "Total Dissolved Solids")]
-    stiff <- plyr::rename(stiff, replace=c("Total Dissolved Solids" = "TDS"))
+                                         paste(TDS))]
+    colnames(stiff[paste(TDS)]) <- "TDS"
   }  
   return(stiff)
 }
@@ -507,7 +510,8 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1){
     if(isTRUE(TDS)){
       # try to fix error message when only 1 location plotted
       p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS),
-                                     colour = "black")
+                                     colour = "black") 
+      
       for (i in 1:length(df2$anions)) {
         p <- p + annotation_custom(
           grob = grid::textGrob(label = df2$anions[i], 
@@ -637,15 +641,15 @@ stiff_time_html <- function(df, TDS = FALSE){
 # Schoeller Diagrams
 #-------------------------------------------------------------------------------
 
-transform_schoeller <- function(df, Mg="Magnesium, dissolved", 
-                                Ca="Calcium, dissolved", 
-                                Na="Sodium, dissolved", 
-                                K="Potassium, dissolved", 
-                                Cl="Chloride, total", 
-                                SO4="Sulfate, total", 
-                                HCO3="Alkalinity, total (lab)", 
-                                name="location_id", 
-                                date="sample_date", 
+transform_schoeller <- function(df, Mg = "Magnesium, dissolved", 
+                                Ca = "Calcium, dissolved", 
+                                Na = "Sodium, dissolved", 
+                                K = "Potassium, dissolved", 
+                                Cl = "Chloride, total", 
+                                SO4 = "Sulfate, total", 
+                                HCO3 = "Alkalinity, total (lab)", 
+                                name = "location_id", 
+                                date = "sample_date", 
                                 TDS = NULL, 
                                 units = NULL){
   
