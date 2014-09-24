@@ -44,6 +44,17 @@ Source: CRAN
 Version: 1.2-4
 Hash: b775bd08a10f968fef582304b7c3ab9c
 
+Package: devtools
+Source: github
+Version: 1.6.0.9000
+Hash: 51ebc3a4bc82ecf2b9d28c99b5d8f455fc72b91c
+Requires: digest, evaluate, httr, jsonlite, memoise, RCurl, rstudioapi,
+    whisker
+GithubRepo: devtools
+GithubUsername: hadley
+GithubRef: master
+GithubSha1: 51ebc3a4bc82ecf2b9d28c99b5d8f455fc72b91c
+
 Package: dichromat
 Source: CRAN
 Version: 2.0-0
@@ -133,6 +144,17 @@ Source: CRAN
 Version: 1.3.0
 Hash: 7244bf7093e9c6c1ab23ddab020f197f
 Requires: Rcpp
+
+Package: httr
+Source: CRAN
+Version: 0.5
+Hash: 68a70bdd16fb949a12e4fda7f31def00
+Requires: digest, jsonlite, RCurl, stringr
+
+Package: jsonlite
+Source: CRAN
+Version: 0.9.11
+Hash: 9eda817b04b4253e3dc1ba685b0bd612
 
 Package: knitr
 Source: CRAN
@@ -246,6 +268,12 @@ Source: CRAN
 Version: 0.11.2
 Hash: ef2b1a5e45d1461bd720e4ebbe48e601
 
+Package: RCurl
+Source: CRAN
+Version: 1.95-4.3
+Hash: 158377109f939084a72f240125f821d3
+Requires: bitops
+
 Package: reshape2
 Source: CRAN
 Version: 1.4
@@ -271,6 +299,11 @@ Package: rpart
 Source: CRAN
 Version: 4.1-8
 Hash: de3c05e8706015c57e6b0d6843b269d8
+
+Package: rstudioapi
+Source: CRAN
+Version: 0.1
+Hash: 5bd4449a873ec652a05c932312dcf04b
 
 Package: scales
 Source: CRAN
@@ -313,6 +346,11 @@ Source: CRAN
 Version: 0.9
 Hash: cf4f4c18bea62ced914692feb511154c
 Requires: digest
+
+Package: whisker
+Source: CRAN
+Version: 0.3-2
+Hash: 186ab2937fec1694c8a63009a2389c4e
 
 Package: XLConnect
 Source: CRAN

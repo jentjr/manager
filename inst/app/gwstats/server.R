@@ -745,6 +745,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     
     df <- get_data()
     
+    df <- to_censored(df)
+    
     df <- df %>%
       filter(
         location_id %in% input$well_intra,

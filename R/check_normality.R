@@ -19,7 +19,11 @@ is_normal <- function(x) {
 is_lognormal <- function(x) {
   lgof <- gofTest(x, dist = "lnorm")
   p <- lgof$p.value
-  return(p)
+  if (p >= 0.01){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
 }
 
 #' Function to return distribution based on using p-value 
