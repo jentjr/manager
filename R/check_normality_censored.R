@@ -21,7 +21,11 @@ is_normal_censored <- function(x, censored, ...) {
 is_lognormal_censored <- function(x, censored, ...) {
   lgof <- gofTestCEsnored(x, censored, dist = "lnorm")
   p <- lgof$p.value
-  return(p)
+  if (p >= 0.01){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
 }
 
 #' Function to return distribution based on using p-value 
