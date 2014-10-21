@@ -20,12 +20,11 @@ gw_boxplot <- function(df, facet_by = "location_id", short_name = FALSE,
       xlab("Location ID") +
       guides(fill = guide_legend("Location ID")) +
       theme(legend.background = element_rect()) + 
-      theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+      theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
       theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
       theme(axis.text.x = element_text(angle = 90, size = 13)) +
       theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
       theme(axis.text.y = element_text(size = 13)) +
-      theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
       geom_boxplot() + 
       ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
   }
@@ -35,12 +34,11 @@ gw_boxplot <- function(df, facet_by = "location_id", short_name = FALSE,
       xlab("Constituent") +
       guides(fill = guide_legend("Constituent")) +
       theme(legend.background = element_rect()) + 
-      theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
+      theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
       theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
       theme(axis.text.x = element_text(angle = 90, size = 13)) +
       theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
       theme(axis.text.y = element_text(size = 13)) +
-      theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) +
       geom_boxplot() + 
       ggtitle(paste("Boxplot for", df$location_id, "\n", sep = " "))
   }

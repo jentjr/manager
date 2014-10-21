@@ -31,7 +31,7 @@ gw_ts_plot <- function(df, facet_by = NULL, back_date = NULL,
     ylab("Analysis Result") +
     xlab("Sample Date") + 
     scale_x_datetime(labels = scales::date_format("%Y")) +
-    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) + 
+    theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) + 
     theme_bw() +  
     theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
     theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
@@ -142,7 +142,7 @@ multi_by_param_grid <- function(df, back_date = NULL, comp_date = NULL,
     ylab("Analysis Result") +
     xlab("Sample Date") + 
     scale_x_datetime(labels = scales::date_format("%Y")) +
-    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) + 
+    theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) + 
     theme_bw() +  
     
     # create custom legend using guide
@@ -250,7 +250,7 @@ multi_by_loc_grid <- function(df, back_date = NULL,
     ylab("Analysis Result") +
     xlab("Sample Date") + 
     scale_x_datetime(labels = scales::date_format("%Y")) +
-    theme(plot.margin = grid::unit(c(0.75, 0.75, 0.75, 0.75), "in")) + 
+    theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) + 
     theme_bw() +  
     
     # create custom legend using guide
