@@ -183,6 +183,11 @@ Version: 0.6-26
 Hash: 2c59a30bb9d9d4651b913b828dca2640
 Requires: lattice, RColorBrewer
 
+Package: lazyeval
+Source: CRAN
+Version: 0.1.9
+Hash: 2953778d951973e2889641c06275ecf3
+
 Package: lubridate
 Source: CRAN
 Version: 1.3.3
