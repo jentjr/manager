@@ -322,6 +322,9 @@ ggplot_piper <- function() {
 #' @export
   
 piper_plot <- function(df, TDS=FALSE, title=NULL){
+  
+  sym <- seq(1, length(unique(df$location_id)), by = 1)
+  
   if(isTRUE(TDS)){
     ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
                                                colour = location_id,
@@ -341,21 +344,22 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
                                         alpha = guide_legend("none"))
   }else{
   ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
-                                             colour = location_id, 
+                                             color = location_id, 
                                              shape = location_id,
                                              alpha = 0.2), size = 5) +
     geom_point(data = df, aes(x = anion_x, y = anion_y, 
-                              colour = location_id,
+                              color = location_id,
                               shape = location_id,
                               alpha = 0.2), size = 5) +
     geom_point(data = df, aes(x = diam_x, y = diam_y, 
-                              colour = location_id,
+                              color = location_id,
                               shape = location_id,
                               alpha = 0.2), size = 5) +
-    scale_colour_brewer(palette = "Dark2") +
-    ggtitle(paste(title)) + guides(colour = guide_legend("Location ID"),
+    ggtitle(paste(title)) + guides(color = guide_legend("Location ID"),
                                       shape = guide_legend("Location ID"),
-                                      alpha = guide_legend("none"))
+                                      alpha = guide_legend("none")) +
+    scale_color_brewer(palette = "Dark2") +
+    scale_shape_manual(values = sym)
   }
 }
 
@@ -367,18 +371,19 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
 #' @param TDS Scale by Total Dissolved Solids
 #' @export
 
-piper_time_plot <- function(df, TDS = FALSE, title){
+piper_time_plot <- function(df, TDS = FALSE, title = NULL){
+  iter <- unique(df$sample_date)
   ggplot_piper()
   dev.hold()
-  for(i in 1:length(unique(df$sample_date))){
+  for(i in 1:length(iter)){
     if(isTRUE(TDS)){
-      print(plot_piper(subset(df, sample_date == df$sample_date[i]), 
-                       TDS = TRUE, title=paste(title, df$sample_date[i], 
+      print(piper_plot(df[df$sample_date == iter[i], ], 
+                       TDS = TRUE, title=paste(title, iter[i], 
                                                sep="\n")))
       animation::ani.pause()
     }else{
-      print(plot_piper(subset(df, sample_date == df$sample_date[i]), 
-                       title=paste(title, df$sample_date[i], sep="\n")))
+      print(piper_plot(df[df$sample_date == iter[i], ], 
+                       title=paste(title, iter[i], sep="\n")))
       animation::ani.pause()
     }
   }

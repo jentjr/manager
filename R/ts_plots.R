@@ -39,14 +39,15 @@ gw_ts_plot <- function(df, facet_by = NULL, back_date = NULL,
            shape = guide_legend("Measure", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
            linetype = guide_legend("Limits")) +
-    scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
+    scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) +
+    geom_smooth(method = "lm")
   
   if (facet_by == "location_id"){
-    p <- p +facet_wrap(~param_name, scale = "free", ncol = ncol) + 
+    p <- p + facet_wrap(~param_name, scale = "free", ncol = ncol) + 
       ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep=" ")) 
   }
   if (facet_by == "param_name"){
-    p <- p +facet_wrap(~location_id, scale = "free", ncol = ncol) + 
+    p <- p + facet_wrap(~location_id, scale = "free", ncol = ncol) + 
       ggtitle(paste("Time Series Plots for", df$param_name[1], "\n", sep = " "))
   }
   if (!missing(back_date)){
