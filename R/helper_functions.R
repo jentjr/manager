@@ -37,6 +37,12 @@ remove_dup <- function(df){
   return(df_nodup)
 }
 
+replace_missing <- function(df){
+  df$analysis_result <- ifelse(df$analysis_result == -999.9, NA, 
+                                 df$analysis_result)
+  return(df)
+}
+
 #' Function to convert gwdata frame to censored data frame
 #' @param df data frame of groundwater data
 #' @export
