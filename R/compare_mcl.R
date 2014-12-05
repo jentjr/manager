@@ -1,25 +1,29 @@
 #' Function to find EPA primary and seconday water constituents
 #' 
 #' @param df dataframe of groundwater data
+#' @param type can be all, primary, or secondary 
 
-
-get_mcl_params <- function(df, type="all"){
+get_mcl_params <- function(df, type = "all"){
+  
   data(mcl)
   
-  if(isTRUE(type=="primary")){
-    mcl <- subset(mcl, type=="primary")
+  if(isTRUE(type == "primary")){
+    mcl <- mcl[mcl$type == "primary", ]
   }
   
-  if(isTRUE(type=="secondary")){
-    mcl <- subset(mcl, type=="secondary")
+  if(isTRUE(type == "secondary")){
+    mcl <- mcl[mcl$type == "secondary", ]
   }
   
   mcl_data <- data.frame()
   for (i in 1:nrow(mcl)){
     element <- mcl$param_name[i]
     rws <- grepl(paste(element), df$param_name)
+    df[rws, "mcl_lower_limit"] <- mcl$lower_limit[i]
+    df[rws, "mcl_upper_limit"] <- mcl$upper_limit[i]
     mcl_data <- rbind(df[rws,], mcl_data)
   }
+  
   return(mcl_data)
 }
 
@@ -51,7 +55,11 @@ convert_mcl_units <- function(df){
 
 
 compare_mcl <- function(df, format = "summary", type = "all") {
+  
+  data(mcl)
+  
   df$exceedance <- NA
+  
   for (i in 1:nrow(mcl)){
     element <- mcl$param_name[i]
     rws <- grepl(paste(element), df$param_name)
