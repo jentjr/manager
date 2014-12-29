@@ -10,7 +10,7 @@
 #' @param ncol number of columns
 #' @export
 
-gw_ts_plot <- function(df, facet_by = NULL, back_date = NULL, 
+gw_ts_plot <- function(df, facet_by = NULL, trend = FALSE, back_date = NULL, 
                        comp_date = NULL, limit1 = NULL, limit2 = NULL, 
                        short_name = FALSE, pnt = 3, ncol = NULL){
   
@@ -39,8 +39,11 @@ gw_ts_plot <- function(df, facet_by = NULL, back_date = NULL,
            shape = guide_legend("Measure", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
            linetype = guide_legend("Limits")) +
-    scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) +
-    geom_smooth(method = "lm")
+    scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) 
+  
+  if (isTRUE(trend)) {
+    p <- p + geom_smooth(method = "lm")
+  }
   
   if (facet_by == "location_id"){
     p <- p + facet_wrap(~param_name, scale = "free", ncol = ncol) + 
