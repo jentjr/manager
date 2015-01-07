@@ -110,22 +110,25 @@ export_OEPA <- function(df, wells, constituents, file, plant,
   
   id <- dplyr::group_by(df, location_id, sample_date, param_name)
   id <- dplyr::mutate(id, group = n())
+  id <- ungroup(id) 
   
   wb <- XLConnect::loadWorkbook(file, create=TRUE)
   
-  for (i in 1:length(wells)){
-    temp <- id[id$location_id == wells[i], ]
-    temp <- reshape2::dcast(temp, value.var = "result", 
-                            param_name + group + default_unit ~ sample_date, 
-                            margins = FALSE)[-2]
-    XLConnect::createSheet(wb, name = paste(wells[i]))
-    XLConnect::writeWorksheet(wb, temp, sheet=paste(wells[i]), 
+  oepa_cast <- function(x){
+    tmp <- reshape2::dcast(x, value.var = "result", 
+                    param_name + group + default_unit ~ sample_date, 
+                    margins = FALSE)[-2]
+    XLConnect::createSheet(wb, name = paste(x$location_id))
+    XLConnect::writeWorksheet(wb, tmp, sheet = paste(x$location_id),
                               startRow = 4, startCol = 1, header = TRUE,
                               rownames = FALSE)
-    XLConnect::writeWorksheet(wb, h, sheet = paste(wells[i]), 
+    XLConnect::writeWorksheet(wb, h, sheet = paste(x$location_id),
                               startRow = 1, startCol = 1, header = TRUE,
                               rownames = FALSE)
   }
+  
+  plyr::d_ply(id, .(location_id), oepa_cast, .progess = "text")
+
   XLConnect::saveWorkbook(wb)
 }
 
