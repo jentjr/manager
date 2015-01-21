@@ -14,23 +14,29 @@
 #' @param TDS Total Dissolved Solids
 #' @export
 
-get_major_ions <- function(df, Mg = "Magnesium, dissolved", 
+get_major_ions <- function(df, 
+                           Mg = "Magnesium, dissolved", 
                            Ca = "Calcium, dissolved", 
                            Na = "Sodium, dissolved", 
                            K = "Potassium, dissolved", 
                            Cl = "Chloride, total", 
                            SO4 = "Sulfate, total", 
                            Alk = "Alkalinity, total (lab)", 
-                           TDS = NULL,...){
+                           TDS = NULL, 
+                           ...){
 #   TODO: add other major ions like Fe
 #   input_list <- list(...)
   
-  plot_params <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
+  params <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
   
-  plot_data <- df[df$param_name %in% plot_params, ]
- 
-  plot_data <- reshape2::dcast(plot_data, value.var = "analysis_result", 
-                        location_id + sample_date ~ param_name)
+  data <- df[df$param_name %in% params, ]
+  
+  id <- dplyr::group_by(data, location_id, sample_date, param_name)
+  id <- dplyr::mutate(id, group = n())
+  
+  plot_data <- reshape2::dcast(id, value.var = "analysis_result", 
+                        location_id + group + sample_date ~ param_name, mean,
+                        margins = FALSE)[-2]
 
   return(plot_data)
 }
@@ -671,23 +677,28 @@ transform_schoeller <- function(df, Mg = "Magnesium, dissolved",
   return(df_melt)
 }
 
-schoeller <- function(df, facet_by = NULL){
-  p <- ggplot(df, aes(x = param_name, y = analysis_result, group = 1)) + 
-    theme_bw() +
+schoeller <- function(df, facet_by = NULL, title = NULL, lwt = 1){
+  p <- ggplot(df, aes(x = param_name, y = analysis_result, group = 1), 
+              size = lwt) + 
     scale_y_log10() +
+    theme_bw() +
     theme(axis.title.y = element_blank(),
-          axis.title.x = element_blank())
+          axis.title.x = element_blank()) +
+    ggtitle(paste(title))
   if (is.null(facet_by)){
-    p <- p + geom_line()
+    p <- p + geom_line(size = lwt) +theme_bw() 
   }
   if (!is.null(facet_by)){
     if (facet_by == "sample_date"){
       p <- p + facet_wrap(~sample_date, scale = "free_y") + 
-        geom_line(aes(colour = location_id, group = location_id))
+        geom_line(aes(colour = location_id, group = location_id), size = lwt) +
+        guides(colour = guide_legend("Location ID"))
     }
     if (facet_by == "location_id"){
       p <- p + facet_wrap(~location_id, scale = "free_y") +
-        geom_line(aes(colour = sample_date, group = sample_date))
+        geom_line(aes(colour = factor(sample_date), group = sample_date), 
+                  size = lwt) +
+        guides(colour = guide_legend("Sample Date"))
     }
   }
   return(p)

@@ -82,42 +82,6 @@ compare_mcl <- function(df, format = "summary", type = "all") {
   rm(mcl)
 }
 
-#' MCL Comparison Plot
-#' 
-
-mcl_lineplot <- function(df, title) {
-  
-  df$non_detect <- ifelse(
-    df$lt_measure == "<", "non-detect", "detected"
-  )
-  
-  df$param_name <- paste(df$param_name, " (", 
-                             df$default_unit, ")", sep = "")
-  
-  ggplot(df, aes(x = sample_date, y = analysis_result, color = location_id)) + 
-  geom_point(data = df, aes(shape = factor(non_detect)), size = 3) + 
-  scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) +
-  facet_wrap(~param_name, scale = "free") + 
-  geom_hline(data = df, 
-             aes(yintercept = mcl_upper_limit, linetype="upper mcl"),
-             size = 1, show_guide=TRUE) + 
-  geom_hline(data = df, 
-             aes(yintercept = mcl_lower_limit, linetype="lower mcl"), 
-             size=1, show_guide=TRUE) +
-  scale_linetype_manual(values=c("solid", "dotdash")) +
-  ggtitle(paste(title)) +
-  ylab("Analysis Result\n") +
-  xlab("\nSample Date") +
-  scale_x_datetime(labels = scales::date_format("%Y")) +
-  theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) + 
-  theme_bw() +  
-  theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
-  theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
-  guides(linetype = guide_legend("MCL"),
-         shape = guide_legend("Legend", override.aes = list(linetype = 0)),
-         color = guide_legend("Location", override.aes = list(linetype = 0)))
-}
-
 #' Plot for each mcl with location on x axis, MCL parameters on x axis
 #' 
 #' @param df dataframe of mcl summary
