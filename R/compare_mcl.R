@@ -82,8 +82,6 @@ compare_mcl <- function(df, format = "summary", type = "all") {
   rm(mcl)
 }
 
-
-
 #' Plot for each mcl with location on x axis, MCL parameters on x axis
 #' 
 #' @param df dataframe of mcl summary
