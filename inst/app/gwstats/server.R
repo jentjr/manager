@@ -1,4 +1,4 @@
-library(gwstats)
+#library(gwstats)
 library(EnvStats)
 # change options to handle large file size
 options(shiny.maxRequestSize=-1)
