@@ -68,7 +68,7 @@ gw_ts_plot <- function(df, facet_by = NULL, trend = FALSE, back_date = NULL,
       guides(fill = guide_legend(override.aes = list(linetype = 0)))
   }
   if(!missing(limit1)){
-    limit1 <- as.quoted(limit1)
+    # limit1 <- as.quoted(limit1)
     df$limit1_name <- paste(limit1[[1]])
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit1, 
@@ -76,7 +76,7 @@ gw_ts_plot <- function(df, facet_by = NULL, trend = FALSE, back_date = NULL,
                         show_guide = TRUE)
   }
   if(!missing(limit2)){
-    limit2 <- as.quoted(limit2)
+    # limit2 <- as.quoted(limit2)
     df$limit2_name <- paste(limit2[[1]])
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit2, 
