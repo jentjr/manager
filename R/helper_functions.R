@@ -108,7 +108,7 @@ export_OEPA <- function(df, wells, constituents, file, plant,
   df$result <- ifelse(df$lt_measure == "<" | df$lt_measure == ">", 
                       join_lt(), df$analysis_result)
   
-  id <- dplyr::group_by(df, location_id, sample_date, param_name)
+  id <- dplyr::group_by(df, lab_id, location_id, sample_date, param_name)
   id <- dplyr::mutate(id, group = n())
   id <- ungroup(id) 
   
@@ -127,7 +127,7 @@ export_OEPA <- function(df, wells, constituents, file, plant,
                               rownames = FALSE)
   }
   
-  plyr::d_ply(id, .(location_id), oepa_cast, .progess = "text")
+  plyr::d_ply(id, .(location_id), oepa_cast)
 
   XLConnect::saveWorkbook(wb)
 }

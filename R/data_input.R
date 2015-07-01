@@ -13,7 +13,8 @@ connect_manages <- function(manages_path) {
                     ";DBQ=", manages_path)
     )
   
-  manages_query <- paste0("SELECT sample_results.location_id, ", 
+  manages_query <- paste0("SELECT sample_results.lab_id, ",
+                "sample_results.location_id, ", 
                 "sample_results.sample_date, sample_results.analysis_result, ", 
                 "sample_results.lt_measure, site_parameters.default_unit, ", 
                 "site_parameters.param_name, site_parameters.short_name FROM ", 
