@@ -51,10 +51,10 @@ to_censored <- function(df) {
   
   df <- df %>%
     group_by(location_id, param_name, default_unit) %>%
-    mutate(left_censored = ifelse(lt_measure == "<", TRUE, FALSE),
-           right_censored = ifelse(lt_measure == ">", TRUE, FALSE),
-           percent_left = percent_lt(lt_measure),
-           percent_right = percent_gt(lt_measure))
+    mutate(
+      left_censored = ifelse(lt_measure == "<", TRUE, FALSE),
+      right_censored = ifelse(lt_measure == ">", TRUE, FALSE)
+    )
   
   df <- as.data.frame(df)
   

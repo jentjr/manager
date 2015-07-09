@@ -16,8 +16,6 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
                            cen_method = "mle", intra.conf.level = 0.95, 
                            simultaneous = TRUE, SWFPR = NULL, ...) {
   
-  df <- to_censored(df)
-  
   if(!is.null(SWFPR)){
     nw <- length(wells)
     nc <- length(params)
@@ -26,6 +24,8 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
   }
 
   df <- filter(df, location_id %in% wells, param_name %in% params) 
+  
+  df <- to_censored(df)
   
   df <- df %>% 
     mutate(

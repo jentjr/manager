@@ -19,7 +19,7 @@ is_normal_censored <- function(x, censored, ...) {
 #' @export
 
 is_lognormal_censored <- function(x, censored, ...) {
-  lgof <- gofTestCEsnored(x, censored, dist = "lnorm")
+  lgof <- gofTestCensored(x, censored, dist = "lnorm")
   p <- lgof$p.value
   if (p >= 0.01){
     return(TRUE)
@@ -32,15 +32,15 @@ is_lognormal_censored <- function(x, censored, ...) {
 #' @param x analysis_result of groundwater data
 #' @export
 
-dist_censored <- function(x) {
-  n <- is_normal_censored(x)
+dist_censored <- function(x, censored) {
+  n <- is_normal_censored(x, censored)
   if (isTRUE(n >= 0.01)) {
-    return("norm")
+    return("norm_cen")
   }
   if (isTRUE(n < 0.01)) {
-    ln <- is_lognormal_censored(x)
+    ln <- is_lognormal_censored(x, censored)
     if (isTRUE(ln >= 0.01)) {
-      return("lnorm")
+      return("lnorm_cen")
     } else {
       return("none")
     }
@@ -55,6 +55,6 @@ dist_censored <- function(x) {
 est_dist_censored <- function(df) {  
   dist_result <- df %>%
     group_by(location_id, param_name, default_unit) %>%
-    summarise(distribution = dist_censored(analysis_result))
+    summarise(distribution = dist_censored(analysis_result, left_censored))
   return(dist_result)
 }

@@ -13,7 +13,13 @@ pred_int_sim <- function(x, left_censored, percent_left, non_detect = c(15, 50),
                          ...) {
   
   if(is.null(dist)){
-    dist <- dist(x)
+    # TODO: Add check first to see if data is left censored
+    if(percent_left > non_detect[1] && percent_left < non_detect[2]){
+      dist <- dist_censored(x, left_censored)
+    } else {
+      dist <- dist(x)
+    }
+    dist
   }
   
   if (dist == "norm") {
