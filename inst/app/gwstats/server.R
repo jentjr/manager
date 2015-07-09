@@ -770,7 +770,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     if(isTRUE(input$pred_int_type == "Simultaneous")) {
       out <- intra_pred_int(df, analysis_result, input$well_intra, 
                             input$analyte_intra,
-                            bkgd, comp, n.mean = input$sim_intra_n.mean,
+                            bkgd, comp, 
                             k = input$sim_intra_k, m = input$sim_intra_m,
                             r = input$sim_intra_r, 
                             rule = input$sim_intra_rule,
@@ -780,7 +780,6 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     if(isTRUE(input$pred_int_type == "Regular")) {
       out <- intra_pred_int(df, analysis_result, input$well_intra, 
                             input$analyte_intra, bkgd, comp,
-                            n.mean = input$reg_intra_mean, 
                             k = input$reg_intra_k,
                             method = input$reg_intra_method,
                             pi.type = input$reg_intra_pi.type,

@@ -219,12 +219,12 @@ shinyUI(navbarPage("GWSTATS",
                      choices = c("Simultaneous", "Regular")),
         conditionalPanel(
             condition = "input.pred_int_type == 'Simultaneous'",
-            numericInput(inputId = "sim_intra_n.mean", label = "Specify 
-                         positive integer for the sample size associated 
-                         with the future averages. The default value is 
-                         n.mean=1 (i.e., individual observations). 
-                         Note that all future averages must be based on the 
-                         same sample size", value = 1, min = 0),
+#             numericInput(inputId = "sim_intra_n.mean", label = "Specify 
+#                          positive integer for the sample size associated 
+#                          with the future averages. The default value is 
+#                          n.mean=1 (i.e., individual observations). 
+#                          Note that all future averages must be based on the 
+#                          same sample size", value = 1, min = 0),
             numericInput(inputId = "sim_intra_k", label = "Specify an integer k 
                          in the k-of-m rule for the minimum number of 
                          observations (or averages) out of m observations 
