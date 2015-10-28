@@ -1,0 +1,5 @@
+name: gwstats
+account: gwstats
+bundleId: 54025
+url: http://gwstats.shinyapps.io/gwstats
+server: shinyapps.io
