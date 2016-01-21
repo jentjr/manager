@@ -29,3 +29,4 @@ Suggests:
 License: none
 LazyData: true
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1

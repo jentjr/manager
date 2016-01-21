@@ -327,7 +327,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           ts_name <- paste("ts_plot", ts_i, sep = "")
           output[[ts_name]] <- renderPlot({
             
-            ts <- gw_ts_plot(ts_data[ts_data$location_id == ts_well[ts_i], ],
+            ts <- gwstats::ts_plot(ts_data[ts_data$location_id == ts_well[ts_i], ],
                              facet_by = "location_id", 
                              short_name = input$ts_short_name, 
                              ncol = input$ncol_ts)
@@ -338,7 +338,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
               b2 <- max(lubridate::ymd(input$ts_back_dates))
               c2 <- max(lubridate::ymd(input$ts_comp_dates))
               
-              ts <- gw_ts_plot(
+              ts <- gwstats::ts_plot(
                 ts_data[ts_data$location_id == 
                                ts_well[ts_i], ], 
                 facet_by = "location_id",
@@ -366,7 +366,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           ts_name <- paste("ts_plot", ts_i, sep = "")
           output[[ts_name]] <- renderPlot({
             
-            ts <- gw_ts_plot(ts_data[ts_data$param_name == ts_analyte[ts_i], ],
+            ts <- gwstats::ts_plot(ts_data[ts_data$param_name == ts_analyte[ts_i], ],
                              facet_by = "param_name", 
                              short_name = input$ts_short_name,
                              ncol = input$ncol_ts)
@@ -377,7 +377,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
               b2 <- max(lubridate::ymd(input$ts_back_dates))
               c2 <- max(lubridate::ymd(input$ts_comp_dates))
               
-              ts <- gw_ts_plot(
+              ts <- gwstats::ts_plot(
                 ts_data[ts_data$param_name == 
                           ts_analyte[ts_i], ], 
                 facet_by = "param_name",
@@ -424,14 +424,14 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
         c2 <- max(lubridate::ymd(input$ts_comp_dates))
         
         pdf(file = file, width = 17, height = 11)
-        multi_gw_ts_plot(get_ts_data(), back_date = c(b1, b2), 
+        gwstats::ts_plot(get_ts_data(), back_date = c(b1, b2), 
                          facet_by = input$ts_facet_by,
                          short_name = input$ts_short_name,
                          comp_date = c(c1, c2), ncol = input$ncol_ts)
         dev.off()
       } else {
         pdf(file = file, width = 17, height = 11)
-        multi_gw_ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
+        gwstats::ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
                          short_name = input$ts_short_name,
                          ncol = input$ncol_ts)
         dev.off()

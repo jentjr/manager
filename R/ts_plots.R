@@ -1,4 +1,6 @@
-#' Function for plotting time series of groundwater data
+#' This function plots multiple groundwater data time series by location, 
+#' or constituent. 
+#' 
 #' @param df groundwater data
 #' @param facet_by parameter to group plots by
 #' @param back_date dates for background date range
@@ -10,13 +12,71 @@
 #' @param ncol number of columns
 #' @export
 
-gw_ts_plot <- function(df, facet_by = NULL, trend = FALSE, back_date = NULL, 
-                       comp_date = NULL, limit1 = NULL, limit2 = NULL, 
-                       short_name = FALSE, pnt = 3, ncol = NULL){
+ts_plot <- function(df, 
+                    facet_by = "location_id", 
+                    trend = FALSE, 
+                    back_date = NULL, 
+                    comp_date = NULL, 
+                    limit1 = NULL, 
+                    limit2 = NULL, 
+                    short_name = FALSE, 
+                    pnt = 3, 
+                    ncol = NULL){
+  
+  if (facet_by == "param_name") {
+    plyr::d_ply(df, 
+                .(param_name), 
+                .progress = "text", 
+                .ts_plot, 
+                facet_by = facet_by, 
+                trend = trend, 
+                back_date = back_date, # need to fix date issue
+                comp_date = comp_date,
+                short_name = short_name, 
+                pnt = pnt, 
+                ncol = ncol,
+                .print = TRUE)
+  } else{
+    plyr::d_ply(df, 
+                .(location_id), 
+                .progress = "text", 
+                .ts_plot, 
+                facet_by = facet_by, 
+                trend = trend,
+                back_date = back_date, # need to fix date issue
+                comp_date = comp_date,
+                short_name = short_name, 
+                pnt = pnt, 
+                ncol = ncol,
+                .print = TRUE)
+  }
+}
+
+#' Function for plotting time series of groundwater data
+#' @param df groundwater data
+#' @param facet_by parameter to group plots by
+#' @param back_date dates for background date range
+#' @param comp_date dates for compliance date range
+#' @param limit1 horizontal line 1
+#' @param limit2 horizontal line 2
+#' @param short_name If TRUE, the analyte name will be abbreviated
+#' @param pnt size of points on time series plots
+#' @param ncol number of columns
+
+.ts_plot <- function(df, 
+                     facet_by = NULL, 
+                     trend = FALSE, 
+                     back_date = NULL, 
+                     comp_date = NULL, 
+                     limit1 = NULL, 
+                     limit2 = NULL, 
+                     short_name = FALSE, 
+                     pnt = 3, 
+                     ncol = NULL){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
-  if(isTRUE(short_name)){
+  if (isTRUE(short_name)) {
     df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
                            sep = "")
   } else {
@@ -45,15 +105,15 @@ gw_ts_plot <- function(df, facet_by = NULL, trend = FALSE, back_date = NULL,
     p <- p + geom_smooth(method = "lm")
   }
   
-  if (facet_by == "location_id"){
+  if (facet_by == "location_id") {
     p <- p + facet_wrap(~param_name, scale = "free", ncol = ncol) + 
-      ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep=" ")) 
+      ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep = " ")) 
   }
-  if (facet_by == "param_name"){
+  if (facet_by == "param_name") {
     p <- p + facet_wrap(~location_id, scale = "free", ncol = ncol) + 
       ggtitle(paste("Time Series Plots for", df$param_name[1], "\n", sep = " "))
   }
-  if (!missing(back_date)){
+  if (!missing(back_date)) {
     shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
                                xmax = c(back_date[2], comp_date[2]),
                                ymin = c(-Inf, -Inf), 
@@ -64,10 +124,10 @@ gw_ts_plot <- function(df, facet_by = NULL, trend = FALSE, back_date = NULL,
                        aes(xmin = xmin, ymin = ymin, xmax = xmax, 
                            ymax = ymax, fill = Years),
                        alpha = 0.2, inherit.aes = FALSE) +
-      scale_fill_manual(values=c("blue","green")) +
+      scale_fill_manual(values = c("blue","green")) +
       guides(fill = guide_legend(override.aes = list(linetype = 0)))
   }
-  if(!missing(limit1)){
+  if (!missing(limit1)) {
     # limit1 <- as.quoted(limit1)
     df$limit1_name <- paste(limit1[[1]])
     p <- p + geom_hline(data = df, 
@@ -75,7 +135,7 @@ gw_ts_plot <- function(df, facet_by = NULL, trend = FALSE, back_date = NULL,
                                    linetype = "limit1_name"), 
                         show_guide = TRUE)
   }
-  if(!missing(limit2)){
+  if (!missing(limit2)) {
     # limit2 <- as.quoted(limit2)
     df$limit2_name <- paste(limit2[[1]])
     p <- p + geom_hline(data = df, 
@@ -84,30 +144,6 @@ gw_ts_plot <- function(df, facet_by = NULL, trend = FALSE, back_date = NULL,
                         show_guide = TRUE)
   }  
   return(p)
-}
-
-#' This function plots multiple groundwater data time series by location, 
-#' or constituent. Other variables from \code{\link{gw_ts_plot}} can be passed 
-#' to the funcion. 
-#' 
-#' @param df data frame in long format containing groundwater monitoring data
-#' assumes column names of location_id, param_name, analysis_result, 
-#' default_unit, lt_measure, sample_date. Dates for sample_date column
-#'  must be in as.POSIXct format
-#' @param facet_by parameter to group by. Can be either location_id, 
-#' or param_name. Defaults to location_id.
-#' @export
-
-multi_gw_ts_plot <- function(df, facet_by = "location_id", ...){
-  if (facet_by == "param_name") {
-    plyr::d_ply(df, .(param_name), .progress = "text", gw_ts_plot, 
-                facet_by = facet_by, ...,
-                .print = TRUE)
-  } else{
-    plyr::d_ply(df, .(location_id), .progress = "text", gw_ts_plot, 
-                facet_by = facet_by, ...,
-                .print = TRUE)
-  }
 }
 
 #' Function to plot multiple time series by parameter
@@ -120,15 +156,14 @@ multi_gw_ts_plot <- function(df, facet_by = "location_id", ...){
 #' @param name If name = "short" the analyte will be abbreviated
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
-#' @export
 
-multi_by_param_grid <- function(df, back_date = NULL, comp_date = NULL, 
+.multi_by_param_grid <- function(df, back_date = NULL, comp_date = NULL, 
                                 limit1 = NULL, limit2 = NULL, 
                                 name = NULL, pnt = 3){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
-  if(isTRUE(name == "short")){
+  if (isTRUE(name == "short")) {
     df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
                            sep = "")
   } else {
@@ -161,7 +196,7 @@ multi_by_param_grid <- function(df, back_date = NULL, comp_date = NULL,
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
   
   # shaded background and compliance date regions
-  if(!missing(back_date)){
+  if (!missing(back_date)) {
     # add rectangles for date ranges
     shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
                                xmax = c(back_date[2], comp_date[2]),
@@ -173,12 +208,12 @@ multi_by_param_grid <- function(df, back_date = NULL, comp_date = NULL,
                        aes(xmin = xmin, ymin = ymin, xmax = xmax, 
                            ymax = ymax, fill = Years),
                        alpha = 0.2, inherit.aes = FALSE) +
-      scale_fill_manual(values=c("blue","green")) +
+      scale_fill_manual(values = c("blue","green")) +
       guides(fill = guide_legend(override.aes = list(linetype = 0)))
   }
   
   # add horizontal line for limit1
-  if(!missing(limit1)){
+  if (!missing(limit1)) {
     limit1 <- as.quoted(limit1)
     df$limit1_name <- paste(limit1[[1]])
     p <- p + geom_hline(data = df, 
@@ -187,7 +222,7 @@ multi_by_param_grid <- function(df, back_date = NULL, comp_date = NULL,
                         show_guide = TRUE)
   }
   # add horizontal line for limit2
-  if(!missing(limit2)){
+  if (!missing(limit2)) {
     limit2 <- as.quoted(limit2)
     df$limit2_name <- paste(limit2[[1]])
     p <- p + geom_hline(data = df, 
@@ -210,11 +245,10 @@ multi_by_param_grid <- function(df, back_date = NULL, comp_date = NULL,
 #' @param back_date vector of start and end of background dates.
 #' @param comp_date vector of start and end of compliance dates. 
 #' @param limits column vector of limits e.g. c("EPA_Limits", "DMR_limits")
-#' @export
 
-multi_by_param <- function(df, ...){
+.multi_by_param <- function(df, ...){
   
-  plyr::d_ply(df, .(param_name), .progress = "text", multi_by_param_grid, ...,
+  plyr::d_ply(df, .(param_name), .progress = "text", .multi_by_param_grid, ...,
               .print = TRUE)
 }
 
@@ -228,15 +262,14 @@ multi_by_param <- function(df, ...){
 #' @param name If name = "short" the analyte will be abbreviated
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
-#' @export
 
-multi_by_loc_grid <- function(df, back_date = NULL, 
+.multi_by_loc_grid <- function(df, back_date = NULL, 
                               comp_date = NULL, limit1 = NULL, limit2 = NULL, 
                               name = NULL, pnt = 3){
   
   df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
   
-  if(isTRUE(name == "short")){
+  if (isTRUE(name == "short")) {
     df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
                            sep = "")
   } else {
@@ -269,7 +302,7 @@ multi_by_loc_grid <- function(df, back_date = NULL,
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
   
   # shaded background and compliance date regions
-  if(!missing(back_date)){
+  if (!missing(back_date)) {
     # add rectangles for date ranges
     shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
                                xmax = c(back_date[2], comp_date[2]),
@@ -281,25 +314,27 @@ multi_by_loc_grid <- function(df, back_date = NULL,
                        aes(xmin = xmin, ymin = ymin, xmax = xmax, 
                            ymax = ymax, fill = Years),
                        alpha = 0.2, inherit.aes = FALSE) +
-      scale_fill_manual(values=c("blue","green")) +
+      scale_fill_manual(values = c("blue","green")) +
       guides(fill = guide_legend(override.aes = list(linetype = 0)))
   }
   
   # add horizontal line for limit1
-  if(!missing(limit1)){
+  if (!missing(limit1)) {
     limit1 <- as.quoted(limit1)
     df$limit1_name <- paste(limit1[[1]])
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit1, 
-                                   linetype = "limit1_name"), show_guide = TRUE)
+                                   linetype = "limit1_name"), 
+                        show_guide = TRUE)
   }
   # add horizontal line for limit2
-  if(!missing(limit2)){
+  if (!missing(limit2)) {
     limit2 <- as.quoted(limit2)
     df$limit2_name <- paste(limit2[[1]])
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit2, 
-                                   linetype = "limit2_name"), show_guide = TRUE)
+                                   linetype = "limit2_name"), 
+                        show_guide = TRUE)
   }  
   return(p)
 }
@@ -317,10 +352,9 @@ multi_by_loc_grid <- function(df, back_date = NULL,
 #' @param comp_date vector of start and end of compliance dates. 
 #' @param limit1 plots a horizontal line for a limit e.g. EPA MCL
 #' @param limit2 plots a second limit
-#' @export
 
-multi_by_loc <- function(df, ...){
+.multi_by_loc <- function(df, ...){
   
-  plyr::d_ply(df, .(location_id), .progress = "text", multi_by_loc_grid, ...,
+  plyr::d_ply(df, .(location_id), .progress = "text", .multi_by_loc_grid, ...,
               .print = TRUE)
 }
