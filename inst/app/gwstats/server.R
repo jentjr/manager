@@ -563,10 +563,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     ions <- ions[complete.cases(ions), ]
     
     plot_data <- conc_to_meq(ions, Mg = Mg, Ca = Ca, Na = Na, 
-                             K = K, Cl = Cl, SO4 = SO4, HCO3 = Alk)
+                             K = K, Cl = Cl, SO4 = SO4, total_alk = Alk)
     
     stiff_data <- transform_stiff_data(plot_data, Mg = Mg, Ca = Ca, Na = Na, 
-                                       K = K, Cl = Cl, SO4 = SO4, HCO3 = Alk, 
+                                       K = K, Cl = Cl, SO4 = SO4, Alk = Alk, 
                                        TDS = TDS)
     
     stiff_data

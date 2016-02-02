@@ -12,43 +12,14 @@
 #' @param ncol number of columns
 #' @export
 
-ts_plot <- function(df, 
-                    facet_by = "location_id", 
-                    trend = FALSE, 
-                    back_date = NULL, 
-                    comp_date = NULL, 
-                    limit1 = NULL, 
-                    limit2 = NULL, 
-                    short_name = FALSE, 
-                    pnt = 3, 
-                    ncol = NULL){
+ts_plot <- function(df, facet_by = "location_id", ...){
   
   if (facet_by == "param_name") {
-    plyr::d_ply(df, 
-                .(param_name), 
-                .progress = "text", 
-                .ts_plot, 
-                facet_by = facet_by, 
-                trend = trend, 
-                back_date = back_date, # need to fix date issue
-                comp_date = comp_date,
-                short_name = short_name, 
-                pnt = pnt, 
-                ncol = ncol,
-                .print = TRUE)
+    plyr::d_ply(df, .(param_name), .progress = "text", .ts_plot, 
+                facet_by = facet_by, ..., .print = TRUE)
   } else{
-    plyr::d_ply(df, 
-                .(location_id), 
-                .progress = "text", 
-                .ts_plot, 
-                facet_by = facet_by, 
-                trend = trend,
-                back_date = back_date, # need to fix date issue
-                comp_date = comp_date,
-                short_name = short_name, 
-                pnt = pnt, 
-                ncol = ncol,
-                .print = TRUE)
+    plyr::d_ply(df, .(location_id), .progress = "text", .ts_plot, 
+                facet_by = facet_by, ..., .print = TRUE)
   }
 }
 
@@ -109,24 +80,41 @@ ts_plot <- function(df,
     p <- p + facet_wrap(~param_name, scale = "free", ncol = ncol) + 
       ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep = " ")) 
   }
+  
   if (facet_by == "param_name") {
     p <- p + facet_wrap(~location_id, scale = "free", ncol = ncol) + 
       ggtitle(paste("Time Series Plots for", df$param_name[1], "\n", sep = " "))
   }
+  
   if (!missing(back_date)) {
-    shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
-                               xmax = c(back_date[2], comp_date[2]),
-                               ymin = c(-Inf, -Inf), 
-                               ymax = c(Inf, Inf),
-                               Years = c("background", "compliance"))
+    shaded_dates <- data.frame(xmin = back_date[1], 
+                               xmax = back_date[2],
+                               ymin = -Inf, 
+                               ymax =  Inf,
+                               Years = "background")
     
     p <- p + geom_rect(data = shaded_dates, 
                        aes(xmin = xmin, ymin = ymin, xmax = xmax, 
                            ymax = ymax, fill = Years),
                        alpha = 0.2, inherit.aes = FALSE) +
-      scale_fill_manual(values = c("blue","green")) +
+      scale_fill_manual(values = c("blue")) +
       guides(fill = guide_legend(override.aes = list(linetype = 0)))
   }
+  
+  if (!missing(comp_date)) {
+    shaded_dates <- data.frame(xmin = comp_date[1], 
+                               xmax = comp_date[2],
+                               ymin = -Inf, 
+                               ymax = Inf, 
+                               years = "compliance")
+    p <- p + geom_rect(data = shaded_dates, 
+                       aes(xmin = xmin, ymin = ymin, xmax = xmax, 
+                           ymax = ymax, fill = Years),
+                       alpha = 0.2, inherit.aes = FALSE) +
+      scale_fill_manual(values = c("green")) +
+      guides(fill = guide_legend(override.aes = list(linetype = 0)))
+  }
+  
   if (!missing(limit1)) {
     # limit1 <- as.quoted(limit1)
     df$limit1_name <- paste(limit1[[1]])
@@ -135,6 +123,7 @@ ts_plot <- function(df,
                                    linetype = "limit1_name"), 
                         show_guide = TRUE)
   }
+  
   if (!missing(limit2)) {
     # limit2 <- as.quoted(limit2)
     df$limit2_name <- paste(limit2[[1]])
