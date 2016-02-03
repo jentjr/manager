@@ -130,6 +130,71 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
   
   # End outlier detection ------------------------------------------------------
   
+  # Begin trend analysis -------------------------------------------------------
+  output$trend_wells <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    well_names <- as.character(get_wells(data))
+    selectInput("trend_well", "Monitoring Well", well_names,
+                multiple = FALSE,
+                selected = well_names[1])
+  })
+  
+  output$trend_analytes <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    analyte_names <- as.character(get_analytes(data))
+    selectInput("trend_analyte", "Constituent", analyte_names, 
+                multiple = FALSE,
+                selected = analyte_names[1])
+  })
+  
+  output$trend_date_ranges <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    tagList(
+      dateRangeInput("trend_date_range", "Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))
+    )
+  })
+  
+  get_trend_data <- reactive({
+    validate(
+      need(input$data_path != "", "")
+    )
+    df <- get_data()
+    start <- min(lubridate::ymd(input$trend_date_range), na.rm = TRUE)
+    end <- max(lubridate::ymd(input$trend_date_range), na.rm = TRUE)
+    data_selected <- df[df$location_id %in% input$trend_well &
+                          df$param_name %in% input$trend_analyte &
+                          df$sample_date >= start & df$sample_date <= end, ]
+    data_selected
+  })
+  
+  output$trend_test <- renderPrint({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    
+    df <- get_trend_data()
+    validate(
+      need(length(unique(df$analysis_result)) > 2, "")
+    )
+    
+    out <- EnvStats::kendallTrendTest(analysis_result ~ sample_date, 
+                                      data  = df)
+    out
+  })
+  
+  # End trend analysis ---------------------------------------------------------
+  
   # Begin Distribution Plots ---------------------------------------------------
   output$dist_wells <- renderUI({
     validate(

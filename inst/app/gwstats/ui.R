@@ -3,20 +3,27 @@ shinyUI(navbarPage("GWSTATS",
   tabPanel("Data Input",
     sidebarLayout(
       sidebarPanel(
-        fileInput(inputId = "data_path", label = "Browse to file",
-                  accept = c(".mdb", ".csv", ".xls", ".xlsx")),
-        radioButtons(inputId = "file_type", label = "File Type", 
-                    choices = c("MANAGES database", 
-                                "csv", 
-                                "excel")),
-        conditionalPanel(condition = "input.file_type == 'csv'",
-                         textInput(inputId = "csv_date_format", 
-                                   label = "Date format",
-                                   value = "mdy")),
-        conditionalPanel(condition = "input.file_type == 'excel'",
-                         textInput(inputId = "excel_sheet", 
-                                   label = "Sheet name",
-                                   value = "Sheet1"))
+        fileInput(
+          inputId = "data_path", label = "Browse to file",
+          accept = c(".mdb", ".csv", ".xls", ".xlsx")
+        ),
+        radioButtons(
+          inputId = "file_type", 
+          label = "File Type", 
+          choices = c("MANAGES database", "csv", "excel")
+        ),
+        conditionalPanel(
+          condition = "input.file_type == 'csv'",
+          textInput(inputId = "csv_date_format", 
+                    label = "Date format",
+                    value = "mdy")
+        ),
+        conditionalPanel(
+          condition = "input.file_type == 'excel'",
+          textInput(inputId = "excel_sheet", 
+                    label = "Sheet name",
+                    value = "Sheet1")
+          )
       ),
       mainPanel(
         dataTableOutput("well_table")
@@ -29,18 +36,22 @@ shinyUI(navbarPage("GWSTATS",
         uiOutput("outlier_wells"),
         uiOutput("outlier_analytes"),
         uiOutput("outlier_date_ranges"),
-        selectInput(inputId = "outlier_test_name", label = "Outlier Test",
-                     choices = c("Rosner", "Grubb", "Dixon")
-                    ),
+        selectInput(
+          inputId = "outlier_test_name", 
+          label = "Outlier Test",
+          choices = c("Rosner", "Grubb", "Dixon")
+        ),
         conditionalPanel(
           condition = "input.outlier_test_name == 'Rosner'",
-          numericInput(inputId = "rosnerN", 
-                       label = "Number of suspected outliers",
-                       value = 2, min = 0
+          numericInput(
+            inputId = "rosnerN", 
+            label = "Number of suspected outliers",
+            value = 2, min = 0
           ),
-          numericInput(inputId = "rosnerAlpha",
-                       label = "alpha",
-                       value = 0.01, min = 0, max = 1
+          numericInput(
+            inputId = "rosnerAlpha",
+            label = "alpha",
+            value = 0.01, min = 0, max = 1
           )
         ),
         conditionalPanel(
@@ -88,6 +99,18 @@ shinyUI(navbarPage("GWSTATS",
       )
     )
   ),
+  tabPanel("Trends",
+    sidebarLayout(
+      sidebarPanel(
+        uiOutput("trend_wells"),
+        uiOutput("trend_analytes"),
+        uiOutput("trend_date_ranges")
+      ),
+      mainPanel(
+        verbatimTextOutput("trend_test")
+      )
+    )
+  ),
   navbarMenu("Plots",
     tabPanel("Distribution Plots",
       sidebarLayout(
@@ -95,39 +118,56 @@ shinyUI(navbarPage("GWSTATS",
           uiOutput("dist_wells"),
           uiOutput("dist_analytes"),
           uiOutput("dist_date_ranges"),
-          radioButtons(inputId = "dist_plot_type", 
-                       label = "Type of Distribution Plot",
-                       choices = c("Regular", "Censored"),
-                       selected = "Regular"),
+          radioButtons(
+            inputId = "dist_plot_type", 
+            label = "Type of Distribution Plot",
+            choices = c("Regular", "Censored"),
+            selected = "Regular"
+          ),
           conditionalPanel(
               condition = "input.dist_plot_type == 'Censored'",
-              selectInput(inputId = "cen_dist_side", label = "Censoring Side",
-                        c("left", "right")
-                          ),
-              selectInput(inputId = "cen_dist_test", label = "Select test",
-                          c("Shapiro-Francia" = "sf", "Shapiro-Wilk" = "sw", 
+              selectInput(
+                inputId = "cen_dist_side", 
+                label = "Censoring Side",
+                choices = c("left", "right")
+              ),
+              selectInput(
+                inputId = "cen_dist_test", 
+                label = "Select test",
+                choices = c("Shapiro-Francia" = "sf", 
+                            "Shapiro-Wilk" = "sw", 
                             "Prob-Plot-Corr-Coeff" = "ppcc")
-                          ),
-              selectInput(inputId = "cen_dist_dist", label = "Distribution",
-                          c("Normal" = "norm", "Lognormal" = "lnorm")
-                          ),
-              selectInput(inputId = "cen_dist_method", 
-                          label = "Select method to compute plotting position",
-                          c("michael-schucany", "modified kaplan-meier", 
-                            "nelson", "hirsch-stedinger")
-                          ),
-              numericInput(inputId = "cen_dist_plot.pos.con", 
-                           label = "Scalar for plotting position constant",
-                           value = 0.375, min = 0, max = 1
-                           )
+              ),
+              selectInput(
+                inputId = "cen_dist_dist", 
+                label = "Distribution",
+                choices = c("Normal" = "norm", "Lognormal" = "lnorm")
+              ),
+              selectInput(
+                inputId = "cen_dist_method", 
+                label = "Select method to compute plotting position",
+                choices = c("michael-schucany", 
+                            "modified kaplan-meier", 
+                            "nelson", 
+                            "hirsch-stedinger")
+              ),
+              numericInput(
+                inputId = "cen_dist_plot.pos.con", 
+                label = "Scalar for plotting position constant",
+                value = 0.375, 
+                min = 0, 
+                max = 1
+              )
             ),
           conditionalPanel(
             condition = "input.dist_plot_type == 'Regular'",
-            selectInput("dist_type", "Type of Distribution", 
-                        row.names(Distribution.df), 
-                        selected = "norm"
-                        )
+            selectInput(
+              inputId = "dist_type", 
+              label = "Type of Distribution", 
+              choices = row.names(Distribution.df), 
+              selected = "norm"
             )
+          )
         ),
         mainPanel(
           tableOutput("lt_summary"),
