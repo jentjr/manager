@@ -15,9 +15,15 @@ new_database <- function(path) {
   
   dbDisconnect(db)
   
-  return(db)
-  
 }
 
-dbSendQuery(db, "INSERT INTO wellConstruction VALUES('MW-1', 'MW-1', '45.23', 
-            '80.45', 128.76, 100.56, 56.10)")
+enter_data <- function(db) {
+  
+  db <- dbConnect(RSQLite::SQLite(), db)
+
+  dbSendQuery(db, "INSERT INTO wellConstruction VALUES('MW-1', 'MW-1', '45.23', 
+             '80.45', 128.76, 100.56, 56.10)")
+  
+  dbDisconnect(db)
+  
+}
