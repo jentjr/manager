@@ -1,5 +1,3 @@
-library(DBI)
-
 new_database <- function(path) {
   
   db <- dbConnect(RSQLite::SQLite(), path) 

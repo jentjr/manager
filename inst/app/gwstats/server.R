@@ -1,5 +1,5 @@
-#library(gwstats)
 library(EnvStats)
+
 # change options to handle large file size
 options(shiny.maxRequestSize = -1)
 # force numbers to be decimal instead of scientific
@@ -36,6 +36,99 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                     lengthMenu = c(5, 10, 15, 25, 50, 100), 
                     pageLength = 10)
   ) 
+  
+  # Begin outlier detecion -----------------------------------------------------
+  output$outlier_wells <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    well_names <- as.character(get_wells(data))
+    selectInput("outlier_well", "Monitoring Well", well_names,
+                multiple = FALSE,
+                selected = well_names[1])
+  })
+  
+  output$outlier_analytes <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    analyte_names <- as.character(get_analytes(data))
+    selectInput("outlier_analyte", "Constituent", analyte_names, 
+                multiple = FALSE,
+                selected = analyte_names[1])
+  })
+  
+  output$outlier_date_ranges <- renderUI({
+    validate(
+      need(input$data_path != "", "")
+    )
+    data <- get_data()
+    tagList(
+      dateRangeInput("outlier_date_range", "Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))
+    )
+  })
+  
+  get_outlier_data <- reactive({
+    validate(
+      need(input$data_path != "", "")
+    )
+    df <- get_data()
+    start <- min(lubridate::ymd(input$outlier_date_range), na.rm = TRUE)
+    end <- max(lubridate::ymd(input$outlier_date_range), na.rm = TRUE)
+    data_selected <- df[df$location_id %in% input$outlier_well &
+                          df$param_name %in% input$outlier_analyte &
+                          df$sample_date >= start & df$sample_date <= end, ]
+    data_selected
+  })
+  
+  output$outlier_table <- renderDataTable({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    data <- get_outlier_data()
+    data
+  }, options = list(scrollY = "100%", scrollX = "100%", 
+                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
+                    pageLength = 10)
+  )
+  
+  output$outlier_test <- renderPrint({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    
+    df <- get_outlier_data()
+    validate(
+      need(length(unique(df$analysis_result)) > 2, "")
+    )
+    
+    if (input$outlier_test_name == "Rosner") {
+      out <- EnvStats::rosnerTest(df$analysis_result, 
+                                  k = input$rosnerN, 
+                                  alpha = input$rosnerAlpha)
+    } 
+    
+    if (input$outlier_test_name == "Grubb") {
+      out <- outliers::grubbs.test(df$analysis_result, 
+                                   type = input$grubbType,
+                                   opposite = as.integer(input$grubbOpposite),
+                                   two.sided = as.integer(input$grubbSide))
+    } 
+    
+    if (input$outlier_test_name == "Dixon") {
+      out <- outliers::dixon.test(df$analysis_result, 
+                                  type = input$dixonType, 
+                                  opposite = as.integer(input$dixonOpposite),
+                                  two.sided = as.integer(input$dixonSide))
+    }
+    out
+  })
+  
+  # End outlier detection ------------------------------------------------------
   
   # Begin Distribution Plots ---------------------------------------------------
   output$dist_wells <- renderUI({
@@ -77,8 +170,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "")
     )
     df <- get_data()
-    start <- min(lubridate::ymd(input$dist_back_dates))
-    end <- max(lubridate::ymd(input$dist_back_dates))
+    start <- min(lubridate::ymd(input$dist_back_dates), na.rm = TRUE)
+    end <- max(lubridate::ymd(input$dist_back_dates), na.rm = TRUE)
     data_selected <- df[df$location_id %in% input$dist_well &
                               df$param_name %in% input$dist_analyte &
                               df$sample_date >= start & df$sample_date <= end, ]
@@ -103,7 +196,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(length(unique(df$analysis_result)) > 2, "")
     )
-    if(isTRUE(input$dist_plot_type == "Censored")) {
+    if (isTRUE(input$dist_plot_type == "Censored")) {
       df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
       out <- EnvStats::gofTestCensored(
         x = df$analysis_result, censored = df$censored, 
@@ -775,7 +868,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                             r = input$sim_intra_r, 
                             rule = input$sim_intra_rule,
                             pi.type = input$sim_intra_pi.type,
-                            SWFPR = input$sim_intra_swfpr,)
+                            SWFPR = input$sim_intra_swfpr)
     }
     if (isTRUE(input$pred_int_type == "Regular")) {
       out <- intra_pred_int(df, analysis_result, input$well_intra, 
@@ -819,7 +912,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep = "")
           output[[ts_intra_name]] <- renderPlot({
             
-            ts <- gw_ts_plot(
+            ts <- gwstats::ts_plot(
               ts_intra_data[ts_intra_data$location_id == 
               ts_intra_well[ts_intra_i], ],
               facet_by = "location_id", 
@@ -835,7 +928,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
               b2 <- max(lubridate::ymd(input$back_dates_intra))
               c2 <- max(lubridate::ymd(input$comp_dates_intra))
               
-              ts <- gw_ts_plot(
+              ts <- gwstats::ts_plot(
                 ts_intra_data[ts_intra_data$location_id == 
                           ts_intra_well[ts_intra_i], ], 
                 facet_by = "location_id",
@@ -865,14 +958,14 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep = "")
           output[[ts_intra_name]] <- renderPlot({
             
-            ts <- gw_ts_plot(
+            ts <- gwstats::ts_plot(
               ts_intra_data[ts_intra_data$param_name == 
               ts_intra_analyte[ts_intra_i], ],
               facet_by = "param_name", 
               short_name = input$ts_intra_short_name,
               limit1 = "lower_limit",
               limit2 = "upper_limit",
-              ncol = input$ncol_intra_ts,
+              ncol = input$ncol_intra_ts
               )
             
             if (input$ts_intra_date_lines) {
@@ -881,7 +974,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
               b2 <- max(lubridate::ymd(input$back_dates_intra))
               c2 <- max(lubridate::ymd(input$comp_dates_intra))
               
-              ts <- gw_ts_plot(
+              ts <- gwstats::ts_plot(
                 ts_intra_data[ts_intra_data$param_name == 
                 ts_intra_analyte[ts_intra_i], ], 
                 facet_by = "param_name",

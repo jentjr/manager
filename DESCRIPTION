@@ -10,7 +10,8 @@ Depends:
     ggplot2,
     EnvStats,
     plyr,
-    dplyr
+    dplyr,
+    DBI
 Imports:
     NADA,
     XLConnect,
@@ -21,7 +22,8 @@ Imports:
     scales,
     grid,
     shiny,
-    knitr
+    knitr,
+    outliers
 Suggests:
     Hmisc,
     sp,

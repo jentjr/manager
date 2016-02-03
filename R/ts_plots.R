@@ -67,7 +67,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
     theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
     guides(colour = guide_legend(override.aes = list(linetype = 0)), 
-           shape = guide_legend("Measure", override.aes = list(linetype = 0)),
+           shape = guide_legend("Detection", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
            linetype = guide_legend("Limits")) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) 
@@ -87,32 +87,19 @@ ts_plot <- function(df, facet_by = "location_id", ...){
   }
   
   if (!missing(back_date)) {
-    shaded_dates <- data.frame(xmin = back_date[1], 
-                               xmax = back_date[2],
-                               ymin = -Inf, 
-                               ymax =  Inf,
-                               Years = "background")
+    shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
+                               xmax = c(back_date[2], comp_date[2]),
+                               ymin = c(-Inf, -Inf), 
+                               ymax =  c(Inf, Inf),
+                               years = c("background", "compliance"))
     
     p <- p + geom_rect(data = shaded_dates, 
                        aes(xmin = xmin, ymin = ymin, xmax = xmax, 
-                           ymax = ymax, fill = Years),
+                           ymax = ymax, fill = years),
                        alpha = 0.2, inherit.aes = FALSE) +
-      scale_fill_manual(values = c("blue")) +
-      guides(fill = guide_legend(override.aes = list(linetype = 0)))
-  }
-  
-  if (!missing(comp_date)) {
-    shaded_dates <- data.frame(xmin = comp_date[1], 
-                               xmax = comp_date[2],
-                               ymin = -Inf, 
-                               ymax = Inf, 
-                               years = "compliance")
-    p <- p + geom_rect(data = shaded_dates, 
-                       aes(xmin = xmin, ymin = ymin, xmax = xmax, 
-                           ymax = ymax, fill = Years),
-                       alpha = 0.2, inherit.aes = FALSE) +
-      scale_fill_manual(values = c("green")) +
-      guides(fill = guide_legend(override.aes = list(linetype = 0)))
+      scale_fill_manual(values = c("blue", "green")) +
+      guides(fill = guide_legend(override.aes = list(linetype = 0),
+                                 title = "Date Range"))
   }
   
   if (!missing(limit1)) {
@@ -178,7 +165,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
     guides(colour = guide_legend("Location ID", 
                                  override.aes = list(linetype = 0)), 
-           shape = guide_legend("Measure", 
+           shape = guide_legend("Detection", 
                                 override.aes = list(linetype = 0)),
            size = guide_legend("none"),
            linetype = guide_legend("Limits")) +
@@ -191,14 +178,15 @@ ts_plot <- function(df, facet_by = "location_id", ...){
                                xmax = c(back_date[2], comp_date[2]),
                                ymin = c(-Inf, -Inf), 
                                ymax = c(Inf, Inf),
-                               Years = c("background", "compliance"))
+                               years = c("background", "compliance"))
     
     p <- p + geom_rect(data = shaded_dates, 
                        aes(xmin = xmin, ymin = ymin, xmax = xmax, 
-                           ymax = ymax, fill = Years),
+                           ymax = ymax, fill = years),
                        alpha = 0.2, inherit.aes = FALSE) +
       scale_fill_manual(values = c("blue","green")) +
-      guides(fill = guide_legend(override.aes = list(linetype = 0)))
+      guides(fill = guide_legend(override.aes = list(linetype = 0),
+                                 title = "Date Range"))
   }
   
   # add horizontal line for limit1
@@ -284,7 +272,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
     guides(colour = guide_legend("Parameter", 
                                  override.aes = list(linetype = 0)), 
-           shape = guide_legend("Measure", 
+           shape = guide_legend("Detection", 
                                 override.aes = list(linetype = 0)),
            size = guide_legend("none"),
            linetype = guide_legend("Limits")) +
@@ -297,14 +285,15 @@ ts_plot <- function(df, facet_by = "location_id", ...){
                                xmax = c(back_date[2], comp_date[2]),
                                ymin = c(-Inf, -Inf), 
                                ymax = c(Inf, Inf),
-                               Years = c("background", "compliance"))
+                               years = c("background", "compliance"))
     
     p <- p + geom_rect(data = shaded_dates, 
                        aes(xmin = xmin, ymin = ymin, xmax = xmax, 
-                           ymax = ymax, fill = Years),
+                           ymax = ymax, fill = years),
                        alpha = 0.2, inherit.aes = FALSE) +
       scale_fill_manual(values = c("blue","green")) +
-      guides(fill = guide_legend(override.aes = list(linetype = 0)))
+      guides(fill = guide_legend(override.aes = list(linetype = 0),
+                                 title = "Date Range"))
   }
   
   # add horizontal line for limit1

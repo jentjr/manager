@@ -23,6 +23,71 @@ shinyUI(navbarPage("GWSTATS",
       )
     )
   ),
+  tabPanel("Outliers",
+    sidebarLayout(
+      sidebarPanel(
+        uiOutput("outlier_wells"),
+        uiOutput("outlier_analytes"),
+        uiOutput("outlier_date_ranges"),
+        selectInput(inputId = "outlier_test_name", label = "Outlier Test",
+                     choices = c("Rosner", "Grubb", "Dixon")
+                    ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Rosner'",
+          numericInput(inputId = "rosnerN", 
+                       label = "Number of suspected outliers",
+                       value = 2, min = 0
+          ),
+          numericInput(inputId = "rosnerAlpha",
+                       label = "alpha",
+                       value = 0.01, min = 0, max = 1
+          )
+        ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Grubb'",
+          selectInput(
+            inputId = "grubbType",
+            label = "Type of Test",
+            choices = c("10" = 10, "11" = 11, "20" = 20)
+          ),
+          selectInput(
+            inputId = "grubbOpposite",
+            label = "Choose Opposite",
+            choices = c("FALSE" = 0, "TRUE" = 1)
+          ),
+          selectInput(
+            inputId = "grubbSide",
+            label = "Treat as two-sided",
+            choices = c("FALSE" = 0, "TRUE" = 1)
+          )
+        ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Dixon'",
+          selectInput(
+            inputId = "dixonType",
+            label = "Type of Test",
+            choices = c("0" = 0, "10" = 10, "11" = 11, 
+                        "12" = 12, "20" = 20, "21" = 21)
+          ),
+          selectInput(
+            inputId = "dixonOpposite",
+            label = "Choose Opposite",
+            choices = c("FALSE" = 0, "TRUE" = 1)
+          ),
+          selectInput(
+            inputId = "dixonSide",
+            label = "Treat as two-sided",
+            choices = c("TRUE" = 1, "FALSE" = 0)
+          )
+        )
+      ),
+      mainPanel(
+        verbatimTextOutput("outlier_test"),
+        br(),
+        dataTableOutput("outlier_table")
+      )
+    )
+  ),
   navbarMenu("Plots",
     tabPanel("Distribution Plots",
       sidebarLayout(
@@ -37,25 +102,31 @@ shinyUI(navbarPage("GWSTATS",
           conditionalPanel(
               condition = "input.dist_plot_type == 'Censored'",
               selectInput(inputId = "cen_dist_side", label = "Censoring Side",
-                        c("left", "right")),
+                        c("left", "right")
+                          ),
               selectInput(inputId = "cen_dist_test", label = "Select test",
                           c("Shapiro-Francia" = "sf", "Shapiro-Wilk" = "sw", 
-                            "Prob-Plot-Corr-Coeff" = "ppcc")),
+                            "Prob-Plot-Corr-Coeff" = "ppcc")
+                          ),
               selectInput(inputId = "cen_dist_dist", label = "Distribution",
-                          c("Normal" = "norm", "Lognormal" = "lnorm")),
+                          c("Normal" = "norm", "Lognormal" = "lnorm")
+                          ),
               selectInput(inputId = "cen_dist_method", 
                           label = "Select method to compute plotting position",
                           c("michael-schucany", "modified kaplan-meier", 
-                            "nelson", "hirsch-stedinger")),
+                            "nelson", "hirsch-stedinger")
+                          ),
               numericInput(inputId = "cen_dist_plot.pos.con", 
                            label = "Scalar for plotting position constant",
-                           value = 0.375, min = 0, max = 1)
+                           value = 0.375, min = 0, max = 1
+                           )
             ),
           conditionalPanel(
             condition = "input.dist_plot_type == 'Regular'",
             selectInput("dist_type", "Type of Distribution", 
                         row.names(Distribution.df), 
-                        selected = "norm")
+                        selected = "norm"
+                        )
             )
         ),
         mainPanel(
