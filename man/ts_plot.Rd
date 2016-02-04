@@ -5,9 +5,7 @@
 \title{This function plots multiple groundwater data time series by location, 
 or constituent.}
 \usage{
-ts_plot(df, facet_by = "location_id", trend = FALSE, back_date = NULL,
-  comp_date = NULL, limit1 = NULL, limit2 = NULL, short_name = FALSE,
-  pnt = 3, ncol = NULL)
+ts_plot(df, facet_by = "location_id", ...)
 }
 \arguments{
 \item{df}{groundwater data}

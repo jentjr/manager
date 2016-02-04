@@ -7,7 +7,7 @@
 conc_to_meq(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
   Na = "Sodium, dissolved", K = "Potassium, dissolved",
   Cl = "Chloride, total", SO4 = "Sulfate, total",
-  HCO3 = "Alkalinity, total (lab)")
+  total_alk = "Alkalinity, total (lab)", ...)
 }
 \arguments{
 \item{df}{data frame}
@@ -24,7 +24,7 @@ conc_to_meq(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
 
 \item{SO4}{Sulfate}
 
-\item{HCO3}{Bicaronate}
+\item{total_alk}{Total Alkalinity}
 }
 \description{
 function to convert geochemical plot data into meq/L

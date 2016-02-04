@@ -9,7 +9,7 @@ correct path for geom_polygon of ggplot}
 transform_stiff_data(df, Mg = "Magnesium, dissolved",
   Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
   K = "Potassium, dissolved", Cl = "Chloride, total",
-  SO4 = "Sulfate, total", HCO3 = "Alkalinity, total (lab)",
+  SO4 = "Sulfate, total", Alk = "Alkalinity, total (lab)",
   name = "location_id", date = "sample_date", TDS = NULL, units = NULL)
 }
 \arguments{
@@ -27,8 +27,6 @@ transform_stiff_data(df, Mg = "Magnesium, dissolved",
 
 \item{SO4}{Sulfate}
 
-\item{HCO3}{Alkalinity}
-
 \item{name}{location_id}
 
 \item{date}{sample_date}
@@ -36,6 +34,8 @@ transform_stiff_data(df, Mg = "Magnesium, dissolved",
 \item{TDS}{Total Dissolved Solids}
 
 \item{units}{Units of data}
+
+\item{HCO3}{Alkalinity}
 }
 \description{
 Function to transform data from \code{\link{get_major_ions}} 
