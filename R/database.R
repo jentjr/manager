@@ -11,6 +11,10 @@ new_database <- function(path) {
               detectionLimit REAL, reportingLimit REAL, result REAL, 
               units TEXT, comments TEXT)")
   
+  dbSendQuery(db, "CREATE TABLE IF NOT EXISTS statProcedure(wellID TEXT,
+               sampleDate TEXT, analyte TEXT, censored BOOLEAN, 
+               background BOOLEAN, outlier BOOLEAN, distribution TEXT)")
+  
   dbDisconnect(db)
   
 }

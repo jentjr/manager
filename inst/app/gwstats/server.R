@@ -85,17 +85,6 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     data_selected
   })
   
-  output$outlier_table <- renderDataTable({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    data <- get_outlier_data()
-    data
-  }, options = list(scrollY = "100%", scrollX = "100%", 
-                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    pageLength = 10)
-  )
-  
   output$outlier_test <- renderPrint({
     validate(
       need(input$data_path != "", "Please upload a data set")
@@ -127,7 +116,18 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     }
     out
   })
-  
+ 
+  output$outlier_table <- renderDataTable({
+    validate(
+      need(input$data_path != "", "Please upload a data set")
+    )
+    data <- get_outlier_data()
+    data
+  }, options = list(scrollY = "100%", scrollX = "100%", 
+                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
+                    pageLength = 10)
+  )
+   
   # End outlier detection ------------------------------------------------------
   
   # Begin trend analysis -------------------------------------------------------
