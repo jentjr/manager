@@ -64,7 +64,10 @@ shinyUI(navbarPage("GWSTATS",
           textInput("sample_date", "Sample Date", Sys.Date()),
           textInput("param_name", "Constituent", ""),
           numericInput("analysis_results", "Analysis Result", 0),
-          textInput("default_unit", "Units", "mg/L")
+          textInput("default_unit", "Units", "mg/L"),
+          actionButton("submit_sample", "Submit"),
+          actionButton("new_sample", "New"),
+          actionButton("delete_sample", "Delete")
         ),
         conditionalPanel(
           condition = "input.table_entry == 'well_table'",
@@ -74,7 +77,10 @@ shinyUI(navbarPage("GWSTATS",
           numericInput("easting", "Easting", 0),
           numericInput("bottom_screen", "Screen Bottom Elevation", 0),
           numericInput("top_screen", "Screen Top Elevation", 0),
-          numericInput("riser_elev", "Riser Elevation", 0)
+          numericInput("riser_elev", "Riser Elevation", 0),
+          actionButton("submit_well", "Submit"),
+          actionButton("new_well", "New"),
+          actionButton("delete_well", "Delete")
         )
        )
       ),
