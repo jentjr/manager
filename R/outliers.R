@@ -20,21 +20,30 @@ grubbs_flag <- function(x, ...) {
 }
 
 #' Function to flag outliers from Rosner's test for outliers
+#' @param df data.frame of groundwater data 
 #' @param x column of analysis results
+#' @param replace value to replace outliers with
 #' @param ... other arguments passed to rosner test
 #' @export
 
-rosner_flag <- function(x, ...) {
+rosner_flag <- function(df, x = "analysis_result", replace = NULL, ...) {
   
   outliers <- NULL
-  test <- x
+  test <- df[, x]
   
   rosner.result <- EnvStats::rosnerTest(test, ...)
   
   outliers <- cbind(rosner.result$all.stats["Outlier"],
                     rosner.result$all.stats["Value"])
   
-  outliers %>% filter(Outlier == TRUE) %>% select(Value)
+  outliers <- outliers %>% filter(Outlier == TRUE) %>% select(Value)
+ 
+  df$outlier <- ifelse(df$analysis_result  %in% outliers$Value, TRUE, FALSE)
   
-  return(data.frame(X = x, Outlier = (x %in% outliers)))
+  if (!missing(replace)) {
+    df$replaced_values <- ifelse(df$outlier == TRUE, replace, 
+                                 df$analysis_result)
+  }
+   
+  return(df)
 }

@@ -3,30 +3,83 @@ shinyUI(navbarPage("GWSTATS",
   tabPanel("Data Input",
     sidebarLayout(
       sidebarPanel(
-        fileInput(
-          inputId = "data_path", label = "Browse to file",
-          accept = c(".mdb", ".csv", ".xls", ".xlsx")
-        ),
-        radioButtons(
-          inputId = "file_type", 
-          label = "File Type", 
-          choices = c("MANAGES database", "csv", "excel")
+        selectInput(
+          inputId = "gw_data",
+          label = "Select Input:",
+          choices = c("Existing MANAGES Database" = "manages",
+                      "Read from existing file" = "exist_file",
+                      "Create New Database" = "new_db")
         ),
         conditionalPanel(
-          condition = "input.file_type == 'csv'",
-          textInput(inputId = "csv_date_format", 
-                    label = "Date format",
-                    value = "mdy")
-        ),
-        conditionalPanel(
-          condition = "input.file_type == 'excel'",
-          textInput(inputId = "excel_sheet", 
-                    label = "Sheet name",
-                    value = "Sheet1")
+          condition = "input.gw_data == 'manages'",
+          fileInput(
+            inputId = "data_path", label = "Browse to MANAGES Site.mdb file",
+            accept = c(".mdb")
           )
+        ),
+        conditionalPanel(
+          condition = "input.gw_data == 'exist_file'",
+          radioButtons(
+            inputId = "file_type", 
+            label = "File Type", 
+            choices = c("csv", "excel")
+            ),
+          conditionalPanel(
+            condition = "input.file_type == 'csv'",
+            textInput(inputId = "csv_date_format", 
+                      label = "Date format",
+                      value = "mdy")
+          ),
+          conditionalPanel(
+            condition = "input.file_type == 'excel'",
+            textInput(inputId = "excel_sheet", 
+                      label = "Sheet name",
+                      value = "Sheet1")
+          )
+        ),
+#         conditionalPanel(
+#           condition = "input.gw_data == 'new_db'",
+#           
+#         )
+        
+       checkboxInput(
+        inputId = "data_crud",
+        label = "CRUD Data",
+        value = FALSE
+       ),
+       conditionalPanel(
+        condition = "input.data_crud == '1'",
+        selectInput(
+          inputId = "table_entry",
+          label = "Choose Table:",
+          choices = c("Sample Results" = "sample_results",
+                      "Well Information" = "well_table",
+                      "Statistical Procedure" = "stat_proc")
+        ),
+        conditionalPanel(
+          condition = "input.table_entry == 'sample_results'",
+          #lab results input fields
+          textInput("labID", "Lab ID", ""),
+          textInput("location_id", "Well ID", ""),
+          textInput("sample_date", "Sample Date", Sys.Date()),
+          textInput("param_name", "Constituent", ""),
+          numericInput("analysis_results", "Analysis Result", 0),
+          textInput("default_unit", "Units", "mg/L")
+        ),
+        conditionalPanel(
+          condition = "input.table_entry == 'well_table'",
+          textInput("boringID", "Boring ID", ""),
+          textInput("location_id", "Well ID", ""),
+          numericInput("northing", "Northing", 0),
+          numericInput("easting", "Easting", 0),
+          numericInput("bottom_screen", "Screen Bottom Elevation", 0),
+          numericInput("top_screen", "Screen Top Elevation", 0),
+          numericInput("riser_elev", "Riser Elevation", 0)
+        )
+       )
       ),
       mainPanel(
-        dataTableOutput("well_table")
+        dataTableOutput("sample_table")
       )
     )
   ),

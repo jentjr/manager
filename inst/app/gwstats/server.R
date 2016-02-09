@@ -6,20 +6,26 @@ options(shiny.maxRequestSize = -1)
 options(scipen = 6, digits = 8)
 
 shinyServer(function(input, output, session) {
+  
+  # Data Entry -----------------------------------------------------------------
+  
   get_data <- reactive({
     validate(
       need(input$data_path != "", "Please upload a data set")
       )
-      switch(input$file_type, 
+    if (input$gw_data == "manages") {
+     data <- connect_manages(input$data_path$datapath)
+    } else {
+      data <- switch(input$file_type, 
              "csv" = from_csv(path = input$data_path$datapath, 
-                               date_format = input$csv_date_format),
-             "MANAGES database" = connect_manages(input$data_path$datapath),
+                              date_format = input$csv_date_format),
              "excel" = from_excel(path = input$data_path$datapath, 
-                                 sheet = input$excel_sheet)) %>%
-        arrange(location_id, param_name, sample_date)    
+                                  sheet = input$excel_sheet))
+    }
+    data <- data %>% arrange(location_id, param_name, sample_date) 
   })
   
-  output$well_table <- renderDataTable({
+  output$sample_table <- renderDataTable({
     validate(
       need(input$data_path != "", "Please upload a data set. The data should be in the following form: \n\n 
 
@@ -36,6 +42,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                     lengthMenu = c(5, 10, 15, 25, 50, 100), 
                     pageLength = 10)
   ) 
+
+  
+  # End Data Entry -------------------------------------------------------------
   
   # Begin outlier detecion -----------------------------------------------------
   output$outlier_wells <- renderUI({
