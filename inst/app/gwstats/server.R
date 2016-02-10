@@ -507,6 +507,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
             
             ts <- gwstats::ts_plot(ts_data[ts_data$location_id == ts_well[ts_i], ],
                              facet_by = "location_id", 
+                             trend = input$ts_trend,
                              short_name = input$ts_short_name, 
                              ncol = input$ncol_ts)
             
@@ -520,6 +521,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                 ts_data[ts_data$location_id == 
                                ts_well[ts_i], ], 
                 facet_by = "location_id",
+                trend = input$ts_trend,
                 short_name = input$ts_short_name,
                 back_date = c(b1, b2), 
                 comp_date = c(c1, c2),
@@ -545,7 +547,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
           output[[ts_name]] <- renderPlot({
             
             ts <- gwstats::ts_plot(ts_data[ts_data$param_name == ts_analyte[ts_i], ],
-                             facet_by = "param_name", 
+                             facet_by = "param_name",
+                             trend = input$ts_trend,
                              short_name = input$ts_short_name,
                              ncol = input$ncol_ts)
             
@@ -559,6 +562,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                 ts_data[ts_data$param_name == 
                           ts_analyte[ts_i], ], 
                 facet_by = "param_name",
+                trend = input$ts_trend,
                 short_name = input$ts_short_name,
                 back_date = c(b1, b2), 
                 comp_date = c(c1, c2),

@@ -36,7 +36,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
 
 .ts_plot <- function(df, 
                      facet_by = NULL, 
-                     trend = FALSE, 
+                     trend = NULL, 
                      back_date = NULL, 
                      comp_date = NULL, 
                      limit1 = NULL, 
@@ -72,8 +72,8 @@ ts_plot <- function(df, facet_by = "location_id", ...){
            linetype = guide_legend("Limits")) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) 
   
-  if (isTRUE(trend)) {
-    p <- p + geom_smooth(method = "lm")
+  if (!missing(trend)) {
+    p <- p + geom_smooth(method = trend)
   }
   
   if (facet_by == "location_id") {
