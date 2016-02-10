@@ -401,8 +401,16 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     do.call(tagList, box_list)
   })
   
-  output$boxplot_out <- renderUI({
+  boxplot_react <- eventReactive(input$box_submit, {
     boxplot()
+  })
+  
+  output$boxplot_out <- renderUI({
+    if (input$box_interactive == TRUE) {
+      boxplot()
+    } else {
+      boxplot_react()
+    }
   })
   
   # Begin Boxplot Download Page-------------------------------------------------
@@ -565,10 +573,18 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     do.call(tagList, ts_list)
   })
   
-  output$ts_out <- renderUI({
+  # plot time series when actioButton is clicked
+  ts_plot_react <- eventReactive(input$ts_submit, {
     ts_plot()
   })
-
+  
+  output$ts_out <- renderUI({
+    if (input$ts_interactive == TRUE) {
+      ts_plot()
+    } else {
+      ts_plot_react()
+    }
+  })
   # Begin Time Series Download Page --------------------------------------------
   get_ts_data <- reactive({
     validate(

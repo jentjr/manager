@@ -254,7 +254,19 @@ shinyUI(navbarPage("GWSTATS",
           checkboxInput("ts_date_lines", "Show Date Ranges"),
           numericInput("ncol_ts", "Number of Columns in Plot", 
                        value = 1),
-          downloadButton("ts_download", "Download Plots")
+          downloadButton("ts_download", "Download Plots"),
+          checkboxInput(
+            inputId = "ts_interactive",
+            label = "Interactive",
+            value = TRUE
+          ),
+          conditionalPanel(
+            condition = "input.ts_interactive == '0'",
+            actionButton(
+              inputId = "ts_submit",
+              label = "Click to Plot"
+            )
+          )
         ),
         mainPanel(
           uiOutput("ts_out")
@@ -269,7 +281,19 @@ shinyUI(navbarPage("GWSTATS",
           selectInput("box_facet_by", "Group plot by:",
                       c("param_name", "location_id")),
           checkboxInput("box_short_name", "Abbreviate Constituent Name"),
-          downloadButton("box_download", "Download Plots")
+          downloadButton("box_download", "Download Plots"),
+          checkboxInput(
+            inputId = "box_interactive",
+            label = "Interactive",
+            value = TRUE
+          ),
+          conditionalPanel(
+            condition = "input.box_interactive == '0'",
+            actionButton(
+              inputId = "box_submit",
+              label = "Click to Plot"
+            )
+          )
         ),
         mainPanel(
           uiOutput("boxplot_out")  
