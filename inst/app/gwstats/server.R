@@ -13,9 +13,12 @@ shinyServer(function(input, output, session) {
     validate(
       need(input$data_path != "", "Please upload a data set")
       )
+    
     if (input$gw_data == "manages") {
      data <- connect_manages(input$data_path$datapath)
-    } else {
+    } 
+    
+    if (input$gw_data == "exist_file") {
       data <- switch(input$file_type, 
              "csv" = from_csv(path = input$data_path$datapath, 
                               date_format = input$csv_date_format),
