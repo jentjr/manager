@@ -108,7 +108,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit1, 
                                    linetype = "limit1_name"), 
-                        show_guide = TRUE)
+                        show.legend = TRUE)
   }
   
   if (!missing(limit2)) {
@@ -117,7 +117,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit2, 
                                    linetype = "limit2_name"), 
-                        show_guide = TRUE)
+                        show.legend = TRUE)
   }  
   return(p)
 }
@@ -196,7 +196,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit1, 
                                    linetype = "limit1_name"), 
-                        show_guide = TRUE)
+                        show.legend = TRUE)
   }
   # add horizontal line for limit2
   if (!missing(limit2)) {
@@ -205,7 +205,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit2, 
                                    linetype = "limit2_name"), 
-                        show_guide = TRUE)
+                        show.legend = TRUE)
   }  
   return(p)
 }
@@ -303,7 +303,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit1, 
                                    linetype = "limit1_name"), 
-                        show_guide = TRUE)
+                        show.legend = TRUE)
   }
   # add horizontal line for limit2
   if (!missing(limit2)) {
@@ -312,7 +312,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit2, 
                                    linetype = "limit2_name"), 
-                        show_guide = TRUE)
+                        show.legend = TRUE)
   }  
   return(p)
 }
