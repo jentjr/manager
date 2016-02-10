@@ -26,22 +26,27 @@ shinyUI(navbarPage("GWSTATS",
             ),
           conditionalPanel(
             condition = "input.file_type == 'csv'",
+            fileInput(
+              inputId = "data_path", 
+              label = "Browse to csv file",
+              accept = c(".csv")
+            ),
             textInput(inputId = "csv_date_format", 
                       label = "Date format",
                       value = "mdy")
           ),
           conditionalPanel(
             condition = "input.file_type == 'excel'",
+            fileInput(
+              inputId = "data_path",
+              label = "Browse to excel file",
+              accept = c(".xls", ".xlsx")
+            ),
             textInput(inputId = "excel_sheet", 
                       label = "Sheet name",
                       value = "Sheet1")
           )
         ),
-#         conditionalPanel(
-#           condition = "input.gw_data == 'new_db'",
-#           
-#         )
-        
        checkboxInput(
         inputId = "data_crud",
         label = "CRUD Data",
