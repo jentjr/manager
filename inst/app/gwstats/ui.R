@@ -257,7 +257,7 @@ shinyUI(navbarPage("GWSTATS",
           checkboxInput("ts_short_name", "Abbreviate Constituent Name"),
           checkboxInput("ts_date_lines", "Show Date Ranges"),
           numericInput("ncol_ts", "Number of Columns in Plot", 
-                       value = 1),
+                       value = NULL),
           downloadButton("ts_download", "Download Plots"),
           checkboxInput(
             inputId = "ts_interactive",

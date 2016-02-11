@@ -616,6 +616,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
         pdf(file = file, width = 17, height = 11)
         gwstats::ts_plot(get_ts_data(), back_date = c(b1, b2), 
                          facet_by = input$ts_facet_by,
+                         trend = input$ts_trend,
                          short_name = input$ts_short_name,
                          comp_date = c(c1, c2), ncol = input$ncol_ts)
         dev.off()
@@ -623,6 +624,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
         pdf(file = file, width = 17, height = 11)
         gwstats::ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
                          short_name = input$ts_short_name,
+                         trend = input$ts_trend,
                          ncol = input$ncol_ts)
         dev.off()
       }
