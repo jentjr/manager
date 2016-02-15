@@ -66,12 +66,14 @@ to_censored <- function(df) {
 #' non-detects. This is useful for calculating the upper prediction limit.
 #' 
 #' @param df data frame of groundwater monitoring network data 
+#' @param start_date beginning of time period to be evaluated
+#' @param end_date end of time period to be evaluated
 #' @export
 
-lt_summary <- function(df, bkgd_start, bkgd_end){
+lt_summary <- function(df, start_date, end_date){
   
-  df$sampling_period <- ifelse(df$sample_date >= bkgd_start & 
-                               df$sample_date <= bkgd_end, "background", 
+  df$sampling_period <- ifelse(df$sample_date >= start_date & 
+                               df$sample_date <= end_date, "background", 
                                "compliance")
   detection <- dplyr::group_by(df, location_id, param_name, default_unit,
                                sampling_period)
