@@ -1,3 +1,25 @@
+#' Function to plot multiple boxplots for groundwater data 
+#' 
+#' @param df groundwater data
+#' @param facet_by parameter to group data by
+#' @param name If name = "short" the analyte will be abbreviated
+#' @param flip_coords If TRUE the axes are flipped
+#' @export
+
+boxplot <- function(df, facet_by = "location_id", short_name = FALSE, 
+                    coord_flip = FALSE){
+  if (facet_by == "param_name") {
+    plyr::d_ply(df, .(param_name), .boxplot, 
+                facet_by = "param_name", short_name = short_name,
+                coord_flip = coord_flip, .print = TRUE)
+  }
+  if (facet_by == "location_id") {
+    plyr::d_ply(df, .(location_id), .boxplot, 
+                facet_by = "location_id", short_name = short_name,
+                coord_flip = coord_flip, .print = TRUE)
+  }
+}
+
 #' Function to plot boxplots for groundwater data
 #' @param df groundwater data
 #' @param facet_by parameter to group data by
@@ -45,26 +67,4 @@
     b <- b + coord_flip()
   }      
   b
-}
-
-#' Function to plot multiple boxplots for groundwater data 
-#' 
-#' @param df groundwater data
-#' @param facet_by parameter to group data by
-#' @param name If name = "short" the analyte will be abbreviated
-#' @param flip_coords If TRUE the axes are flipped
-#' @export
-
-boxplot <- function(df, facet_by = "location_id", short_name = FALSE, 
-                    coord_flip = FALSE){
-  if (facet_by == "param_name") {
-    plyr::d_ply(df, .(param_name), .progress = "text", .boxplot, 
-                facet_by = "param_name", short_name = short_name,
-                coord_flip = coord_flip, .print = TRUE)
-  }
-  if (facet_by == "location_id") {
-    plyr::d_ply(df, .(location_id), .progress = "text", .boxplot, 
-                facet_by = "location_id", short_name = short_name,
-                coord_flip = coord_flip, .print = TRUE)
-  }
 }

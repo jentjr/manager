@@ -15,10 +15,10 @@
 ts_plot <- function(df, facet_by = "location_id", ...){
   
   if (facet_by == "param_name") {
-    plyr::d_ply(df, .(param_name), .progress = "text", .ts_plot, 
+    plyr::d_ply(df, .(param_name), .ts_plot, 
                 facet_by = facet_by, ..., .print = TRUE)
   } else{
-    plyr::d_ply(df, .(location_id), .progress = "text", .ts_plot, 
+    plyr::d_ply(df, .(location_id), .ts_plot, 
                 facet_by = facet_by, ..., .print = TRUE)
   }
 }
