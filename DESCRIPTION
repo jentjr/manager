@@ -11,19 +11,18 @@ Depends:
     EnvStats,
     plyr,
     dplyr,
-    DBI
+    DBI,
+    RODBC
 Imports:
     NADA,
-    XLConnect,
-    RODBC,
+    readxl,
     animation,
     lubridate,
     reshape2,
     scales,
     grid,
     shiny,
-    knitr,
-    outliers
+    knitr
 Suggests:
     Hmisc,
     sp,

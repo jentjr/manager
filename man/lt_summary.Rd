@@ -5,10 +5,14 @@
 \title{Function to summarize the number of samples and percentage of 
 non-detects. This is useful for calculating the upper prediction limit.}
 \usage{
-lt_summary(df, bkgd_start, bkgd_end)
+lt_summary(df, start_date, end_date)
 }
 \arguments{
 \item{df}{data frame of groundwater monitoring network data}
+
+\item{start_date}{beginning of time period to be evaluated}
+
+\item{end_date}{end of time period to be evaluated}
 }
 \description{
 Function to summarize the number of samples and percentage of 
