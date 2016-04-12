@@ -1,7 +1,7 @@
 #' Comparison lineplot
 #' 
 
-gw_lineplot <- function(df, title = NULL, line1 = NULL, line2 = NULL) {
+lineplot <- function(df, title = NULL, line1 = NULL, line2 = NULL) {
   
   df$non_detect <- ifelse(
     df$lt_measure == "<", "non-detect", "detected"
@@ -25,7 +25,7 @@ gw_lineplot <- function(df, title = NULL, line1 = NULL, line2 = NULL) {
     theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
     theme(axis.title.y = element_text(size = 15, vjust = 0.3)) 
   
-  if(!missing(line1)){
+  if (!missing(line1)) {
     line1 <- as.quoted(line1)
     df$line1_name <- paste(line1[[1]])
     p <- p + geom_hline(data = df, aes_string(yintercept = line1, 
@@ -39,7 +39,7 @@ gw_lineplot <- function(df, title = NULL, line1 = NULL, line2 = NULL) {
                                   override.aes = list(linetype = 0)))
   }
   
-  if(!missing(line2)){
+  if (!missing(line2)) {
     line2 <- as.quoted(line2)
     df$line2_name <- paste(line2[[1]])
     p <- p + geom_hline(data = df, aes_string(yintercept = line2, 
@@ -53,11 +53,11 @@ gw_lineplot <- function(df, title = NULL, line1 = NULL, line2 = NULL) {
                                   override.aes = list(linetype = 0)))
   }
   
-  if(!missing(line1) & !missing(line2)){
+  if (!missing(line1) & !missing(line2)) {
     p <- p + guides(linetype = guide_legend("Limits"),
            shape = guide_legend("Legend", override.aes = list(linetype = 0)),
            color = guide_legend("Location", override.aes = list(linetype = 0)))
-    scale_linetype_manual(values=c("solid", "dotdash")) 
+    scale_linetype_manual(values = c("solid", "dotdash")) 
   }
   return(p)
 }
