@@ -95,7 +95,7 @@ lt_summary <- function(df, start_date, end_date){
 #' @export
 
 export_OEPA <- function(df, wells, constituents, file, plant, 
-                        export_date = date()){
+                        export_date = Sys.Date()){
   
   # create a data frame from plant name and date in order to paste into excel
   h <- data.frame(Facility = plant, Date = export_date)
@@ -112,26 +112,24 @@ export_OEPA <- function(df, wells, constituents, file, plant,
   
   id <- dplyr::group_by(df, lab_id, location_id, sample_date, param_name)
   id <- dplyr::mutate(id, group = n())
-  id <- ungroup(id) 
+  id <- dplyr::ungroup(id) 
   
-  wb <- XLConnect::loadWorkbook(file, create=TRUE)
+  wb <- openxlsx::createWorkbook()
   
   oepa_cast <- function(x){
     tmp <- reshape2::dcast(x, value.var = "result", 
                     param_name + group + default_unit ~ sample_date, 
                     margins = FALSE)[-2]
-    XLConnect::createSheet(wb, name = paste(x$location_id))
-    XLConnect::writeWorksheet(wb, tmp, sheet = paste(x$location_id),
-                              startRow = 4, startCol = 1, header = TRUE,
-                              rownames = FALSE)
-    XLConnect::writeWorksheet(wb, h, sheet = paste(x$location_id),
-                              startRow = 1, startCol = 1, header = TRUE,
-                              rownames = FALSE)
+    openxlsx::addWorksheet(wb, paste(x$location_id[1]))
+    openxlsx::writeData(wb, tmp, sheet = paste(x$location_id[1]),
+                        startRow = 4, startCol = 1, rowNames = FALSE)
+    openxlsx::writeData(wb, h, sheet = paste(x$location_id[1]),
+                        startRow = 1, startCol = 1, rowNames = FALSE)
   }
   
   plyr::d_ply(id, .(location_id), oepa_cast)
 
-  XLConnect::saveWorkbook(wb)
+  openxlsx::saveWorkbook(wb, file = file)
 }
 
 #' Function to export summary table for a sampling event

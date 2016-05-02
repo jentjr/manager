@@ -16,6 +16,7 @@ Depends:
 Imports:
     NADA,
     readxl,
+    openxlsx,
     animation,
     lubridate,
     reshape2,

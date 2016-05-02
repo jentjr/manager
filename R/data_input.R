@@ -40,7 +40,8 @@ connect_manages_spatial <- function(manages_path){
   )
   
   manages_query <- paste0("SELECT location_id, description, long_pos, ",
-                          "lat_pos, install_date, depth_top, ", 
+                          "lat_pos, north_coordinate, east_coordinate, ",
+                          "install_date, depth_top, ", 
                           "depth_bottom, well_top, well_bottom FROM locations")
   
   sp_data <- RODBC::sqlQuery(manages_conn, manages_query)
