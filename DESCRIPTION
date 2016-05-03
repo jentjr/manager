@@ -11,7 +11,7 @@ Depends:
     EnvStats,
     plyr,
     dplyr,
-    DBI,
+    tidyr,
     RODBC
 Imports:
     NADA,

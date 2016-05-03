@@ -94,14 +94,10 @@ lt_summary <- function(df, start_date, end_date){
 #' @param file full file path name with extension for export
 #' @export
 
-export_OEPA <- function(df, wells, constituents, file, plant, 
-                        export_date = Sys.Date()){
+export_OEPA <- function(df, wells, constituents, file, ...){
   
-  # create a data frame from plant name and date in order to paste into excel
-  h <- data.frame(Facility = plant, Date = export_date)
-  
-  df <- df[df$location_id %in% wells &
-           df$param_name %in% constituents, ]
+  df <- df %>% 
+    filter(param_name %in% constituents, location_id %in% wells)
   
   join_lt <- function() {
     paste(df$lt_measure, df$analysis_result, sep = " ")
@@ -109,27 +105,24 @@ export_OEPA <- function(df, wells, constituents, file, plant,
   
   df$result <- ifelse(df$lt_measure == "<" | df$lt_measure == ">", 
                       join_lt(), df$analysis_result)
+ 
+  df$param_unit <- paste0(df$param_name, " (",df$default_unit, ")")
   
-  id <- dplyr::group_by(df, lab_id, location_id, sample_date, param_name)
-  id <- dplyr::mutate(id, group = n())
-  id <- dplyr::ungroup(id) 
-  
+  df <- df %>%
+    select(lab_id, location_id, sample_date, param_unit, result) %>%
+    spread(param_unit, result)
+
   wb <- openxlsx::createWorkbook()
   
   oepa_cast <- function(x){
-    tmp <- reshape2::dcast(x, value.var = "result", 
-                    param_name + group + default_unit ~ sample_date, 
-                    margins = FALSE)[-2]
     openxlsx::addWorksheet(wb, paste(x$location_id[1]))
-    openxlsx::writeData(wb, tmp, sheet = paste(x$location_id[1]),
-                        startRow = 4, startCol = 1, rowNames = FALSE)
-    openxlsx::writeData(wb, h, sheet = paste(x$location_id[1]),
+    openxlsx::writeData(wb, x, sheet = paste(x$location_id[1]),
                         startRow = 1, startCol = 1, rowNames = FALSE)
   }
   
-  plyr::d_ply(id, .(location_id), oepa_cast)
+  plyr::d_ply(df, .(location_id), oepa_cast)
 
-  openxlsx::saveWorkbook(wb, file = file)
+  openxlsx::saveWorkbook(wb, file = file, ...)
 }
 
 #' Function to export summary table for a sampling event
