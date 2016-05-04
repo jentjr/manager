@@ -97,7 +97,7 @@ lt_summary <- function(df, start_date, end_date){
 export_OEPA <- function(df, wells, constituents, file, ...){
   
   df <- df %>% 
-    filter(param_name %in% constituents, location_id %in% wells)
+    dplyr::filter(param_name %in% constituents, location_id %in% wells)
   
   join_lt <- function() {
     paste(df$lt_measure, df$analysis_result, sep = " ")
@@ -109,8 +109,8 @@ export_OEPA <- function(df, wells, constituents, file, ...){
   df$param_unit <- paste0(df$param_name, " (",df$default_unit, ")")
   
   df <- df %>%
-    select(lab_id, location_id, sample_date, param_unit, result) %>%
-    spread(param_unit, result)
+    dplyr::select(lab_id, location_id, sample_date, param_unit, result) %>%
+    tidyr::spread(param_unit, result)
 
   wb <- openxlsx::createWorkbook()
   
