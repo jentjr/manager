@@ -16,7 +16,8 @@ connect_manages <- function(manages_path) {
   manages_query <- paste0("SELECT sample_results.lab_id, ",
                 "sample_results.location_id, ", 
                 "sample_results.sample_date, sample_results.analysis_result, ", 
-                "sample_results.lt_measure, site_parameters.default_unit, ", 
+                "sample_results.lt_measure, sample_results.detection_limit, ",
+                "sample_results.PQL, site_parameters.default_unit, ", 
                 "site_parameters.param_name, site_parameters.short_name FROM ", 
                 "sample_results LEFT JOIN site_parameters ON ", 
                 "sample_results.storet_code = site_parameters.storet_code")
