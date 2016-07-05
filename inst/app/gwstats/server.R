@@ -89,11 +89,17 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "")
     )
     df <- get_data()
-    start <- min(lubridate::ymd(input$outlier_date_range), na.rm = TRUE)
-    end <- max(lubridate::ymd(input$outlier_date_range), na.rm = TRUE)
-    data_selected <- df[df$location_id %in% input$outlier_well &
-                          df$param_name %in% input$outlier_analyte &
-                          df$sample_date >= start & df$sample_date <= end, ]
+    start <- min(lubridate::ymd(input$outlier_date_range, tz = "UTC"),
+                 na.rm = TRUE)
+    end <- max(lubridate::ymd(input$outlier_date_range, tz = "UTC"), 
+               na.rm = TRUE)
+    
+    data_selected <- df %>%
+      filter(location_id %in% input$outlier_well,
+             param_name %in% input$outlier_analyte,
+             sample_date >= start & 
+               df$sample_date <= end)
+    
     data_selected
   })
   
@@ -182,11 +188,17 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "")
     )
     df <- get_data()
-    start <- min(lubridate::ymd(input$trend_date_range), na.rm = TRUE)
-    end <- max(lubridate::ymd(input$trend_date_range), na.rm = TRUE)
-    data_selected <- df[df$location_id %in% input$trend_well &
-                          df$param_name %in% input$trend_analyte &
-                          df$sample_date >= start & df$sample_date <= end, ]
+    start <- min(lubridate::ymd(input$trend_date_range, tz = "UTC"), 
+                 na.rm = TRUE)
+    end <- max(lubridate::ymd(input$trend_date_range, tz = "UTC"), 
+               na.rm = TRUE)
+    
+    data_selected <- df %>%
+      filter(location_id %in% input$trend_well,
+             param_name %in% input$trend_analyte,
+             sample_date >= start & 
+               sample_date <= end)
+    
     data_selected
   })
   
@@ -247,11 +259,17 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "")
     )
     df <- get_data()
-    start <- min(lubridate::ymd(input$dist_back_dates), na.rm = TRUE)
-    end <- max(lubridate::ymd(input$dist_back_dates), na.rm = TRUE)
-    data_selected <- df[df$location_id %in% input$dist_well &
-                              df$param_name %in% input$dist_analyte &
-                              df$sample_date >= start & df$sample_date <= end, ]
+    start <- min(lubridate::ymd(input$dist_back_dates, tz = "UTC"), 
+                 na.rm = TRUE)
+    end <- max(lubridate::ymd(input$dist_back_dates, tz = "UTC"), 
+               na.rm = TRUE)
+    
+    data_selected <- df %>%
+      filter(location_id %in% input$dist_well,
+             param_name %in% input$dist_analyte,
+             sample_date >= start & 
+               sample_date <= end)
+    
     data_selected
   })
   
@@ -260,8 +278,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "Please upload a data set")
     )
     data <- get_dist_data()
-    start <- min(lubridate::ymd(input$dist_back_dates))
-    end <- max(lubridate::ymd(input$dist_back_dates))
+    start <- min(lubridate::ymd(input$dist_back_dates, tz = "UTC"))
+    end <- max(lubridate::ymd(input$dist_back_dates, tz = "UTC"))
     lt_summary(data, start, end)
   })
   
@@ -512,10 +530,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                              ncol = input$ncol_ts)
             
             if (input$ts_date_lines) {
-              b1 <- min(lubridate::ymd(input$ts_back_dates))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates))
-              b2 <- max(lubridate::ymd(input$ts_back_dates))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates))
+              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
+              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
+              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
+              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
               
               ts <- gwstats::ts_plot(
                 ts_data[ts_data$location_id == 
@@ -553,10 +571,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                              ncol = input$ncol_ts)
             
             if (input$ts_date_lines) {
-              b1 <- min(lubridate::ymd(input$ts_back_dates))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates))
-              b2 <- max(lubridate::ymd(input$ts_back_dates))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates))
+              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
+              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
+              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
+              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
               
               ts <- gwstats::ts_plot(
                 ts_data[ts_data$param_name == 
@@ -608,10 +626,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     },
     content = function(file) {
       if (input$ts_date_lines) {
-        b1 <- min(lubridate::ymd(input$ts_back_dates))
-        c1 <- min(lubridate::ymd(input$ts_comp_dates))
-        b2 <- max(lubridate::ymd(input$ts_back_dates))
-        c2 <- max(lubridate::ymd(input$ts_comp_dates))
+        b1 <- min(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
+        c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
+        b2 <- max(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
+        c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
         
         pdf(file = file, width = 17, height = 11)
         gwstats::ts_plot(get_ts_data(), back_date = c(b1, b2), 
@@ -660,8 +678,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     )
     
     data <- get_data()
-    start <- min(lubridate::ymd(input$date_range_piper))
-    end <- max(lubridate::ymd(input$date_range_piper))
+    start <- min(lubridate::ymd(input$date_range_piper, tz = "UTC"))
+    end <- max(lubridate::ymd(input$date_range_piper, tz = "UTC"))
     wells <- input$well_piper
     Mg = paste(input$Mg)
     Ca = paste(input$Ca)
@@ -671,10 +689,11 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     SO4 = paste(input$SO4)
     Alk = paste(input$Alk)
     TDS = paste(input$TDS)
-    
-    data_selected <- data[data$location_id %in% wells &
-                            data$sample_date >= start & 
-                            data$sample_date <= end, ]  
+
+    data_selected <- data %>%
+      filter(location_id %in% wells &
+               sample_date >= start &
+               sample_date <= end)
     
     ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, K = K, 
                            Cl = Cl, SO4 = SO4, Alk = Alk, TDS = TDS)
@@ -733,11 +752,13 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     )
     
     data <- get_data()
-    start <- min(lubridate::ymd(input$date_range_stiff))
-    end <- max(lubridate::ymd(input$date_range_stiff))
-    data_selected <- data[data$location_id %in% input$well_stiff &
-                          data$sample_date >= start & 
-                          data$sample_date <= end, ]
+    start <- min(lubridate::ymd(input$date_range_stiff, tz = "UTC"))
+    end <- max(lubridate::ymd(input$date_range_stiff, tz = "UTC"))
+    
+    data_selected <- data %>%
+      filter(location_id %in% input$well_stiff &
+             sample_date >= start & 
+             sample_date <= end)
     
     Mg = paste(input$Mg_stiff)
     Ca = paste(input$Ca_stiff)
@@ -835,11 +856,14 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "Please upload a data set")
     )
     data <- get_data()
-    start <- min(lubridate::ymd(input$date_range_schoeller))
-    end <- max(lubridate::ymd(input$date_range_schoeller))
-    data_selected <- data[data$location_id %in% input$well_schoeller &
-                            data$sample_date >= start & 
-                            data$sample_date <= end, ]
+    start <- min(lubridate::ymd(input$date_range_schoeller, tz = "UTC"))
+    end <- max(lubridate::ymd(input$date_range_schoeller, tz = "UTC"))
+    
+    data_selected <- data %>%
+      filter(location_id %in% input$well_schoeller &
+             sample_date >= start & 
+             sample_date <= end)
+    
     Mg = paste(input$Mg_schoeller)
     Ca = paste(input$Ca_schoeller)
     Na = paste(input$Na_schoeller)
@@ -945,12 +969,12 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
         param_name %in% input$analyte_intra
       )
     
-    bkgd_start <- min(lubridate::ymd(input$back_dates_intra))
-    bkgd_end <- max(lubridate::ymd(input$back_dates_intra))
+    bkgd_start <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    bkgd_end <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
     bkgd <- c(bkgd_start, bkgd_end)
     
-    comp_start <- min(lubridate::ymd(input$comp_dates_intra))
-    comp_end <- max(lubridate::ymd(input$comp_dates_intra))
+    comp_start <- min(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
+    comp_end <- max(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
     comp <- c(comp_start, comp_end)
   
     validate(
@@ -1022,10 +1046,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
               )
             
             if (input$ts_intra_date_lines) {
-              b1 <- min(lubridate::ymd(input$back_dates_intra))
-              c1 <- min(lubridate::ymd(input$comp_dates_intra))
-              b2 <- max(lubridate::ymd(input$back_dates_intra))
-              c2 <- max(lubridate::ymd(input$comp_dates_intra))
+              b1 <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+              c1 <- min(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
+              b2 <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+              c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
               
               ts <- gwstats::ts_plot(
                 ts_intra_data[ts_intra_data$location_id == 
@@ -1068,10 +1092,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
               )
             
             if (input$ts_intra_date_lines) {
-              b1 <- min(lubridate::ymd(input$back_dates_intra))
-              c1 <- min(lubridate::ymd(input$comp_dates_intra))
-              b2 <- max(lubridate::ymd(input$back_dates_intra))
-              c2 <- max(lubridate::ymd(input$comp_dates_intra))
+              b1 <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+              c1 <- min(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
+              b2 <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+              c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
               
               ts <- gwstats::ts_plot(
                 ts_intra_data[ts_intra_data$param_name == 
