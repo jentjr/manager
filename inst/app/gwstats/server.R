@@ -89,9 +89,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "")
     )
     df <- get_data()
-    start <- min(lubridate::ymd(input$outlier_date_range, tz = "UTC"),
+    start <- min(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()),
                  na.rm = TRUE)
-    end <- max(lubridate::ymd(input$outlier_date_range, tz = "UTC"), 
+    end <- max(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()), 
                na.rm = TRUE)
     
     data_selected <- df %>%
@@ -188,9 +188,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "")
     )
     df <- get_data()
-    start <- min(lubridate::ymd(input$trend_date_range, tz = "UTC"), 
+    start <- min(lubridate::ymd(input$trend_date_range, tz = Sys.timezone()), 
                  na.rm = TRUE)
-    end <- max(lubridate::ymd(input$trend_date_range, tz = "UTC"), 
+    end <- max(lubridate::ymd(input$trend_date_range, tz = Sys.timezone()), 
                na.rm = TRUE)
     
     data_selected <- df %>%
@@ -259,9 +259,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "")
     )
     df <- get_data()
-    start <- min(lubridate::ymd(input$dist_back_dates, tz = "UTC"), 
+    start <- min(lubridate::ymd(input$dist_back_dates, tz = Sys.timezone()), 
                  na.rm = TRUE)
-    end <- max(lubridate::ymd(input$dist_back_dates, tz = "UTC"), 
+    end <- max(lubridate::ymd(input$dist_back_dates, tz = Sys.timezone()), 
                na.rm = TRUE)
     
     data_selected <- df %>%
@@ -278,8 +278,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "Please upload a data set")
     )
     data <- get_dist_data()
-    start <- min(lubridate::ymd(input$dist_back_dates, tz = "UTC"))
-    end <- max(lubridate::ymd(input$dist_back_dates, tz = "UTC"))
+    start <- min(lubridate::ymd(input$dist_back_dates, tz = Sys.timezone()))
+    end <- max(lubridate::ymd(input$dist_back_dates, tz = Sys.timezone()))
     lt_summary(data, start, end)
   })
   
@@ -530,10 +530,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                              ncol = input$ncol_ts)
             
             if (input$ts_date_lines) {
-              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
-              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
+              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
               
               ts <- gwstats::ts_plot(
                 ts_data[ts_data$location_id == 
@@ -571,10 +571,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                              ncol = input$ncol_ts)
             
             if (input$ts_date_lines) {
-              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
-              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
+              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
               
               ts <- gwstats::ts_plot(
                 ts_data[ts_data$param_name == 
@@ -626,10 +626,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     },
     content = function(file) {
       if (input$ts_date_lines) {
-        b1 <- min(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
-        c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
-        b2 <- max(lubridate::ymd(input$ts_back_dates, tz = "UTC"))
-        c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = "UTC"))
+        b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+        c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+        b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+        c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
         
         pdf(file = file, width = 17, height = 11)
         gwstats::ts_plot(get_ts_data(), back_date = c(b1, b2), 
@@ -678,8 +678,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     )
     
     data <- get_data()
-    start <- min(lubridate::ymd(input$date_range_piper, tz = "UTC"))
-    end <- max(lubridate::ymd(input$date_range_piper, tz = "UTC"))
+    start <- min(lubridate::ymd(input$date_range_piper, tz = Sys.timezone()))
+    end <- max(lubridate::ymd(input$date_range_piper, tz = Sys.timezone()))
     wells <- input$well_piper
     Mg = paste(input$Mg)
     Ca = paste(input$Ca)
@@ -691,8 +691,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     TDS = paste(input$TDS)
 
     data_selected <- data %>%
-      filter(location_id %in% wells &
-               sample_date >= start &
+      filter(location_id %in% wells, 
+             sample_date >= start &
                sample_date <= end)
     
     ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, K = K, 
@@ -752,8 +752,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     )
     
     data <- get_data()
-    start <- min(lubridate::ymd(input$date_range_stiff, tz = "UTC"))
-    end <- max(lubridate::ymd(input$date_range_stiff, tz = "UTC"))
+    start <- min(lubridate::ymd(input$date_range_stiff, tz = Sys.timezone()))
+    end <- max(lubridate::ymd(input$date_range_stiff, tz = Sys.timezone()))
     
     data_selected <- data %>%
       filter(location_id %in% input$well_stiff &
@@ -856,8 +856,8 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
       need(input$data_path != "", "Please upload a data set")
     )
     data <- get_data()
-    start <- min(lubridate::ymd(input$date_range_schoeller, tz = "UTC"))
-    end <- max(lubridate::ymd(input$date_range_schoeller, tz = "UTC"))
+    start <- min(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
+    end <- max(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
     
     data_selected <- data %>%
       filter(location_id %in% input$well_schoeller &
@@ -969,12 +969,12 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
         param_name %in% input$analyte_intra
       )
     
-    bkgd_start <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
-    bkgd_end <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    bkgd_start <- min(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
+    bkgd_end <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
     bkgd <- c(bkgd_start, bkgd_end)
     
-    comp_start <- min(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
-    comp_end <- max(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
+    comp_start <- min(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
+    comp_end <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
     comp <- c(comp_start, comp_end)
   
     validate(
@@ -1046,10 +1046,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
               )
             
             if (input$ts_intra_date_lines) {
-              b1 <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
-              c1 <- min(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
-              b2 <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
-              c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
+              b1 <- min(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
+              c1 <- min(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
+              b2 <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
+              c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
               
               ts <- gwstats::ts_plot(
                 ts_intra_data[ts_intra_data$location_id == 
@@ -1092,10 +1092,10 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
               )
             
             if (input$ts_intra_date_lines) {
-              b1 <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
-              c1 <- min(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
-              b2 <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
-              c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = "UTC"))
+              b1 <- min(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
+              c1 <- min(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
+              b2 <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
+              c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
               
               ts <- gwstats::ts_plot(
                 ts_intra_data[ts_intra_data$param_name == 
