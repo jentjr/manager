@@ -9,14 +9,18 @@
 boxplot <- function(df, facet_by = "location_id", short_name = FALSE, 
                     coord_flip = FALSE){
   if (facet_by == "param_name") {
-    plyr::d_ply(df, .(param_name), .boxplot, 
-                facet_by = "param_name", short_name = short_name,
-                coord_flip = coord_flip, .print = TRUE)
+    df %>% 
+      group_by(param_name) %>%
+      do(plot = .boxplot(., facet_by = "param_name", 
+                         short_name = short_name,
+                         coord_flip = coord_flip))
   }
   if (facet_by == "location_id") {
-    plyr::d_ply(df, .(location_id), .boxplot, 
-                facet_by = "location_id", short_name = short_name,
-                coord_flip = coord_flip, .print = TRUE)
+    df %>%
+      group_by(location_id) %>%
+      do(plot = .boxplot(., facet_by = "location_id", 
+                         short_name = short_name,
+                         coord_flip = coord_flip))
   }
 }
 
@@ -66,5 +70,5 @@ boxplot <- function(df, facet_by = "location_id", short_name = FALSE,
   if (isTRUE(coord_flip)) {
     b <- b + coord_flip()
   }      
-  b
+  print(b)
 }

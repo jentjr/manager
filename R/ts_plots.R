@@ -15,11 +15,13 @@
 ts_plot <- function(df, facet_by = "location_id", ...){
   
   if (facet_by == "param_name") {
-    plyr::d_ply(df, .(param_name), .ts_plot, 
-                facet_by = facet_by, ..., .print = TRUE)
+    df %>% 
+      group_by(param_name) %>% 
+      do(plot = .ts_plot(., facet_by = facet_by, ...))
   } else{
-    plyr::d_ply(df, .(location_id), .ts_plot, 
-                facet_by = facet_by, ..., .print = TRUE)
+    df %>%
+      group_by(location_id) %>%
+      do(plot = .ts_plot(., facet_by = facet_by, ...))
   }
 }
 
@@ -131,5 +133,5 @@ ts_plot <- function(df, facet_by = "location_id", ...){
                                    linetype = "limit2_name"), 
                         show.legend = TRUE)
   }  
-  return(p)
+  print(p)
 }
