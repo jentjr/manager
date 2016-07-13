@@ -50,6 +50,7 @@ boxplot <- function(df, facet_by = "location_id", short_name = FALSE,
       theme(axis.text.x = element_text(angle = 90, size = 13)) +
       theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
       theme(axis.text.y = element_text(size = 13)) +
+      theme(plot.title = element_text(hjust = 0.5)) +
       geom_boxplot() + 
       ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
   }
@@ -64,6 +65,7 @@ boxplot <- function(df, facet_by = "location_id", short_name = FALSE,
       theme(axis.text.x = element_text(angle = 90, size = 13)) +
       theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
       theme(axis.text.y = element_text(size = 13)) +
+      theme(plot.title = element_text(hjust = 0.5)) +
       geom_boxplot() + 
       ggtitle(paste("Boxplot for", df$location_id, "\n", sep = " "))
   }

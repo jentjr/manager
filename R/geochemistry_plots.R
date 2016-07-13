@@ -356,9 +356,10 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
       scale_size("TDS", range = c(5, 25)) +
       scale_colour_brewer(palette = "Dark2") +
       ggtitle(paste(title)) + guides(size = guide_legend("TDS"),
-                                        colour = guide_legend("Location ID"),
-                                        shape = guide_legend("Location ID"),
-                                        alpha = guide_legend("none"))
+                                     colour = guide_legend("Location ID"),
+                                     shape = guide_legend("Location ID"),
+                                     alpha = guide_legend("none")) +
+      theme(plot.title = element_text(hjust = 0.5))
   }else{
   ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
                                              color = location_id, 
@@ -373,8 +374,9 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
                               shape = location_id,
                               alpha = 0.2), size = 5) +
     ggtitle(paste(title)) + guides(color = guide_legend("Location ID"),
-                                      shape = guide_legend("Location ID"),
-                                      alpha = guide_legend("none")) +
+                                   shape = guide_legend("Location ID"),
+                                   alpha = guide_legend("none")) +
+    theme(plot.title = element_text(hjust = 0.5)) +
     scale_color_brewer(palette = "Dark2") +
     scale_shape_manual(values = sym)
   }
@@ -602,7 +604,8 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1) {
             axis.ticks = element_blank(),
             axis.text.y = element_blank(),
             plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
-      ggtitle(paste0("Stiff Diagram for ", df$location_id[1], "\n"))
+      ggtitle(paste0("Stiff Diagram for ", df$location_id[1], "\n")) +
+      theme(plot.title = element_text(hjust = 0.5))
   
     if (isTRUE(lines)) {
       p <- p + geom_segment(x = xmin, xend = xmax, y = 1, yend = 1,  
@@ -702,17 +705,18 @@ schoeller <- function(df, facet_by = NULL, title = NULL, lwt = 1){
     theme_bw() +
     theme(axis.title.y = element_blank(),
           axis.title.x = element_blank()) +
-    ggtitle(paste(title))
-  if (is.null(facet_by)){
-    p <- p + geom_line(size = lwt) +theme_bw() 
+    ggtitle(paste(title)) +
+    theme(plot.title = element_text(hjust = 0.5))
+  if (is.null(facet_by)) {
+    p <- p + geom_line(size = lwt) + theme_bw() 
   }
-  if (!is.null(facet_by)){
-    if (facet_by == "sample_date"){
+  if (!is.null(facet_by)) {
+    if (facet_by == "sample_date") {
       p <- p + facet_wrap(~sample_date, scale = "free_y") + 
         geom_line(aes(colour = location_id, group = location_id), size = lwt) +
         guides(colour = guide_legend("Location ID"))
     }
-    if (facet_by == "location_id"){
+    if (facet_by == "location_id") {
       p <- p + facet_wrap(~location_id, scale = "free_y") +
         geom_line(aes(colour = factor(sample_date), group = sample_date), 
                   size = lwt) +
@@ -731,11 +735,11 @@ series_plot <- function(df, facet_by = NULL){
     theme_bw() +
     theme(axis.title.y = element_blank(),
           axis.title.x = element_blank())
-  if (is.null(facet_by)){
+  if (is.null(facet_by)) {
     p <- p + geom_line(aes(colour = param_name, group = param_name))
   }
-  if (!is.null(facet_by)){
-    if (facet_by == "sample_date"){
+  if (!is.null(facet_by)) {
+    if (facet_by == "sample_date") {
       p <- p + facet_wrap(~sample_date, scale = "free_y") + 
         geom_line(aes(colour = param_name, group = param_name))
     }

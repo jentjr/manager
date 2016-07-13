@@ -69,6 +69,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     theme_bw() +  
     theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +
     theme(axis.title.y = element_text(size = 15, vjust = 0.3)) +
+    theme(plot.title = element_text(hjust = 0.5)) +
     guides(colour = guide_legend(override.aes = list(linetype = 0)), 
            shape = guide_legend("Detection", override.aes = list(linetype = 0)),
            size = guide_legend("none"),
@@ -92,12 +93,15 @@ ts_plot <- function(df, facet_by = "location_id", ...){
   
   if (facet_by == "location_id") {
     p <- p + facet_wrap(~param_name, scale = "free", ncol = ncol) + 
-      ggtitle(paste("Time Series Plots for", df$location_id[1], "\n", sep = " ")) 
+      ggtitle(paste("Time Series Plots for", 
+                    df$location_id[1], "\n", sep = " ")) 
+      
   }
   
   if (facet_by == "param_name") {
     p <- p + facet_wrap(~location_id, scale = "free", ncol = ncol) + 
-      ggtitle(paste("Time Series Plots for", df$param_name[1], "\n", sep = " "))
+      ggtitle(paste("Time Series Plots for", 
+                    df$param_name[1], "\n", sep = " ")) 
   }
   
   if (!missing(back_date)) {

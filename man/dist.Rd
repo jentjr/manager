@@ -4,7 +4,7 @@
 \alias{dist}
 \title{Function to return distribution based on using p-value}
 \usage{
-dist(x)
+dist(x, p = 0.01)
 }
 \arguments{
 \item{x}{analysis_result of groundwater data}

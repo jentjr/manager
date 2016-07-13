@@ -4,7 +4,7 @@
 \alias{export_OEPA}
 \title{Function to export data from manages to excel format required by OEPA}
 \usage{
-export_OEPA(df, wells, constituents, file, plant, export_date = date())
+export_OEPA(df, wells, constituents, file, ...)
 }
 \arguments{
 \item{df}{data frame}

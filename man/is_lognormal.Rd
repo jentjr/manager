@@ -4,7 +4,7 @@
 \alias{is_lognormal}
 \title{Function to check if groundwater data has a Lognormal distribution}
 \usage{
-is_lognormal(x)
+is_lognormal(x, p = 0.01)
 }
 \arguments{
 \item{x}{analysis_result of groundwater data}

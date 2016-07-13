@@ -5,7 +5,7 @@
 \title{Function to return either normal, lognormal, or non-parametric multiple 
 groundwater data locations and parameters.}
 \usage{
-est_dist(df)
+est_dist(df, p = 0.01)
 }
 \arguments{
 \item{df}{groundwater data frame}

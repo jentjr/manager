@@ -4,7 +4,7 @@
 \alias{is_normal}
 \title{Function to check if groundwater data has a Normal distribution}
 \usage{
-is_normal(x)
+is_normal(x, p = 0.01)
 }
 \arguments{
 \item{x}{analysis_result of groundwater data}
