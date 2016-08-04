@@ -1,14 +1,26 @@
-#' calculate the percentage of non-detects
+#' calculate the percentage of left censored data
 #' 
 #' @param df data frame of groundwater monitoring data in long format
-#' @param lt column of non-detects. Default is set to lt_measure which has 
-#' the "<" symbol.
+#' @param lt column of data less than detection limit.
 #' @export
 
 percent_lt <- function(lt) {
   yes <- length(lt[lt == "<"])
   total <- length(lt)
-  p <- (yes / total) * 100
+  p <- (yes/total)*100
+  return(p)
+}
+
+#' calculate the percentage of right censored data
+#' 
+#' @param df data frame of groundwater monitoring data in long format
+#' @param gt column of data greater than detection limit. 
+#' @export
+
+percent_gt <- function(gt) {
+  yes <- length(gt[gt == ">"])
+  total <- length(gt)
+  p <- (yes/total)*100
   return(p)
 }
 
@@ -25,16 +37,43 @@ remove_dup <- function(df){
   return(df_nodup)
 }
 
+replace_missing <- function(df){
+  df$analysis_result <- ifelse(df$analysis_result == -999.9, NA, 
+                                 df$analysis_result)
+  return(df)
+}
+
+#' Function to convert gwdata frame to censored data frame
+#' @param df data frame of groundwater data
+#' @export
+
+to_censored <- function(df) {
+  
+  df <- df %>%
+    group_by(location_id, param_name, default_unit) %>%
+    mutate(
+      left_censored = ifelse(lt_measure == "<", TRUE, FALSE),
+      right_censored = ifelse(lt_measure == ">", TRUE, FALSE)
+    )
+  
+  df <- as.data.frame(df)
+  
+  return(df)
+}
+
+
 #' Function to summarize the number of samples and percentage of 
 #' non-detects. This is useful for calculating the upper prediction limit.
 #' 
 #' @param df data frame of groundwater monitoring network data 
+#' @param start_date beginning of time period to be evaluated
+#' @param end_date end of time period to be evaluated
 #' @export
 
-lt_summary <- function(df, bkgd_start, bkgd_end){
+lt_summary <- function(df, start_date, end_date){
   
-  df$sampling_period <- ifelse(df$sample_date >= bkgd_start & 
-                               df$sample_date <= bkgd_end, "background", 
+  df$sampling_period <- ifelse(df$sample_date >= start_date & 
+                               df$sample_date <= end_date, "background", 
                                "compliance")
   detection <- dplyr::group_by(df, location_id, param_name, default_unit,
                                sampling_period)
@@ -55,14 +94,10 @@ lt_summary <- function(df, bkgd_start, bkgd_end){
 #' @param file full file path name with extension for export
 #' @export
 
-export_OEPA <- function(df, wells, constituents, file, plant, 
-                        export_date = date()){
+export_OEPA <- function(df, wells, constituents, file, ...){
   
-  # create a data frame from plant name and date in order to paste into excel
-  h <- data.frame(Facility = plant, Date = export_date)
-  
-  df <- df[df$location_id %in% wells &
-           df$param_name %in% constituents, ]
+  df <- df %>% 
+    dplyr::filter(param_name %in% constituents, location_id %in% wells)
   
   join_lt <- function() {
     paste(df$lt_measure, df$analysis_result, sep = " ")
@@ -70,26 +105,24 @@ export_OEPA <- function(df, wells, constituents, file, plant,
   
   df$result <- ifelse(df$lt_measure == "<" | df$lt_measure == ">", 
                       join_lt(), df$analysis_result)
+ 
+  df$param_unit <- paste0(df$param_name, " (",df$default_unit, ")")
   
-  id <- dplyr::group_by(df, location_id, sample_date, param_name)
-  id <- dplyr::mutate(id, group = n())
+  df <- df %>%
+    dplyr::select(lab_id, location_id, sample_date, param_unit, result) %>%
+    tidyr::spread(param_unit, result)
+
+  wb <- openxlsx::createWorkbook()
   
-  wb <- XLConnect::loadWorkbook(file, create=TRUE)
-  
-  for (i in 1:length(wells)){
-    temp <- id[id$location_id == wells[i], ]
-    temp <- reshape2::dcast(temp, value.var = "result", 
-                            param_name + group + default_unit ~ sample_date, 
-                            margins = FALSE)[-2]
-    XLConnect::createSheet(wb, name = paste(wells[i]))
-    XLConnect::writeWorksheet(wb, temp, sheet=paste(wells[i]), 
-                              startRow = 4, startCol = 1, header = TRUE,
-                              rownames = FALSE)
-    XLConnect::writeWorksheet(wb, h, sheet = paste(wells[i]), 
-                              startRow = 1, startCol = 1, header = TRUE,
-                              rownames = FALSE)
+  oepa_cast <- function(x){
+    openxlsx::addWorksheet(wb, paste(x$location_id[1]))
+    openxlsx::writeData(wb, x, sheet = paste(x$location_id[1]),
+                        startRow = 1, startCol = 1, rowNames = FALSE)
   }
-  XLConnect::saveWorkbook(wb)
+  
+  plyr::d_ply(df, .(location_id), oepa_cast)
+
+  openxlsx::saveWorkbook(wb, file = file, ...)
 }
 
 #' Function to export summary table for a sampling event

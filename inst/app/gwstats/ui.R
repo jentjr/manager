@@ -3,23 +3,175 @@ shinyUI(navbarPage("GWSTATS",
   tabPanel("Data Input",
     sidebarLayout(
       sidebarPanel(
-        fileInput(inputId = "data_path", label = "Browse to file",
-                  accept = c(".mdb", ".csv", ".xls", ".xlsx")),
-        radioButtons(inputId = "file_type", label = "File Type", 
-                    choices = c("MANAGES database", 
-                                "csv", 
-                                "excel")),
-        conditionalPanel(condition = "input.file_type == 'csv'",
-                         textInput(inputId = "csv_date_format", 
-                                   label = "Date format",
-                                   value = "mdy")),
-        conditionalPanel(condition = "input.file_type == 'excel'",
-                         textInput(inputId = "excel_sheet", 
-                                   label = "Sheet name",
-                                   value = "Sheet1"))
+        selectInput(
+          inputId = "gw_data",
+          label = "Select Input:",
+          choices = c("Existing MANAGES Database" = "manages",
+                      "Read from existing file" = "exist_file",
+                      "Create New Database" = "new_db")
+        ),
+        conditionalPanel(
+          condition = "input.gw_data == 'manages'",
+          fileInput(
+            inputId = "data_path", label = "Browse to MANAGES Site.mdb file",
+            accept = c(".mdb")
+          )
+        ),
+        conditionalPanel(
+          condition = "input.gw_data == 'exist_file'",
+          radioButtons(
+            inputId = "file_type", 
+            label = "File Type", 
+            choices = c("csv", "excel")
+            ),
+          conditionalPanel(
+            condition = "input.file_type == 'csv'",
+            fileInput(
+              inputId = "data_path", 
+              label = "Browse to csv file",
+              accept = c(".csv")
+            ),
+            textInput(inputId = "csv_date_format", 
+                      label = "Date format",
+                      value = "mdy")
+          ),
+          conditionalPanel(
+            condition = "input.file_type == 'excel'",
+            fileInput(
+              inputId = "data_path",
+              label = "Browse to excel file",
+              accept = c(".xls", ".xlsx")
+            ),
+            textInput(inputId = "excel_sheet", 
+                      label = "Sheet name",
+                      value = "Sheet1")
+          )
+        ),
+       checkboxInput(
+        inputId = "data_crud",
+        label = "CRUD Data",
+        value = FALSE
+       ),
+       conditionalPanel(
+        condition = "input.data_crud == '1'",
+        selectInput(
+          inputId = "table_entry",
+          label = "Choose Table:",
+          choices = c("Sample Results" = "sample_results",
+                      "Well Information" = "well_table",
+                      "Statistical Procedure" = "stat_proc")
+        ),
+        conditionalPanel(
+          condition = "input.table_entry == 'sample_results'",
+          #lab results input fields
+          textInput("labID", "Lab ID", ""),
+          textInput("location_id", "Well ID", ""),
+          textInput("sample_date", "Sample Date", Sys.Date()),
+          textInput("param_name", "Constituent", ""),
+          numericInput("analysis_results", "Analysis Result", 0),
+          textInput("default_unit", "Units", "mg/L"),
+          actionButton("submit_sample", "Submit"),
+          actionButton("new_sample", "New"),
+          actionButton("delete_sample", "Delete")
+        ),
+        conditionalPanel(
+          condition = "input.table_entry == 'well_table'",
+          textInput("boringID", "Boring ID", ""),
+          textInput("location_id", "Well ID", ""),
+          numericInput("northing", "Northing", 0),
+          numericInput("easting", "Easting", 0),
+          numericInput("bottom_screen", "Screen Bottom Elevation", 0),
+          numericInput("top_screen", "Screen Top Elevation", 0),
+          numericInput("riser_elev", "Riser Elevation", 0),
+          actionButton("submit_well", "Submit"),
+          actionButton("new_well", "New"),
+          actionButton("delete_well", "Delete")
+        )
+       )
       ),
       mainPanel(
-        dataTableOutput("well_table")
+        dataTableOutput("sample_table")
+      )
+    )
+  ),
+  tabPanel("Outliers",
+    sidebarLayout(
+      sidebarPanel(
+        uiOutput("outlier_wells"),
+        uiOutput("outlier_analytes"),
+        uiOutput("outlier_date_ranges"),
+        selectInput(
+          inputId = "outlier_test_name", 
+          label = "Outlier Test",
+          choices = c("Rosner", "Grubb", "Dixon")
+        ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Rosner'",
+          numericInput(
+            inputId = "rosnerN", 
+            label = "Number of suspected outliers",
+            value = 2, min = 0
+          ),
+          numericInput(
+            inputId = "rosnerAlpha",
+            label = "alpha",
+            value = 0.01, min = 0, max = 1
+          )
+        ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Grubb'",
+          selectInput(
+            inputId = "grubbType",
+            label = "Type of Test",
+            choices = c("10" = 10, "11" = 11, "20" = 20)
+          ),
+          selectInput(
+            inputId = "grubbOpposite",
+            label = "Choose Opposite",
+            choices = c("FALSE" = 0, "TRUE" = 1)
+          ),
+          selectInput(
+            inputId = "grubbSide",
+            label = "Treat as two-sided",
+            choices = c("FALSE" = 0, "TRUE" = 1)
+          )
+        ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Dixon'",
+          selectInput(
+            inputId = "dixonType",
+            label = "Type of Test",
+            choices = c("0" = 0, "10" = 10, "11" = 11, 
+                        "12" = 12, "20" = 20, "21" = 21)
+          ),
+          selectInput(
+            inputId = "dixonOpposite",
+            label = "Choose Opposite",
+            choices = c("FALSE" = 0, "TRUE" = 1)
+          ),
+          selectInput(
+            inputId = "dixonSide",
+            label = "Treat as two-sided",
+            choices = c("TRUE" = 1, "FALSE" = 0)
+          )
+        )
+      ),
+      mainPanel(
+        verbatimTextOutput("outlier_test"),
+        br(),
+        dataTableOutput("outlier_table")
+      )
+    )
+  ),
+  tabPanel("Trends",
+    sidebarLayout(
+      sidebarPanel(
+        uiOutput("trend_wells"),
+        uiOutput("trend_analytes"),
+        uiOutput("trend_date_ranges")
+      ),
+      mainPanel(
+        verbatimTextOutput("trend_test")
       )
     )
   ),
@@ -30,33 +182,56 @@ shinyUI(navbarPage("GWSTATS",
           uiOutput("dist_wells"),
           uiOutput("dist_analytes"),
           uiOutput("dist_date_ranges"),
-          radioButtons(inputId = "dist_plot_type", 
-                       label = "Type of Distribution Plot",
-                       choices = c("Regular", "Censored"),
-                       selected = "Regular"),
+          radioButtons(
+            inputId = "dist_plot_type", 
+            label = "Type of Distribution Plot",
+            choices = c("Regular", "Censored"),
+            selected = "Regular"
+          ),
           conditionalPanel(
               condition = "input.dist_plot_type == 'Censored'",
-              selectInput(inputId = "cen_dist_side", label = "Censoring Side",
-                        c("left", "right")),
-              selectInput(inputId = "cen_dist_test", label = "Select test",
-                          c("Shapiro-Francia" = "sf", "Shapiro-Wilk" = "sw", 
-                            "Prob-Plot-Corr-Coeff" = "ppcc")),
-              selectInput(inputId = "cen_dist_dist", label = "Distribution",
-                          c("Normal" = "norm", "Lognormal" = "lnorm")),
-              selectInput(inputId = "cen_dist_method", 
-                          label = "Select method to compute plotting position",
-                          c("michael-schucany", "modified kaplan-meier", 
-                            "nelson", "hirsch-stedinger")),
-              numericInput(inputId = "cen_dist_plot.pos.con", 
-                           label = "Scalar for plotting position constant",
-                           value = 0.375, min = 0, max = 1)
+              selectInput(
+                inputId = "cen_dist_side", 
+                label = "Censoring Side",
+                choices = c("left", "right")
+              ),
+              selectInput(
+                inputId = "cen_dist_test", 
+                label = "Select test",
+                choices = c("Shapiro-Francia" = "sf", 
+                            "Shapiro-Wilk" = "sw", 
+                            "Prob-Plot-Corr-Coeff" = "ppcc")
+              ),
+              selectInput(
+                inputId = "cen_dist_dist", 
+                label = "Distribution",
+                choices = c("Normal" = "norm", "Lognormal" = "lnorm")
+              ),
+              selectInput(
+                inputId = "cen_dist_method", 
+                label = "Select method to compute plotting position",
+                choices = c("michael-schucany", 
+                            "modified kaplan-meier", 
+                            "nelson", 
+                            "hirsch-stedinger")
+              ),
+              numericInput(
+                inputId = "cen_dist_plot.pos.con", 
+                label = "Scalar for plotting position constant",
+                value = 0.375, 
+                min = 0, 
+                max = 1
+              )
             ),
           conditionalPanel(
             condition = "input.dist_plot_type == 'Regular'",
-            selectInput("dist_type", "Type of Distribution", 
-                        row.names(Distribution.df), 
-                        selected = "norm")
+            selectInput(
+              inputId = "dist_type", 
+              label = "Type of Distribution", 
+              choices = row.names(Distribution.df), 
+              selected = "norm"
             )
+          )
         ),
         mainPanel(
           tableOutput("lt_summary"),
@@ -75,11 +250,27 @@ shinyUI(navbarPage("GWSTATS",
           uiOutput("ts_date_ranges"),
           selectInput("ts_facet_by", "Group plots by:", 
                       c("location_id", "param_name")),
+          selectInput("ts_trend", "Add trend line:",
+                      c("none" = "None", "lm" = "lm",
+                        "glm" = "glm", "gam" = "gam",
+                        "loess" = "loess", "theil-sen" = "theil-sen")),
           checkboxInput("ts_short_name", "Abbreviate Constituent Name"),
           checkboxInput("ts_date_lines", "Show Date Ranges"),
           numericInput("ncol_ts", "Number of Columns in Plot", 
-                       value = 1),
-          downloadButton("ts_download", "Download Plots")
+                       value = NULL),
+          downloadButton("ts_download", "Download Plots"),
+          checkboxInput(
+            inputId = "ts_interactive",
+            label = "Interactive",
+            value = TRUE
+          ),
+          conditionalPanel(
+            condition = "input.ts_interactive == '0'",
+            actionButton(
+              inputId = "ts_submit",
+              label = "Click to Plot"
+            )
+          )
         ),
         mainPanel(
           uiOutput("ts_out")
@@ -94,7 +285,19 @@ shinyUI(navbarPage("GWSTATS",
           selectInput("box_facet_by", "Group plot by:",
                       c("param_name", "location_id")),
           checkboxInput("box_short_name", "Abbreviate Constituent Name"),
-          downloadButton("box_download", "Download Plots")
+          downloadButton("box_download", "Download Plots"),
+          checkboxInput(
+            inputId = "box_interactive",
+            label = "Interactive",
+            value = TRUE
+          ),
+          conditionalPanel(
+            condition = "input.box_interactive == '0'",
+            actionButton(
+              inputId = "box_submit",
+              label = "Click to Plot"
+            )
+          )
         ),
         mainPanel(
           uiOutput("boxplot_out")  
@@ -219,12 +422,12 @@ shinyUI(navbarPage("GWSTATS",
                      choices = c("Simultaneous", "Regular")),
         conditionalPanel(
             condition = "input.pred_int_type == 'Simultaneous'",
-            numericInput(inputId = "sim_intra_n.mean", label = "Specify 
-                         positive integer for the sample size associated 
-                         with the future averages. The default value is 
-                         n.mean=1 (i.e., individual observations). 
-                         Note that all future averages must be based on the 
-                         same sample size", value = 1, min = 0),
+#             numericInput(inputId = "sim_intra_n.mean", label = "Specify 
+#                          positive integer for the sample size associated 
+#                          with the future averages. The default value is 
+#                          n.mean=1 (i.e., individual observations). 
+#                          Note that all future averages must be based on the 
+#                          same sample size", value = 1, min = 0),
             numericInput(inputId = "sim_intra_k", label = "Specify an integer k 
                          in the k-of-m rule for the minimum number of 
                          observations (or averages) out of m observations 

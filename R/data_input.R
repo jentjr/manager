@@ -13,9 +13,11 @@ connect_manages <- function(manages_path) {
                     ";DBQ=", manages_path)
     )
   
-  manages_query <- paste0("SELECT sample_results.location_id, ", 
+  manages_query <- paste0("SELECT sample_results.lab_id, ",
+                "sample_results.location_id, ", 
                 "sample_results.sample_date, sample_results.analysis_result, ", 
-                "sample_results.lt_measure, site_parameters.default_unit, ", 
+                "sample_results.lt_measure, sample_results.detection_limit, ",
+                "sample_results.PQL, site_parameters.default_unit, ", 
                 "site_parameters.param_name, site_parameters.short_name FROM ", 
                 "sample_results LEFT JOIN site_parameters ON ", 
                 "sample_results.storet_code = site_parameters.storet_code")
@@ -39,7 +41,8 @@ connect_manages_spatial <- function(manages_path){
   )
   
   manages_query <- paste0("SELECT location_id, description, long_pos, ",
-                          "lat_pos, install_date, depth_top, ", 
+                          "lat_pos, north_coordinate, east_coordinate, ",
+                          "install_date, depth_top, ", 
                           "depth_bottom, well_top, well_bottom FROM locations")
   
   sp_data <- RODBC::sqlQuery(manages_conn, manages_query)
@@ -93,19 +96,19 @@ from_csv <- function(path, date_format = "mdy"){
 
 #' function to read data in excel format 
 #' 
-#' @param path path to the csv file of groundwater data in the format
+#' @param path path to the excel  file of groundwater data in the format
 #'  with column names
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @param sheet sheet name in spreadhsheet
 #' @export
 from_excel <- function(path, sheet = "Sheet1"){
-  excel_data <- XLConnect::readWorksheet(XLConnect::loadWorkbook(path), 
-                                         sheet = sheet,
-                                         forceConversion = TRUE, 
-                                         dateTimeFormat = "%Y-%m-%d %H:%M:%S")
+  
+  excel_data <- readxl::read_excel(path, sheet = sheet)
+  
   excel_data$analysis_result <- as.numeric(excel_data$analysis_result)
   excel_data$lt_measure <- factor(excel_data$lt_measure, exclude = NULL)
   excel_data$param_name <- as.character(excel_data$param_name)
   excel_data$default_unit <- as.character(excel_data$default_unit)
+  
   return(excel_data)
 }

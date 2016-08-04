@@ -14,23 +14,29 @@
 #' @param TDS Total Dissolved Solids
 #' @export
 
-get_major_ions <- function(df, Mg = "Magnesium, dissolved", 
+get_major_ions <- function(df, 
+                           Mg = "Magnesium, dissolved", 
                            Ca = "Calcium, dissolved", 
                            Na = "Sodium, dissolved", 
                            K = "Potassium, dissolved", 
                            Cl = "Chloride, total", 
                            SO4 = "Sulfate, total", 
                            Alk = "Alkalinity, total (lab)", 
-                           TDS = NULL,...){
+                           TDS = NULL, 
+                           ...){
 #   TODO: add other major ions like Fe
 #   input_list <- list(...)
   
-  plot_params <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
+  params <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
   
-  plot_data <- df[df$param_name %in% plot_params, ]
- 
-  plot_data <- reshape2::dcast(plot_data, value.var = "analysis_result", 
-                        location_id + sample_date ~ param_name)
+  data <- df[df$param_name %in% params, ]
+  
+  id <- dplyr::group_by(data, location_id, sample_date, param_name)
+  id <- dplyr::mutate(id, group = n())
+  
+  plot_data <- reshape2::dcast(id, value.var = "analysis_result", 
+                        location_id + group + sample_date ~ param_name, mean,
+                        margins = FALSE)[-2]
 
   return(plot_data)
 }
@@ -44,15 +50,18 @@ get_major_ions <- function(df, Mg = "Magnesium, dissolved",
 #' @param K Potassium
 #' @param Cl Chloride
 #' @param SO4 Sulfate
-#' @param HCO3 Bicaronate
+#' @param total_alk Total Alkalinity
 #' 
 #' @export
 
-conc_to_meq <- function(df, Mg="Magnesium, dissolved", 
-                                Ca="Calcium, dissolved", Na="Sodium, dissolved", 
-                                K="Potassium, dissolved", Cl="Chloride, total", 
-                                SO4="Sulfate, total", 
-                                HCO3="Alkalinity, total (lab)"){
+conc_to_meq <- function(df, Mg = "Magnesium, dissolved", 
+                        Ca = "Calcium, dissolved", 
+                        Na = "Sodium, dissolved", 
+                        K = "Potassium, dissolved", 
+                        Cl = "Chloride, total", 
+                        SO4 = "Sulfate, total", 
+                        total_alk = "Alkalinity, total (lab)",
+                        ...){
   
   # TODO: add ... feature and a data base of elements perhaps from phreeqc.
   
@@ -73,19 +82,29 @@ conc_to_meq <- function(df, Mg="Magnesium, dissolved",
   Na_chrg <- 1
   K_chrg <- 1
   SO4_chrg <- 2
-  #   CO3_chrg <- 2
+  CO3_chrg <- 2
   HCO3_chrg <- 1
   Cl_chrg <- 1
   
+  #molar mass
+  Mg_mol <- Mg_fwt*Mg_chrg
+  Ca_mol <- Ca_fwt*Ca_chrg
+  Na_mol <- Na_fwt*Na_chrg
+  K_mol <- K_fwt*K_chrg
+  Cl_mol <- Cl_fwt*Cl_chrg
+  SO4_mol <- (S_fwt + 4*O_fwt)*SO4_chrg
+  CO3_mol <- (C_fwt + 3*O_fwt)*CO3_chrg
+  HCO3_mol <- (H_fwt + C_fwt + 3*O_fwt)*HCO3_chrg
+  total_alk_mol <- CO3_mol + HCO3_mol
+  
   # conversion 
-  df[,Mg] <- df[,Mg] / Mg_fwt * Mg_chrg
-  df[,Ca] <- df[,Ca] / Ca_fwt * Ca_chrg
-  df[,Na] <- df[,Na] / Na_fwt * Na_chrg
-  df[,K] <- df[,K] / K_fwt * K_chrg
-  df[,Cl] <- df[,Cl] / Cl_fwt * Cl_chrg
-  df[,SO4] <- df[,SO4] / (S_fwt + 4 * O_fwt) * SO4_chrg
-  #   df$CO3 <- CO3 / (C_fwt + 3 * O_fwt) * CO3_chrg
-  df[,HCO3] <- df[,HCO3] / (H_fwt + C_fwt + 3 * O_fwt) * HCO3_chrg
+  df[,Mg] <- df[,Mg]/Mg_mol
+  df[,Ca] <- df[,Ca]/Ca_mol
+  df[,Na] <- df[,Na]/Na_mol
+  df[,K] <- df[,K]/K_mol
+  df[,Cl] <- df[,Cl]/Cl_mol
+  df[,SO4] <- df[,SO4]/SO4_mol
+  df[,total_alk] <- df[, total_alk]/total_alk_mol
   
   return(df)
 }
@@ -108,15 +127,15 @@ conc_to_meq <- function(df, Mg="Magnesium, dissolved",
 #' @keywords piper diagram
 #' @export
 
-transform_piper_data <- function(df, Mg="Magnesium, dissolved", 
-                                 Ca="Calcium, dissolved", 
-                                 Na="Sodium, dissolved", 
-                                 K="Potassium, dissolved", 
-                                 Cl="Chloride, total", 
-                                 SO4="Sulfate, total", 
-                                 CO3=NULL, 
-                                 Alk="Alkalinity, total (lab)", 
-                                 TDS="Total Dissolved Solids", 
+transform_piper_data <- function(df, Mg = "Magnesium, dissolved", 
+                                 Ca = "Calcium, dissolved", 
+                                 Na = "Sodium, dissolved", 
+                                 K = "Potassium, dissolved", 
+                                 Cl = "Chloride, total", 
+                                 SO4 = "Sulfate, total", 
+                                 CO3 = NULL, 
+                                 Alk = "Alkalinity, total (lab)", 
+                                 TDS = NULL, 
                                  name = "location_id", date = "sample_date", 
                                  units = NULL){
 
@@ -194,111 +213,111 @@ ggplot_piper <- function() {
     
     ## Add grid lines to the plots
     geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data=data.frame(x1 = c(20, 40, 60, 80), 
+                 data = data.frame(x1 = c(20, 40, 60, 80), 
                                  x2 = c(10, 20, 30, 40), 
                                  y1 = c(0, 0, 0, 0), 
                                  y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
     geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data=data.frame(x1 = c(20, 40, 60, 80), 
+                 data = data.frame(x1 = c(20, 40, 60, 80), 
                                  x2 = c(60, 70, 80, 90), 
                                  y1 = c(0, 0, 0, 0), 
                                  y2 = c(69.2824, 51.9618, 34.6412, 17.3206)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
     geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data=data.frame(x1 = c(10, 20, 30, 40), 
+                 data = data.frame(x1 = c(10, 20, 30, 40), 
                                  x2 = c(90, 80, 70, 60), 
                                  y1 = c(17.3206, 34.6412, 51.9618, 69.2824), 
                                  y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
     geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data=data.frame(x1 = c(140, 160, 180, 200), 
+                 data = data.frame(x1 = c(140, 160, 180, 200), 
                                  x2 = c(130, 140, 150, 160), 
                                  y1 = c(0, 0, 0, 0), 
                                  y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
     geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data=data.frame(x1 = c(140, 160, 180, 200), 
+                 data = data.frame(x1 = c(140, 160, 180, 200), 
                                  x2 = c(180, 190, 200, 210), 
                                  y1 = c(0, 0, 0, 0), 
                                  y2 = c(69.2824, 51.9618, 34.6412, 17.3206)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
     geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data=data.frame(x1 = c(130, 140, 150, 160), 
+                 data = data.frame(x1 = c(130, 140, 150, 160), 
                                  x2 = c(210, 200, 190, 180), 
                                  y1 = c(17.3206, 34.6412, 51.9618, 69.2824), 
                                  y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
     geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data=data.frame(x1 = c(100,90, 80, 70), 
+                 data = data.frame(x1 = c(100,90, 80, 70), 
                                  y1 = c(34.6412, 51.9618, 69.2824, 86.603), 
                                  x2 = c(150, 140, 130, 120), 
                                  y2 = c(121.2442, 138.5648, 155.8854, 173.2060)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
     geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data=data.frame(x1 = c(70, 80, 90, 100), 
+                 data = data.frame(x1 = c(70, 80, 90, 100), 
                                  y1 = c(121.2442, 138.5648, 155.8854, 173.2060), 
                                  x2 = c(120, 130, 140, 150), 
                                  y2 = c(34.6412, 51.9618, 69.2824, 86.603)), 
                  linetype = "dashed", size = 0.25, colour = "grey50") +
     geom_text(aes(x = c(20, 40, 60, 80), y = c(-5,-5,-5,-5), 
-                  label=c(80, 60, 40, 20)), size=3) +
+                  label = c(80, 60, 40, 20)), size = 3) +
     geom_text(aes(x = c(35, 25, 15, 5), 
                   y = c(69.2824, 51.9618, 34.6412, 17.3206), 
-                  label=c(80, 60, 40, 20)), size=3) +
+                  label = c(80, 60, 40, 20)), size = 3) +
     geom_text(aes(x = c(95, 85, 75, 65), 
                   y = c(17.3206, 34.6412, 51.9618, 69.2824),
-                  label=c(80, 60, 40, 20)), size=3) +
-    coord_equal(ratio=1) +  
+                  label = c(80, 60, 40, 20)), size = 3) +
+    coord_equal(ratio = 1) +  
     
     # Labels for cations
-    geom_text(aes(x = 17, y = 50, label="-phantom()~Mg^+2 %->%phantom()"), 
-          angle=60, size=4, parse=TRUE) +  
+    geom_text(aes(x = 17, y = 50, label = "-phantom()~Mg^+2 %->%phantom()"), 
+          angle = 60, size = 4, parse = TRUE) +  
     geom_text(aes(x = 82, y = 50, 
-          label="-phantom()~Na^+phantom()~+~K^+phantom() %->%phantom()"),
-          angle=-60, size=4, parse=TRUE) +
+          label = "-phantom()~Na^+phantom()~+~K^+phantom() %->%phantom()"),
+          angle = -60, size = 4, parse = TRUE) +
     geom_text(aes(x = 50,y = -10, 
-          label="phantom()%<-%phantom()~Ca^+2~-phantom()"), 
-          size=4, parse=TRUE) +
+          label = "phantom()%<-%phantom()~Ca^+2~-phantom()"), 
+          size = 4, parse = TRUE) +
     
     # labels for anion plot
     geom_text(aes(x = 170, y = -10, 
-          label="- Cl^-phantom() %->%phantom()"), size=4, parse=TRUE) +
+          label = "- Cl^-phantom() %->%phantom()"), size = 4, parse = TRUE) +
     geom_text(aes(x = 205, y = 50, 
-          label="phantom()%<-%phantom()~SO[4]^+2~-phantom()"), 
-          angle=-60, size=4, parse=TRUE) +
+          label = "phantom()%<-%phantom()~SO[4]^+2~-phantom()"), 
+          angle = -60, size = 4, parse = TRUE) +
     geom_text(aes(x = 138.5, y = 50, 
-          label="phantom()%<-%phantom()~Alkalinity~-phantom()"), 
-          angle=60, size=4, parse=TRUE) +
+          label = "phantom()%<-%phantom()~Alkalinity~-phantom()"), 
+          angle = 60, size = 4, parse = TRUE) +
     
     # Diamond Labels
     geom_text(aes(x = 72.5, y = 150, 
-          label="-phantom()~SO[4]^+2~+~Cl^-phantom()~phantom()%->%phantom()"),
-          angle=60, size=4, parse=TRUE) +
+          label = "-phantom()~SO[4]^+2~+~Cl^-phantom()~phantom()%->%phantom()"),
+          angle = 60, size = 4, parse = TRUE) +
     geom_text(aes(x = 147.5, y = 150, 
-          label="phantom()%<-%phantom()~Ca^+2~+~Mg^+2~-phantom()"), 
-          angle=-60, size=4, parse=TRUE) + 
+          label = "phantom()%<-%phantom()~Ca^+2~+~Mg^+2~-phantom()"), 
+          angle = -60, size = 4, parse = TRUE) + 
     geom_text(aes(x = c(155, 145, 135, 125), 
                   y = c(69.2824, 51.9618, 34.6412, 17.3206),
-                  label=c(20, 40, 60, 80)), size=3) +
+                  label = c(20, 40, 60, 80)), size = 3) +
     geom_text(aes(x = c(215, 205, 195, 185), 
                   y = c(17.3206, 34.6412, 51.9618, 69.2824),
-                  label = c(20, 40, 60, 80)), size=3) +
+                  label = c(20, 40, 60, 80)), size = 3) +
     geom_text(aes(x = c(140, 160, 180, 200), 
                   y = c(-5, -5, -5, -5), 
-                  label = c(20, 40, 60, 80)), size=3) +
+                  label = c(20, 40, 60, 80)), size = 3) +
     geom_text(aes(x = c(95, 85, 75, 65), 
                   y = c(34.6412, 51.9618, 69.2824, 86.603), 
-                  label = c(80, 60, 40, 20)), size=3) +
+                  label = c(80, 60, 40, 20)), size = 3) +
     geom_text(aes(x = c(155, 145, 135, 125), 
                   y = c(121.2442, 138.5648, 155.8854, 173.2060),
-                  label = c(20, 40, 60, 80)), size=3) +
+                  label = c(20, 40, 60, 80)), size = 3) +
     geom_text(aes(x = c(65, 75, 85, 95), 
                   y = c(121.2442, 138.5648, 155.8854, 173.2060),
-                  label = c(20, 40, 60, 80)), size=3) +
+                  label = c(20, 40, 60, 80)), size = 3) +
     geom_text(aes(x = c(125, 135, 145, 155), 
                   y = c(34.6412, 51.9618, 69.2824, 86.603),
-                  label = c(80, 60, 40, 20)), size=3) +
+                  label = c(80, 60, 40, 20)), size = 3) +
     theme_bw() +
     theme(panel.grid.major = element_blank(), 
           panel.grid.minor = element_blank(),
@@ -320,7 +339,10 @@ ggplot_piper <- function() {
 #' @export
   
 piper_plot <- function(df, TDS=FALSE, title=NULL){
-  if(isTRUE(TDS)){
+  
+  sym <- seq(1, length(unique(df$location_id)), by = 1)
+  
+  if (isTRUE(TDS)) {
     ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
                                                colour = location_id,
                                                shape = location_id,
@@ -334,26 +356,29 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
       scale_size("TDS", range = c(5, 25)) +
       scale_colour_brewer(palette = "Dark2") +
       ggtitle(paste(title)) + guides(size = guide_legend("TDS"),
-                                        colour = guide_legend("Location ID"),
-                                        shape = guide_legend("Location ID"),
-                                        alpha = guide_legend("none"))
+                                     colour = guide_legend("Location ID"),
+                                     shape = guide_legend("Location ID"),
+                                     alpha = guide_legend("none")) +
+      theme(plot.title = element_text(hjust = 0.5))
   }else{
   ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
-                                             colour = location_id, 
+                                             color = location_id, 
                                              shape = location_id,
                                              alpha = 0.2), size = 5) +
     geom_point(data = df, aes(x = anion_x, y = anion_y, 
-                              colour = location_id,
+                              color = location_id,
                               shape = location_id,
                               alpha = 0.2), size = 5) +
     geom_point(data = df, aes(x = diam_x, y = diam_y, 
-                              colour = location_id,
+                              color = location_id,
                               shape = location_id,
                               alpha = 0.2), size = 5) +
-    scale_colour_brewer(palette = "Dark2") +
-    ggtitle(paste(title)) + guides(colour = guide_legend("Location ID"),
-                                      shape = guide_legend("Location ID"),
-                                      alpha = guide_legend("none"))
+    ggtitle(paste(title)) + guides(color = guide_legend("Location ID"),
+                                   shape = guide_legend("Location ID"),
+                                   alpha = guide_legend("none")) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    scale_color_brewer(palette = "Dark2") +
+    scale_shape_manual(values = sym)
   }
 }
 
@@ -365,18 +390,19 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
 #' @param TDS Scale by Total Dissolved Solids
 #' @export
 
-piper_time_plot <- function(df, TDS = FALSE, title){
+piper_time_plot <- function(df, TDS = FALSE, title = NULL){
+  iter <- unique(df$sample_date)
   ggplot_piper()
   dev.hold()
-  for(i in 1:length(unique(df$sample_date))){
-    if(isTRUE(TDS)){
-      print(plot_piper(subset(df, sample_date == df$sample_date[i]), 
-                       TDS = TRUE, title=paste(title, df$sample_date[i], 
-                                               sep="\n")))
+  for (i in 1:length(iter)) {
+    if (isTRUE(TDS)) {
+      print(piper_plot(df[df$sample_date == iter[i], ], 
+                       TDS = TRUE, title = paste(title, iter[i], 
+                                               sep = "\n")))
       animation::ani.pause()
     }else{
-      print(plot_piper(subset(df, sample_date == df$sample_date[i]), 
-                       title=paste(title, df$sample_date[i], sep="\n")))
+      print(piper_plot(df[df$sample_date == iter[i], ], 
+                       title = paste(title, iter[i], sep = "\n")))
       animation::ani.pause()
     }
   }
@@ -390,7 +416,7 @@ piper_time_plot <- function(df, TDS = FALSE, title){
 #' @export
 
 piper_time_html <- function(df, TDS = FALSE){
-  if(isTRUE(TDS)){
+  if (isTRUE(TDS)) {
     animation::saveHTML({
       animation::ani.options(nmax = length(unique(df$sample_date)), 
                              outdir = getwd())
@@ -434,49 +460,52 @@ piper_time_html <- function(df, TDS = FALSE){
 #' @param units Units of data
 #' @export
 
-transform_stiff_data <- function(df, Mg="Magnesium, dissolved", 
-                                 Ca="Calcium, dissolved", 
-                                 Na="Sodium, dissolved", 
-                                 K="Potassium, dissolved", 
-                                 Cl="Chloride, total", 
-                                 SO4="Sulfate, total", 
-                                 HCO3="Alkalinity, total (lab)", 
-                                 name="location_id", 
-                                 date="sample_date", 
+transform_stiff_data <- function(df, Mg = "Magnesium, dissolved", 
+                                 Ca = "Calcium, dissolved", 
+                                 Na = "Sodium, dissolved", 
+                                 K = "Potassium, dissolved", 
+                                 Cl = "Chloride, total", 
+                                 SO4 = "Sulfate, total", 
+                                 Alk = "Alkalinity, total (lab)", 
+                                 name = "location_id", 
+                                 date = "sample_date", 
                                  TDS = NULL, 
                                  units = NULL){
   
-  temp <- data.frame(df[,name], df[,date], df[,Mg], df[,Ca], df[,Na] + df[,K], 
-                     df[,SO4], df[,HCO3], df[,Cl])
+  temp <- data.frame(df[, name], df[, date], df[, Mg], df[, Ca], df[, Na] + 
+                       df[, K], df[, SO4], df[, Alk], df[, Cl])
+  
   colnames(temp) <- c("location_id", "sample_date", "Mg", "Ca", "Na + K", 
-                      "SO4", "HCO3", "Cl")
+                      "SO4", "Alk", "Cl")
   
   df_melt <- reshape2::melt(temp, id.vars = c("location_id", "sample_date"))
   
   cations <- c("Mg", "Ca", "Na + K")
-  anions <- c("SO4", "HCO3", "Cl")
+  anions <- c("SO4", "Alk", "Cl")
   
   df_melt$value <- ifelse(df_melt$variable %in% cations, -1 * df_melt$value, 
                           df_melt$value)
   
-  stiff <- subset(df_melt, variable %in% c("Mg", "SO4", "HCO3", "Cl", "Na + K",
-                                           "Ca", "TDS"))
+  stiff <- df_melt[df_melt$variable %in% c("Mg", "SO4", "Alk", "Cl", 
+                                             "Na + K", "Ca"), ]
   
-  poly_order <-  data.frame(c("Mg", "SO4", "HCO3", "Cl", "Na + K", "Ca"),
+  poly_order <-  data.frame(c("Mg", "SO4", "Alk", "Cl", "Na + K", "Ca"),
                             c(3, 3, 2, 1, 1, 2))
   
   colnames(poly_order) <- c("variable", "stiff_y")
   
-  stiff <- plyr::join(poly_order, stiff, by="variable", type="left")
+  stiff <- plyr::join(poly_order, stiff, by = "variable", type = "left")
   
-  stiff <- plyr::rename(stiff, replace=c("value" = "stiff_x"))
+  stiff <- plyr::rename(stiff, replace = c("value" = "stiff_x"))
   
-  if(!missing(TDS)){
-    stiff <- plyr::join(stiff, df, by=c("location_id", "sample_date"))
+  if (!is.null(TDS)) {
+    
+    stiff <- plyr::join(stiff, df, by = c("location_id", "sample_date"))
+    
     stiff <- stiff[, names(stiff) %in% c("location_id", "sample_date", 
                                          "variable", "stiff_x", "stiff_y", 
-                                         "Total Dissolved Solids")]
-    stiff <- plyr::rename(stiff, replace=c("Total Dissolved Solids" = "TDS"))
+                                         paste(TDS))]
+    colnames(stiff[paste(TDS)]) <- "TDS"
   }  
   return(stiff)
 }
@@ -490,24 +519,29 @@ transform_stiff_data <- function(df, Mg="Magnesium, dissolved",
 #' \code{\link{transform_stiff_data}}
 #' @export
 
-stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1){
+stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1) {
+  
   grid::grid.newpage()
-  xmin <- min(df$stiff_x)
+  
+  line_width <- max(abs(df$stiff_x))
+  
+  xmin <- -line_width
   xmin_lab <- xmin - 0.2
   xmin_line <- xmin + 0.3
-  xmax <- max(df$stiff_x)
+  xmax <- line_width
   xmax_lab = xmax + 0.2
   xmax_line <- xmax - 0.3
   
   df2 <- data.frame(y = c(3, 2, 1), cations = c("Mg", "Ca", "Na + K"), 
-                    anions = c("SO4", "HCO3", "Cl"))
+                    anions = c("SO4", "Alk", "Cl"))
   df2$y <- df2$y*cex
   df$stiff_y <- df$stiff_y*cex
   
-    if(isTRUE(TDS)){
+    if (isTRUE(TDS)) {
       # try to fix error message when only 1 location plotted
       p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS),
-                                     colour = "black")
+                                     colour = "black") 
+      
       for (i in 1:length(df2$anions)) {
         p <- p + annotation_custom(
           grob = grid::textGrob(label = df2$anions[i], 
@@ -570,12 +604,13 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1){
             axis.ticks = element_blank(),
             axis.text.y = element_blank(),
             plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
-      ggtitle(paste0("Stiff Diagram for ", df$location_id[1], "\n"))
+      ggtitle(paste0("Stiff Diagram for ", df$location_id[1], "\n")) +
+      theme(plot.title = element_text(hjust = 0.5))
   
     if (isTRUE(lines)) {
       p <- p + geom_segment(x = xmin, xend = xmax, y = 1, yend = 1,  
                             linetype = "dotted") +
-        geom_segment(x = xmin, xend = xmax, y = 2,, yend = 2, 
+        geom_segment(x = xmin, xend = xmax, y = 2, yend = 2, 
                      linetype = "dotted") +
         geom_segment(x = xmin, xend = xmax, y = 3, yend = 3, 
                      linetype = "dotted")
@@ -588,6 +623,7 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1){
 #' Function to plot multiple stiff plots by location
 #' @param df groundwater data frame
 #' @export
+
 stiff_by_loc <- function(df, ...){
   
   plyr::d_ply(df, .(location_id), .progress = "text", stiff_plot, ...,
@@ -600,15 +636,15 @@ stiff_by_loc <- function(df, ...){
 #' @export
 
 stiff_time_plot <- function(df, TDS = FALSE){
-  for(i in 1:length(unique(df$sample_date))){
-    if(isTRUE(TDS)){
+  for (i in 1:length(unique(df$sample_date))) {
+    if (isTRUE(TDS)) {
       print(stiff_plot(subset(df, sample_date == df$sample_date[i]), 
                        TDS = TRUE))
       animation::ani.pause()
     }else{
       print(stiff_plot(subset(df, sample_date == df$sample_date[i]), 
                        TDS = FALSE))
-     animation:: ani.pause()
+     animation::ani.pause()
     }
   }
 }
@@ -622,7 +658,7 @@ stiff_time_plot <- function(df, TDS = FALSE){
 stiff_time_html <- function(df, TDS = FALSE){
   animation::saveHTML({
     animation::ani.options(nmax = length(unique(df$sample_date)))
-    if(isTRUE(TDS)){
+    if (isTRUE(TDS)) {
       stiff_time_plot(df, TDS = TRUE)
     }else{
       stiff_time_plot(df, TDS = FALSE)
@@ -637,15 +673,15 @@ stiff_time_html <- function(df, TDS = FALSE){
 # Schoeller Diagrams
 #-------------------------------------------------------------------------------
 
-transform_schoeller <- function(df, Mg="Magnesium, dissolved", 
-                                Ca="Calcium, dissolved", 
-                                Na="Sodium, dissolved", 
-                                K="Potassium, dissolved", 
-                                Cl="Chloride, total", 
-                                SO4="Sulfate, total", 
-                                HCO3="Alkalinity, total (lab)", 
-                                name="location_id", 
-                                date="sample_date", 
+transform_schoeller <- function(df, Mg = "Magnesium, dissolved", 
+                                Ca = "Calcium, dissolved", 
+                                Na = "Sodium, dissolved", 
+                                K = "Potassium, dissolved", 
+                                Cl = "Chloride, total", 
+                                SO4 = "Sulfate, total", 
+                                HCO3 = "Alkalinity, total (lab)", 
+                                name = "location_id", 
+                                date = "sample_date", 
                                 TDS = NULL, 
                                 units = NULL){
   
@@ -662,23 +698,29 @@ transform_schoeller <- function(df, Mg="Magnesium, dissolved",
   return(df_melt)
 }
 
-schoeller <- function(df, facet_by = NULL){
-  p <- ggplot(df, aes(x = param_name, y = analysis_result, group = 1)) + 
-    theme_bw() +
+schoeller <- function(df, facet_by = NULL, title = NULL, lwt = 1){
+  p <- ggplot(df, aes(x = param_name, y = analysis_result, group = 1), 
+              size = lwt) + 
     scale_y_log10() +
+    theme_bw() +
     theme(axis.title.y = element_blank(),
-          axis.title.x = element_blank())
-  if (is.null(facet_by)){
-    p <- p + geom_line()
+          axis.title.x = element_blank()) +
+    ggtitle(paste(title)) +
+    theme(plot.title = element_text(hjust = 0.5))
+  if (is.null(facet_by)) {
+    p <- p + geom_line(size = lwt) + theme_bw() 
   }
-  if (!is.null(facet_by)){
-    if (facet_by == "sample_date"){
+  if (!is.null(facet_by)) {
+    if (facet_by == "sample_date") {
       p <- p + facet_wrap(~sample_date, scale = "free_y") + 
-        geom_line(aes(colour = location_id, group = location_id))
+        geom_line(aes(colour = location_id, group = location_id), size = lwt) +
+        guides(colour = guide_legend("Location ID"))
     }
-    if (facet_by == "location_id"){
+    if (facet_by == "location_id") {
       p <- p + facet_wrap(~location_id, scale = "free_y") +
-        geom_line(aes(colour = sample_date, group = sample_date))
+        geom_line(aes(colour = factor(sample_date), group = sample_date), 
+                  size = lwt) +
+        guides(colour = guide_legend("Sample Date"))
     }
   }
   return(p)
@@ -693,11 +735,11 @@ series_plot <- function(df, facet_by = NULL){
     theme_bw() +
     theme(axis.title.y = element_blank(),
           axis.title.x = element_blank())
-  if (is.null(facet_by)){
+  if (is.null(facet_by)) {
     p <- p + geom_line(aes(colour = param_name, group = param_name))
   }
-  if (!is.null(facet_by)){
-    if (facet_by == "sample_date"){
+  if (!is.null(facet_by)) {
+    if (facet_by == "sample_date") {
       p <- p + facet_wrap(~sample_date, scale = "free_y") + 
         geom_line(aes(colour = param_name, group = param_name))
     }

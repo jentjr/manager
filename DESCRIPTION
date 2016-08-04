@@ -9,12 +9,13 @@ Depends:
     R (>= 3.0.2),
     ggplot2,
     EnvStats,
-    plyr,
-    dplyr
+    dplyr,
+    tidyr,
+    RODBC
 Imports:
     NADA,
-    XLConnect,
-    RODBC,
+    readxl,
+    openxlsx,
     animation,
     lubridate,
     reshape2,
@@ -29,3 +30,4 @@ Suggests:
 License: none
 LazyData: true
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1

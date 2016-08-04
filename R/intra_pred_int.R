@@ -12,8 +12,10 @@
 #' @export
 
 intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates, 
-                           comp_dates, intra.conf.level = 0.95, 
-                           simultaneous = TRUE, SWFPR = NULL, ...){
+                           comp_dates, non_detect = c(15, 50), 
+                           cen_method = "mle", intra.conf.level = 0.95, 
+                           simultaneous = TRUE, SWFPR = NULL, ...) {
+  
   if(!is.null(SWFPR)){
     nw <- length(wells)
     nc <- length(params)
@@ -22,6 +24,8 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
   }
 
   df <- filter(df, location_id %in% wells, param_name %in% params) 
+  
+  df <- to_censored(df)
   
   df <- df %>% 
     mutate(
@@ -50,12 +54,21 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
   
   if(isTRUE(simultaneous)) {
     limits <- dist %>% 
-      do(pred_int = pred_int_sim(.$analysis_result, dist = .$dist[1], 
+      do(pred_int = pred_int_sim(x = .$analysis_result,  
+                                 left_censored =  .$left_censored,
+                                 percent_left = .$percent_left,
+                                 non_detect = non_detect, 
+                                 cen_method = cen_method,
+                                 dist = .$dist[1],
                                  conf.level = intra.conf.level, ...))
   } else {
     limits <- dist %>% 
       do(pred_int = pred_int(.$analysis_result, dist = .$dist[1], 
-                                 conf.level = intra.conf.level, ...))
+                             left_censored =  .$left_censored,
+                             percent_left = .$percent_left,
+                             non_detect = non_detect, 
+                             cen_method = cen_method,
+                             conf.level = intra.conf.level, ...))
   }
   
   limits <- limits %>% 
