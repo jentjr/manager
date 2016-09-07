@@ -13,7 +13,6 @@ Depends:
     tidyr,
     RODBC
 Imports:
-    NADA,
     readxl,
     openxlsx,
     animation,
