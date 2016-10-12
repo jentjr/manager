@@ -27,7 +27,7 @@ connect_manages <- function(manages_path) {
                 "sample_results LEFT JOIN site_parameters ON ", 
                 "sample_results.storet_code = site_parameters.storet_code")
   
-  data <- RODBC::sqlQuery(manages_conn, manages_query)
+  data <- RODBC::sqlQuery(channel = manages_conn, query = manages_query)
 
   close(manages_conn)
   

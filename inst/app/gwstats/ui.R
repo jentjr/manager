@@ -1,4 +1,5 @@
 library(EnvStats)
+library(gwstats)
 shinyUI(navbarPage("GWSTATS",
   tabPanel("Data Input",
     sidebarLayout(
