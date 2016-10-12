@@ -2,8 +2,8 @@ name: gwstats
 account: gwstats
 server: shinyapps.io
 appId: 19006
-bundleId: 584805
+bundleId: 584848
 url: https://gwstats.shinyapps.io/gwstats/
-when: 1476297007.74489
+when: 1476298740.78583
 asMultiple: FALSE
 asStatic: FALSE
