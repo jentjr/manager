@@ -84,10 +84,12 @@ get_analytes <- function(df){
 from_csv <- function(path, date_format = "mdy"){
   csv_data <- read.csv(path, header = TRUE)
   if (date_format == "ymd") {
-    csv_data$sample_date <- lubridate::ymd(csv_data$sample_date)
+    csv_data$sample_date <- lubridate::ymd(csv_data$sample_date, 
+                                           tz = Sys.timezone())
   }
   if (date_format == "mdy") {
-    csv_data$sample_date <- lubridate::mdy(csv_data$sample_date)
+    csv_data$sample_date <- lubridate::mdy(csv_data$sample_date,
+                                           tz = Sys.timezone())
   }
   csv_data$analysis_result <- as.numeric(csv_data$analysis_result)
   csv_data$lt_measure <- factor(csv_data$lt_measure, exclude = NULL)
