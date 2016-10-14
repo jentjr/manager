@@ -9,39 +9,22 @@ options(scipen = 6, digits = 8)
 shinyServer(function(input, output, session) {
   
   # Data Entry -----------------------------------------------------------------
-  
-  get_data <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-      )
-    
-    if (input$gw_data == "manages") {
-     data <- connect_manages(input$data_path$datapath)
-    } 
-    
-    if (input$gw_data == "exist_file") {
-      data <- switch(input$file_type, 
-             "csv" = from_csv(path = input$data_path$datapath, 
-                              date_format = input$csv_date_format),
-             "excel" = from_excel(path = input$data_path$datapath, 
-                                  sheet = input$excel_sheet))
-    }
-    data <- data %>% arrange(location_id, param_name, sample_date) 
-  })
-  
-  output$sample_table <- renderDataTable({
-    validate(
-      need(input$data_path != "", "Please upload a data set. The data should be in the following form: \n\n 
+  datafile <- callModule(csvFile, "datafile",
+    stringsAsFactors = FALSE)
 
-location_id | sample_date | param_name | lt_measure | analysis_result | default_unit  
--------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
-MW-1         | 2008-01-01  | Arsenic, diss  |      <            |     0.01             |       ug/L
--------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
-MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24             |       mg/L ")
-    
-    )
-      data <- get_data() 
-      return(data)
+  
+  output$table <- renderDataTable({
+#     validate(
+#       need(input$data_path != "", "Please upload a data set. The data should be in the following form: \n\n
+# 
+# location_id | sample_date | param_name | lt_measure | analysis_result | default_unit
+# -------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
+# MW-1         | 2008-01-01  | Arsenic, diss  |      <            |     0.01             |       ug/L
+# -------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
+# MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24             |       mg/L ")
+# 
+#     )
+     datafile()
   }, options = list(scrollY = "100%", scrollX = "100%", 
                     lengthMenu = c(5, 10, 15, 25, 50, 100), 
                     pageLength = 10)
@@ -55,7 +38,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(input$data_path != "", "")
     )
-    data <- get_data()
+    data <- datafile()
     well_names <- as.character(get_wells(data))
     selectInput("outlier_well", "Monitoring Well", well_names,
                 multiple = FALSE,
@@ -66,7 +49,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(input$data_path != "", "")
     )
-    data <- get_data()
+    data <- datafile()
     analyte_names <- as.character(get_analytes(data))
     selectInput("outlier_analyte", "Constituent", analyte_names, 
                 multiple = FALSE,
@@ -77,7 +60,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(input$data_path != "", "")
     )
-    data <- get_data()
+    data <- datafile()
     tagList(
       dateRangeInput("outlier_date_range", "Date Range", 
                      start = min(data$sample_date, na.rm = TRUE),
@@ -89,7 +72,7 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
     validate(
       need(input$data_path != "", "")
     )
-    df <- get_data()
+    df <- datafile()
     start <- min(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()),
                  na.rm = TRUE)
     end <- max(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()), 
