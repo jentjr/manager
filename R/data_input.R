@@ -64,14 +64,14 @@ get_wells <- function(df){
   return(wells)
 }
 
-#' Function to return a list of all the analytes
+#' Function to return a list of all the constituents
 #' 
 #' @param df data frame of groundwater data in the format with column names
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @export
-get_analytes <- function(df){
-  analytes <- unique(df$param_name)
-  return(analytes)
+get_constituents <- function(df){
+  constituents <- unique(df$param_name)
+  return(constituents)
 }
 
 #' function to read data in csv format and convert date to POSIXct with lubridate

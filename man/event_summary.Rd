@@ -4,15 +4,14 @@
 \alias{event_summary}
 \title{Function to export summary table for a sampling event}
 \usage{
-event_summary(df, wells, constituents, start, end)
+event_summary(df, start, end)
 }
 \arguments{
-\item{df}{data frame in the format location_id, sample_date, param_name,
-lt_measure, default_unit
-@param wells list of wells
-@param constituents list of constituents
-@param start start date
-@param end end date}
+\item{df}{groundwater data frame}
+
+\item{start}{start date}
+
+\item{end}{end date}
 }
 \description{
 Function to export summary table for a sampling event

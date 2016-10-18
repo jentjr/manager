@@ -1,7 +1,7 @@
 library(EnvStats)
-library(gwstats)
+library(manager)
 shinyUI(navbarPage("MANAGER",
-  tabPanel("Data Input",
+  tabPanel("Data",
     sidebarLayout(
       sidebarPanel(
         csvFileInput("datafile", "User data (.csv format)")
@@ -11,84 +11,13 @@ shinyUI(navbarPage("MANAGER",
       )
     )
   ),
-  tabPanel("Outliers",
+  tabPanel("Summary",
     sidebarLayout(
       sidebarPanel(
-        uiOutput("outlier_wells"),
-        uiOutput("outlier_analytes"),
-        uiOutput("outlier_date_ranges"),
-        selectInput(
-          inputId = "outlier_test_name", 
-          label = "Outlier Test",
-          choices = c("Rosner", "Grubb", "Dixon")
-        ),
-        conditionalPanel(
-          condition = "input.outlier_test_name == 'Rosner'",
-          numericInput(
-            inputId = "rosnerN", 
-            label = "Number of suspected outliers",
-            value = 2, min = 0
-          ),
-          numericInput(
-            inputId = "rosnerAlpha",
-            label = "alpha",
-            value = 0.01, min = 0, max = 1
-          )
-        ),
-        conditionalPanel(
-          condition = "input.outlier_test_name == 'Grubb'",
-          selectInput(
-            inputId = "grubbType",
-            label = "Type of Test",
-            choices = c("10" = 10, "11" = 11, "20" = 20)
-          ),
-          selectInput(
-            inputId = "grubbOpposite",
-            label = "Choose Opposite",
-            choices = c("FALSE" = 0, "TRUE" = 1)
-          ),
-          selectInput(
-            inputId = "grubbSide",
-            label = "Treat as two-sided",
-            choices = c("FALSE" = 0, "TRUE" = 1)
-          )
-        ),
-        conditionalPanel(
-          condition = "input.outlier_test_name == 'Dixon'",
-          selectInput(
-            inputId = "dixonType",
-            label = "Type of Test",
-            choices = c("0" = 0, "10" = 10, "11" = 11, 
-                        "12" = 12, "20" = 20, "21" = 21)
-          ),
-          selectInput(
-            inputId = "dixonOpposite",
-            label = "Choose Opposite",
-            choices = c("FALSE" = 0, "TRUE" = 1)
-          ),
-          selectInput(
-            inputId = "dixonSide",
-            label = "Treat as two-sided",
-            choices = c("TRUE" = 1, "FALSE" = 0)
-          )
-        )
-      ),
-      mainPanel(
-        verbatimTextOutput("outlier_test"),
-        br(),
-        dataTableOutput("outlier_table")
-      )
-    )
-  ),
-  tabPanel("Trends",
-    sidebarLayout(
-      sidebarPanel(
-        uiOutput("trend_wells"),
-        uiOutput("trend_analytes"),
-        uiOutput("trend_date_ranges")
-      ),
-      mainPanel(
-        verbatimTextOutput("trend_test")
+        wellConstituentInput("summary")
+     ),
+     mainPanel(
+      verbatimTextOutput("summary_table")
       )
     )
   ),
@@ -96,8 +25,7 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Distribution Plots",
       sidebarLayout(
         sidebarPanel(
-          uiOutput("dist_wells"),
-          uiOutput("dist_analytes"),
+          wellConstituentInput("dist"),
           uiOutput("dist_date_ranges"),
           radioButtons(
             inputId = "dist_plot_type", 
@@ -327,6 +255,87 @@ shinyUI(navbarPage("MANAGER",
       )  
     )
   ),
+tabPanel("Outliers",
+         sidebarLayout(
+           sidebarPanel(
+             uiOutput("outlier_wells"),
+             uiOutput("outlier_analytes"),
+             uiOutput("outlier_date_ranges"),
+             selectInput(
+               inputId = "outlier_test_name", 
+               label = "Outlier Test",
+               choices = c("Rosner", "Grubb", "Dixon")
+             ),
+             conditionalPanel(
+               condition = "input.outlier_test_name == 'Rosner'",
+               numericInput(
+                 inputId = "rosnerN", 
+                 label = "Number of suspected outliers",
+                 value = 2, min = 0
+               ),
+               numericInput(
+                 inputId = "rosnerAlpha",
+                 label = "alpha",
+                 value = 0.01, min = 0, max = 1
+               )
+             ),
+             conditionalPanel(
+               condition = "input.outlier_test_name == 'Grubb'",
+               selectInput(
+                 inputId = "grubbType",
+                 label = "Type of Test",
+                 choices = c("10" = 10, "11" = 11, "20" = 20)
+               ),
+               selectInput(
+                 inputId = "grubbOpposite",
+                 label = "Choose Opposite",
+                 choices = c("FALSE" = 0, "TRUE" = 1)
+               ),
+               selectInput(
+                 inputId = "grubbSide",
+                 label = "Treat as two-sided",
+                 choices = c("FALSE" = 0, "TRUE" = 1)
+               )
+             ),
+             conditionalPanel(
+               condition = "input.outlier_test_name == 'Dixon'",
+               selectInput(
+                 inputId = "dixonType",
+                 label = "Type of Test",
+                 choices = c("0" = 0, "10" = 10, "11" = 11, 
+                             "12" = 12, "20" = 20, "21" = 21)
+               ),
+               selectInput(
+                 inputId = "dixonOpposite",
+                 label = "Choose Opposite",
+                 choices = c("FALSE" = 0, "TRUE" = 1)
+               ),
+               selectInput(
+                 inputId = "dixonSide",
+                 label = "Treat as two-sided",
+                 choices = c("TRUE" = 1, "FALSE" = 0)
+               )
+             )
+           ),
+           mainPanel(
+             verbatimTextOutput("outlier_test"),
+             br(),
+             dataTableOutput("outlier_table")
+           )
+         )
+),
+tabPanel("Trends",
+         sidebarLayout(
+           sidebarPanel(
+             uiOutput("trend_wells"),
+             uiOutput("trend_analytes"),
+             uiOutput("trend_date_ranges")
+           ),
+           mainPanel(
+             verbatimTextOutput("trend_test")
+           )
+         )
+),
   navbarMenu("Prediction Intervals",
     tabPanel("Intra-well",
       sidebarLayout(

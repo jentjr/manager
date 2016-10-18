@@ -7,7 +7,7 @@
 export_OEPA(df, wells, constituents, file, ...)
 }
 \arguments{
-\item{df}{data frame}
+\item{df}{groundwater data frame}
 
 \item{wells}{list of wells to be exported}
 

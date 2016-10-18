@@ -5,11 +5,10 @@ csvFileInput <- function(id, label = "CSV file") {
   
   tagList(
     fileInput(ns("file"), label),
-    checkboxInput(ns("heading"), "Has heading"),
+    checkboxInput(ns("heading"), "Has heading", value = TRUE),
     selectInput(ns("quote"), "Quote", c(
-      "None" = "",
       "Double quote" = "\"",
-      "Singel quote" = "'"
+      "Single quote" = "'"
     ))
   )
 }

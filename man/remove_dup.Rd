@@ -9,8 +9,7 @@ this function will remove the MW-1 Duplicate sample}
 remove_dup(df)
 }
 \arguments{
-\item{df}{data frame of groundwater data in long format with location_id as the column 
-name for monitoring wells}
+\item{df}{groundwater data frame}
 }
 \description{
 function to remove duplicate samples
