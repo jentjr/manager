@@ -1,6 +1,6 @@
 library(EnvStats)
 library(gwstats)
-shinyUI(navbarPage("GWSTATS",
+shinyUI(navbarPage("MANAGER",
   tabPanel("Data Input",
     sidebarLayout(
       sidebarPanel(
