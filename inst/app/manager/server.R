@@ -63,13 +63,10 @@ shinyServer(function(input, output, session) {
   # })
   
   output$gof_test <- renderPrint({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
     df <- distfile()
-    validate(
-      need(length(unique(df$analysis_result)) > 2, "")
-    )
+    # validate(
+    #   need(length(unique(df$analysis_result)) > 2, "")
+    # )
     if (isTRUE(input$dist_plot_type == "Censored")) {
       df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
       out <- EnvStats::gofTestCensored(
@@ -80,24 +77,25 @@ shinyServer(function(input, output, session) {
         prob.method = input$cen_dist_method,
         plot.pos.con =  input$cen_dist_plot.pos.con
         )
-      out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep = " ")
+      out["data.name"] <- paste(df$location_id, 
+                                df$param_name, 
+                                sep = " ")
     } else {
       out <- EnvStats::gofTest(
         df$analysis_result, distribution = input$dist_type
       )
-      out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep = " ")
+      out["data.name"] <- paste(df$location_id, 
+                                df$param_name, 
+                                sep = " ")
     }
     out
   })
   
   output$gof_plot <- renderPlot({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    df <- get_dist_data()
-    validate(
-      need(length(unique(df$analysis_result)) > 2, "")
-    )
+    df <- distfile()
+    # validate(
+    #   need(length(unique(df$analysis_result)) > 2, "")
+    # )
     if (isTRUE(input$dist_plot_type == "Censored")) {
       df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
       out <- EnvStats::gofTestCensored(
@@ -108,12 +106,16 @@ shinyServer(function(input, output, session) {
         prob.method = input$cen_dist_method,
         plot.pos.con =  input$cen_dist_plot.pos.con
       )
-      out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep = " ")
+      out["data.name"] <- paste(df$location_id, 
+                                df$param_name, 
+                                sep = " ")
     } else {
       out <- EnvStats::gofTest(
         df$analysis_result, distribution = input$dist_type
       )
-      out["data.name"] <- paste(input$dist_well, input$dist_analyte, sep = " ")
+      out["data.name"] <- paste(df$location_id, 
+                                df$param_name, 
+                                sep = " ")
     }
     plot(out)
   })
