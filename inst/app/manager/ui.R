@@ -125,8 +125,9 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Boxplots",
       sidebarLayout(
         sidebarPanel(
-          uiOutput("box_wells"),
-          uiOutput("box_analytes"),
+          wellConstituentInput("boxplot"),
+          # uiOutput("box_wells"),
+          # uiOutput("box_analytes"),
           selectInput("box_facet_by", "Group plot by:",
                       c("param_name", "location_id")),
           checkboxInput("box_short_name", "Abbreviate Constituent Name"),

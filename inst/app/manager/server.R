@@ -122,35 +122,35 @@ shinyServer(function(input, output, session) {
   # End Distribution Plots -----------------------------------------------------
   
   # Begin Boxplot Page----------------------------------------------------------
-  output$box_wells <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      well_names <- as.character(get_wells(data))
-      selectInput("box_well", "Monitoring Wells", well_names, 
-                  multiple = TRUE, selected = well_names[1])
-  })
+  boxplotfile <- callModule(wellConstituent, "boxplot", datafile(),
+                         multiple = TRUE)
   
-  output$box_analytes <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      analyte_names <- as.character(get_analytes(data))
-      selectInput("box_analyte", "Constituents", analyte_names, 
-                  multiple = TRUE, selected = analyte_names[1])
-  })
+  # output$box_wells <- renderUI({
+  #   validate(
+  #     need(input$data_path != "", "")
+  #   )
+  #     data <- get_data()
+  #     well_names <- as.character(get_wells(data))
+  #     selectInput("box_well", "Monitoring Wells", well_names, 
+  #                 multiple = TRUE, selected = well_names[1])
+  # })
+  # 
+  # output$box_analytes <- renderUI({
+  #   validate(
+  #     need(input$data_path != "", "")
+  #   )
+  #     data <- get_data()
+  #     analyte_names <- as.character(get_analytes(data))
+  #     selectInput("box_analyte", "Constituents", analyte_names, 
+  #                 multiple = TRUE, selected = analyte_names[1])
+  # })
   
   boxplot <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-      data <- get_data()
-      box_wells <- input$box_well
-      box_analytes <- input$box_analyte
-      box_data <- data[data$location_id %in% box_wells & 
-                             data$param_name %in% box_analytes, ]
+      box_data <- boxplotfile()
+      box_wells <- box_data$location_id
+      box_analytes <- box_data$param_name
+      # box_data <- data[data$location_id %in% box_wells & 
+      #                        data$param_name %in% box_analytes, ]
     if (input$box_facet_by == "param_name") {
       box_list <- lapply(1:length(box_analytes), function(i) {
         box_name <- paste("box_plot", i, sep = "")
