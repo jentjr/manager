@@ -81,8 +81,8 @@ get_constituents <- function(df){
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @param date_format date format as either mdy, or ymd passed to lubridate
 #' @export
-from_csv <- function(path, date_format = "mdy"){
-  csv_data <- read.csv(path, header = TRUE)
+from_csv <- function(path, date_format = "mdy", ...){
+  csv_data <- readr::read_csv(path, ...)
   if (date_format == "ymd") {
     csv_data$sample_date <- lubridate::ymd(csv_data$sample_date, 
                                            tz = Sys.timezone())
