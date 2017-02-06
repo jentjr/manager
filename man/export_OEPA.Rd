@@ -18,4 +18,3 @@ export_OEPA(df, wells, constituents, file, ...)
 \description{
 Function to export data from manages to excel format required by OEPA
 }
-

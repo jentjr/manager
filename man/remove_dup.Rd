@@ -16,4 +16,3 @@ function to remove duplicate samples
 Example: If you have wells named MW-1 and another named MW-1 Duplicate
 this function will remove the MW-1 Duplicate sample
 }
-

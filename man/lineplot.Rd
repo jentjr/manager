@@ -9,4 +9,3 @@ lineplot(df, title = NULL, line1 = NULL, line2 = NULL)
 \description{
 Comparison lineplot
 }
-

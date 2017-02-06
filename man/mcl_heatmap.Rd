@@ -14,4 +14,3 @@ mcl_heatmap(df, title)
 \description{
 Plot for each mcl with location on x axis, MCL parameters on x axis
 }
-

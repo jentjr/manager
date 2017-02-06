@@ -14,4 +14,3 @@ est_dist(df, p = 0.01)
 Function to return either normal, lognormal, or non-parametric multiple 
 groundwater data locations and parameters.
 }
-

@@ -19,4 +19,3 @@ using \code{\link{transform_piper_data}}}
 Function to plot points from transform_piper_data() onto base ggplot_piper
 background. Points are sized by Total Dissolved Solids
 }
-

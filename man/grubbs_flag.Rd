@@ -14,4 +14,3 @@ grubbs_flag(x, ...)
 \description{
 Function to flag outliers from Grubb's test for outliers
 }
-

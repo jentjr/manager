@@ -18,4 +18,3 @@ rosner_flag(df, x = "analysis_result", replace = NULL, ...)
 \description{
 Function to flag outliers from Rosner's test for outliers
 }
-

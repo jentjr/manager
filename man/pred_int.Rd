@@ -32,4 +32,3 @@ distribution.}
 \description{
 Function to calculate prediction interval
 }
-

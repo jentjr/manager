@@ -12,4 +12,3 @@ is_lognormal(x, p = 0.01)
 \description{
 Function to check if groundwater data has a Lognormal distribution
 }
-

@@ -15,4 +15,3 @@ stiff_time_html(df, TDS = FALSE)
 \description{
 function to create an animated Stiff Diagram and save to html
 }
-

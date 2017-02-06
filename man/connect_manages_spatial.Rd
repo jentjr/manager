@@ -12,4 +12,3 @@ connect_manages_spatial(manages_path)
 \description{
 function to connect to MANAGES database and read spatial data
 }
-

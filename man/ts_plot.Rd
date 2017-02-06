@@ -30,4 +30,3 @@ ts_plot(df, facet_by = "location_id", ...)
 This function plots multiple groundwater data time series by location, 
 or constituent.
 }
-

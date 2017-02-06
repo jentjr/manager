@@ -12,4 +12,3 @@ dist_censored(x, censored)
 \description{
 Function to return distribution based on using p-value
 }
-

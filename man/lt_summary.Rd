@@ -18,4 +18,3 @@ lt_summary(df, start_date, end_date)
 Function to summarize the number of samples and percentage of 
 non-detects. This is useful for calculating the upper prediction limit.
 }
-

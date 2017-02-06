@@ -16,4 +16,3 @@ compare_mcl(df, format = "summary", type = "all")
 \description{
 Function to compare result to EPA's MCL
 }
-

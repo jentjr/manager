@@ -30,4 +30,3 @@ number of constituents and nw is the number of wells}
 \description{
 Function to calculate intrawell prediction interval
 }
-

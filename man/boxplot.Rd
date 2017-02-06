@@ -4,7 +4,7 @@
 \alias{boxplot}
 \title{Function to plot multiple boxplots for groundwater data}
 \usage{
-boxplot(df, facet_by = "location_id", short_name = FALSE,
+boxplot(df, facet_by = "param_name", short_name = FALSE,
   coord_flip = FALSE)
 }
 \arguments{
@@ -19,4 +19,3 @@ boxplot(df, facet_by = "location_id", short_name = FALSE,
 \description{
 Function to plot multiple boxplots for groundwater data
 }
-

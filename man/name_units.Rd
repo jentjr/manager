@@ -14,4 +14,3 @@ name_units(df, col_name, short_name = TRUE)
 \description{
 Function to return a column of parameter name with units
 }
-

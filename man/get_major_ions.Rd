@@ -37,4 +37,3 @@ analysis_result, default_unit, param_name and gather parameters needed for
 geochemistry plots. 
 The data is cast by location_id + sample_date ~ param_name
 }
-

@@ -14,4 +14,3 @@ is_lognormal_censored(x, censored, ...)
 \description{
 Function to check if censored groundwater data has a Lognormal distribution
 }
-

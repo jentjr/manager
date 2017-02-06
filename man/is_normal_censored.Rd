@@ -14,4 +14,3 @@ is_normal_censored(x, censored, ...)
 \description{
 Function to check if censored groundwater data has a Normal distribution
 }
-

@@ -12,4 +12,3 @@ stiff_by_loc(df, ...)
 \description{
 Function to plot multiple stiff plots by location
 }
-

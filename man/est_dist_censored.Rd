@@ -14,4 +14,3 @@ est_dist_censored(df)
 Function to return either normal, lognormal, or non-parametric multiple 
 groundwater data locations and parameters.
 }
-

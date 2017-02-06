@@ -9,4 +9,3 @@ get_theilsen(df, x = "analysis_result", y = "sample_date", ...)
 \description{
 Function to get slope and intercept from Theil-Sen slope for plotting
 }
-

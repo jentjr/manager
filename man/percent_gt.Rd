@@ -14,4 +14,3 @@ percent_gt(gt)
 \description{
 calculate the percentage of right censored data
 }
-

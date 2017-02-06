@@ -13,4 +13,3 @@ location_id, param_name, default_unit, lt_measure, analysis_result}
 \description{
 Function to return a list of all the location IDs
 }
-

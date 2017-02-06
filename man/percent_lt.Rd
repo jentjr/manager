@@ -14,4 +14,3 @@ percent_lt(lt)
 \description{
 calculate the percentage of left censored data
 }
-

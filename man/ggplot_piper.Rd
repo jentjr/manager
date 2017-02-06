@@ -9,4 +9,3 @@ ggplot_piper()
 \description{
 Function to create base Piper plot
 }
-

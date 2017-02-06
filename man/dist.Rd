@@ -12,4 +12,3 @@ dist(x, p = 0.01)
 \description{
 Function to return distribution based on using p-value
 }
-

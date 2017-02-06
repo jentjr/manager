@@ -42,4 +42,3 @@ Function to transform data from \code{\link{get_major_ions}}
 into x, y coordinates and in the 
 correct path for geom_polygon of ggplot
 }
-

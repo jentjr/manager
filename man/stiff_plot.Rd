@@ -19,4 +19,3 @@ stiff_plot(df, lines = FALSE, TDS = FALSE, cex = 1)
 \description{
 Function to plot a Stiff Diagram
 }
-

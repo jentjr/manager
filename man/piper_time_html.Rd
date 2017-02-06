@@ -15,4 +15,3 @@ piper_time_html(df, TDS = FALSE)
 \description{
 a function to create an aminated Piper plot and save to html
 }
-

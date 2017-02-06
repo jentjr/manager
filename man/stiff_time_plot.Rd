@@ -13,4 +13,3 @@ stiff_time_plot(df, TDS = FALSE)
 \description{
 function to create an animated Stiff Diagram
 }
-

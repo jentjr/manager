@@ -42,4 +42,3 @@ cation, anion and diamond of a Piper plot
 }
 \keyword{diagram}
 \keyword{piper}
-

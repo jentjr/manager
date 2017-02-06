@@ -23,4 +23,3 @@ pred_int_sim(x, left_censored, percent_left, non_detect = c(15, 50),
 \description{
 Function to calculate simultaneous prediction interval
 }
-

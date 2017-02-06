@@ -14,4 +14,3 @@ join_lt(df, col_name)
 \description{
 Function to join columns of lt_measure and sample results
 }
-

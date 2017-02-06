@@ -3,6 +3,7 @@
 \docType{package}
 \name{gwstats}
 \alias{gwstats}
+\alias{gwstats}
 \alias{gwstats-package}
 \title{function to launch shiny app}
 \usage{
@@ -13,4 +14,3 @@ function to launch shiny app
 
 gwstats
 }
-

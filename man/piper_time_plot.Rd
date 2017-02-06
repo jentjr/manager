@@ -17,4 +17,3 @@ piper_time_plot(df, TDS = FALSE, title = NULL)
 Function to created an animated Piper plot through time
 using the animation package
 }
-

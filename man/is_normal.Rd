@@ -12,4 +12,3 @@ is_normal(x, p = 0.01)
 \description{
 Function to check if groundwater data has a Normal distribution
 }
-

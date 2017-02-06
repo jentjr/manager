@@ -29,4 +29,3 @@ conc_to_meq(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
 \description{
 function to convert geochemical plot data into meq/L
 }
-

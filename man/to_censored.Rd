@@ -12,4 +12,3 @@ to_censored(df)
 \description{
 Function to convert gwdata frame to censored data frame
 }
-
