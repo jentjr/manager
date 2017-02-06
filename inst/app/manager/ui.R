@@ -4,7 +4,16 @@ shinyUI(navbarPage("MANAGER",
   tabPanel("Data",
     sidebarLayout(
       sidebarPanel(
-        csvFileInput("datafile", "User data (.csv format)")
+        selectInput("fileType", "Data Input Type",
+                    c(MANAGES = "manages",
+                      csv = "csv")),
+        conditionalPanel(
+          condition = "input.fileType == 'manages'",
+          managesSiteFileInput("datafile", "User data (MANAGES Site.mdb file)")
+        ),
+        conditionalPanel(
+          condition = "input.fileType == 'csv'",
+          csvFileInput("datafile", "User data (.csv format)"))
         ),
       mainPanel(
         dataTableOutput("table")
@@ -90,8 +99,7 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Time Series",
       sidebarLayout(
         sidebarPanel(
-          uiOutput("ts_wells"),
-          uiOutput("ts_analytes"),
+          wellConstituentInput("tsplot"),
           uiOutput("ts_date_ranges"),
           selectInput("ts_facet_by", "Group plots by:", 
                       c("location_id", "param_name")),
@@ -126,8 +134,6 @@ shinyUI(navbarPage("MANAGER",
       sidebarLayout(
         sidebarPanel(
           wellConstituentInput("boxplot"),
-          # uiOutput("box_wells"),
-          # uiOutput("box_analytes"),
           selectInput("box_facet_by", "Group plot by:",
                       c("param_name", "location_id")),
           checkboxInput("box_short_name", "Abbreviate Constituent Name"),

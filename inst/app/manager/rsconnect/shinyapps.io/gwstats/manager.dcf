@@ -1,0 +1,10 @@
+name: manager
+title:
+account: gwstats
+server: shinyapps.io
+appId: 155309
+bundleId: 702767
+url: https://gwstats.shinyapps.io/manager/
+when: 1486419135.11624
+asMultiple: FALSE
+asStatic: FALSE

@@ -1,3 +1,4 @@
+# Server File for use with MANAGES Database
 library(EnvStats)
 library(manager)
 
@@ -9,14 +10,35 @@ options(scipen = 6, digits = 8)
 shinyServer(function(input, output, session) {
   
   # Data Entry -----------------------------------------------------------------
-  datafile <- callModule(csvFile, "datafile", stringsAsFactors = FALSE)
+  observe({
+    
+    if (isTRUE(input$fileType == 'manages')) {
 
-  output$table <- renderDataTable({
-     datafile()
-  }, options = list(scrollY = "100%", scrollX = "100%", 
-                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    pageLength = 10)
-  ) 
+      datafile <- callModule(managesSiteFile, "datafile")
+
+      output$table <- renderDataTable({
+        datafile()
+      }, options = list(scrollY = "100%", scrollX = "100%",
+                        lengthMenu = c(5, 10, 15, 25, 50, 100),
+                        pageLength = 10)
+      )
+
+    }
+    
+    if (isTRUE(input$fileType == 'csv')) {
+      
+      datafile <- callModule(csvFile, "datafile", stringsAsFactors = FALSE)
+      
+      output$table <- renderDataTable({
+        datafile()
+      }, options = list(scrollY = "100%", scrollX = "100%", 
+                        lengthMenu = c(5, 10, 15, 25, 50, 100), 
+                        pageLength = 10)
+      )
+      
+    }
+    
+  })
   # End Data Entry -------------------------------------------------------------
   
   # Summary table --------------------------------------------------------------
@@ -125,32 +147,12 @@ shinyServer(function(input, output, session) {
   boxplotfile <- callModule(wellConstituent, "boxplot", datafile(),
                          multiple = TRUE)
   
-  # output$box_wells <- renderUI({
-  #   validate(
-  #     need(input$data_path != "", "")
-  #   )
-  #     data <- get_data()
-  #     well_names <- as.character(get_wells(data))
-  #     selectInput("box_well", "Monitoring Wells", well_names, 
-  #                 multiple = TRUE, selected = well_names[1])
-  # })
-  # 
-  # output$box_analytes <- renderUI({
-  #   validate(
-  #     need(input$data_path != "", "")
-  #   )
-  #     data <- get_data()
-  #     analyte_names <- as.character(get_analytes(data))
-  #     selectInput("box_analyte", "Constituents", analyte_names, 
-  #                 multiple = TRUE, selected = analyte_names[1])
-  # })
-  
   boxplot <- reactive({
+      
       box_data <- boxplotfile()
-      box_wells <- box_data$location_id
-      box_analytes <- box_data$param_name
-      # box_data <- data[data$location_id %in% box_wells & 
-      #                        data$param_name %in% box_analytes, ]
+      box_wells <- unique(box_data$location_id)
+      box_analytes <- unique(box_data$param_name)
+    
     if (input$box_facet_by == "param_name") {
       box_list <- lapply(1:length(box_analytes), function(i) {
         box_name <- paste("box_plot", i, sep = "")
@@ -162,7 +164,7 @@ shinyServer(function(input, output, session) {
           box_i <- i
           box_name <- paste("box_plot", box_i, sep = "")
           output[[box_name]] <- renderPlot({
-            box <- gwstats::boxplot(
+            box <- manager::boxplot(
               box_data[box_data$param_name == 
                          box_analytes[box_i], ], 
               facet_by = input$box_facet_by,
@@ -174,6 +176,7 @@ shinyServer(function(input, output, session) {
         })
       }
     }
+      
     if (input$box_facet_by == "location_id") {
       box_list <- lapply(1:length(box_wells), function(i) {
         box_name <- paste("box_plot", i, sep = "")
@@ -185,7 +188,7 @@ shinyServer(function(input, output, session) {
           box_i <- i
           box_name <- paste("box_plot", box_i, sep = "")
           output[[box_name]] <- renderPlot({
-            box <- gwstats::boxplot(
+            box <- manager::boxplot(
               box_data[box_data$location_id == 
                          box_wells[box_i], ], 
               facet_by = input$box_facet_by,
@@ -217,12 +220,9 @@ shinyServer(function(input, output, session) {
     validate(
       need(input$data_path != "", "")
     )
-    data <- get_data()
-    box_wells <- input$box_well
-    box_analytes <- input$box_analyte
-    box_data <- data[data$location_id %in% box_wells & 
-                             data$param_name %in% box_analytes, ]
-    box_data
+    box_data <- boxplotfile()
+    box_wells <- unique(box_data$location_id)
+    box_analytes <- unique(box_data$param_name)
   })
   
   output$box_download <- downloadHandler(
@@ -231,7 +231,7 @@ shinyServer(function(input, output, session) {
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      gwstats::boxplot(get_box_data(), facet_by = input$box_facet_by, 
+      manager::boxplot(get_box_data(), facet_by = input$box_facet_by, 
                        short_name = input$box_short_name, 
                        coord_flip = input$box_coord_flip)
       dev.off()
@@ -241,61 +241,37 @@ shinyServer(function(input, output, session) {
   # End Boxplot Page------------------------------------------------------------
   
   # Time Series Page -----------------------------------------------------------
-  output$ts_wells <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      well_names <- as.character(get_wells(data))
-      selectInput("ts_well", "Monitoring Wells", well_names, 
-                  multiple = TRUE,
-                  selected = well_names[1])
-  })
-  
-  # return a list of constituents for time series page
-  output$ts_analytes <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      analyte_names <- as.character(get_analytes(data))
-      selectInput("ts_analyte", "Constituents", analyte_names, 
-                  multiple = TRUE,
-                  selected = analyte_names[1])
-  })
+  tsplotfile <- callModule(wellConstituent, "tsplot", datafile(),
+                            multiple = TRUE)
   
   # return start and end date of background data for time series page
   output$ts_date_ranges <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
+    
+    ts_data <- tsplotfile()
+    
     tagList(
       dateRangeInput("ts_back_dates", "Background Date Range", 
-                     start = min(data$sample_date, na.rm = TRUE),
-                     end = max(data$sample_date, na.rm = TRUE)),
+                     start = min(ts_data$sample_date, na.rm = TRUE),
+                     end = max(ts_data$sample_date, na.rm = TRUE)),
       dateRangeInput("ts_comp_dates", "Compliance Date Range", 
-                     start = max(data$sample_date, na.rm = TRUE),
-                     end = max(data$sample_date, na.rm = TRUE))  
+                     start = max(ts_data$sample_date, na.rm = TRUE),
+                     end = max(ts_data$sample_date, na.rm = TRUE))  
     )
   })
   
   # time series plot output
   ts_plot <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-      data <- get_data()
-      ts_well <- input$ts_well
-      ts_analyte <- input$ts_analyte
-      ts_data <- data[data$location_id %in% ts_well &
-                           data$param_name %in% ts_analyte, ]
+
+      ts_data <- tsplotfile()
+      ts_well <- unique(ts_data$location_id)
+      ts_analyte <- unique(ts_data$param_name)
     
     if (input$ts_facet_by == "location_id") {
       
       ts_list <- lapply(1:length(ts_well), function(i) {
         ts_name <- paste("ts_plot", i, sep = "")
         plotOutput(ts_name)
+        
       })
       
       for (i in 1:length(ts_well)) {
@@ -304,7 +280,7 @@ shinyServer(function(input, output, session) {
           ts_name <- paste("ts_plot", ts_i, sep = "")
           output[[ts_name]] <- renderPlot({
             
-            ts <- gwstats::ts_plot(ts_data[ts_data$location_id == ts_well[ts_i], ],
+            ts <- manager::ts_plot(ts_data[ts_data$location_id == ts_well[ts_i], ],
                              facet_by = "location_id", 
                              trend = input$ts_trend,
                              short_name = input$ts_short_name, 
@@ -316,7 +292,7 @@ shinyServer(function(input, output, session) {
               b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
               c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
               
-              ts <- gwstats::ts_plot(
+              ts <- manager::ts_plot(
                 ts_data[ts_data$location_id == 
                                ts_well[ts_i], ], 
                 facet_by = "location_id",
@@ -345,7 +321,7 @@ shinyServer(function(input, output, session) {
           ts_name <- paste("ts_plot", ts_i, sep = "")
           output[[ts_name]] <- renderPlot({
             
-            ts <- gwstats::ts_plot(ts_data[ts_data$param_name == ts_analyte[ts_i], ],
+            ts <- manager::ts_plot(ts_data[ts_data$param_name == ts_analyte[ts_i], ],
                              facet_by = "param_name",
                              trend = input$ts_trend,
                              short_name = input$ts_short_name,
@@ -357,7 +333,7 @@ shinyServer(function(input, output, session) {
               b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
               c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
               
-              ts <- gwstats::ts_plot(
+              ts <- manager::ts_plot(
                 ts_data[ts_data$param_name == 
                           ts_analyte[ts_i], ], 
                 facet_by = "param_name",
@@ -413,7 +389,7 @@ shinyServer(function(input, output, session) {
         c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
         
         pdf(file = file, width = 17, height = 11)
-        gwstats::ts_plot(get_ts_data(), back_date = c(b1, b2), 
+        manager::ts_plot(get_ts_data(), back_date = c(b1, b2), 
                          facet_by = input$ts_facet_by,
                          trend = input$ts_trend,
                          short_name = input$ts_short_name,
@@ -421,7 +397,7 @@ shinyServer(function(input, output, session) {
         dev.off()
       } else {
         pdf(file = file, width = 17, height = 11)
-        gwstats::ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
+        manager::ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
                          short_name = input$ts_short_name,
                          trend = input$ts_trend,
                          ncol = input$ncol_ts)
