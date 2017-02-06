@@ -39,6 +39,11 @@ remove_dup <- function(df){
   
 }
 
+#' function to include duplicate samples
+#'
+#' @param df groundwater data frame
+#' @export
+
 include_dup <- function(df, wells) {
   
   pattern <- paste(wells, "[:space:]*Dup")
@@ -57,6 +62,10 @@ include_dup <- function(df, wells) {
   return(df_dup)
   
 }
+
+#' function to replace missing values
+#' @param df groundwater data frame
+#' @export
 
 replace_missing <- function(df){
   
@@ -199,10 +208,12 @@ export_OEPA <- function(df, wells, constituents, file, ...){
 #' @param end end date 
 #' @export
 
-event_summary <- function(df, start, end){
+event_summary <- function(df, wells, params, start, end){
   
   df <- df %>% 
-    filter(sample_date >= start & sample_date <= end)
+    filter(location_id %in% wells, 
+           param_name %in% params, 
+           sample_date >= start & sample_date <= end)
   
   df <- name_units(df, "param_units")
   
