@@ -12,22 +12,9 @@ shinyServer(function(input, output, session) {
   # Data Entry -----------------------------------------------------------------
   observe({
     
-    if (isTRUE(input$fileType == 'manages')) {
-
-      datafile <- callModule(managesSiteFile, "datafile")
-
-      output$table <- renderDataTable({
-        datafile()
-      }, options = list(scrollY = "100%", scrollX = "100%",
-                        lengthMenu = c(5, 10, 15, 25, 50, 100),
-                        pageLength = 10)
-      )
-
-    }
-    
     if (isTRUE(input$fileType == 'csv')) {
       
-      datafile <- callModule(csvFile, "datafile", stringsAsFactors = FALSE)
+      datafile <- callModule(csvFile, "csvdatafile", stringsAsFactors = FALSE)
       
       output$table <- renderDataTable({
         datafile()
@@ -36,6 +23,19 @@ shinyServer(function(input, output, session) {
                         pageLength = 10)
       )
       
+    }
+    
+    if (isTRUE(input$fileType == 'manages')) {
+
+      datafile <- callModule(managesSiteFile, "managesdatafile")
+
+      output$table <- renderDataTable({
+        datafile()
+      }, options = list(scrollY = "100%", scrollX = "100%",
+                        lengthMenu = c(5, 10, 15, 25, 50, 100),
+                        pageLength = 10)
+      )
+
     }
     
   })

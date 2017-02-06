@@ -9,11 +9,11 @@ shinyUI(navbarPage("MANAGER",
                       csv = "csv")),
         conditionalPanel(
           condition = "input.fileType == 'manages'",
-          managesSiteFileInput("datafile", "User data (MANAGES Site.mdb file)")
+          managesSiteFileInput("managesdatafile", "User data (MANAGES Site.mdb file)")
         ),
         conditionalPanel(
           condition = "input.fileType == 'csv'",
-          csvFileInput("datafile", "User data (.csv format)"))
+          csvFileInput("csvdatafile", "User data (.csv format)"))
         ),
       mainPanel(
         dataTableOutput("table")
