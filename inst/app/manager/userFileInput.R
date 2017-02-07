@@ -9,15 +9,15 @@ userFileInput <- function(id, label = "File Input") {
       ns('fileInputType'), "Data Input Type", 
       choices = c(MANAGES = "manages",
                   csv = "csv")
-      ),
+    ),
     
     conditionalPanel(
-      paste0("input['", ns("fileInputType"), "'] == 'manages' "),
+      sprintf("input['%s'] != ''", ns("fileInputType")),
       fileInput(ns("file"), label)
     ),
 
     conditionalPanel(
-      paste0("input['", ns("fileInputType"), "'] == 'csv' "),
+      sprintf("input['%s'] != ''", ns("fileInputType")),
       checkboxInput(ns("heading"), "Has heading", value = TRUE),
       selectInput(ns("quote"), "Quote",
                   c("Double quote" = "\"", "Single quote" = "'")
