@@ -18,6 +18,7 @@ userFileInput <- function(id, label = "File Input") {
 
     conditionalPanel(
       sprintf("input['%s'] == 'csv'", ns("fileInputType")),
+      textInput(ns("csv_date"), label = "Date format", value = "mdy"),
       fileInput(ns("csvfile"), label)
     )
   )

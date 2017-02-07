@@ -14,16 +14,18 @@ MW-1         | 2008-01-01  | Arsenic, diss  |      <            |     0.01      
 -------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
 MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24             |       mg/L "))
       
-      inputdata <- from_csv(input$csvfile$datapath)
+      inputdata <- manager::from_csv(input$csvfile$datapath,
+                                     input$csv_date)
       
     }
     
     if (input$fileInputType == 'manages') {
       
       validate(need(input$managesfile$datapath,
-                    message = "Please upload a MANAGES Site.mdb file"))
+                    message = "Please upload a MANAGES Site.mdb file \n\n
+                    Only works when running locally for now..."))
       
-      inputdata <- connect_manages(input$managesfile$datapath)
+      inputdata <- manager::connect_manages(input$managesfile$datapath)
       
     }
     return(inputdata)
