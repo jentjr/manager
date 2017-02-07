@@ -12,17 +12,13 @@ userFileInput <- function(id, label = "File Input") {
     ),
     
     conditionalPanel(
-      sprintf("input['%s'] != ''", ns("fileInputType")),
-      fileInput(ns("file"), label)
+      sprintf("input['%s'] == 'manages'", ns("fileInputType")),
+      fileInput(ns("managesfile"), label)
     ),
 
     conditionalPanel(
-      sprintf("input['%s'] != ''", ns("fileInputType")),
-      checkboxInput(ns("heading"), "Has heading", value = TRUE),
-      selectInput(ns("quote"), "Quote",
-                  c("Double quote" = "\"", "Single quote" = "'")
-                  ),
-      fileInput(ns("file"), label)
+      sprintf("input['%s'] == 'csv'", ns("fileInputType")),
+      fileInput(ns("csvfile"), label)
     )
   )
 }

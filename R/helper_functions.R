@@ -204,11 +204,14 @@ export_OEPA <- function(df, wells, constituents, file, ...){
 #' Function to export summary table for a sampling event
 #' 
 #' @param df groundwater data frame
+#' @param wells list of wells to include
+#' @param params list of parameters to include
 #' @param start start date
 #' @param end end date 
+#' @gw_elev gw_elev if TRUE, list date well sampled and annotate date for GW Elev
 #' @export
 
-event_summary <- function(df, wells, params, start, end){
+event_summary <- function(df, wells, params, start, end, gw_elev = TRUE){
   
   df <- df %>% 
     filter(location_id %in% wells, 

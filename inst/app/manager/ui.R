@@ -4,7 +4,7 @@ shinyUI(navbarPage("MANAGER",
   tabPanel("Data",
     sidebarLayout(
       sidebarPanel(
-        userFileInput("datafile", "Select either Site.mdb, or .csv file") 
+        userFileInput("datafile", "Select file") 
         ),
       mainPanel(
         dataTableOutput("table")

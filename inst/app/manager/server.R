@@ -11,7 +11,7 @@ shinyServer(function(input, output, session) {
   
   # Data Entry -----------------------------------------------------------------
   datafile <- callModule(userFile, "datafile", stringsAsFactors = FALSE)
-      
+
   output$table <- renderDataTable({
     datafile()
   }, options = list(scrollY = "100%", scrollX = "100%",
