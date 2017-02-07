@@ -1,6 +1,4 @@
-source("csvFile.R")
-source("csvFileInput.R")
-source("managesSiteFileInput.R")
-source("managesSiteFile.R")
+source("userFile.R")
+source("userFileInput.R")
 source("wellConstituentInput.R")
 source("wellConstituent.R")

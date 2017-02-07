@@ -1,11 +1,11 @@
 # Module server function
-csvFile <- function(input, output, session, stringsAsFactors) {
+userFile <- function(input, output, session, stringsAsFactors) {
   
-  userFile <- reactive({
+  userFileReact <- reactive({
     
     validate(need(input$file, 
       message = 
-"Please upload a data set. The data should be in the following format: \n\n
+"Please upload a data set. It can either be a MANAGES Site.mdb file, or a .csv file in the following format: \n\n
 location_id | sample_date | param_name | lt_measure | analysis_result | default_unit
 -------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
 MW-1         | 2008-01-01  | Arsenic, diss  |      <            |     0.01             |       ug/L
@@ -16,11 +16,23 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
   })
   
   dataframe <- reactive({
-    read.csv(userFile()$datapath,
-      header = input$heading,
-      quote = input$quote,
-      stringsAsFactors = stringsAsFactors)
+    
+    if (input$fileInputType == 'csv') {
+
+      read.csv(userFileReact()$datapath,
+               header = input$heading,
+               quote = input$quote,
+               stringsAsFactors = stringsAsFactors)
+    }
+
+    if (input$fileInputType == 'manages') {
+      
+      connect_manages(userFileReact()$datapath)
+      
+    }
+    
   })
   
   return(dataframe)
+
 }

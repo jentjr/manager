@@ -10,35 +10,14 @@ options(scipen = 6, digits = 8)
 shinyServer(function(input, output, session) {
   
   # Data Entry -----------------------------------------------------------------
-  observe({
-    
-    if (isTRUE(input$fileType == 'csv')) {
+  datafile <- callModule(userFile, "datafile", stringsAsFactors = FALSE)
       
-      datafile <- callModule(csvFile, "csvdatafile", stringsAsFactors = FALSE)
-      
-      output$table <- renderDataTable({
-        datafile()
-      }, options = list(scrollY = "100%", scrollX = "100%", 
-                        lengthMenu = c(5, 10, 15, 25, 50, 100), 
-                        pageLength = 10)
-      )
-      
-    }
-    
-    if (isTRUE(input$fileType == 'manages')) {
-
-      datafile <- callModule(managesSiteFile, "managesdatafile")
-
-      output$table <- renderDataTable({
-        datafile()
-      }, options = list(scrollY = "100%", scrollX = "100%",
-                        lengthMenu = c(5, 10, 15, 25, 50, 100),
-                        pageLength = 10)
-      )
-
-    }
-    
-  })
+  output$table <- renderDataTable({
+    datafile()
+  }, options = list(scrollY = "100%", scrollX = "100%",
+                    lengthMenu = c(5, 10, 15, 25, 50, 100),
+                    pageLength = 10)
+  )
   # End Data Entry -------------------------------------------------------------
   
   # Summary table --------------------------------------------------------------
