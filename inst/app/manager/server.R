@@ -10,7 +10,7 @@ options(scipen = 6, digits = 8)
 shinyServer(function(input, output, session) {
   
   # Data Entry -----------------------------------------------------------------
-  datafile <- callModule(userFile, "datafile", stringsAsFactors = FALSE)
+  datafile <- callModule(userFile, "datafile")
 
   output$table <- renderDataTable({
     datafile()

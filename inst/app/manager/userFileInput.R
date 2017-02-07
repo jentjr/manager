@@ -7,7 +7,7 @@ userFileInput <- function(id, label = "File Input") {
     
     selectInput(
       ns('fileInputType'), "Data Input Type", 
-      choices = c(MANAGES = "manages",
+      choices = c(manages = "manages",
                   csv = "csv")
     ),
     

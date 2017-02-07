@@ -4,7 +4,7 @@ shinyUI(navbarPage("MANAGER",
   tabPanel("Data",
     sidebarLayout(
       sidebarPanel(
-        userFileInput("datafile", "Select file") 
+        userFileInput("datafile", "") 
         ),
       mainPanel(
         dataTableOutput("table")
