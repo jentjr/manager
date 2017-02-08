@@ -85,7 +85,7 @@ from_csv <- function(path, date_format = "mdy"){
   
   if (date_format == "ymd") {
     csv_data <- readr::read_csv(path, 
-                                col_types = cols(
+                                col_types = readr::cols(
                                   analysis_result = col_double(),
                                   lt_measure = col_factor(levels = c("", "<")),
                                   sample_date = col_date(format = "%Y/%m/%d")
@@ -93,7 +93,7 @@ from_csv <- function(path, date_format = "mdy"){
   }
   if (date_format == "mdy") {
     csv_data <- readr::read_csv(path,
-                                col_types = cols(
+                                col_types = readr::cols(
                                   analysis_result = col_double(),
                                   lt_measure = col_factor(levels = c("", "<")),
                                   sample_date = col_date(format = "%m/%d/%Y")
