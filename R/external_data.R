@@ -68,7 +68,6 @@ from_csv <- function(path, date_format = "mdy"){
     csv_data <- readr::read_csv(path, 
                                 col_types = readr::cols(
                                   analysis_result = readr::col_double(),
-                                  lt_measure = readr::col_factor(levels = c("", "<")),
                                   sample_date = readr::col_datetime(format = "%Y/%m/%d")
                                 ))
   }
@@ -76,7 +75,6 @@ from_csv <- function(path, date_format = "mdy"){
     csv_data <- readr::read_csv(path,
                                 col_types = readr::cols(
                                   analysis_result = readr::col_double(),
-                                  lt_measure = readr::col_factor(levels = c("", "<")),
                                   sample_date = readr::col_datetime(format = "%m/%d/%Y")
                                 ))
   }

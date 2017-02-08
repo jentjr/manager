@@ -48,7 +48,9 @@ ts_plot <- function(df, facet_by = "location_id", ...){
                      ncol = NULL,
                      ...){
   
-  df$non_detect <- ifelse(df$lt_measure == "<", "non-detect", "detected")
+  df$non_detect <- if_else(df$lt_measure == "<", 
+                           "non-detect", "detected", 
+                           missing = "detected")
   
   if (isTRUE(short_name)) {
     df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
@@ -61,7 +63,8 @@ ts_plot <- function(df, facet_by = "location_id", ...){
   # main plot
   p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
     geom_line(data = df) +
-    geom_point(data = df, aes(shape = factor(non_detect)), size = pnt) +
+    geom_point(data = df, aes(shape = factor(non_detect, exclude = NULL)), 
+               size = pnt) +
     ylab("Analysis Result") +
     xlab("Sample Date") + 
     scale_x_datetime(labels = scales::date_format("%Y")) +

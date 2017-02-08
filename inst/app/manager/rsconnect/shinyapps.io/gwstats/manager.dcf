@@ -3,8 +3,8 @@ title:
 account: gwstats
 server: shinyapps.io
 appId: 155309
-bundleId: 705204
+bundleId: 705242
 url: https://gwstats.shinyapps.io/manager/
-when: 1486580238.17777
+when: 1486581804.93943
 asMultiple: FALSE
 asStatic: FALSE
