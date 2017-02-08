@@ -1,5 +1,5 @@
-#' gwstats
+#' manager
 #'
-#' @name gwstats
+#' @name manager
 #' @docType package
 NULL

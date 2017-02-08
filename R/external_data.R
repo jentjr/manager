@@ -54,26 +54,6 @@ connect_manages_spatial <- function(manages_path){
   return(sp_data)
 }
 
-#' Function to return a list of all the location IDs
-#' 
-#' @param df data frame of groundwater data in the format with column names
-#' location_id, param_name, default_unit, lt_measure, analysis_result
-#' @export
-get_wells <- function(df){
-  wells <- unique(df$location_id)
-  return(wells)
-}
-
-#' Function to return a list of all the constituents
-#' 
-#' @param df data frame of groundwater data in the format with column names
-#' location_id, param_name, default_unit, lt_measure, analysis_result
-#' @export
-get_constituents <- function(df){
-  constituents <- unique(df$param_name)
-  return(constituents)
-}
-
 #' function to read data in csv format and convert date to POSIXct with lubridate
 #' 
 #' @param path path to the csv file of groundwater data in the format 
@@ -81,6 +61,7 @@ get_constituents <- function(df){
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @param date_format date format as either mdy, or ymd passed to lubridate
 #' @export
+
 from_csv <- function(path, date_format = "mdy"){
   
   if (date_format == "ymd") {
@@ -88,7 +69,7 @@ from_csv <- function(path, date_format = "mdy"){
                                 col_types = readr::cols(
                                   analysis_result = readr::col_double(),
                                   lt_measure = readr::col_factor(levels = c("", "<")),
-                                  sample_date = readr::col_date(format = "%Y/%m/%d")
+                                  sample_date = readr::col_datetime(format = "%Y/%m/%d")
                                 ))
   }
   if (date_format == "mdy") {
@@ -96,7 +77,7 @@ from_csv <- function(path, date_format = "mdy"){
                                 col_types = readr::cols(
                                   analysis_result = readr::col_double(),
                                   lt_measure = readr::col_factor(levels = c("", "<")),
-                                  sample_date = readr::col_date(format = "%m/%d/%Y")
+                                  sample_date = readr::col_datetime(format = "%m/%d/%Y")
                                 ))
   }
   return(csv_data)
@@ -109,6 +90,7 @@ from_csv <- function(path, date_format = "mdy"){
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @param sheet sheet name in spreadhsheet
 #' @export
+
 from_excel <- function(path, sheet = "Sheet1"){
   
   excel_data <- readxl::read_excel(path, sheet = sheet)

@@ -7,19 +7,19 @@ userFileInput <- function(id, label = "File Input") {
     
     selectInput(
       ns('fileInputType'), "Data Input Type", 
-      choices = c(manages = "manages",
-                  csv = "csv")
+      choices = c(csv = "csv", 
+                  manages = "manages")
+    ),
+    
+    conditionalPanel(
+      sprintf("input['%s'] == 'csv'", ns("fileInputType")),
+      textInput(ns("csv_date"), label = "Date format", value = "mdy"),
+      fileInput(ns("csvfile"), label)
     ),
     
     conditionalPanel(
       sprintf("input['%s'] == 'manages'", ns("fileInputType")),
       fileInput(ns("managesfile"), label)
-    ),
-
-    conditionalPanel(
-      sprintf("input['%s'] == 'csv'", ns("fileInputType")),
-      textInput(ns("csv_date"), label = "Date format", value = "mdy"),
-      fileInput(ns("csvfile"), label)
     )
   )
 }
