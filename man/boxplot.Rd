@@ -2,20 +2,26 @@
 % Please edit documentation in R/boxplots.R
 \name{boxplot}
 \alias{boxplot}
-\title{Function to plot multiple boxplots for groundwater data}
+\title{Function to plot boxplots for groundwater data}
 \usage{
-boxplot(df, facet_by = "param_name", short_name = FALSE,
-  coord_flip = FALSE)
+boxplot(df, x = "location_id", y = "analysis_result", fill = NULL,
+  short_name = FALSE, coord_flip = FALSE, legend_title = NULL)
 }
 \arguments{
-\item{df}{groundwater data}
+\item{df}{groundwater data in tidy, long format}
 
-\item{facet_by}{parameter to group data by}
+\item{x}{column to be used for the x axis}
 
-\item{name}{If name = "short" the analyte will be abbreviated}
+\item{y}{column to be used for the y axis}
+
+\item{fill}{column used to fill the variable}
+
+\item{short_name}{If TRUE the constituent name will be abbreviated}
+
+\item{legend_title}{Legend title for fill variable}
 
 \item{flip_coords}{If TRUE the axes are flipped}
 }
 \description{
-Function to plot multiple boxplots for groundwater data
+Function to plot boxplots for groundwater data
 }
