@@ -11,10 +11,10 @@ Depends:
     EnvStats,
     dplyr,
     tidyr,
-    RODBC
+    RODBC,
+    readr
 Imports:
     readxl,
-    readr,
     openxlsx,
     animation,
     lubridate,
