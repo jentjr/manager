@@ -81,20 +81,24 @@ get_constituents <- function(df){
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @param date_format date format as either mdy, or ymd passed to lubridate
 #' @export
-from_csv <- function(path, date_format = "mdy", ...){
-  csv_data <- readr::read_csv(path, ...)
+from_csv <- function(path, date_format = "mdy"){
+  
   if (date_format == "ymd") {
-    csv_data$sample_date <- lubridate::ymd(csv_data$sample_date, 
-                                           tz = Sys.timezone())
+    csv_data <- readr::read_csv(path, 
+                                col_types = cols(
+                                  analysis_result = col_double(),
+                                  lt_measure = col_factor(levels = c("", "<")),
+                                  sample_date = col_date(format = "%Y/%m/%d")
+                                ))
   }
   if (date_format == "mdy") {
-    csv_data$sample_date <- lubridate::mdy(csv_data$sample_date,
-                                           tz = Sys.timezone())
+    csv_data <- readr::read_csv(path,
+                                col_types = cols(
+                                  analysis_result = col_double(),
+                                  lt_measure = col_factor(levels = c("", "<")),
+                                  sample_date = col_date(format = "%m/%d/%Y")
+                                ))
   }
-  csv_data$analysis_result <- as.numeric(csv_data$analysis_result)
-  csv_data$lt_measure <- factor(csv_data$lt_measure, exclude = NULL)
-  csv_data$param_name <- as.character(csv_data$param_name)
-  csv_data$default_unit <- as.character(csv_data$default_unit)
   return(csv_data)
 }
 
