@@ -7,17 +7,12 @@ Author: Justin Jent <jentjr@gmail.com>
 Maintainer: Justin Jent <jentjr@gmail.com>
 Depends:
     R (>= 3.0.2),
-    ggplot2,
+    tidyverse,
     EnvStats,
-    dplyr,
-    tidyr,
-    RODBC,
-    readr
+    RODBC
 Imports:
-    readxl,
     openxlsx,
     animation,
-    lubridate,
     reshape2,
     scales,
     grid,
