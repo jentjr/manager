@@ -21,53 +21,21 @@ shinyServer(function(input, output, session) {
   # End Data Entry -------------------------------------------------------------
   
   # Summary table --------------------------------------------------------------
-  summaryfile <- callModule(wellConstituent, "summary", datafile(), 
-                              multiple = FALSE)
-  
-  output$summary_table <- renderPrint({
-    EnvStats::summaryFull(summaryfile()$analysis_result)
-  })
+  # summaryfile <- callModule(wellConstituent, "summary", datafile(), 
+  #                             multiple = FALSE)
+  # 
+  # output$summary_table <- renderPrint({
+  #   EnvStats::summaryFull(summaryfile()$analysis_result)
+  # })
   # End Summary table ----------------------------------------------------------
   
   # Begin Distribution Plots ---------------------------------------------------
   distfile <- callModule(wellConstituent, "dist", datafile(),
                          multiple = FALSE)
-# 
-#   output$dist_date_ranges <- renderUI({
-#     data <- distfile()
-#     tagList(
-#       dateRangeInput("dist_back_dates", "Background Date Range", 
-#                      start = min(data$sample_date, na.rm = TRUE),
-#                      end = max(data$sample_date, na.rm = TRUE))
-#     )
-#   })
-  
-  # get_dist_data <- reactive({
-  #   df <- distfile()
-  #   start <- min(lubridate::ymd(input$dist_back_dates, tz = Sys.timezone()), 
-  #                na.rm = TRUE)
-  #   end <- max(lubridate::ymd(input$dist_back_dates, tz = Sys.timezone()), 
-  #              na.rm = TRUE)
-  #   
-  #   data_selected <- df %>%
-  #     filter(sample_date >= start & 
-  #              sample_date <= end)
-  #   
-  #   data_selected
-  # })
-  
-  # output$lt_summary <- renderTable({
-  #   data <- get_dist_data()
-  #   start <- min(lubridate::ymd(input$dist_back_dates, tz = Sys.timezone()))
-  #   end <- max(lubridate::ymd(input$dist_back_dates, tz = Sys.timezone()))
-  #   lt_summary(data, start, end)
-  # })
   
   output$gof_test <- renderPrint({
     df <- distfile()
-    # validate(
-    #   need(length(unique(df$analysis_result)) > 2, "")
-    # )
+
     if (isTRUE(input$dist_plot_type == "Censored")) {
       df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
       out <- EnvStats::gofTestCensored(
@@ -94,9 +62,7 @@ shinyServer(function(input, output, session) {
   
   output$gof_plot <- renderPlot({
     df <- distfile()
-    # validate(
-    #   need(length(unique(df$analysis_result)) > 2, "")
-    # )
+
     if (isTRUE(input$dist_plot_type == "Censored")) {
       df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
       out <- EnvStats::gofTestCensored(
@@ -123,7 +89,7 @@ shinyServer(function(input, output, session) {
   # End Distribution Plots -----------------------------------------------------
   
   # Begin Boxplot Page----------------------------------------------------------
-  boxplotfile <- callModule(wellConstituent, "boxplot", datafile(),
+  boxplotfile <- callModule(boxPlot, "boxplot", datafile(),
                          multiple = TRUE)
   
   boxplot <- reactive({
@@ -132,7 +98,6 @@ shinyServer(function(input, output, session) {
       box_wells <- unique(box_data$location_id)
       box_analytes <- unique(box_data$param_name)
     
-    if (input$box_facet_by == "param_name") {
       box_list <- lapply(1:length(box_analytes), function(i) {
         box_name <- paste("box_plot", i, sep = "")
         plotOutput(box_name)
@@ -146,7 +111,6 @@ shinyServer(function(input, output, session) {
             box <- manager::boxplot(
               box_data[box_data$param_name == 
                          box_analytes[box_i], ], 
-              facet_by = input$box_facet_by,
               short_name = input$box_short_name,
               coord_flip = input$coord_flip_box
             )
@@ -154,31 +118,6 @@ shinyServer(function(input, output, session) {
           })
         })
       }
-    }
-      
-    if (input$box_facet_by == "location_id") {
-      box_list <- lapply(1:length(box_wells), function(i) {
-        box_name <- paste("box_plot", i, sep = "")
-        plotOutput(box_name)
-      })
-      
-      for (i in 1:length(box_wells)) {
-        local({
-          box_i <- i
-          box_name <- paste("box_plot", box_i, sep = "")
-          output[[box_name]] <- renderPlot({
-            box <- manager::boxplot(
-              box_data[box_data$location_id == 
-                         box_wells[box_i], ], 
-              facet_by = input$box_facet_by,
-              short_name = input$box_short_name,
-              coord_flip = input$coord_flip_box
-            )
-            box
-          })
-        })
-      }
-    }
     do.call(tagList, box_list)
   })
   
@@ -220,23 +159,8 @@ shinyServer(function(input, output, session) {
   # End Boxplot Page------------------------------------------------------------
   
   # Time Series Page -----------------------------------------------------------
-  tsplotfile <- callModule(wellConstituent, "tsplot", datafile(),
+  tsplotfile <- callModule(timeSeries, "tsplot", datafile(),
                             multiple = TRUE)
-  
-  # return start and end date of background data for time series page
-  output$ts_date_ranges <- renderUI({
-    
-    ts_data <- tsplotfile()
-    
-    tagList(
-      dateRangeInput("ts_back_dates", "Background Date Range", 
-                     start = min(ts_data$sample_date, na.rm = TRUE),
-                     end = max(ts_data$sample_date, na.rm = TRUE)),
-      dateRangeInput("ts_comp_dates", "Compliance Date Range", 
-                     start = max(ts_data$sample_date, na.rm = TRUE),
-                     end = max(ts_data$sample_date, na.rm = TRUE))  
-    )
-  })
   
   # time series plot output
   ts_plot <- reactive({
@@ -263,7 +187,7 @@ shinyServer(function(input, output, session) {
                              facet_by = "location_id", 
                              trend = input$ts_trend,
                              short_name = input$ts_short_name, 
-                             ncol = input$ncol_ts)
+                             ncol = input$ts_ncol)
             
             if (input$ts_date_lines) {
               b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
@@ -279,7 +203,7 @@ shinyServer(function(input, output, session) {
                 short_name = input$ts_short_name,
                 back_date = c(b1, b2), 
                 comp_date = c(c1, c2),
-                ncol = input$ncol_ts
+                ncol = input$ts_ncol
               )
             }
             ts
@@ -304,7 +228,7 @@ shinyServer(function(input, output, session) {
                              facet_by = "param_name",
                              trend = input$ts_trend,
                              short_name = input$ts_short_name,
-                             ncol = input$ncol_ts)
+                             ncol = input$ts_ncol)
             
             if (input$ts_date_lines) {
               b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
@@ -320,7 +244,7 @@ shinyServer(function(input, output, session) {
                 short_name = input$ts_short_name,
                 back_date = c(b1, b2), 
                 comp_date = c(c1, c2),
-                ncol = input$ncol_ts
+                ncol = input$ts_ncol
               )
             }
             ts
@@ -372,14 +296,14 @@ shinyServer(function(input, output, session) {
                          facet_by = input$ts_facet_by,
                          trend = input$ts_trend,
                          short_name = input$ts_short_name,
-                         comp_date = c(c1, c2), ncol = input$ncol_ts)
+                         comp_date = c(c1, c2), ncol = input$ts_ncol)
         dev.off()
       } else {
         pdf(file = file, width = 17, height = 11)
         manager::ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
                          short_name = input$ts_short_name,
                          trend = input$ts_trend,
-                         ncol = input$ncol_ts)
+                         ncol = input$ts_ncol)
         dev.off()
       }
     }

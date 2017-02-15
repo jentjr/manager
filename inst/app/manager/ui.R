@@ -11,16 +11,16 @@ shinyUI(navbarPage("MANAGER",
       )
     )
   ),
-  tabPanel("Summary",
-    sidebarLayout(
-      sidebarPanel(
-        wellConstituentInput("summary")
-     ),
-     mainPanel(
-      verbatimTextOutput("summary_table")
-      )
-    )
-  ),
+  # tabPanel("Summary",
+  #   sidebarLayout(
+  #     sidebarPanel(
+  #       wellConstituentInput("summary")
+  #    ),
+  #    mainPanel(
+  #     verbatimTextOutput("summary_table")
+  #     )
+  #   )
+  # ),
   navbarMenu("Plots",
     tabPanel("Distribution Plots",
       sidebarLayout(
@@ -90,31 +90,7 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Time Series",
       sidebarLayout(
         sidebarPanel(
-          wellConstituentInput("tsplot"),
-          uiOutput("ts_date_ranges"),
-          selectInput("ts_facet_by", "Group plots by:", 
-                      c("location_id", "param_name")),
-          selectInput("ts_trend", "Add trend line:",
-                      c("none" = "None", "lm" = "lm",
-                        "glm" = "glm", "gam" = "gam",
-                        "loess" = "loess", "theil-sen" = "theil-sen")),
-          checkboxInput("ts_short_name", "Abbreviate Constituent Name"),
-          checkboxInput("ts_date_lines", "Show Date Ranges"),
-          numericInput("ncol_ts", "Number of Columns in Plot", 
-                       value = NULL),
-          downloadButton("ts_download", "Download Plots"),
-          checkboxInput(
-            inputId = "ts_interactive",
-            label = "Interactive",
-            value = TRUE
-          ),
-          conditionalPanel(
-            condition = "input.ts_interactive == '0'",
-            actionButton(
-              inputId = "ts_submit",
-              label = "Click to Plot"
-            )
-          )
+          timeSeriesInput("tsplot")
         ),
         mainPanel(
           uiOutput("ts_out")
@@ -124,23 +100,7 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Boxplots",
       sidebarLayout(
         sidebarPanel(
-          wellConstituentInput("boxplot"),
-          selectInput("box_facet_by", "Group plot by:",
-                      c("param_name", "location_id")),
-          checkboxInput("box_short_name", "Abbreviate Constituent Name"),
-          downloadButton("box_download", "Download Plots"),
-          checkboxInput(
-            inputId = "box_interactive",
-            label = "Interactive",
-            value = TRUE
-          ),
-          conditionalPanel(
-            condition = "input.box_interactive == '0'",
-            actionButton(
-              inputId = "box_submit",
-              label = "Click to Plot"
-            )
-          )
+          boxplotInput("boxplot")
         ),
         mainPanel(
           uiOutput("boxplot_out")  
