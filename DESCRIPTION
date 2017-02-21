@@ -17,7 +17,8 @@ Imports:
     scales,
     grid,
     shiny,
-    knitr
+    knitr,
+    udunits2
 Suggests:
     Hmisc,
     sp,
