@@ -17,6 +17,10 @@ boxplot(df, x = "location_id", y = "analysis_result", fill = NULL,
 
 \item{fill}{column used to fill the variable}
 
+\item{limit1}{column to be used to draw horizontal line}
+
+\item{limit2}{column to be used to draw a second horizontal line}
+
 \item{short_name}{If TRUE the constituent name will be abbreviated}
 
 \item{legend_title}{Legend title for fill variable}

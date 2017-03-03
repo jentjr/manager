@@ -4,6 +4,8 @@
 #' @param x column to be used for the x axis
 #' @param y column to be used for the y axis
 #' @param fill column used to fill the variable
+#' @param limit1 column to be used to draw horizontal line
+#' @param limit2 column to be used to draw a second horizontal line
 #' @param short_name If TRUE the constituent name will be abbreviated
 #' @param flip_coords If TRUE the axes are flipped
 #' @param legend_title Legend title for fill variable
@@ -95,14 +97,14 @@ boxplot <- function(df,
                         show.legend = TRUE)
   }
   
-  # if (!missing(limit2)) {
-  #   df$limit2_name <- paste(limit2[[1]])
-  #   b <- b + geom_hline(data = df, 
-  #                       aes_string(yintercept = limit2, 
-  #                                  linetype = "limit2_name"), 
-  #                       show.legend = TRUE)
-  # }
-  
+  if (!missing(limit2)) {
+    df$limit2_name <- paste(limit2[[1]])
+    b <- b + geom_hline(data = df,
+                        aes_string(yintercept = limit2,
+                                   linetype = "limit2_name"),
+                        show.legend = TRUE)
+  }
+
   if (isTRUE(coord_flip)) {
     
     b <- b + coord_flip()
