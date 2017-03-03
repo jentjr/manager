@@ -5,7 +5,8 @@
 \title{Function to plot boxplots for groundwater data}
 \usage{
 boxplot(df, x = "location_id", y = "analysis_result", fill = NULL,
-  short_name = FALSE, coord_flip = FALSE, legend_title = NULL)
+  limit1 = NULL, limit2 = NULL, short_name = FALSE, coord_flip = FALSE,
+  legend_title = NULL)
 }
 \arguments{
 \item{df}{groundwater data in tidy, long format}

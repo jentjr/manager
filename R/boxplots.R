@@ -13,6 +13,8 @@ boxplot <- function(df,
                     x = "location_id",
                     y = "analysis_result",
                     fill = NULL,
+                    limit1 = NULL,
+                    limit2 = NULL,
                     short_name = FALSE, 
                     coord_flip = FALSE,
                     legend_title = NULL){
@@ -23,6 +25,8 @@ boxplot <- function(df,
                   x = x,
                   y = y,
                   fill = fill,
+                  limit1 = limit1,
+                  limit2 = limit2,
                   short_name = short_name,
                   coord_flip = coord_flip,
                   legend_title = legend_title
@@ -45,6 +49,8 @@ boxplot <- function(df,
                      x = "location_id", 
                      y = "analysis_result", 
                      fill = NULL,
+                     limit1 = NULL,
+                     limit2 = NULL,
                      short_name = FALSE, 
                      coord_flip = FALSE,
                      legend_title = NULL) {
@@ -69,7 +75,8 @@ boxplot <- function(df,
     theme_bw() + 
     ylab(paste("Analysis Result"," (", df$default_unit[1], ")", sep = "")) + 
     xlab("Location ID") +
-    guides(fill = guide_legend(paste0(legend_title))) +
+    guides(fill = guide_legend(paste0(legend_title)), 
+           linetype = guide_legend("Limits")) +
     theme(legend.background = element_rect()) + 
     theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
     theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
@@ -79,6 +86,22 @@ boxplot <- function(df,
     theme(plot.title = element_text(hjust = 0.5)) +
     geom_boxplot() + 
     ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
+  
+  if (!missing(limit1)) {
+    df$limit1_name <- paste(limit1[[1]])
+    b <- b + geom_hline(data = df, 
+                        aes_string(yintercept = limit1, 
+                                   linetype = "limit1_name"), 
+                        show.legend = TRUE)
+  }
+  
+  # if (!missing(limit2)) {
+  #   df$limit2_name <- paste(limit2[[1]])
+  #   b <- b + geom_hline(data = df, 
+  #                       aes_string(yintercept = limit2, 
+  #                                  linetype = "limit2_name"), 
+  #                       show.legend = TRUE)
+  # }
   
   if (isTRUE(coord_flip)) {
     
