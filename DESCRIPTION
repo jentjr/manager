@@ -12,6 +12,7 @@ Depends:
     RODBC
 Imports:
     openxlsx,
+    readxl,
     animation,
     reshape2,
     scales,
