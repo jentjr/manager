@@ -89,7 +89,7 @@ boxplot <- function(df,
     geom_boxplot() + 
     ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
   
-  if (!missing(limit1)) {
+  if (!is.null(limit1)) {
     df$limit1_name <- paste(limit1[[1]])
     b <- b + geom_hline(data = df, 
                         aes_string(yintercept = limit1, 
@@ -97,7 +97,7 @@ boxplot <- function(df,
                         show.legend = TRUE)
   }
   
-  if (!missing(limit2)) {
+  if (!is.null(limit2)) {
     df$limit2_name <- paste(limit2[[1]])
     b <- b + geom_hline(data = df,
                         aes_string(yintercept = limit2,
