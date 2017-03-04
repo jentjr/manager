@@ -13,3 +13,4 @@ addons:
   apt:
     packages:
       - unixodbc-dev
+      - udunits2-dev
