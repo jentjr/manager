@@ -2,7 +2,7 @@
 manager
 =======
 
-[![Build Status](https://travis-ci.org/jentjr/manager.svg?branch=master)](https://travis-ci.org/jentjr/manager)
+[![Build Status](https://travis-ci.org/jentjr/manager.svg?branch=master)](https://travis-ci.org/jentjr/manager) [![Build status](https://ci.appveyor.com/api/projects/status/wmatiqqb5e8v01lp/branch/master?svg=true)](https://ci.appveyor.com/project/jentjr/manager/branch/master)
 
 `manager` provides a set of tools for plotting and analyzing groundwater data as well as reading data from external sources such as MANAGES and gINT.
 

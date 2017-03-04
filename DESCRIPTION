@@ -25,9 +25,12 @@ Imports:
     knitr,
     udunits2
 Suggests:
+    survival (>= 2.40.1),
     Hmisc,
     sp,
-    testthat
+    testthat,
+    knitr,
+    rmarkdown
 License: MIT + file LICENSE
 LazyData: true
 VignetteBuilder: knitr
