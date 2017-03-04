@@ -1,0 +1,19 @@
+---
+title: "Introduction to manager"
+author: "Justin Jent"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The `manager` packages provides functions for reading external data.
+
+```{r, eval = FALSE}
+data <- read_manages3("C:/path/to/manages/Site.mdb")
+```
+
+Example data sets for groundwater in Indiana and Ohio are provided with the 
+package
