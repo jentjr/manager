@@ -3,5 +3,13 @@
 language: R
 sudo: false
 cache: packages
-apt_packages:
-  - unixodbc-dev
+
+r:
+ - oldrel
+ - release
+ - devel
+
+addons:
+  apt:
+    packages:
+      - unixodbc-dev
