@@ -25,7 +25,6 @@ Imports:
     knitr,
     udunits2
 Suggests:
-    Hmisc (>= 4.0),
     sp,
     testthat,
     knitr,
