@@ -188,9 +188,8 @@ return(piper_data)
 }
 
 #' Function to create base Piper plot
-#' @export
 
-ggplot_piper <- function() {
+.ggplot_piper <- function() {
   
   p <- ggplot() +
 
@@ -343,7 +342,7 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
   sym <- seq(1, length(unique(df$location_id)), by = 1)
   
   if (isTRUE(TDS)) {
-    ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
+    .ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
                                                colour = location_id,
                                                shape = location_id,
                                                size = TDS, alpha = 0.2)) +
@@ -361,7 +360,7 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
                                      alpha = guide_legend("none")) +
       theme(plot.title = element_text(hjust = 0.5))
   }else{
-  ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
+  .ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
                                              color = location_id, 
                                              shape = location_id,
                                              alpha = 0.2), size = 5) +
@@ -392,7 +391,7 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
 
 piper_time_plot <- function(df, TDS = FALSE, title = NULL){
   iter <- unique(df$sample_date)
-  ggplot_piper()
+  .ggplot_piper()
   dev.hold()
   for (i in 1:length(iter)) {
     if (isTRUE(TDS)) {

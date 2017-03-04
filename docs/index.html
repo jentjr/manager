@@ -15,7 +15,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-home">
+    <div class="container template-vignette">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -42,30 +42,46 @@
 
       
       </header><div class="row">
-  <div class="contents col-md-9">
-    <div id="manager" class="section level1">
+  <div class="col-md-9">
+    
+
+    
+    
+<div class="contents">
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+<div id="manager" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#manager" class="anchor"> </a>manager</h1></div>
-<p>Tools for plotting and analyzing groundwater data.</p>
-<p>To install the <code>manager</code> package you must first make sure you have a working development environment.</p>
-<ul>
-<li>
-<strong>Windows</strong>: Install <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.<br>
-</li>
-<li>
-<strong>Mac</strong>: Install Xcode from the Mac App Store.<br>
-</li>
-<li>
-<strong>Linux</strong>: Install a compiler and various development libraries (details vary across differnet flavors of Linux).</li>
-</ul>
+
+<p><code>manager</code> provides a set of tools for plotting and analyzing groundwater data as well as reading data from external sources such as MANAGES and gINT.</p>
+<div id="example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#example" class="anchor"> </a>Example</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_manages3.html">read_manages3</a></span>(<span class="st">"C:/path/to/Site.mdb"</span>)</code></pre></div>
+</div>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"> </a>Installation</h2>
+<p>To install the <code>manager</code> package you must first make sure you have a working development environment.<br>
+* <strong>Windows</strong>: Install <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.<br>
+* <strong>Mac</strong>: Install Xcode from the Mac App Store.<br>
+* <strong>Linux</strong>: Install a compiler and various development libraries (details vary across differnet flavors of Linux).</p>
 <p>Then, install the <code>devtools</code> package from CRAN with</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>)</code></pre></div>
 <p>After you have <code>devtools</code> installed you can install <code>manager</code> using the command</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">"jentjr/manager"</span>)</code></pre></div>
+<p>Eventually, the package might be submitted to CRAN, but until then you’ll have to install with <code>devtools</code>.</p>
+</div>
+<div id="license" class="section level2">
+<h2 class="hasAnchor">
+<a href="#license" class="anchor"> </a>License</h2>
+<p>MIT</p>
+</div>
+</div>
 </div>
   </div>
 
-  <div class="col-md-3" id="sidebar">
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Links</h2>
 <ul class="list-unstyled">
 <li>Browse source code at <br><a href="http://jentjr.github.io/manager">http://​jentjr.github.io/​manager</a>
@@ -77,7 +93,14 @@
 <ul class="list-unstyled">
 <li>Justin Jent <br><small class="roles"> Author, maintainer </small> </li>
 </ul>
+<html><body>
+<h2>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://travis-ci.org/jentjr/manager"><img src="https://travis-ci.org/jentjr/manager.svg?branch=master" alt="Build Status"></a></li>
+</ul>
+</body></html>
 </div>
+
 </div>
 
 

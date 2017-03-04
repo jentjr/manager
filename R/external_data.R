@@ -1,4 +1,4 @@
-#' Connect to MANAGES database
+#' Connect to a MANAGES 3.x Site.mdb database
 #' 
 #' This function connects to the MANAGES database for the path supplied.
 #' R must be in 32-bit mode. 
@@ -6,7 +6,7 @@
 #' @param manages_path Path to MANAGES Site.mdb file
 #' @export
 
-connect_manages <- function(manages_path) {
+read_manages3 <- function(manages_path) {
   
   manages_conn <- RODBC::odbcDriverConnect(
     paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)}",
@@ -38,7 +38,8 @@ connect_manages <- function(manages_path) {
 #' 
 #' @param manages_path path to MANAGES database
 #' @export
-connect_manages_spatial <- function(manages_path){
+
+read_manages3_spatial <- function(manages_path){
   
   manages_conn <- RODBC::odbcDriverConnect(
     paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)}",
