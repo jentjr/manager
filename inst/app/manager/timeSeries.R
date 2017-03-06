@@ -14,16 +14,12 @@ timeSeries <- function(input, output, session, data, multiple) {
                   selected = get_constituents(data)[1],
                   multiple = multiple),
       
-      dateRangeInput(ns("ts_back_dates"), "Background Date Range", 
-                     start = min(data$sample_date, na.rm = TRUE),
-                     end = max(data$sample_date, na.rm = TRUE)),
       
-      dateRangeInput(ns("ts_comp_dates"), "Compliance Date Range", 
-                     start = max(data$sample_date, na.rm = TRUE),
-                     end = max(data$sample_date, na.rm = TRUE)), 
+      selectInput(ns("ts_group_by"), "Group plots by:", 
+                  colnames(data)),
       
-      selectInput(ns("ts_facet_by"), "Group plots by:", 
-                  c("location_id", "param_name")),
+      selectInput(ns("ts_facet_by"), "Facet Wrap by:",
+                  colnames(data)),
       
       selectInput(ns("ts_trend"), "Add trend line:",
                   c("none" = "None", "lm" = "lm",
@@ -32,10 +28,22 @@ timeSeries <- function(input, output, session, data, multiple) {
       
       checkboxInput(ns("ts_short_name"), "Abbreviate Constituent Name"),
       
-      checkboxInput(ns("ts_date_lines"), "Show Date Ranges"),
-      
       numericInput(ns("ts_ncol"), "Number of Columns in Plot", 
                    value = NULL),
+      
+      checkboxInput(ns("ts_date_lines"), "Show Date Ranges"),
+      
+      conditionalPanel(
+        sprintf("input['%s'] == '1'", ns("ts_date_lines")),
+        
+        dateRangeInput(ns("ts_back_dates"), "Background Date Range", 
+                       start = min(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE)),
+        
+        dateRangeInput(ns("ts_comp_dates"), "Compliance Date Range", 
+                       start = max(data$sample_date, na.rm = TRUE),
+                       end = max(data$sample_date, na.rm = TRUE))
+      ),
       
       downloadButton(ns("ts_download"), "Download Plots"),
       
@@ -57,7 +65,7 @@ timeSeries <- function(input, output, session, data, multiple) {
   
   return(reactive({
     data %>%
-      filter(location_id %in% input$ts_wells &
-               param_name %in% input$ts_constituents)
+      filter(location_id %in% input$ts_wells,
+             param_name %in% input$ts_constituents)
   }))
 }

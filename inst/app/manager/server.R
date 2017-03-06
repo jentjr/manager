@@ -165,94 +165,54 @@ shinyServer(function(input, output, session) {
   # time series plot output
   ts_plot <- reactive({
 
-      ts_data <- tsplotfile()
-      ts_well <- unique(ts_data$location_id)
-      ts_analyte <- unique(ts_data$param_name)
+    ts_data <- tsplotfile()
+    ts_well <- unique(ts_data$location_id)
+    ts_analyte <- unique(ts_data$param_name)
     
-    if (input$ts_facet_by == "location_id") {
-      
-      ts_list <- lapply(1:length(ts_well), function(i) {
-        ts_name <- paste("ts_plot", i, sep = "")
-        plotOutput(ts_name)
-        
-      })
-      
-      for (i in 1:length(ts_well)) {
-        local({
-          ts_i <- i
-          ts_name <- paste("ts_plot", ts_i, sep = "")
-          output[[ts_name]] <- renderPlot({
-            
-            ts <- manager::ts_plot(ts_data[ts_data$location_id == ts_well[ts_i], ],
-                             facet_by = "location_id", 
-                             trend = input$ts_trend,
-                             short_name = input$ts_short_name, 
-                             ncol = input$ts_ncol)
-            
-            if (input$ts_date_lines) {
-              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-              
-              ts <- manager::ts_plot(
-                ts_data[ts_data$location_id == 
-                               ts_well[ts_i], ], 
-                facet_by = "location_id",
-                trend = input$ts_trend,
-                short_name = input$ts_short_name,
-                back_date = c(b1, b2), 
-                comp_date = c(c1, c2),
-                ncol = input$ts_ncol
-              )
-            }
-            ts
-          })
-        })
-      }
-    }
-    
-    if (input$ts_facet_by == "param_name") {
-      ts_list <- lapply(1:length(ts_analyte), function(i) {
-        ts_name <- paste("ts_plot", i, sep = "")
-        plotOutput(ts_name)
-      })
-      
-      for (i in 1:length(ts_analyte)) {
-        local({
-          ts_i <- i
-          ts_name <- paste("ts_plot", ts_i, sep = "")
-          output[[ts_name]] <- renderPlot({
-            
-            ts <- manager::ts_plot(ts_data[ts_data$param_name == ts_analyte[ts_i], ],
-                             facet_by = "param_name",
-                             trend = input$ts_trend,
-                             short_name = input$ts_short_name,
-                             ncol = input$ts_ncol)
-            
-            if (input$ts_date_lines) {
-              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-              
-              ts <- manager::ts_plot(
-                ts_data[ts_data$param_name == 
-                          ts_analyte[ts_i], ], 
-                facet_by = "param_name",
-                trend = input$ts_trend,
-                short_name = input$ts_short_name,
-                back_date = c(b1, b2), 
-                comp_date = c(c1, c2),
-                ncol = input$ts_ncol
-              )
-            }
-            ts
-          })
-        })
-      }
-    }
-    do.call(tagList, ts_list)
+    num_plots <- length(ts_data[[paste(input$ts_group_by)]])  
+   
+    manager::ts_plot(ts_data) 
+    # ts_list <- lapply(1:num_plots, function(i) {
+    #   ts_name <- paste("ts_plot", i, sep = "")
+    #   plotOutput(ts_name)
+    # })
+    #   
+    # for (i in 1:num_plots) {
+    #   local({
+    #     ts_i <- i
+    #     ts_name <- paste("ts_plot", ts_i, sep = "")
+    #     output[[ts_name]] <- renderPlot({
+    #         
+    #       ts <- manager::ts_plot(
+    #         ts_data[ts_data$location_id == ts_well[ts_i], ],
+    #         group_var = input$ts_group_by,
+    #         facet_var = input$ts_facet_by,
+    #         trend = input$ts_trend,
+    #         short_name = input$ts_short_name, 
+    #         ncol = input$ts_ncol)
+    #         
+    #         # if (input$ts_date_lines) {
+    #         #   b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+    #         #   c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+    #         #   b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+    #         #   c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+    #         #   
+    #         #   ts <- manager::ts_plot(
+    #         #     ts_data[ts_data$location_id == 
+    #         #                    ts_well[ts_i], ], 
+    #         #     facet_by = "location_id",
+    #         #     trend = input$ts_trend,
+    #         #     short_name = input$ts_short_name,
+    #         #     back_date = c(b1, b2), 
+    #         #     comp_date = c(c1, c2),
+    #         #     ncol = input$ts_ncol
+    #         #   )
+    #         # }
+    #         ts
+    #       })
+    #     })
+    #   }
+    # do.call(tagList, ts_list)
   })
   
   # plot time series when actioButton is clicked

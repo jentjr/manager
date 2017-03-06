@@ -36,7 +36,7 @@ boxPlot <- function(input, output, session, data, multiple) {
   
   return(reactive({
     data %>%
-      filter(location_id %in% input$wells &
-               param_name %in% input$constituents)
+      filter(location_id %in% input$wells, 
+             param_name %in% input$constituents)
   }))
 }
