@@ -1,13 +1,13 @@
 #' Function to plot boxplots for groundwater data 
 #' 
 #' @param df groundwater data in tidy, long format
-#' @param x column to be used for the x axis
-#' @param y column to be used for the y axis
+#' @param x column to be used for the x axis, default is location
+#' @param y column to be used for the y axis, default is analysis result
 #' @param fill column used to fill the variable
 #' @param limit1 column to be used to draw horizontal line
 #' @param limit2 column to be used to draw a second horizontal line
 #' @param short_name If TRUE the constituent name will be abbreviated
-#' @param flip_coords If TRUE the axes are flipped
+#' @param coord_flip If TRUE the axes are flipped
 #' @param legend_title Legend title for fill variable
 #' @export
 
@@ -40,11 +40,13 @@ boxplot <- function(df,
 #' Helper function to plot boxplots for groundwater data 
 #' 
 #' @param df groundwater data in tidy, long format
-#' @param x column to be used for the x axis
-#' @param y column to be used for the y axis
+#' @param x column to be used for the x axis, default is location
+#' @param y column to be used for the y axis, default is analysis result
 #' @param fill column used to fill the variable
+#' @param limit1 column to be used for a horizontal line
+#' @param limit2 column to be used for a second horizontal line
 #' @param short_name If TRUE the constituent name will be abbreviated
-#' @param flip_coords If TRUE the axes are flipped
+#' @param coord_flip If TRUE the axes are flipped
 #' @param legend_title Legend title for fill variable
 
 .boxplot <- function(df, 
