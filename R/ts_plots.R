@@ -1,43 +1,68 @@
 #' This function plots multiple groundwater data time series by location, 
 #' or constituent. 
 #' 
-#' @param df groundwater data
-#' @param facet_by parameter to group plots by
+#' @param df groundwater data in tidy format
+#' @param facet_var column to facet wrap plots by, default is by location
+#' @param group_var column to group plots by, default is by constituent
 #' @param back_date dates for background date range
 #' @param comp_date dates for compliance date range
 #' @param limit1 horizontal line 1
 #' @param limit2 horizontal line 2
-#' @param short_name If TRUE, the analyte name will be abbreviated
+#' @param short_name If TRUE, the constituent name will be abbreviated
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
+#' @param ... parameters passed to get_theilsen
 #' @export
 
-ts_plot <- function(df, facet_by = "location_id", ...){
-  
-  if (facet_by == "param_name") {
+ts_plot <- function(df, 
+                    x = "sample_date",
+                    y = "analysis_result",
+                    facet_var = "location_id",
+                    group_var = "param_name",
+                    trend = NULL, 
+                    back_date = NULL, 
+                    comp_date = NULL, 
+                    limit1 = NULL, 
+                    limit2 = NULL, 
+                    short_name = FALSE, 
+                    pnt = 3, 
+                    ncol = NULL,
+                    ...) {
     df %>% 
-      group_by(param_name) %>% 
-      do(plot = .ts_plot(., facet_by = facet_by, ...))
-  } else{
-    df %>%
-      group_by(location_id) %>%
-      do(plot = .ts_plot(., facet_by = facet_by, ...))
-  }
+      group_by_(group_var) %>% 
+      do(plot = .ts_plot(., 
+                         x = x, 
+                         y = y, 
+                         group_var = group_var, 
+                         facet_var = facet_var,
+                         trend = trend,
+                         back_date = back_date,
+                         comp_date = comp_date,
+                         limit1 = limit1,
+                         limit2 = limit2,
+                         short_name = short_name,
+                         pnt = pnt,
+                         ncol = ncol,
+                         ...))
 }
 
-#' Function for plotting time series of groundwater data
+#' Helper function for plotting time series of groundwater data
 #' @param df groundwater data
 #' @param facet_by parameter to group plots by
 #' @param back_date dates for background date range
 #' @param comp_date dates for compliance date range
 #' @param limit1 horizontal line 1
 #' @param limit2 horizontal line 2
-#' @param short_name If TRUE, the analyte name will be abbreviated
+#' @param short_name If TRUE, the constituent name will be abbreviated
 #' @param pnt size of points on time series plots
+#' @param ... parameters passed to get_theilsen
 #' @param ncol number of columns
 
-.ts_plot <- function(df, 
-                     facet_by = NULL, 
+.ts_plot <- function(df,
+                     x = "sample_date",
+                     y = "analysis_result",
+                     facet_var = NULL,
+                     group_var = NULL,
                      trend = NULL, 
                      back_date = NULL, 
                      comp_date = NULL, 
@@ -46,7 +71,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
                      short_name = FALSE, 
                      pnt = 3, 
                      ncol = NULL,
-                     ...){
+                     ...) {
   
   df$non_detect <- if_else(df$lt_measure == "<", 
                            "non-detect", "detected", 
@@ -61,7 +86,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
   }
   
   # main plot
-  p <- ggplot(data = df, aes(x = sample_date, y = analysis_result)) + 
+  p <- ggplot(data = df, aes_string(x = x, y = y)) + 
     geom_line(data = df) +
     geom_point(data = df, aes(shape = factor(non_detect, exclude = NULL)), 
                size = pnt) +
@@ -79,7 +104,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
            linetype = guide_legend("Limits")) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) 
   
-  if (!missing(trend)) {
+  if (!is.null(trend)) {
     if (trend == "theil-sen") {
       
       theil.sen <- get_theilsen(df, ...)
@@ -94,20 +119,13 @@ ts_plot <- function(df, facet_by = "location_id", ...){
     p
   }
   
-  if (facet_by == "location_id") {
-    p <- p + facet_wrap(~param_name, scale = "free", ncol = ncol) + 
+  if (!is.null(facet_var)) {
+    p <- p + facet_wrap(paste(facet_var), scale = "free", ncol = ncol) +
       ggtitle(paste("Time Series Plots for", 
-                    df$location_id[1], "\n", sep = " ")) 
-      
+                    df[[paste(group_var)]][1], "\n", sep = " "))
   }
   
-  if (facet_by == "param_name") {
-    p <- p + facet_wrap(~location_id, scale = "free", ncol = ncol) + 
-      ggtitle(paste("Time Series Plots for", 
-                    df$param_name[1], "\n", sep = " ")) 
-  }
-  
-  if (!missing(back_date)) {
+  if (!is.null(back_date)) {
     shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
                                xmax = c(back_date[2], comp_date[2]),
                                ymin = c(-Inf, -Inf), 
@@ -123,8 +141,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
                                  title = "Date Range"))
   }
   
-  if (!missing(limit1)) {
-    # limit1 <- as.quoted(limit1)
+  if (!is.null(limit1)) {
     df$limit1_name <- paste(limit1[[1]])
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit1, 
@@ -132,8 +149,7 @@ ts_plot <- function(df, facet_by = "location_id", ...){
                         show.legend = TRUE)
   }
   
-  if (!missing(limit2)) {
-    # limit2 <- as.quoted(limit2)
+  if (!is.null(limit2)) {
     df$limit2_name <- paste(limit2[[1]])
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit2, 
