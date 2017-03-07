@@ -14,11 +14,15 @@ userFileInput <- function(id, label = "File Input") {
     
     conditionalPanel(
       sprintf("input['%s'] == 'csv'", ns("fileInputType")),
+      
+      fileInput(ns("csvfile"), label),
+      
       checkboxInput(
         ns("csvheader"),
         label = "Has Header", 
         value = TRUE
         ),
+      
       radioButtons(
         ns("csvsep"),
         label = "Separator",
@@ -27,6 +31,7 @@ userFileInput <- function(id, label = "File Input") {
           Tab = "\t"),
         selected = ','
       ),
+      
       radioButtons(
         ns("csvquote"),
         label = "Quote",
@@ -37,8 +42,42 @@ userFileInput <- function(id, label = "File Input") {
         ),
         selected = '\"'
       ),
-      textInput(ns("date_format"), label = "Date format", value = "%Y/%m/%d"),
-      fileInput(ns("csvfile"), label)
+      
+      selectInput(
+        ns('location_id'), "Location ID Column", 
+        choices = colnames(data)
+      ),
+      
+      selectInput(
+        ns('sample_date'), "Sample Date Column", 
+        choices = colnames(data)
+      ),
+      
+      textInput(
+        ns("date_format"), 
+        label = "Date format", 
+        value = "%m/%d/%Y"
+        ),
+      
+      selectInput(
+        ns('param_name'), "Constituent Column", 
+        choices = colnames(data)
+      ),
+      
+      selectInput(
+        ns('lt_measure'), "Detection Column", 
+        choices = colnames(data)
+      ),
+      
+      selectInput(
+        ns('analysis_result'), "Results Column", 
+        choices = colnames(data)
+      ),
+      
+      selectInput(
+        ns('default_unit'), "Units Column", 
+        choices = colnames(data)
+      )
     ),
     
     conditionalPanel(

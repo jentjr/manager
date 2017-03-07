@@ -109,7 +109,10 @@ shinyServer(function(input, output, session) {
           output[[box_name]] <- renderPlot({
             box <- manager::boxplot(
               box_data[box_data$param_name == 
-                         box_analytes[box_i], ], 
+                         box_analytes[box_i], ],
+              x = paste(input$box_x),
+              y = paste(input$box_y),
+              fill = paste(input$box_group),
               short_name = input$box_short_name,
               coord_flip = input$coord_flip_box
             )

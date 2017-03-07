@@ -13,7 +13,25 @@ boxPlot <- function(input, output, session, data, multiple) {
       selectInput(ns("constituents"), "Constituents", get_constituents(data),
                   selected = get_constituents(data)[1],
                   multiple = multiple),
-
+      
+      selectInput(
+        ns("box_x"), 
+        label = "X-Axis Variable", 
+        choices = colnames(data)
+      ),
+      
+      selectInput(
+        ns("box_y"), 
+        label = "Y-Axis Variable", 
+        choices = colnames(data)
+      ),
+      
+      selectInput(
+        ns("box_group"), 
+        label = "Fill by groups", 
+        choices = colnames(data)
+        ),
+      
       checkboxInput("box_short_name", "Abbreviate Constituent Name"),
       
       downloadButton("box_download", "Download Plots"),

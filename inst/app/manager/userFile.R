@@ -23,12 +23,18 @@ Check the boxes to the left, and MANAGER will try to do the rest."
         file = input$csvfile$datapath,
         col_names = input$csvheader,
         delim = input$csvsep,
-        quote = input$csvquote,
-        col_types = readr::cols(
-          analysis_result = readr::col_double(),
-          sample_date = readr::col_datetime(format = "%Y-%m-%d")
-        )
-      )
+        quote = input$csvquote
+      ) 
+      
+      #   rename_(
+      #     location_id = input$location_id,
+      #     sample_date = input$sample_date,
+      #     param_name = input$param_name,
+      #     lt_measure = input$lt_measure,
+      #     analysis_result = input$analysis_result,
+      #     default_unit = input$default_unit
+      #   )
+
     }
     
     if (input$fileInputType == 'excel') {
