@@ -14,9 +14,28 @@ MW-1         | 2008-01-01  | Arsenic, diss  |      <            |     0.01      
 -------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
 MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24             |       mg/L "))
       
-      inputdata <- manager::from_csv(input$csvfile$datapath,
-                                     input$csv_date)
+      inputdata <- readr::read_delim(
+        file = input$csvfile$datapath,
+        col_names = input$csvheader,
+        delim = input$csvsep,
+        quote = input$csvquote
+        )
       
+    }
+    
+    if (input$fileInputType == 'excel') {
+      
+      validate(need(input$excelfile$datapath, 
+                    message = "Please upload an excel file in the following format: \n\n
+location_id | sample_date | param_name | lt_measure | analysis_result | default_unit
+-------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
+MW-1         | 2008-01-01  | Arsenic, diss  |      <            |     0.01             |       ug/L
+-------------- | ---------------- | ----------------- | -------------- | ------------------ | --------------
+MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24             |       mg/L "))
+      
+      inputdata <- readxl::read_excel(
+        input$excelfile$datapath
+      )
     }
     
     if (input$fileInputType == 'manages') {
@@ -25,7 +44,9 @@ MW-1         | 2008-01-01  | Boron, diss     |                   |     0.24     
                     message = "Please upload a MANAGES Site.mdb file \n\n
                     Only works when running locally for now..."))
       
-      inputdata <- manager::connect_manages(input$managesfile$datapath)
+      inputdata <- manager::connect_manages(
+        input$managesfile$datapath
+        )
       
     }
     return(inputdata)

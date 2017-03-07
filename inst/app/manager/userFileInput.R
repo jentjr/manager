@@ -8,13 +8,42 @@ userFileInput <- function(id, label = "File Input") {
     selectInput(
       ns('fileInputType'), "Data Input Type", 
       choices = c(csv = "csv", 
+                  excel = "excel",
                   manages = "manages")
     ),
     
     conditionalPanel(
       sprintf("input['%s'] == 'csv'", ns("fileInputType")),
-      textInput(ns("csv_date"), label = "Date format", value = "mdy"),
+      checkboxInput(
+        ns("csvheader"),
+        label = "Has Header", 
+        value = TRUE
+        ),
+      radioButtons(
+        ns("csvsep"),
+        label = "Separator",
+        choices = c(Comma = ",",
+          Semicolon = ";",
+          Tab = "\t"),
+        selected = ','
+      ),
+      radioButtons(
+        ns("csvquote"),
+        label = "Quote",
+        choices = c(
+          None = "",
+          'Double Quote' =  '\"',
+          'Single Quote' = "\'"
+        ),
+        selected = '\"'
+      ),
+      textInput(ns("date_format"), label = "Date format", value = "%Y/%m/%d"),
       fileInput(ns("csvfile"), label)
+    ),
+    
+    conditionalPanel(
+      sprintf("input['%s'] == 'excel'", ns("fileInputType")),
+      fileInput(ns("excelfile"), label)
     ),
     
     conditionalPanel(
