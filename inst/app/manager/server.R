@@ -1,5 +1,4 @@
 # Server File for use with MANAGES Database
-library(EnvStats)
 library(manager)
 
 # change options to handle large file size
@@ -825,7 +824,7 @@ shinyServer(function(input, output, session) {
           ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep = "")
           output[[ts_intra_name]] <- renderPlot({
             
-            ts <- gwstats::ts_plot(
+            ts <- manager::ts_plot(
               ts_intra_data[ts_intra_data$location_id == 
               ts_intra_well[ts_intra_i], ],
               facet_by = "location_id", 
@@ -841,7 +840,7 @@ shinyServer(function(input, output, session) {
               b2 <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
               c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
               
-              ts <- gwstats::ts_plot(
+              ts <- manager::ts_plot(
                 ts_intra_data[ts_intra_data$location_id == 
                           ts_intra_well[ts_intra_i], ], 
                 facet_by = "location_id",
@@ -871,7 +870,7 @@ shinyServer(function(input, output, session) {
           ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep = "")
           output[[ts_intra_name]] <- renderPlot({
             
-            ts <- gwstats::ts_plot(
+            ts <- manager::ts_plot(
               ts_intra_data[ts_intra_data$param_name == 
               ts_intra_analyte[ts_intra_i], ],
               facet_by = "param_name", 
@@ -887,7 +886,7 @@ shinyServer(function(input, output, session) {
               b2 <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
               c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
               
-              ts <- gwstats::ts_plot(
+              ts <- manager::ts_plot(
                 ts_intra_data[ts_intra_data$param_name == 
                 ts_intra_analyte[ts_intra_i], ], 
                 facet_by = "param_name",

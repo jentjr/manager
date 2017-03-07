@@ -1,4 +1,3 @@
-library(EnvStats)
 library(manager)
 shinyUI(navbarPage("MANAGER",
   tabPanel("Data",

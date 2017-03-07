@@ -43,6 +43,11 @@ userFileInput <- function(id, label = "File Input") {
     
     conditionalPanel(
       sprintf("input['%s'] == 'excel'", ns("fileInputType")),
+      textInput(
+        ns("excelsheet"),
+        label = "Sheet Name",
+        value = "Sheet1"
+      ),
       fileInput(ns("excelfile"), label)
     ),
     
