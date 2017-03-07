@@ -23,9 +23,12 @@ Check the boxes to the left, and MANAGER will try to do the rest."
         file = input$csvfile$datapath,
         col_names = input$csvheader,
         delim = input$csvsep,
-        quote = input$csvquote
+        quote = input$csvquote,
+        col_types = readr::cols(
+          analysis_result = readr::col_double(),
+          sample_date = readr::col_datetime(format = "%Y-%m-%d")
         )
-      
+      )
     }
     
     if (input$fileInputType == 'excel') {

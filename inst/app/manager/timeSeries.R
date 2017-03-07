@@ -14,7 +14,6 @@ timeSeries <- function(input, output, session, data, multiple) {
                   selected = get_constituents(data)[1],
                   multiple = multiple),
       
-      
       selectInput(ns("ts_group_by"), "Group plots by:", 
                   colnames(data)),
       
@@ -45,10 +44,10 @@ timeSeries <- function(input, output, session, data, multiple) {
                        end = max(data$sample_date, na.rm = TRUE))
       ),
       
-      downloadButton(ns("ts_download"), "Download Plots"),
+      downloadButton("ts_download", "Download Plots"),
       
       checkboxInput(
-        inputId = ns("ts_interactive"),
+        inputId = "ts_interactive",
         label = "Interactive",
         value = TRUE
       ),
@@ -56,7 +55,7 @@ timeSeries <- function(input, output, session, data, multiple) {
       conditionalPanel(
         sprintf("input['%s'] == '0'", ns("ts_interactive")),
         actionButton(
-          inputId = ns("ts_submit"),
+          inputId = "ts_submit",
           label = "Click to Plot"
         )
       )

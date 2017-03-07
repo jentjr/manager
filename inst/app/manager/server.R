@@ -165,12 +165,25 @@ shinyServer(function(input, output, session) {
   ts_plot <- reactive({
 
     ts_data <- tsplotfile()
-    ts_well <- unique(ts_data$location_id)
-    ts_analyte <- unique(ts_data$param_name)
+    ts_wells <- unique(ts_data$location_id)
+    ts_analytes <- unique(ts_data$param_name)
     
-    num_plots <- length(ts_data[[paste(input$ts_group_by)]])  
+    # num_plots <- length(ts_data[[paste(input$ts_group_by)]])  
    
-    manager::ts_plot(ts_data) 
+    manager::ts_plot(ts_data, 
+                     x = "sample_date",
+                     y = "analysis_result",
+                     facet_var = "location_id",
+                     group_var = "param_name",
+                     trend = NULL, 
+                     back_date = NULL, 
+                     comp_date = NULL, 
+                     limit1 = NULL, 
+                     limit2 = NULL, 
+                     short_name = FALSE, 
+                     pnt = 3, 
+                     ncol = NULL
+                     ) 
     # ts_list <- lapply(1:num_plots, function(i) {
     #   ts_name <- paste("ts_plot", i, sep = "")
     #   plotOutput(ts_name)
