@@ -37,20 +37,19 @@ Check the boxes to the left, and MANAGER will try to do the rest."
                     message = tidy_message))
       
       inputdata <- readxl::read_excel(
-        input$excelfile$datapath
-        
+        path = input$excelfile$datapath,
+        sheet = input$excelsheet
       )
     }
     
     if (input$fileInputType == 'manages') {
       
       validate(need(input$managesfile$datapath,
-                    message = "Please upload a MANAGES Site.mdb file \n\n
+                    message = "Please upload a MANAGES Site.mdb file\n\n
                     Only works when running locally for now..."))
       
-      inputdata <- manager::connect_manages(
-        path = input$managesfile$datapath,
-        sheet = input$excelsheet
+      inputdata <- manager::read_manages3(
+         input$managesfile$datapath
         )
       
     }
