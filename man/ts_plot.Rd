@@ -5,12 +5,17 @@
 \title{This function plots multiple groundwater data time series by location, 
 or constituent.}
 \usage{
-ts_plot(df, facet_by = "location_id", ...)
+ts_plot(df, x = "sample_date", y = "analysis_result",
+  facet_var = "location_id", group_var = "param_name", trend = NULL,
+  back_date = NULL, comp_date = NULL, limit1 = NULL, limit2 = NULL,
+  short_name = FALSE, pnt = 3, ncol = NULL, ...)
 }
 \arguments{
-\item{df}{groundwater data}
+\item{df}{groundwater data in tidy format}
 
-\item{facet_by}{parameter to group plots by}
+\item{facet_var}{column to facet wrap plots by, default is by location}
+
+\item{group_var}{column to group plots by, default is by constituent}
 
 \item{back_date}{dates for background date range}
 
@@ -20,11 +25,13 @@ ts_plot(df, facet_by = "location_id", ...)
 
 \item{limit2}{horizontal line 2}
 
-\item{short_name}{If TRUE, the analyte name will be abbreviated}
+\item{short_name}{If TRUE, the constituent name will be abbreviated}
 
 \item{pnt}{size of points on time series plots}
 
 \item{ncol}{number of columns}
+
+\item{...}{parameters passed to get_theilsen}
 }
 \description{
 This function plots multiple groundwater data time series by location, 

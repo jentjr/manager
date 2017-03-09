@@ -11,9 +11,9 @@ boxplot(df, x = "location_id", y = "analysis_result", fill = NULL,
 \arguments{
 \item{df}{groundwater data in tidy, long format}
 
-\item{x}{column to be used for the x axis}
+\item{x}{column to be used for the x axis, default is location}
 
-\item{y}{column to be used for the y axis}
+\item{y}{column to be used for the y axis, default is analysis result}
 
 \item{fill}{column used to fill the variable}
 
@@ -23,9 +23,9 @@ boxplot(df, x = "location_id", y = "analysis_result", fill = NULL,
 
 \item{short_name}{If TRUE the constituent name will be abbreviated}
 
-\item{legend_title}{Legend title for fill variable}
+\item{coord_flip}{If TRUE the axes are flipped}
 
-\item{flip_coords}{If TRUE the axes are flipped}
+\item{legend_title}{Legend title for fill variable}
 }
 \description{
 Function to plot boxplots for groundwater data
