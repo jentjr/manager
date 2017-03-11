@@ -9,15 +9,15 @@
 #' @export
 
 start_date <- function(df, 
-                 location_id = "location_id", 
+                 location_id, 
                  well, 
-                 param_name = "param_name", 
+                 param_name, 
                  param,  
-                 sample_date = "sample_date") {
+                 sample_date) {
   
   start <- df %>%
     arrange_(~sample_date) %>%
-    filter_(~location_id == paste(well), ~param_name == paste(param)) %>%
+    filter_(~location_id %in% well, ~param_name == param) %>%
     select_(~sample_date) %>%
     first() %>%
     first()
@@ -41,17 +41,17 @@ start_date <- function(df,
 nth_date <- function(df,
                      start,
                      n = 4,
-                     location_id = "location_id",
+                     location_id,
                      well,
-                     param_name = "param_name",
+                     param_name,
                      param,
-                     sample_date = "sample_date") {
+                     sample_date) {
   
   nth_date <- df %>%
     arrange_(~sample_date) %>%
-    filter_(~location_id == paste(well), 
-           ~param_name == paste(param),
-           ~sample_date > start_date) %>%
+    filter_(~location_id == well, 
+           ~param_name == param,
+           ~sample_date > start) %>%
     select_(~sample_date) %>%
     first() %>%
     nth(., n)
@@ -73,20 +73,21 @@ nth_date <- function(df,
 #' @export
 
 set_background <- function(df, 
-                           location_id = "location_id",
+                           location_id,
                            well,
-                           param_name = "param_name",
+                           param_name,
                            param,
-                           sample_date = "sample_date",
+                           sample_date,
                            start, 
                            end) {
 
   df %>%
     arrange_(~sample_date) %>%
-    mutate_(background = if_else(~location_id == paste(well) & 
-           ~param_name == paste(param) &
-           ~sample_date >= start &
-             ~sample_date <= end, TRUE, FALSE))
+    filter_(~location_id %in% well, ~param_name == param) %>%
+    mutate_(background = .set_background(~sample_date, start, end))
     
 }
 
+.set_background <- function(x, start, end) {
+  x <- if_else(x >= start & x <= end, TRUE, FALSE)
+}
