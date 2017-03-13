@@ -4,8 +4,7 @@
 \alias{start_date}
 \title{Function to find the start of sampling for a well constituent pair}
 \usage{
-start_date(df, location_id = "location_id", well, param_name = "param_name",
-  param, sample_date = "sample_date")
+start_date(df, location_id, well, param_name, param, sample_date)
 }
 \arguments{
 \item{df}{df dataframe of groundwater data in tidy format}

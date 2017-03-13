@@ -4,11 +4,12 @@
 \alias{get_constituents}
 \title{Function to return a list of all the constituents}
 \usage{
-get_constituents(df)
+get_constituents(df, param_name)
 }
 \arguments{
-\item{df}{data frame of groundwater data in the format with column names
-location_id, param_name, default_unit, lt_measure, analysis_result}
+\item{df}{data frame of groundwater data in the format with column names}
+
+\item{param_name}{param_name the column for the constituents}
 }
 \description{
 Function to return a list of all the constituents

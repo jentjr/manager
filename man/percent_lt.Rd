@@ -4,12 +4,20 @@
 \alias{percent_lt}
 \title{calculate the percentage of left censored data}
 \usage{
-percent_lt(lt)
+percent_lt(df, location_id, well, param_name, param, lt_measure)
 }
 \arguments{
-\item{lt}{column of data less than detection limit.}
+\item{df}{df data frame of groundwater monitoring data in long format}
 
-\item{df}{data frame of groundwater monitoring data in long format}
+\item{location_id}{location_id the column for the location}
+
+\item{well}{well the well to filter by}
+
+\item{param_name}{param_name the column for the constituent}
+
+\item{param}{param the param to filter by}
+
+\item{lt_measure}{lt_measure column of less than detection limit symbol.}
 }
 \description{
 calculate the percentage of left censored data

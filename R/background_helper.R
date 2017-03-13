@@ -83,11 +83,9 @@ set_background <- function(df,
 
   df %>%
     arrange_(~sample_date) %>%
-    filter_(~location_id %in% well, ~param_name == param) %>%
-    mutate_(background = .set_background(~sample_date, start, end))
+    filter_(~location_id %in% well, ~param_name %in% param) %>%
+    mutate(background = if_else(sample_date >= start &
+                                 sample_date <= end, 
+                                 TRUE, FALSE))
     
-}
-
-.set_background <- function(x, start, end) {
-  x <- if_else(x >= start & x <= end, TRUE, FALSE)
 }

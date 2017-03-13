@@ -4,8 +4,8 @@
 \alias{set_background}
 \title{Function to return a column of background data}
 \usage{
-set_background(df, location_id = "location_id", well,
-  param_name = "param_name", param, sample_date = "sample_date", start, end)
+set_background(df, location_id, well, param_name, param, sample_date, start,
+  end)
 }
 \arguments{
 \item{df}{df dataframe of groundwater data in tidy format}

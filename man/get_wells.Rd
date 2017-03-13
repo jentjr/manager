@@ -4,11 +4,12 @@
 \alias{get_wells}
 \title{Function to return a list of all the location IDs}
 \usage{
-get_wells(df)
+get_wells(df, location_id)
 }
 \arguments{
-\item{df}{data frame of groundwater data in the format with column names
-location_id, param_name, default_unit, lt_measure, analysis_result}
+\item{df}{data frame of groundwater data in the format with column names}
+
+\item{location_id}{location_id column for the locations}
 }
 \description{
 Function to return a list of all the location IDs

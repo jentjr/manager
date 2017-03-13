@@ -1,47 +1,71 @@
 #' Function to return a list of all the location IDs
 #' 
 #' @param df data frame of groundwater data in the format with column names
-#' location_id, param_name, default_unit, lt_measure, analysis_result
+#' @param location_id location_id column for the locations
 #' @export
-get_wells <- function(df){
-  wells <- unique(df$location_id)
+
+get_wells <- function(df, location_id){
+  
+  wells <- df %>%
+    group_by_(~location_id) %>% 
+    select_(~location_id) %>%
+    first() %>%
+    unique()
+  
   return(wells)
+  
 }
 
 #' Function to return a list of all the constituents
 #' 
 #' @param df data frame of groundwater data in the format with column names
-#' location_id, param_name, default_unit, lt_measure, analysis_result
+#' @param param_name param_name the column for the constituents
 #' @export
-get_constituents <- function(df){
-  constituents <- unique(df$param_name)
+
+get_constituents <- function(df, param_name){
+  
+  constituents <- df %>%
+    group_by_(~param_name) %>%
+    select_(~param_name) %>%
+    first() %>%
+    unique()
+  
   return(constituents)
+  
 }
 
 #' calculate the percentage of left censored data
 #' 
-#' @param df data frame of groundwater monitoring data in long format
-#' @param lt column of data less than detection limit.
+#' @param df df data frame of groundwater monitoring data in long format
+#' @param location_id location_id the column for the location
+#' @param well well the well to filter by
+#' @param param_name param_name the column for the constituent
+#' @param param param the param to filter by
+#' @param lt_measure lt_measure column of less than detection limit symbol.
 #' @export
 
-percent_lt <- function(lt) {
-  yes <- length(lt[lt == "<"])
-  total <- length(lt)
-  p <- (yes/total)*100
-  return(p)
+percent_lt <- function(df, location_id, well, param_name, param, lt_measure) {
+  
+  df %>%
+    filter_(~location_id %in% well, ~param_name %in% param) %>%
+    mutate_(percent_lt = sum(lt_measure == "<")/n()*100)
 }
 
 #' calculate the percentage of right censored data
 #' 
-#' @param df data frame of groundwater monitoring data in long format
-#' @param gt column of data greater than detection limit. 
+#' @param df df data frame of groundwater monitoring data in long format
+#' @param location_id location_id the column for the location
+#' @param well well the well to filter by
+#' @param param_name param_name the column for the constituent
+#' @param param param the param to filter by
+#' @param lt_measure lt_measure column of greater than detection limit symbol.
 #' @export
 
-percent_gt <- function(gt) {
-  yes <- length(gt[gt == ">"])
-  total <- length(gt)
-  p <- (yes/total)*100
-  return(p)
+percent_gt <- function(df, location_id, well, param_name, param, lt_measure) {
+  
+  df %>%
+    filter_(~location_id %in% well, ~param_name %in% param) %>%
+    mutate_(percent_gt = sum(lt_measure == ">")/n()*100)
 }
 
 #' function to remove duplicate samples
@@ -111,31 +135,6 @@ to_censored <- function(df) {
   df <- as.data.frame(df)
   
   return(df)
-}
-
-
-#' Function to summarize the number of samples and percentage of 
-#' non-detects. This is useful for calculating the upper prediction limit.
-#' 
-#' @param df data frame of groundwater monitoring network data 
-#' @param start_date beginning of time period to be evaluated
-#' @param end_date end of time period to be evaluated
-#' @export
-
-lt_summary <- function(df, start_date, end_date){
-  
-  df$sampling_period <- ifelse(df$sample_date >= start_date & 
-                               df$sample_date <= end_date, "background", 
-                               "compliance")
-  detection <- dplyr::group_by(df, location_id, param_name, default_unit,
-                               sampling_period)
-  
-  lt <- dplyr::summarise(detection,
-                  count = n(),
-                  percent_lt = round(percent_lt(lt_measure), digits = 2))
-
-  lt <- as.data.frame(lt)
-  return(lt)
 }
 
 #' Function to join columns of lt_measure and sample results

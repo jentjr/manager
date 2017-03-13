@@ -4,12 +4,20 @@
 \alias{percent_gt}
 \title{calculate the percentage of right censored data}
 \usage{
-percent_gt(gt)
+percent_gt(df, location_id, well, param_name, param, lt_measure)
 }
 \arguments{
-\item{gt}{column of data greater than detection limit.}
+\item{df}{df data frame of groundwater monitoring data in long format}
 
-\item{df}{data frame of groundwater monitoring data in long format}
+\item{location_id}{location_id the column for the location}
+
+\item{well}{well the well to filter by}
+
+\item{param_name}{param_name the column for the constituent}
+
+\item{param}{param the param to filter by}
+
+\item{lt_measure}{lt_measure column of greater than detection limit symbol.}
 }
 \description{
 calculate the percentage of right censored data
