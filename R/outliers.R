@@ -33,10 +33,9 @@ rosner_flag <- function(df, x = "analysis_result", replace = NULL, ...) {
   
   rosner.result <- EnvStats::rosnerTest(test, ...)
   
-  outliers <- cbind(rosner.result$all.stats["Outlier"],
-                    rosner.result$all.stats["Value"])
-  
-  outliers <- outliers %>% filter(Outlier == TRUE) %>% select(Value)
+  outliers <- rosner.result$all.stats[c("Value", "Outlier")] %>%
+    filter(Outlier == TRUE) %>%
+    select(Value)
  
   df$outlier <- ifelse(df$analysis_result  %in% outliers$Value, TRUE, FALSE)
   
