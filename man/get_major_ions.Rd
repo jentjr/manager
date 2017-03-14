@@ -2,18 +2,17 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{get_major_ions}
 \alias{get_major_ions}
-\title{function to read monitoring well data in the form location_id, sample_date, 
-analysis_result, default_unit, param_name and gather parameters needed for
-geochemistry plots. 
-The data is cast by location_id + sample_date ~ param_name}
+\title{Function to gather parameters needed for geochemistry plots.}
 \usage{
-get_major_ions(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
-  Na = "Sodium, dissolved", K = "Potassium, dissolved",
-  Cl = "Chloride, total", SO4 = "Sulfate, total",
-  Alk = "Alkalinity, total (lab)", TDS = NULL, ...)
+get_major_ions(df, param_name, Mg = "Magnesium, dissolved",
+  Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
+  K = "Potassium, dissolved", Cl = "Chloride, total",
+  SO4 = "Sulfate, total", Alk = "Alkalinity, total (lab)", TDS = NULL)
 }
 \arguments{
-\item{df}{data frame of groundwater monitoring data}
+\item{df}{data frame of groundwater monitoring data in tidy format}
+
+\item{param_name}{column of constituents}
 
 \item{Mg}{Magnesium}
 
@@ -32,8 +31,5 @@ get_major_ions(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
 \item{TDS}{Total Dissolved Solids}
 }
 \description{
-function to read monitoring well data in the form location_id, sample_date, 
-analysis_result, default_unit, param_name and gather parameters needed for
-geochemistry plots. 
-The data is cast by location_id + sample_date ~ param_name
+Function to gather parameters needed for geochemistry plots.
 }

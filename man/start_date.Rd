@@ -7,9 +7,9 @@
 start_date(df, sample_date)
 }
 \arguments{
-\item{df}{df dataframe of groundwater data in tidy format}
+\item{df}{dataframe of groundwater data in tidy format}
 
-\item{sample_date}{sample_date the column for the sampling dates}
+\item{sample_date}{the column for the sampling dates}
 }
 \description{
 Function to find the start of sampling for a well constituent pair

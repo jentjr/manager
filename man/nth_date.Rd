@@ -7,13 +7,13 @@
 nth_date(df, start, n = 4, sample_date)
 }
 \arguments{
-\item{df}{df dataframe of groundwater data in tidy format}
+\item{df}{dataframe of groundwater data in tidy format}
 
-\item{start}{start the date to start from}
+\item{start}{the date to start from}
 
-\item{n}{n the next n samples to get the date for}
+\item{n}{the next n samples to get the date for}
 
-\item{sample_date}{sample_date the column for the sampling dates}
+\item{sample_date}{the column for the sampling dates}
 }
 \description{
 Function to find the date for next n samples

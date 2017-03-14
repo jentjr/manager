@@ -2,7 +2,7 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{piper_time_html}
 \alias{piper_time_html}
-\title{a function to create an aminated Piper plot and save to html}
+\title{Function to create an aminated Piper plot and save to html}
 \usage{
 piper_time_html(df, TDS = FALSE)
 }
@@ -13,5 +13,5 @@ piper_time_html(df, TDS = FALSE)
 \item{TDS}{Scale by Total Dissolved Solids}
 }
 \description{
-a function to create an aminated Piper plot and save to html
+Function to create an aminated Piper plot and save to html
 }

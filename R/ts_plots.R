@@ -86,11 +86,15 @@ ts_plot <- function(df,
                            missing = "detected")
   
   if (isTRUE(short_name)) {
+    
     df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
                            sep = "")
+    
   } else {
+    
     df$param_name <- paste(df$param_name, " (", df$default_unit, ")", 
                            sep = "")
+    
   }
   
   # main plot
@@ -113,6 +117,7 @@ ts_plot <- function(df,
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) 
   
   if (!is.null(trend)) {
+    
     if (trend == "theil-sen") {
       
       theil.sen <- get_theilsen(df, ...)
@@ -122,18 +127,25 @@ ts_plot <- function(df,
       p <- p + geom_abline(slope = slope, intercept = intercept)
     
       } else {
+        
       p <- p + geom_smooth(method = trend)
-    }
+      
+      }
+    
     p
+    
   }
   
   if (!is.null(facet_var)) {
+    
     p <- p + facet_wrap(paste(facet_var), scale = "free", ncol = ncol) +
       ggtitle(paste("Time Series Plots for", 
                     df[[paste(group_var)]][1], "\n", sep = " "))
+    
   }
   
   if (!is.null(back_date)) {
+    
     shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]), 
                                xmax = c(back_date[2], comp_date[2]),
                                ymin = c(-Inf, -Inf), 
@@ -147,22 +159,29 @@ ts_plot <- function(df,
       scale_fill_manual(values = c("blue", "green")) +
       guides(fill = guide_legend(override.aes = list(linetype = 0),
                                  title = "Date Range"))
+    
   }
   
   if (!is.null(limit1)) {
+    
     df$limit1_name <- paste(limit1[[1]])
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit1, 
                                    linetype = "limit1_name"), 
                         show.legend = TRUE)
+    
   }
   
   if (!is.null(limit2)) {
+    
     df$limit2_name <- paste(limit2[[1]])
     p <- p + geom_hline(data = df, 
                         aes_string(yintercept = limit2, 
                                    linetype = "limit2_name"), 
                         show.legend = TRUE)
-  }  
+    
+  }
+  
   print(p)
+  
 }

@@ -1,7 +1,7 @@
 #' Function to return a list of all the location IDs
 #' 
 #' @param df data frame of groundwater data in the format with column names
-#' @param location_id location_id column for the locations
+#' @param location_id column for the sample location id
 #' @export
 
 get_wells <- function(df, location_id){
@@ -19,7 +19,7 @@ get_wells <- function(df, location_id){
 #' Function to return a list of all the constituents
 #' 
 #' @param df data frame of groundwater data in the format with column names
-#' @param param_name param_name the column for the constituents
+#' @param param_name the column for the constituents
 #' @export
 
 get_constituents <- function(df, param_name){
@@ -34,7 +34,7 @@ get_constituents <- function(df, param_name){
   
 }
 
-#' calculate the percentage of left censored data
+#' Calculate the percentage of left censored data
 #' 
 #' @param df df data frame of groundwater monitoring data in long format
 #' @param lt_measure lt_measure column of less than detection limit symbol.
@@ -52,7 +52,7 @@ percent_lt <- function(df,
     mutate_(.dots = setNames(list(mutate_call), percent_lt))
 }
 
-#' calculate the percentage of right censored data
+#' Calculate the percentage of right censored data
 #' 
 #' @param df df data frame of groundwater monitoring data in long format
 #' @param lt_measure lt_measure column of greater than detection limit symbol.
@@ -70,7 +70,7 @@ percent_gt <- function(df,
     mutate_(.dots = setNames(list(mutate_call), percent_gt))
 }
 
-#' function to remove duplicate samples
+#' Function to remove duplicate samples
 #' Example: If you have wells named MW-1 and another named MW-1 Duplicate
 #' this function will remove the MW-1 Duplicate sample
 #'
@@ -85,9 +85,10 @@ remove_dup <- function(df){
   
 }
 
-#' function to include duplicate samples
+#' Function to include duplicate samples
 #'
 #' @param df groundwater data frame
+#' @param wells list of wells to included duplicates for
 #' @export
 
 include_dup <- function(df, wells) {
@@ -109,7 +110,8 @@ include_dup <- function(df, wells) {
   
 }
 
-#' function to replace missing values
+#' Function to replace missing values
+#' 
 #' @param df groundwater data frame
 #' @export
 
@@ -121,7 +123,9 @@ replace_missing <- function(df){
   
 }
 
-#' Function to convert gwdata frame to censored data frame
+#' Function to convert character column of less than, or greater than 
+#' symbols to logical vectors and return a data frame
+#' 
 #' @param df data frame of groundwater data
 #' @export
 
@@ -161,8 +165,10 @@ join_lt <- function(df, col_name) {
 }
 
 #' Function to return a column of parameter name with units
+#' 
 #' @param df groundwater data frame
 #' @param col_name quoted column name to return
+#' @param short_name If TRUE will use abbreviated constituent names
 #' @export
 
 name_units <- function(df, col_name, short_name = TRUE) {

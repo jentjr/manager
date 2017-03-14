@@ -1,4 +1,5 @@
 #' Function to calculate prediction interval 
+#' 
 #' @param df df data frame of groundwater data in tidy format
 #' @param n.mean n.mean positive integer specifying the sample size associated 
 #' with the future averages. 

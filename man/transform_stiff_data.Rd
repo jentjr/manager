@@ -2,9 +2,7 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{transform_stiff_data}
 \alias{transform_stiff_data}
-\title{Function to transform data from \code{\link{get_major_ions}} 
-into x, y coordinates and in the 
-correct path for geom_polygon of ggplot}
+\title{Function to transform data from \code{\link{get_major_ions}} to Stiff diagram}
 \usage{
 transform_stiff_data(df, Mg = "Magnesium, dissolved",
   Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
@@ -38,7 +36,5 @@ transform_stiff_data(df, Mg = "Magnesium, dissolved",
 \item{HCO3}{Alkalinity}
 }
 \description{
-Function to transform data from \code{\link{get_major_ions}} 
-into x, y coordinates and in the 
-correct path for geom_polygon of ggplot
+Function to transform data from \code{\link{get_major_ions}} to Stiff diagram
 }

@@ -9,7 +9,7 @@ get_wells(df, location_id)
 \arguments{
 \item{df}{data frame of groundwater data in the format with column names}
 
-\item{location_id}{location_id column for the locations}
+\item{location_id}{column for the sample location id}
 }
 \description{
 Function to return a list of all the location IDs

@@ -2,13 +2,15 @@
 % Please edit documentation in R/helper_functions.R
 \name{include_dup}
 \alias{include_dup}
-\title{function to include duplicate samples}
+\title{Function to include duplicate samples}
 \usage{
 include_dup(df, wells)
 }
 \arguments{
 \item{df}{groundwater data frame}
+
+\item{wells}{list of wells to included duplicates for}
 }
 \description{
-function to include duplicate samples
+Function to include duplicate samples
 }

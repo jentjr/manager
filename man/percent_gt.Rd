@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{percent_gt}
 \alias{percent_gt}
-\title{calculate the percentage of right censored data}
+\title{Calculate the percentage of right censored data}
 \usage{
 percent_gt(df, lt_measure = "lt_measure", percent_gt = "percent_gt")
 }
@@ -14,5 +14,5 @@ percent_gt(df, lt_measure = "lt_measure", percent_gt = "percent_gt")
 \item{percent_gt}{percent_gt new column name}
 }
 \description{
-calculate the percentage of right censored data
+Calculate the percentage of right censored data
 }

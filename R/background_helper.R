@@ -1,7 +1,7 @@
 #' Function to find the start of sampling for a well constituent pair
 #' 
-#' @param df df dataframe of groundwater data in tidy format
-#' @param sample_date sample_date the column for the sampling dates
+#' @param df dataframe of groundwater data in tidy format
+#' @param sample_date the column for the sampling dates
 #' @export
 
 start_date <- function(df, sample_date) {
@@ -18,10 +18,10 @@ start_date <- function(df, sample_date) {
 
 #' Function to find the date for next n samples
 #' 
-#' @param df df dataframe of groundwater data in tidy format
-#' @param start start the date to start from
-#' @param n n the next n samples to get the date for
-#' @param sample_date sample_date the column for the sampling dates
+#' @param df dataframe of groundwater data in tidy format
+#' @param start the date to start from
+#' @param n the next n samples to get the date for
+#' @param sample_date the column for the sampling dates
 #' @export
 
 nth_date <- function(df,
@@ -42,10 +42,10 @@ nth_date <- function(df,
 
 #' Function to return a column of background data 
 #' 
-#' @param df df dataframe of groundwater data in tidy format
-#' @param sample_date sample_date the column for the sampling dates
-#' @param start start the start date for background
-#' @param end end the end date for background
+#' @param df dataframe of groundwater data in tidy format
+#' @param sample_date the column for the sampling dates
+#' @param start the start date for background
+#' @param end the end date for background
 #' @export
 
 set_background <- function(df, 
@@ -63,10 +63,10 @@ set_background <- function(df,
 
 #' Function to return a column of the proposed background data 
 #' 
-#' @param df df dataframe of groundwater data in tidy format
-#' @param sample_date sample_date the column for the sampling dates
-#' @param start start the start date for background
-#' @param end end the end date for background
+#' @param df dataframe of groundwater data in tidy format
+#' @param sample_date the column for the sampling dates
+#' @param start the start date for background
+#' @param end the end date for background
 #' @export
 
 set_proposed_background <- function(df, 

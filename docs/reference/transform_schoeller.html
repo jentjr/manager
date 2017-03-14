@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to check if groundwater data has a Normal distribution — is_normal • manager</title>
+<title>Function to transoform data from  — transform_schoeller • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -74,21 +74,40 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to check if groundwater data has a Normal distribution</h1>
+    <h1>Function to transoform data from </h1>
     </div>
 
     
-    <p>Function to check if groundwater data has a Normal distribution</p>
+    <p>Function to transoform data from <code><a href='get_major_ions.html'>get_major_ions</a></code> to schoeller 
+coordinates</p>
     
 
-    <pre><span class='fu'>is_normal</span>(<span class='no'>x</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>0.01</span>)</pre>
+    <pre><span class='fu'>transform_schoeller</span>(<span class='no'>df</span>, <span class='kw'>Mg</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>,
+  <span class='kw'>Ca</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>Na</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>,
+  <span class='kw'>K</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>, <span class='kw'>Cl</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>,
+  <span class='kw'>SO4</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>, <span class='kw'>HCO3</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>,
+  <span class='kw'>name</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>date</span> <span class='kw'>=</span> <span class='st'>"sample_date"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
-      <dt>x</dt>
-      <dd>column of analysis result for groundwater data in tidy format</dd>
-      <dt>p</dt>
-      <dd>p-value for gofTest</dd>
+      <dt>df</dt>
+      <dd>dataframe of major ions gathered using <code><a href='get_major_ions.html'>get_major_ions</a></code></dd>
+      <dt>Mg</dt>
+      <dd>magnesium</dd>
+      <dt>Ca</dt>
+      <dd>calcium</dd>
+      <dt>K</dt>
+      <dd>potassium</dd>
+      <dt>Cl</dt>
+      <dd>chloride</dd>
+      <dt>SO4</dt>
+      <dd>sulfate</dd>
+      <dt>HCO3</dt>
+      <dd>alkalininity or bicarbonate</dd>
+      <dt>name</dt>
+      <dd>column of sample location id</dd>
+      <dt>date</dt>
+      <dd>column of sample date</dd>
     </dl>
     
 

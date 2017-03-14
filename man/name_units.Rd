@@ -10,6 +10,8 @@ name_units(df, col_name, short_name = TRUE)
 \item{df}{groundwater data frame}
 
 \item{col_name}{quoted column name to return}
+
+\item{short_name}{If TRUE will use abbreviated constituent names}
 }
 \description{
 Function to return a column of parameter name with units

@@ -1,6 +1,6 @@
 #' Function to plot boxplots for groundwater data 
 #' 
-#' @param df groundwater data in tidy, long format
+#' @param df groundwater data in tidy format
 #' @param x column to be used for the x axis, default is location
 #' @param y column to be used for the y axis, default is analysis result
 #' @param fill column used to fill the variable
@@ -39,7 +39,7 @@ boxplot <- function(df,
 
 #' Helper function to plot boxplots for groundwater data 
 #' 
-#' @param df groundwater data in tidy, long format
+#' @param df groundwater data in tidy format
 #' @param x column to be used for the x axis, default is location
 #' @param y column to be used for the y axis, default is analysis result
 #' @param fill column used to fill the variable

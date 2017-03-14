@@ -1,7 +1,7 @@
 #' Function to check if censored groundwater data has a Normal distribution
 #' 
-#' @param x x column of analysis result for groundwater data in tidy format
-#' @param censored censored logical vector of censored values
+#' @param x column of analysis result for groundwater data in tidy format
+#' @param censored logical vector of censored values
 #' @param ... other variable inputs passed to gofTestCensored
 #' @export
 
@@ -17,8 +17,8 @@ is_normal_censored <- function(x, censored, ...) {
 
 #' Function to check if censored groundwater data has a Lognormal distribution
 #' 
-#' @param x x column of analysis result for groundwater data in tidy format
-#' @param censored censored logical vector of censored values
+#' @param x column of analysis result for groundwater data in tidy format
+#' @param censored logical vector of censored values
 #' @param ... other variable inputs passed to gofTestCensored
 #' @export
 
@@ -34,8 +34,8 @@ is_lognormal_censored <- function(x, censored, ...) {
 
 #' Function to return distribution based on using p-value 
 #' 
-#' @param x x column of analysis result for groundwater data in tidy format
-#' @param censored censored logical vector of censored values
+#' @param x column of analysis result for groundwater data in tidy format
+#' @param censored logical vector of censored values
 #' @param ... other variable inputs passed to gofTestCensored
 #' @export
 
@@ -56,7 +56,8 @@ dist_censored <- function(x, censoredi, ...) {
 
 #' Function to return either normal, lognormal, or non-parametric multiple 
 #' groundwater data locations and parameters.
-#' @param df groundwater data frame
+#' 
+#' @param df groundwater data frame in tidy format
 #' @export
 
 est_dist_censored <- function(df) {  

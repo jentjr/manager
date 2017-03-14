@@ -1,12 +1,12 @@
 #' Function to export data from manages to excel format required by OEPA
 #' 
-#' @param df groundwater data frame
+#' @param df groundwater data frame in tidy format
 #' @param wells list of wells to be exported
 #' @param constituents list of constituents to be exported
 #' @param file full file path name with extension for export
 #' @export
 
-export_OEPA <- function(df, wells, constituents, file, ...){
+export_OEPA <- function(df, wells, constituents, file){
   
   df <- df %>% 
     dplyr::filter(param_name %in% constituents, location_id %in% wells)
@@ -29,19 +29,19 @@ export_OEPA <- function(df, wells, constituents, file, ...){
   
   plyr::d_ply(df, plyr::.(location_id), oepa_cast)
   
-  openxlsx::saveWorkbook(wb, file = file, ...)
+  openxlsx::saveWorkbook(wb, file = file)
   
 }
 
 
 #' Function to export summary table for a sampling event
 #' 
-#' @param df groundwater data frame
+#' @param df groundwater data frame in tidy format
 #' @param wells list of wells to include
 #' @param params list of parameters to include
 #' @param start start date
 #' @param end end date 
-#' @gw_elev gw_elev if TRUE, list date well sampled and annotate date for GW Elev
+#' @param  gw_elev if TRUE, list date well sampled and annotate date for GW Elev
 #' @export
 
 event_summary <- function(df, wells, params, start, end, gw_elev = TRUE){

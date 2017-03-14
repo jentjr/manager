@@ -2,12 +2,12 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{conc_to_meq}
 \alias{conc_to_meq}
-\title{function to convert geochemical plot data into meq/L}
+\title{Function to convert geochemical plot data from mg/L to meq/L}
 \usage{
 conc_to_meq(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
   Na = "Sodium, dissolved", K = "Potassium, dissolved",
   Cl = "Chloride, total", SO4 = "Sulfate, total",
-  total_alk = "Alkalinity, total (lab)", ...)
+  total_alk = "Alkalinity, total (lab)")
 }
 \arguments{
 \item{df}{data frame}
@@ -27,5 +27,5 @@ conc_to_meq(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
 \item{total_alk}{Total Alkalinity}
 }
 \description{
-function to convert geochemical plot data into meq/L
+Function to convert geochemical plot data from mg/L to meq/L
 }

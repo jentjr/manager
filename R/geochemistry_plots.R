@@ -1,9 +1,7 @@
-#' function to read monitoring well data in the form location_id, sample_date, 
-#' analysis_result, default_unit, param_name and gather parameters needed for
-#' geochemistry plots. 
-#' The data is cast by location_id + sample_date ~ param_name
+#' Function to gather parameters needed for geochemistry plots. 
 #'
-#' @param df data frame of groundwater monitoring data
+#' @param df data frame of groundwater monitoring data in tidy format
+#' @param param_name column of constituents
 #' @param Mg Magnesium
 #' @param Ca Calcium
 #' @param Na Sodium
@@ -15,6 +13,7 @@
 #' @export
 
 get_major_ions <- function(df, 
+                           param_name,
                            Mg = "Magnesium, dissolved", 
                            Ca = "Calcium, dissolved", 
                            Na = "Sodium, dissolved", 
@@ -22,26 +21,26 @@ get_major_ions <- function(df,
                            Cl = "Chloride, total", 
                            SO4 = "Sulfate, total", 
                            Alk = "Alkalinity, total (lab)", 
-                           TDS = NULL, 
-                           ...){
+                           TDS = NULL) {
 #   TODO: add other major ions like Fe
 #   input_list <- list(...)
   
   params <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
   
-  data <- df[df$param_name %in% params, ]
-  
-  id <- dplyr::group_by(data, location_id, sample_date, param_name)
-  id <- dplyr::mutate(id, group = n())
+  data <- df %>% 
+    filter_(~param_name %in% params) %>%
+    group_by(location_id, sample_date, param_name) %>%
+    mutate(group = n())
   
   plot_data <- reshape2::dcast(id, value.var = "analysis_result", 
                         location_id + group + sample_date ~ param_name, mean,
                         margins = FALSE)[-2]
 
   return(plot_data)
+  
 }
 
-#' function to convert geochemical plot data into meq/L
+#' Function to convert geochemical plot data from mg/L to meq/L
 #' 
 #' @param df data frame
 #' @param Mg Magnesium
@@ -51,17 +50,16 @@ get_major_ions <- function(df,
 #' @param Cl Chloride
 #' @param SO4 Sulfate
 #' @param total_alk Total Alkalinity
-#' 
 #' @export
 
-conc_to_meq <- function(df, Mg = "Magnesium, dissolved", 
+conc_to_meq <- function(df, 
+                        Mg = "Magnesium, dissolved", 
                         Ca = "Calcium, dissolved", 
                         Na = "Sodium, dissolved", 
                         K = "Potassium, dissolved", 
                         Cl = "Chloride, total", 
                         SO4 = "Sulfate, total", 
-                        total_alk = "Alkalinity, total (lab)",
-                        ...){
+                        total_alk = "Alkalinity, total (lab)") {
   
   # TODO: add ... feature and a data base of elements perhaps from phreeqc.
   
@@ -109,8 +107,7 @@ conc_to_meq <- function(df, Mg = "Magnesium, dissolved",
   return(df)
 }
 
-#' function to transform data from get_plot_data() into x, y coordinates for
-#' cation, anion and diamond of a Piper plot
+#' Function to transform data for piper plot 
 #'
 #' @param df data frame of groundwater data 
 #' @param Mg Magnesium
@@ -123,11 +120,12 @@ conc_to_meq <- function(df, Mg = "Magnesium, dissolved",
 #' @param TDS Total Dissolved Solids
 #' @param name column of well names
 #' @param date column of dates
-#' @param units units, right now can handle mg/L and meq/L
+#' @param units right now can handle mg/L and meq/L
 #' @keywords piper diagram
 #' @export
 
-transform_piper_data <- function(df, Mg = "Magnesium, dissolved", 
+transform_piper_data <- function(df, 
+                                 Mg = "Magnesium, dissolved", 
                                  Ca = "Calcium, dissolved", 
                                  Na = "Sodium, dissolved", 
                                  K = "Potassium, dissolved", 
@@ -136,8 +134,9 @@ transform_piper_data <- function(df, Mg = "Magnesium, dissolved",
                                  CO3 = NULL, 
                                  Alk = "Alkalinity, total (lab)", 
                                  TDS = NULL, 
-                                 name = "location_id", date = "sample_date", 
-                                 units = NULL){
+                                 name = "location_id", 
+                                 date = "sample_date", 
+                                 units = NULL) {
 
   # cation data
   # Convert data to %
@@ -328,8 +327,8 @@ return(piper_data)
   
 }
 
-#' Function to plot points from transform_piper_data() onto base ggplot_piper
-#' background. Points are sized by Total Dissolved Solids
+#' Function to plot data from \code{\link{transform_piper_data}} onto base 
+#' ggplot_piper background. Points are sized by Total Dissolved Solids
 #' 
 #' @param df data frame of groundwater data transformed into piper coordinates 
 #'  using \code{\link{transform_piper_data}}
@@ -337,7 +336,7 @@ return(piper_data)
 #' @param title Title for plot, default = NULL
 #' @export
   
-piper_plot <- function(df, TDS=FALSE, title=NULL){
+piper_plot <- function(df, TDS=FALSE, title=NULL) {
   
   sym <- seq(1, length(unique(df$location_id)), by = 1)
   
@@ -381,7 +380,7 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
   }
 }
 
-#' Function to created an animated Piper plot through time
+#' Function to create an animated Piper plot through time
 #' using the animation package
 #' 
 #' @param df data frame of groundwater data transformed using 
@@ -389,7 +388,7 @@ piper_plot <- function(df, TDS=FALSE, title=NULL){
 #' @param TDS Scale by Total Dissolved Solids
 #' @export
 
-piper_time_plot <- function(df, TDS = FALSE, title = NULL){
+piper_time_plot <- function(df, TDS = FALSE, title = NULL) {
   iter <- unique(df$sample_date)
   .ggplot_piper()
   dev.hold()
@@ -407,7 +406,7 @@ piper_time_plot <- function(df, TDS = FALSE, title = NULL){
   }
 }
 
-#'a function to create an aminated Piper plot and save to html
+#' Function to create an aminated Piper plot and save to html
 #'
 #' @param df data frame of groundwater data transformed using 
 #' \code{\link{transform_piper_data}}
@@ -441,9 +440,7 @@ piper_time_html <- function(df, TDS = FALSE){
 #------------------------------------------------------------------------------
 
 
-#' Function to transform data from \code{\link{get_major_ions}} 
-#' into x, y coordinates and in the 
-#' correct path for geom_polygon of ggplot
+#' Function to transform data from \code{\link{get_major_ions}} to Stiff diagram
 #' 
 #' @param df data frame of groundwater data from \code{\link{get_major_ions}}
 #' @param Mg Magnesium 
@@ -459,7 +456,8 @@ piper_time_html <- function(df, TDS = FALSE){
 #' @param units Units of data
 #' @export
 
-transform_stiff_data <- function(df, Mg = "Magnesium, dissolved", 
+transform_stiff_data <- function(df, 
+                                 Mg = "Magnesium, dissolved", 
                                  Ca = "Calcium, dissolved", 
                                  Na = "Sodium, dissolved", 
                                  K = "Potassium, dissolved", 
@@ -469,7 +467,7 @@ transform_stiff_data <- function(df, Mg = "Magnesium, dissolved",
                                  name = "location_id", 
                                  date = "sample_date", 
                                  TDS = NULL, 
-                                 units = NULL){
+                                 units = NULL) {
   
   temp <- data.frame(df[, name], df[, date], df[, Mg], df[, Ca], df[, Na] + 
                        df[, K], df[, SO4], df[, Alk], df[, Cl])
@@ -486,7 +484,7 @@ transform_stiff_data <- function(df, Mg = "Magnesium, dissolved",
                           df_melt$value)
   
   stiff <- df_melt[df_melt$variable %in% c("Mg", "SO4", "Alk", "Cl", 
-                                             "Na + K", "Ca"), ]
+                                           "Na + K", "Ca"), ]
   
   poly_order <-  data.frame(c("Mg", "SO4", "Alk", "Cl", "Na + K", "Ca"),
                             c(3, 3, 2, 1, 1, 2))
@@ -509,13 +507,14 @@ transform_stiff_data <- function(df, Mg = "Magnesium, dissolved",
   return(stiff)
 }
 
-#' Function to plot a Stiff Diagram 
+#' Function to plot a Stiff Diagram. Data must have been transformed using
+#'  \code{\link{transform_stiff_data}}.
 #' 
 #' @param df data frame of groundwater data transformed using 
 #' @param lines TRUE/FALSE plots lines
 #' @param TDS TRUE/FALSE fills in the color of the stiff diagram by TDS
 #' @param cex multiplier to scale plot height
-#' \code{\link{transform_stiff_data}}
+#' @keywords geochemical plots Stiff Diagram
 #' @export
 
 stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1) {
@@ -620,7 +619,9 @@ stiff_plot <- function(df, lines = FALSE, TDS = FALSE, cex = 1) {
 }
 
 #' Function to plot multiple stiff plots by location
+#' 
 #' @param df groundwater data frame
+#' @param ... arguments passed to \code{\link{stiff_plot}}
 #' @export
 
 stiff_by_loc <- function(df, ...){
@@ -629,7 +630,8 @@ stiff_by_loc <- function(df, ...){
               .print = TRUE)
 }
 
-#' function to create an animated Stiff Diagram 
+#' Function to create an animated Stiff Diagram 
+#' 
 #' @param df data frame of groundwater data transformed using 
 #' \code{\link{transform_stiff_data}}
 #' @export
@@ -648,7 +650,8 @@ stiff_time_plot <- function(df, TDS = FALSE){
   }
 }
 
-#' function to create an animated Stiff Diagram and save to html
+#' Function to create an animated Stiff Diagram and save to html
+#' 
 #' @param df data frame of groundwater data transformed using 
 #' @param TDS TRUE/FALSE fills polygon with color gradient of TDS
 #' \code{\link{transform_stiff_data}}
@@ -672,7 +675,22 @@ stiff_time_html <- function(df, TDS = FALSE){
 # Schoeller Diagrams
 #-------------------------------------------------------------------------------
 
-transform_schoeller <- function(df, Mg = "Magnesium, dissolved", 
+#' Function to transoform data from \code{\link{get_major_ions}} to schoeller 
+#' coordinates
+#' 
+#' @param df dataframe of major ions gathered using \code{\link{get_major_ions}}
+#' @param Mg magnesium
+#' @param Ca calcium
+#' @param K potassium
+#' @param Cl chloride
+#' @param SO4 sulfate
+#' @param HCO3 alkalininity or bicarbonate
+#' @param name column of sample location id
+#' @param date column of sample date
+#' @export
+
+transform_schoeller <- function(df, 
+                                Mg = "Magnesium, dissolved", 
                                 Ca = "Calcium, dissolved", 
                                 Na = "Sodium, dissolved", 
                                 K = "Potassium, dissolved", 
@@ -680,12 +698,11 @@ transform_schoeller <- function(df, Mg = "Magnesium, dissolved",
                                 SO4 = "Sulfate, total", 
                                 HCO3 = "Alkalinity, total (lab)", 
                                 name = "location_id", 
-                                date = "sample_date", 
-                                TDS = NULL, 
-                                units = NULL){
+                                date = "sample_date") {
   
   temp <- data.frame(df[,name], df[,date], df[,Mg], df[,Ca], df[,Na] + df[,K], 
                      df[,SO4], df[,HCO3], df[,Cl])
+  
   colnames(temp) <- c("location_id", "sample_date", "Mg", "Ca", "Na + K", 
                       "SO4", "HCO3", "Cl")
   
@@ -695,9 +712,20 @@ transform_schoeller <- function(df, Mg = "Magnesium, dissolved",
                          "param_name", "analysis_result")
   
   return(df_melt)
+  
 }
 
-schoeller <- function(df, facet_by = NULL, title = NULL, lwt = 1){
+#' Function to plot data transformed to schoeller coordinates using
+#' \code{\link{transform_schoeller}}
+#' 
+#' @param df dataframe of transformed groundwater data
+#' @param facet_by parameter to facet plots by
+#' @param title title of plot
+#' @param lwt lineweight
+#' @export
+
+schoeller_plot <- function(df, facet_by = NULL, title = NULL, lwt = 1) {
+  
   p <- ggplot(df, aes(x = param_name, y = analysis_result, group = 1), 
               size = lwt) + 
     scale_y_log10() +
@@ -706,42 +734,72 @@ schoeller <- function(df, facet_by = NULL, title = NULL, lwt = 1){
           axis.title.x = element_blank()) +
     ggtitle(paste(title)) +
     theme(plot.title = element_text(hjust = 0.5))
-  if (is.null(facet_by)) {
-    p <- p + geom_line(size = lwt) + theme_bw() 
-  }
+ 
+   if (is.null(facet_by)) {
+    
+     p <- p + geom_line(size = lwt) + theme_bw()
+     
+   }
+  
   if (!is.null(facet_by)) {
+    
     if (facet_by == "sample_date") {
+      
       p <- p + facet_wrap(~sample_date, scale = "free_y") + 
         geom_line(aes(colour = location_id, group = location_id), size = lwt) +
         guides(colour = guide_legend("Location ID"))
+      
     }
+    
     if (facet_by == "location_id") {
+      
       p <- p + facet_wrap(~location_id, scale = "free_y") +
         geom_line(aes(colour = factor(sample_date), group = sample_date), 
                   size = lwt) +
         guides(colour = guide_legend("Sample Date"))
+      
     }
+    
   }
+  
   return(p)
+  
 }
 
 #-------------------------------------------------------------------------------
 # Series Plot
 #-------------------------------------------------------------------------------
 
-series_plot <- function(df, facet_by = NULL){
+#' Function to plot a series plot of groundwater data
+#' 
+#' @param df datadframe of groundwater data
+#' @param facet_by parameter to facet the plot by
+#' @export
+
+series_plot <- function(df, facet_by = NULL) {
+  
   p <- ggplot(df, aes(x = location_id, y = analysis_result, group = 1)) + 
     theme_bw() +
     theme(axis.title.y = element_blank(),
           axis.title.x = element_blank())
+  
   if (is.null(facet_by)) {
+    
     p <- p + geom_line(aes(colour = param_name, group = param_name))
+    
   }
+  
   if (!is.null(facet_by)) {
+    
     if (facet_by == "sample_date") {
+      
       p <- p + facet_wrap(~sample_date, scale = "free_y") + 
         geom_line(aes(colour = param_name, group = param_name))
+      
     }
+    
   }
+  
   return(p)
+  
 }

@@ -9,7 +9,7 @@ boxplot(df, x = "location_id", y = "analysis_result", fill = NULL,
   legend_title = NULL)
 }
 \arguments{
-\item{df}{groundwater data in tidy, long format}
+\item{df}{groundwater data in tidy format}
 
 \item{x}{column to be used for the x axis, default is location}
 

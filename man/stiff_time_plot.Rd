@@ -2,7 +2,7 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{stiff_time_plot}
 \alias{stiff_time_plot}
-\title{function to create an animated Stiff Diagram}
+\title{Function to create an animated Stiff Diagram}
 \usage{
 stiff_time_plot(df, TDS = FALSE)
 }
@@ -11,5 +11,5 @@ stiff_time_plot(df, TDS = FALSE)
 \code{\link{transform_stiff_data}}}
 }
 \description{
-function to create an animated Stiff Diagram
+Function to create an animated Stiff Diagram
 }

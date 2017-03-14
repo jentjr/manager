@@ -7,9 +7,9 @@
 is_lognormal_censored(x, censored, ...)
 }
 \arguments{
-\item{x}{x column of analysis result for groundwater data in tidy format}
+\item{x}{column of analysis result for groundwater data in tidy format}
 
-\item{censored}{censored logical vector of censored values}
+\item{censored}{logical vector of censored values}
 
 \item{...}{other variable inputs passed to gofTestCensored}
 }

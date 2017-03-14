@@ -8,7 +8,7 @@ groundwater data locations and parameters.}
 est_dist_censored(df)
 }
 \arguments{
-\item{df}{groundwater data frame}
+\item{df}{groundwater data frame in tidy format}
 }
 \description{
 Function to return either normal, lognormal, or non-parametric multiple 

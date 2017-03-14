@@ -1,7 +1,7 @@
 #' Function to assign EPA primary and seconday Maximum Contaminant Levels
 #' 
-#' @param df dataframe of groundwater data
-#' @column column column to search for constituents
+#' @param df dataframe of groundwater data in tidy format
+#' @param column column to search for constituents
 #' @param type can be all, primary, or secondary 
 #' @export
 
@@ -17,7 +17,6 @@ assign_limits <- function(df, column = "param_name", type = "all"){
     mcl <- mcl[mcl$type == "secondary", ]
   }
   
-  # mcl_data <- data.frame()
   for (i in 1:nrow(mcl)) {
     element <- mcl$param_name[i]
     rws <- grepl(paste(element), df[[paste(column)]])
@@ -25,11 +24,12 @@ assign_limits <- function(df, column = "param_name", type = "all"){
     df[rws, "mcl_unit"] <- mcl$mcl_unit[i]
     df[rws, "mcl_lower_limit"] <- mcl$lower_limit[i]
     df[rws, "mcl_upper_limit"] <- mcl$upper_limit[i]
-    # mcl_data <- rbind(df[rws,], mcl_data)
   }
+
   df <- convert_mcl_units(df)
+  
   return(df)
-  # return(mcl_data)
+  
 }
 
 #' Function to compare groundwater parameter units to EPA MCL data
@@ -103,13 +103,3 @@ mcl_heatmap <- function(df, title){
     guides(fill = guide_legend(title = "Percent\nExceedance")) + 
     xlab("") + ylab("")  + ggtitle(paste(title))
 }
-
-# gw_heatmap_multi <- function(df) {
-#   d_ply(df, .(param_name), gw_heatmap, .print=TRUE)
-# }
-
-# # example exceedance table output
-# 
-# location_id | arsenic | antimony | boron 
-# ----------- | ------- | -------- | ----- 
-# MW-1        | 10      |   1      |  5

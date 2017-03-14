@@ -7,9 +7,9 @@
 is_lognormal(x, p = 0.01)
 }
 \arguments{
-\item{x}{x column of analysis result for groundwater data in tidy format}
+\item{x}{column of analysis result for groundwater data in tidy format}
 
-\item{p}{p p-value for gofTest}
+\item{p}{p-value for gofTest}
 }
 \description{
 Function to check if groundwater data has a Lognormal distribution

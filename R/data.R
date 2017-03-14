@@ -23,3 +23,7 @@
 #' }
 #' @source \url{http://in.gov/idem/cleanwater/2453.html}
 "indiana_data"
+
+#' Example groundwater quality data 
+#' 
+"gw_data"

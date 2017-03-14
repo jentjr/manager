@@ -2,7 +2,8 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{stiff_plot}
 \alias{stiff_plot}
-\title{Function to plot a Stiff Diagram}
+\title{Function to plot a Stiff Diagram. Data must have been transformed using
+ \code{\link{transform_stiff_data}}.}
 \usage{
 stiff_plot(df, lines = FALSE, TDS = FALSE, cex = 1)
 }
@@ -13,9 +14,13 @@ stiff_plot(df, lines = FALSE, TDS = FALSE, cex = 1)
 
 \item{TDS}{TRUE/FALSE fills in the color of the stiff diagram by TDS}
 
-\item{cex}{multiplier to scale plot height
-\code{\link{transform_stiff_data}}}
+\item{cex}{multiplier to scale plot height}
 }
 \description{
-Function to plot a Stiff Diagram
+Function to plot a Stiff Diagram. Data must have been transformed using
+ \code{\link{transform_stiff_data}}.
 }
+\keyword{Diagram}
+\keyword{Stiff}
+\keyword{geochemical}
+\keyword{plots}

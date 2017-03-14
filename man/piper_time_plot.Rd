@@ -2,7 +2,7 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{piper_time_plot}
 \alias{piper_time_plot}
-\title{Function to created an animated Piper plot through time
+\title{Function to create an animated Piper plot through time
 using the animation package}
 \usage{
 piper_time_plot(df, TDS = FALSE, title = NULL)
@@ -14,6 +14,6 @@ piper_time_plot(df, TDS = FALSE, title = NULL)
 \item{TDS}{Scale by Total Dissolved Solids}
 }
 \description{
-Function to created an animated Piper plot through time
+Function to create an animated Piper plot through time
 using the animation package
 }

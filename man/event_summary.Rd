@@ -7,7 +7,7 @@
 event_summary(df, wells, params, start, end, gw_elev = TRUE)
 }
 \arguments{
-\item{df}{groundwater data frame}
+\item{df}{groundwater data frame in tidy format}
 
 \item{wells}{list of wells to include}
 
@@ -16,6 +16,8 @@ event_summary(df, wells, params, start, end, gw_elev = TRUE)
 \item{start}{start date}
 
 \item{end}{end date}
+
+\item{gw_elev}{if TRUE, list date well sampled and annotate date for GW Elev}
 }
 \description{
 Function to export summary table for a sampling event

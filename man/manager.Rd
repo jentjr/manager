@@ -12,5 +12,5 @@ manager()
 \description{
 manager
 
-function to launch shiny app
+Function to launch shiny app
 }

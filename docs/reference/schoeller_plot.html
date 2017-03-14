@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to check if groundwater data has a Normal distribution — is_normal • manager</title>
+<title>Function to plot data transformed to schoeller coordinates using
+ — schoeller_plot • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -74,21 +75,27 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to check if groundwater data has a Normal distribution</h1>
+    <h1>Function to plot data transformed to schoeller coordinates using
+</h1>
     </div>
 
     
-    <p>Function to check if groundwater data has a Normal distribution</p>
+    <p>Function to plot data transformed to schoeller coordinates using
+<code><a href='transform_schoeller.html'>transform_schoeller</a></code></p>
     
 
-    <pre><span class='fu'>is_normal</span>(<span class='no'>x</span>, <span class='kw'>p</span> <span class='kw'>=</span> <span class='fl'>0.01</span>)</pre>
+    <pre><span class='fu'>schoeller_plot</span>(<span class='no'>df</span>, <span class='kw'>facet_by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lwt</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
-      <dt>x</dt>
-      <dd>column of analysis result for groundwater data in tidy format</dd>
-      <dt>p</dt>
-      <dd>p-value for gofTest</dd>
+      <dt>df</dt>
+      <dd>dataframe of transformed groundwater data</dd>
+      <dt>facet_by</dt>
+      <dd>parameter to facet plots by</dd>
+      <dt>title</dt>
+      <dd>title of plot</dd>
+      <dt>lwt</dt>
+      <dd>lineweight</dd>
     </dl>
     
 

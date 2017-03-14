@@ -7,13 +7,13 @@
 set_background(df, sample_date, start, end)
 }
 \arguments{
-\item{df}{df dataframe of groundwater data in tidy format}
+\item{df}{dataframe of groundwater data in tidy format}
 
-\item{sample_date}{sample_date the column for the sampling dates}
+\item{sample_date}{the column for the sampling dates}
 
-\item{start}{start the start date for background}
+\item{start}{the start date for background}
 
-\item{end}{end the end date for background}
+\item{end}{the end date for background}
 }
 \description{
 Function to return a column of background data

@@ -8,6 +8,8 @@ stiff_by_loc(df, ...)
 }
 \arguments{
 \item{df}{groundwater data frame}
+
+\item{...}{arguments passed to \code{\link{stiff_plot}}}
 }
 \description{
 Function to plot multiple stiff plots by location

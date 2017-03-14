@@ -1,6 +1,9 @@
-#' function to launch shiny app
+#' Function to launch shiny app
 #' 
 #' @export
-manager  <- function(){
+
+manager  <- function() {
+  
   shiny::runApp(system.file('app/manager', package = 'manager'))
+  
 }

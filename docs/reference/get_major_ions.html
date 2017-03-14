@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>function to read monitoring well data in the form location_id, sample_date, 
- — get_major_ions • manager</title>
+<title>Function to gather parameters needed for geochemistry plots. — get_major_ions • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -75,26 +74,24 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>function to read monitoring well data in the form location_id, sample_date, 
-</h1>
+    <h1>Function to gather parameters needed for geochemistry plots.</h1>
     </div>
 
     
-    <p>function to read monitoring well data in the form location_id, sample_date, 
-analysis_result, default_unit, param_name and gather parameters needed for
-geochemistry plots. 
-The data is cast by location_id + sample_date ~ param_name</p>
+    <p>Function to gather parameters needed for geochemistry plots.</p>
     
 
-    <pre><span class='fu'>get_major_ions</span>(<span class='no'>df</span>, <span class='kw'>Mg</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>, <span class='kw'>Ca</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>,
-  <span class='kw'>Na</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>,
-  <span class='kw'>Cl</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>, <span class='kw'>SO4</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>,
-  <span class='kw'>Alk</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+    <pre><span class='fu'>get_major_ions</span>(<span class='no'>df</span>, <span class='no'>param_name</span>, <span class='kw'>Mg</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>,
+  <span class='kw'>Ca</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>Na</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>,
+  <span class='kw'>K</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>, <span class='kw'>Cl</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>,
+  <span class='kw'>SO4</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>, <span class='kw'>Alk</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
       <dt>df</dt>
-      <dd>data frame of groundwater monitoring data</dd>
+      <dd>data frame of groundwater monitoring data in tidy format</dd>
+      <dt>param_name</dt>
+      <dd>column of constituents</dd>
       <dt>Mg</dt>
       <dd>Magnesium</dd>
       <dt>Ca</dt>

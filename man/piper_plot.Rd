@@ -2,8 +2,8 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{piper_plot}
 \alias{piper_plot}
-\title{Function to plot points from transform_piper_data() onto base ggplot_piper
-background. Points are sized by Total Dissolved Solids}
+\title{Function to plot data from \code{\link{transform_piper_data}} onto base 
+ggplot_piper background. Points are sized by Total Dissolved Solids}
 \usage{
 piper_plot(df, TDS = FALSE, title = NULL)
 }
@@ -16,6 +16,6 @@ using \code{\link{transform_piper_data}}}
 \item{title}{Title for plot, default = NULL}
 }
 \description{
-Function to plot points from transform_piper_data() onto base ggplot_piper
-background. Points are sized by Total Dissolved Solids
+Function to plot data from \code{\link{transform_piper_data}} onto base 
+ggplot_piper background. Points are sized by Total Dissolved Solids
 }

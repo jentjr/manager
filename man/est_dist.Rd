@@ -8,9 +8,9 @@ groundwater data locations and parameters.}
 est_dist(df, p = 0.01)
 }
 \arguments{
-\item{df}{df groundwater data frame in tidy format}
+\item{df}{groundwater data frame in tidy format}
 
-\item{p}{p p-value for gofTest}
+\item{p}{p-value for gofTest}
 }
 \description{
 Function to return either normal, lognormal, or non-parametric multiple 

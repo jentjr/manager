@@ -7,7 +7,9 @@
 assign_limits(df, column = "param_name", type = "all")
 }
 \arguments{
-\item{df}{dataframe of groundwater data}
+\item{df}{dataframe of groundwater data in tidy format}
+
+\item{column}{column to search for constituents}
 
 \item{type}{can be all, primary, or secondary}
 }

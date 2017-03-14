@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{percent_lt}
 \alias{percent_lt}
-\title{calculate the percentage of left censored data}
+\title{Calculate the percentage of left censored data}
 \usage{
 percent_lt(df, lt_measure = "lt_measure", percent_lt = "percent_lt")
 }
@@ -14,5 +14,5 @@ percent_lt(df, lt_measure = "lt_measure", percent_lt = "percent_lt")
 \item{percent_lt}{percent_lt the new column name for the percentage of non-detects.}
 }
 \description{
-calculate the percentage of left censored data
+Calculate the percentage of left censored data
 }

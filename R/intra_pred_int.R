@@ -1,4 +1,5 @@
 #' Function to calculate intrawell prediction interval
+#' 
 #' @param df data frame of groundwater data
 #' @param analysis_result name of column containing analysis results
 #' @param wells vector of wells to be included
@@ -97,5 +98,3 @@ intra_pred_int <- function(df, analysis_result, wells, params, bkgd_dates,
   return(out)
 
 }
-
-

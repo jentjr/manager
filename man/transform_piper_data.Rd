@@ -2,8 +2,7 @@
 % Please edit documentation in R/geochemistry_plots.R
 \name{transform_piper_data}
 \alias{transform_piper_data}
-\title{function to transform data from get_plot_data() into x, y coordinates for
-cation, anion and diamond of a Piper plot}
+\title{Function to transform data for piper plot}
 \usage{
 transform_piper_data(df, Mg = "Magnesium, dissolved",
   Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
@@ -32,13 +31,12 @@ transform_piper_data(df, Mg = "Magnesium, dissolved",
 
 \item{date}{column of dates}
 
-\item{units}{units, right now can handle mg/L and meq/L}
+\item{units}{right now can handle mg/L and meq/L}
 
 \item{HCO3}{Bicarbonate, or Alkalinity}
 }
 \description{
-function to transform data from get_plot_data() into x, y coordinates for
-cation, anion and diamond of a Piper plot
+Function to transform data for piper plot
 }
 \keyword{diagram}
 \keyword{piper}

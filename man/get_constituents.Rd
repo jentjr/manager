@@ -9,7 +9,7 @@ get_constituents(df, param_name)
 \arguments{
 \item{df}{data frame of groundwater data in the format with column names}
 
-\item{param_name}{param_name the column for the constituents}
+\item{param_name}{the column for the constituents}
 }
 \description{
 Function to return a list of all the constituents

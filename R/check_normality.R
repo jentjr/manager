@@ -1,7 +1,7 @@
 #' Function to check if groundwater data has a Normal distribution
 #' 
-#' @param x x column of analysis result for groundwater data in tidy format
-#' @param p p p-value for gofTest
+#' @param x column of analysis result for groundwater data in tidy format
+#' @param p p-value for gofTest
 #' @export
 
 is_normal <- function(x, p = 0.01) {
@@ -16,8 +16,8 @@ is_normal <- function(x, p = 0.01) {
 
 #' Function to check if groundwater data has a Lognormal distribution
 #' 
-#' @param x x column of analysis result for groundwater data in tidy format
-#' @param p p p-value for gofTest
+#' @param x column of analysis result for groundwater data in tidy format
+#' @param p p-value for gofTest
 #' @export
 
 is_lognormal <- function(x, p = 0.01) {
@@ -32,8 +32,8 @@ is_lognormal <- function(x, p = 0.01) {
 
 #' Function to return distribution based on using p-value 
 #' 
-#' @param x x column of analysis result for groundwater data in tidy format
-#' @param p p p-value for gofTest
+#' @param x column of analysis result for groundwater data in tidy format
+#' @param p p-value for gofTest
 #' @export
 
 dist <- function(x, p = 0.01) {
@@ -54,8 +54,8 @@ dist <- function(x, p = 0.01) {
 #' Function to return either normal, lognormal, or non-parametric multiple 
 #' groundwater data locations and parameters.
 #' 
-#' @param df df groundwater data frame in tidy format
-#' @param p p p-value for gofTest
+#' @param df groundwater data frame in tidy format
+#' @param p p-value for gofTest
 #' @export
 
 est_dist <- function(df, p = 0.01) {  

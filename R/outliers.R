@@ -1,4 +1,5 @@
 #' Function to flag outliers from Grubb's test for outliers
+#' 
 #' @param x column of analysis results
 #' @param ... other arguments passed to grubbs test
 #' @export
@@ -20,6 +21,7 @@ grubbs_flag <- function(x, ...) {
 }
 
 #' Function to flag outliers from Rosner's test for outliers
+#' 
 #' @param df data.frame of groundwater data 
 #' @param x column of analysis results
 #' @param replace value to replace outliers with

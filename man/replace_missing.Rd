@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{replace_missing}
 \alias{replace_missing}
-\title{function to replace missing values}
+\title{Function to replace missing values}
 \usage{
 replace_missing(df)
 }
@@ -10,5 +10,5 @@ replace_missing(df)
 \item{df}{groundwater data frame}
 }
 \description{
-function to replace missing values
+Function to replace missing values
 }
