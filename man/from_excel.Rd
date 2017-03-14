@@ -11,7 +11,7 @@ from_excel(path, sheet = "Sheet1")
  with column names
 location_id, param_name, default_unit, lt_measure, analysis_result}
 
-\item{sheet}{sheet name in spreadhsheet}
+\item{sheet}{sheet name in spreadsheet}
 }
 \description{
 function to read data in excel format

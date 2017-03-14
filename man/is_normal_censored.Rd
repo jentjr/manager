@@ -7,9 +7,11 @@
 is_normal_censored(x, censored, ...)
 }
 \arguments{
-\item{x}{analysis_result of groundwater data}
+\item{x}{x column of analysis result for groundwater data in tidy format}
 
-\item{censored}{logical vector of censored values}
+\item{censored}{censored logical vector of censored values}
+
+\item{...}{other variable inputs passed to gofTestCensored}
 }
 \description{
 Function to check if censored groundwater data has a Normal distribution

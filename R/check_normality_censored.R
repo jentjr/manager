@@ -1,10 +1,12 @@
 #' Function to check if censored groundwater data has a Normal distribution
-#' @param x analysis_result of groundwater data
-#' @param censored logical vector of censored values
+#' 
+#' @param x x column of analysis result for groundwater data in tidy format
+#' @param censored censored logical vector of censored values
+#' @param ... other variable inputs passed to gofTestCensored
 #' @export
 
 is_normal_censored <- function(x, censored, ...) {
-  gof <- gofTestCensored(x, censored, dist = "norm")
+  gof <- gofTestCensored(x, censored, dist = "norm", ...)
   p <- gof$p.value
   if (p >= 0.01){
     return(TRUE)
@@ -14,8 +16,10 @@ is_normal_censored <- function(x, censored, ...) {
 }
 
 #' Function to check if censored groundwater data has a Lognormal distribution
-#' @param x analysis_result of groundwater data
-#' @param censored logical vector of censored values
+#' 
+#' @param x x column of analysis result for groundwater data in tidy format
+#' @param censored censored logical vector of censored values
+#' @param ... other variable inputs passed to gofTestCensored
 #' @export
 
 is_lognormal_censored <- function(x, censored, ...) {
@@ -29,16 +33,19 @@ is_lognormal_censored <- function(x, censored, ...) {
 }
 
 #' Function to return distribution based on using p-value 
-#' @param x analysis_result of groundwater data
+#' 
+#' @param x x column of analysis result for groundwater data in tidy format
+#' @param censored censored logical vector of censored values
+#' @param ... other variable inputs passed to gofTestCensored
 #' @export
 
-dist_censored <- function(x, censored) {
-  n <- is_normal_censored(x, censored)
+dist_censored <- function(x, censoredi, ...) {
+  n <- is_normal_censored(x, censored, ...)
   if (isTRUE(n >= 0.01)) {
     return("norm_cen")
   }
   if (isTRUE(n < 0.01)) {
-    ln <- is_lognormal_censored(x, censored)
+    ln <- is_lognormal_censored(x, censored, ...)
     if (isTRUE(ln >= 0.01)) {
       return("lnorm_cen")
     } else {

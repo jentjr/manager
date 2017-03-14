@@ -11,11 +11,17 @@ ts_plot(df, x = "sample_date", y = "analysis_result",
   short_name = FALSE, pnt = 3, ncol = NULL, ...)
 }
 \arguments{
-\item{df}{groundwater data in tidy format}
+\item{df}{df groundwater data in tidy format}
+
+\item{x}{x column for x variable}
+
+\item{y}{y column for y variable}
 
 \item{facet_var}{column to facet wrap plots by, default is by location}
 
 \item{group_var}{column to group plots by, default is by constituent}
+
+\item{trend}{trend add trend line to time series plot}
 
 \item{back_date}{dates for background date range}
 

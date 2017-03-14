@@ -3,7 +3,7 @@
 #' This function connects to the MANAGES database for the path supplied.
 #' R must be in 32-bit mode. 
 #' 
-#' @param manages_path Path to MANAGES Site.mdb file
+#' @param manages_path manages_path Path to MANAGES Site.mdb file
 #' @export
 
 read_manages3 <- function(manages_path) {
@@ -87,7 +87,7 @@ from_csv <- function(path, date_format = "mdy"){
 #' @param path path to the excel  file of groundwater data in the format
 #'  with column names
 #' location_id, param_name, default_unit, lt_measure, analysis_result
-#' @param sheet sheet name in spreadhsheet
+#' @param sheet sheet name in spreadsheet
 #' @export
 
 from_excel <- function(path, sheet = "Sheet1"){

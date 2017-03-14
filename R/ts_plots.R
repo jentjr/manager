@@ -1,9 +1,12 @@
 #' This function plots multiple groundwater data time series by location, 
 #' or constituent. 
 #' 
-#' @param df groundwater data in tidy format
+#' @param df df groundwater data in tidy format
+#' @param x x column for x variable
+#' @param y y column for y variable
 #' @param facet_var column to facet wrap plots by, default is by location
 #' @param group_var column to group plots by, default is by constituent
+#' @param trend trend add trend line to time series plot
 #' @param back_date dates for background date range
 #' @param comp_date dates for compliance date range
 #' @param limit1 horizontal line 1
@@ -47,16 +50,21 @@ ts_plot <- function(df,
 }
 
 #' Helper function for plotting time series of groundwater data
-#' @param df groundwater data
-#' @param facet_by parameter to group plots by
+#' 
+#' @param df df groundwater data in tidy format
+#' @param x x column for x variable
+#' @param y y column for y variable
+#' @param facet_var column to facet wrap plots by, default is by location
+#' @param group_var column to group plots by, default is by constituent
+#' @param trend trend add trend line to time series plot
 #' @param back_date dates for background date range
 #' @param comp_date dates for compliance date range
 #' @param limit1 horizontal line 1
 #' @param limit2 horizontal line 2
 #' @param short_name If TRUE, the constituent name will be abbreviated
 #' @param pnt size of points on time series plots
-#' @param ... parameters passed to get_theilsen
 #' @param ncol number of columns
+#' @param ... parameters passed to get_theilsen
 
 .ts_plot <- function(df,
                      x = "sample_date",

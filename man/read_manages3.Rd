@@ -7,7 +7,7 @@
 read_manages3(manages_path)
 }
 \arguments{
-\item{manages_path}{Path to MANAGES Site.mdb file}
+\item{manages_path}{manages_path Path to MANAGES Site.mdb file}
 }
 \description{
 This function connects to the MANAGES database for the path supplied.

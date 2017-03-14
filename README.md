@@ -31,14 +31,6 @@ gw_data %>%
 
 ![](README-unnamed-chunk-3-1.png)
 
-    #> Source: local data frame [1 x 2]
-    #> Groups: <by row>
-    #> 
-    #> # A tibble: 1 × 2
-    #>   location_id       plot
-    #> *       <chr>     <list>
-    #> 1        MW-1 <list [3]>
-
 Installation
 ------------
 

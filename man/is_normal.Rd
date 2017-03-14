@@ -7,7 +7,9 @@
 is_normal(x, p = 0.01)
 }
 \arguments{
-\item{x}{analysis_result of groundwater data}
+\item{x}{x column of analysis result for groundwater data in tidy format}
+
+\item{p}{p p-value for gofTest}
 }
 \description{
 Function to check if groundwater data has a Normal distribution

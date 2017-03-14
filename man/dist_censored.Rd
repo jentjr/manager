@@ -4,10 +4,14 @@
 \alias{dist_censored}
 \title{Function to return distribution based on using p-value}
 \usage{
-dist_censored(x, censored)
+dist_censored(x, censoredi, ...)
 }
 \arguments{
-\item{x}{analysis_result of groundwater data}
+\item{x}{x column of analysis result for groundwater data in tidy format}
+
+\item{...}{other variable inputs passed to gofTestCensored}
+
+\item{censored}{censored logical vector of censored values}
 }
 \description{
 Function to return distribution based on using p-value
