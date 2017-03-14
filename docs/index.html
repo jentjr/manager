@@ -69,9 +69,8 @@
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"> </a>Example</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># reading data from external sources</span>
-data &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_manages3.html">read_manages3</a></span>(<span class="st">"C:/path/to/Site.mdb"</span>)
-
-<span class="co"># load example data and plot time series of selected wells and constituents</span>
+data &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_manages3.html">read_manages3</a></span>(<span class="st">"C:/path/to/Site.mdb"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># load example data and plot time series of selected wells and constituents</span>
 <span class="kw">data</span>(<span class="st">"gw_data"</span>)
 wells &lt;-<span class="st"> "MW-1"</span>
 params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">"Magnesium, dissolved"</span>, 
@@ -83,14 +82,29 @@ params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">
 gw_data %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(location_id %in%<span class="st"> </span>wells, param_name %in%<span class="st"> </span>params) %&gt;%
 <span class="st">  </span><span class="kw"><a href="reference/ts_plot.html">ts_plot</a></span>(., <span class="dt">facet_var =</span> <span class="st">"param_name"</span>, <span class="dt">group_var =</span> <span class="st">"location_id"</span>)</code></pre></div>
+<p><img src="README-unnamed-chunk-3-1.png" width="864"></p>
+<pre><code>#&gt; Source: local data frame [1 x 2]
+#&gt; Groups: &lt;by row&gt;
+#&gt; 
+#&gt; # A tibble: 1 × 2
+#&gt;   location_id       plot
+#&gt; *       &lt;chr&gt;     &lt;list&gt;
+#&gt; 1        MW-1 &lt;list [3]&gt;</code></pre>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"> </a>Installation</h2>
-<p>To install the <code>manager</code> package you must first make sure you have a working development environment.<br>
-* <strong>Windows</strong>: Install <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.<br>
-* <strong>Mac</strong>: Install Xcode from the Mac App Store.<br>
-* <strong>Linux</strong>: Install a compiler and various development libraries (details vary across differnet flavors of Linux).</p>
+<p>To install the <code>manager</code> package you must first make sure you have a working development environment.</p>
+<ul>
+<li>
+<strong>Windows</strong>: Install <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a>.<br>
+</li>
+<li>
+<strong>Mac</strong>: Install Xcode from the Mac App Store.<br>
+</li>
+<li>
+<strong>Linux</strong>: Install a compiler and various development libraries (details vary across differnet flavors of Linux).</li>
+</ul>
 <p>Then, install the <code>devtools</code> package from CRAN with</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>)</code></pre></div>
 <p>After you have <code>devtools</code> installed you can install <code>manager</code> using the command</p>

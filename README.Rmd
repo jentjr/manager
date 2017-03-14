@@ -26,7 +26,8 @@ and gINT.
 ```{r, eval = FALSE}
 # reading data from external sources
 data <- read_manages3("C:/path/to/Site.mdb")
-
+```
+```{r, fig.height=6, fig.width=9}
 # load example data and plot time series of selected wells and constituents
 data("gw_data")
 wells <- "MW-1"
@@ -44,7 +45,8 @@ gw_data %>%
 ## Installation
 
 To install the `manager` package you must first make sure you have a working 
-development environment.  
+development environment.
+
 * **Windows**: Install [Rtools](http://cran.r-project.org/bin/windows/Rtools/).  
 * **Mac**: Install Xcode from the Mac App Store.  
 * **Linux**: Install a compiler and various development libraries (details vary across differnet flavors of Linux).  

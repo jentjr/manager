@@ -12,7 +12,9 @@ Example
 ``` r
 # reading data from external sources
 data <- read_manages3("C:/path/to/Site.mdb")
+```
 
+``` r
 # load example data and plot time series of selected wells and constituents
 data("gw_data")
 wells <- "MW-1"
@@ -27,13 +29,24 @@ gw_data %>%
   ts_plot(., facet_var = "param_name", group_var = "location_id")
 ```
 
+![](README-unnamed-chunk-3-1.png)
+
+    #> Source: local data frame [1 x 2]
+    #> Groups: <by row>
+    #> 
+    #> # A tibble: 1 × 2
+    #>   location_id       plot
+    #> *       <chr>     <list>
+    #> 1        MW-1 <list [3]>
+
 Installation
 ------------
 
 To install the `manager` package you must first make sure you have a working development environment.
-\* **Windows**: Install [Rtools](http://cran.r-project.org/bin/windows/Rtools/).
-\* **Mac**: Install Xcode from the Mac App Store.
-\* **Linux**: Install a compiler and various development libraries (details vary across differnet flavors of Linux).
+
+-   **Windows**: Install [Rtools](http://cran.r-project.org/bin/windows/Rtools/).
+-   **Mac**: Install Xcode from the Mac App Store.
+-   **Linux**: Install a compiler and various development libraries (details vary across differnet flavors of Linux).
 
 Then, install the `devtools` package from CRAN with
 
