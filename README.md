@@ -1,16 +1,30 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-manager
-=======
-
 [![Build Status](https://travis-ci.org/jentjr/manager.svg?branch=master)](https://travis-ci.org/jentjr/manager) [![Build status](https://ci.appveyor.com/api/projects/status/wmatiqqb5e8v01lp/branch/master?svg=true)](https://ci.appveyor.com/project/jentjr/manager/branch/master)
 
-`manager` provides a set of tools for plotting and analyzing groundwater data as well as reading data from external sources such as MANAGES and gINT.
+Overview
+--------
+
+The goal of manager is to provide a set of tools for plotting and analyzing groundwater data as well as reading data from external sources such as MANAGES and gINT.
 
 Example
 -------
 
 ``` r
+# reading data from external sources
 data <- read_manages3("C:/path/to/Site.mdb")
+
+# load example data and plot time series of selected wells and constituents
+data("gw_data")
+wells <- "MW-1"
+params <- c("Magnesium, dissolved", 
+            "Sodium, dissolved", 
+            "Chloride, total", 
+            "Sulfate, total", 
+            "Potassium, dissolved")
+
+gw_data %>%
+  filter(location_id %in% wells, param_name %in% params) %>%
+  ts_plot(., facet_var = "param_name", group_var = "location_id")
 ```
 
 Installation

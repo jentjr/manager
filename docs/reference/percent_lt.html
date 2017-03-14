@@ -81,14 +81,16 @@
     <p>calculate the percentage of left censored data</p>
     
 
-    <pre><span class='fu'>percent_lt</span>(<span class='no'>lt</span>)</pre>
+    <pre><span class='fu'>percent_lt</span>(<span class='no'>df</span>, <span class='kw'>lt_measure</span> <span class='kw'>=</span> <span class='st'>"lt_measure"</span>, <span class='kw'>percent_lt</span> <span class='kw'>=</span> <span class='st'>"percent_lt"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
-      <dt>lt</dt>
-      <dd>column of data less than detection limit.</dd>
       <dt>df</dt>
-      <dd>data frame of groundwater monitoring data in long format</dd>
+      <dd>df data frame of groundwater monitoring data in long format</dd>
+      <dt>lt_measure</dt>
+      <dd>lt_measure column of less than detection limit symbol.</dd>
+      <dt>percent_lt</dt>
+      <dd>percent_lt the new column name for the percentage of non-detects.</dd>
     </dl>
     
 

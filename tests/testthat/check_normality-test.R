@@ -30,27 +30,26 @@ df_nonpar1 <- data.frame(
   default_unit = rep("mg/L", 20)
   )
 
-test_that("data is normal", { 
-  expect_that(is_normal(df_norm1$analysis_result), equals(TRUE))
-  expect_that(is_normal(df_lnorm1$analysis_result), equals(FALSE))
-  expect_that(dist(df_lnorm1$analysis_result), equal("norm"))
+test_that("data are normal", { 
+  expect_true(is_normal(df_norm1$analysis_result))
+  expect_match(dist(df_norm1$analysis_result), "norm")
 })
 
-test_that("data is lognormal", {
-  expect_that(is_lognormal(df_lnorm1$analysis_result), equals(TRUE))
-  expect_that(dist(df_lnorm1$analysis_result), equal("lnorm"))
+test_that("data are lognormal", {
+  expect_true(is_lognormal(df_lnorm1$analysis_result))
+  expect_match(dist(df_lnorm1$analysis_result), "lnorm")
 })
 
-test_that("data is neither normal, nor lognormal", {
-  expect_that(is_normal(df_nonpar1$analysis_result), equals(FALSE))
-  expect_that(is_lognormal(df_nonpar1$analysis_result), equals(FALSE))
-  expect_that(dist(df_nonpar1$analysis_result), equals("none"))
+test_that("data are neither normal, nor lognormal", {
+  expect_false(is_normal(df_nonpar1$analysis_result))
+  expect_false(is_lognormal(df_nonpar1$analysis_result))
+  expect_match(dist(df_nonpar1$analysis_result), "none")
 })
 
 df1 <- rbind(df_norm1, df_lnorm1, df_nonpar1)
 
 test_that("normality check works on gw data.frame",{
-  expect_that(est_dist(df1)$distribution[1], equals["norm"])
-  expect_that(est_dist(df1)$distribution[2], equals["lnorm"])
-  expect_that(est_dist(df1)$distribution[3], equals["none"])
+  expect_match(est_dist(df1)$distribution[1], "norm")
+  expect_match(est_dist(df1)$distribution[2], "lnorm")
+  expect_match(est_dist(df1)$distribution[3], "none")
 })

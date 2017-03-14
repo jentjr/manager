@@ -37,7 +37,7 @@ rosner_flag <- function(df, x = "analysis_result", replace = NULL, ...) {
     filter(Outlier == TRUE) %>%
     select(Value)
  
-  df$outlier <- ifelse(df$analysis_result  %in% outliers$Value, TRUE, FALSE)
+  df$outlier <- ifelse(df$analysis_result %in% outliers$Value, TRUE, FALSE)
   
   if (!missing(replace)) {
     df$replaced_values <- ifelse(df$outlier == TRUE, replace, 

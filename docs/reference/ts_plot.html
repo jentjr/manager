@@ -84,14 +84,19 @@
 or constituent.</p>
     
 
-    <pre><span class='fu'>ts_plot</span>(<span class='no'>df</span>, <span class='kw'>facet_by</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='no'>...</span>)</pre>
+    <pre><span class='fu'>ts_plot</span>(<span class='no'>df</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='st'>"sample_date"</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"analysis_result"</span>,
+  <span class='kw'>facet_var</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>group_var</span> <span class='kw'>=</span> <span class='st'>"param_name"</span>, <span class='kw'>trend</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>back_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>comp_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>limit1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>limit2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>short_name</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pnt</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <dl class="dl-horizontal">
       <dt>df</dt>
-      <dd>groundwater data</dd>
-      <dt>facet_by</dt>
-      <dd>parameter to group plots by</dd>
+      <dd>groundwater data in tidy format</dd>
+      <dt>facet_var</dt>
+      <dd>column to facet wrap plots by, default is by location</dd>
+      <dt>group_var</dt>
+      <dd>column to group plots by, default is by constituent</dd>
       <dt>back_date</dt>
       <dd>dates for background date range</dd>
       <dt>comp_date</dt>
@@ -101,11 +106,13 @@ or constituent.</p>
       <dt>limit2</dt>
       <dd>horizontal line 2</dd>
       <dt>short_name</dt>
-      <dd>If TRUE, the analyte name will be abbreviated</dd>
+      <dd>If TRUE, the constituent name will be abbreviated</dd>
       <dt>pnt</dt>
       <dd>size of points on time series plots</dd>
       <dt>ncol</dt>
       <dd>number of columns</dd>
+      <dt>...</dt>
+      <dd>parameters passed to get_theilsen</dd>
     </dl>
     
 

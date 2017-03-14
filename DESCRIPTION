@@ -22,7 +22,6 @@ Imports:
     scales,
     grid,
     shiny,
-    knitr,
     udunits2
 Suggests:
     sp,

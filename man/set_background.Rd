@@ -4,19 +4,10 @@
 \alias{set_background}
 \title{Function to return a column of background data}
 \usage{
-set_background(df, location_id, well, param_name, param, sample_date, start,
-  end)
+set_background(df, sample_date, start, end)
 }
 \arguments{
 \item{df}{df dataframe of groundwater data in tidy format}
-
-\item{location_id}{location_id column for the well}
-
-\item{well}{well the well to selected}
-
-\item{param_name}{param_name the column for the constituent}
-
-\item{param}{param the constituent to be selected}
 
 \item{sample_date}{sample_date the column for the sampling dates}
 

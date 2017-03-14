@@ -4,7 +4,7 @@
 \alias{nth_date}
 \title{Function to find the date for next n samples}
 \usage{
-nth_date(df, start, n = 4, location_id, well, param_name, param, sample_date)
+nth_date(df, start, n = 4, sample_date)
 }
 \arguments{
 \item{df}{df dataframe of groundwater data in tidy format}
@@ -12,14 +12,6 @@ nth_date(df, start, n = 4, location_id, well, param_name, param, sample_date)
 \item{start}{start the date to start from}
 
 \item{n}{n the next n samples to get the date for}
-
-\item{location_id}{location_id column for the well}
-
-\item{well}{well the well to selected}
-
-\item{param_name}{param_name the column for the constituent}
-
-\item{param}{param the constituent to be selected}
 
 \item{sample_date}{sample_date the column for the sampling dates}
 }

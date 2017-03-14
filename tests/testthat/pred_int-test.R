@@ -2,7 +2,7 @@ set.seed(14)
 
 df_norm1 <- data.frame(
   location_id = rep(1, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -12,7 +12,7 @@ df_norm1 <- data.frame(
 
 df_lnorm1 <- data.frame(
   location_id = rep(2, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -22,7 +22,7 @@ df_lnorm1 <- data.frame(
 
 df_nonpar1 <- data.frame(
   location_id = rep(3, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -31,8 +31,7 @@ df_nonpar1 <- data.frame(
 )
 
 test_that("normal prediction limit", {
-  expect_that(pred_int(df_norm1$analysis_result)$interval$limits[["UPL"]],
-              equals(5.8861323))
+  expect_equal(pred_int_norm(df_norm1)$upl[1], 7.18)
 })
 
 test_that("lognormal prediction limit", {
