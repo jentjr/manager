@@ -6,3 +6,4 @@
 .Rproj.user
 packrat/lib*/
 inst/doc
+inst/app/manager/rsconnect/

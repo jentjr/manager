@@ -27,7 +27,8 @@ Suggests:
     sp,
     testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    covr
 License: MIT + file LICENSE
 LazyData: true
 VignetteBuilder: knitr
