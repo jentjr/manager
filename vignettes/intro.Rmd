@@ -11,6 +11,10 @@ vignette: >
 
 The `manager` packages provides functions for reading external data.
 
+```{r, message=FALSE}
+library(manager)
+```
+
 ```{r, eval = FALSE}
 data <- read_manages3("C:/path/to/manages/Site.mdb")
 ```
@@ -19,6 +23,6 @@ Example data sets for groundwater in Indiana and Ohio are provided with the
 package
 
 ```{r}
-data(ohio_data)
-data(indiana_data)
+data("ohio_data")
+data("indiana_data")
 ```

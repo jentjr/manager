@@ -17,3 +17,8 @@ This document describes how to update background data used in
 detection monitoring. The well, constituent, current background and proposed
 data can be selected and the underlying assumptions are checked and the data
 are analyzed.
+
+```{r, message=FALSE}
+library(manager)
+```
+

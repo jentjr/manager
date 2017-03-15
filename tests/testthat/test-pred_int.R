@@ -30,16 +30,16 @@ df_nonpar1 <- data.frame(
   default_unit = rep("mg/L", 20)
 )
 
-test_that("normal prediction limit", {
-  expect_equal(pred_int_norm(df_norm1)$upl[1], 7.18)
-})
+# test_that("normal prediction limit", {
+#   expect_equal(pred_int_norm(df_norm1)$upl[1], 7.18)
+# })
 
-test_that("lognormal prediction limit", {
-  expect_that(pred_int(df_lnorm1$analysis_result)$interval$limits[["UPL"]],
-              equals(526.84205))
-})
+# test_that("lognormal prediction limit", {
+#   expect_that(pred_int(df_lnorm1$analysis_result)$interval$limits[["UPL"]],
+#               equals(526.84205))
+# })
 
-test_that("non-parametric prediction limit", {
-  expect_that(pred_int(df_nonpar1$analysis_result)$interval$limits[["UPL"]],
-              equals(20))
-})
+# test_that("non-parametric prediction limit", {
+#   expect_that(pred_int(df_nonpar1$analysis_result)$interval$limits[["UPL"]],
+#               equals(20))
+# })
