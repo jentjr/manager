@@ -108,13 +108,13 @@ shinyServer(function(input, output, session) {
           box_i <- i
           box_name <- paste("box_plot", box_i, sep = "")
           output[[box_name]] <- renderPlotly({
-            box <- manager::.boxplot(
+            box <- manager::boxplot(
               box_data[box_data$param_name ==
                          box_params[box_i], ],
               x = "location_id",
               y = "analysis_result"
             )
-            ggplotly(box)
+            ggplotly(box$plot[[1]])
           })
         })
       }
