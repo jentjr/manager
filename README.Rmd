@@ -6,7 +6,9 @@ output:
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, message=FALSE}
+library(manager)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -25,6 +27,8 @@ and gINT.
 
 ## Example
 ```{r, eval = FALSE}
+library(manager)
+
 # reading data from external sources
 data <- read_manages3("C:/path/to/Site.mdb")
 ```

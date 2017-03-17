@@ -68,7 +68,9 @@
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"> </a>Example</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># reading data from external sources</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(manager)
+
+<span class="co"># reading data from external sources</span>
 data &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_manages3.html">read_manages3</a></span>(<span class="st">"C:/path/to/Site.mdb"</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># load example data and plot time series of selected wells and constituents</span>
 <span class="kw">data</span>(<span class="st">"gw_data"</span>)
@@ -124,13 +126,14 @@ gw_data %&gt;%
 <ul class="list-unstyled">
 <li>Justin Jent <br><small class="roles"> Author, maintainer </small> </li>
 </ul>
-<html><body>
+<div>
 <h2>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://travis-ci.org/jentjr/manager"><img src="https://travis-ci.org/jentjr/manager.svg?branch=master" alt="Build Status"></a></li>
 <li><a href="https://ci.appveyor.com/project/jentjr/manager/branch/master"><img src="https://ci.appveyor.com/api/projects/status/wmatiqqb5e8v01lp/branch/master?svg=true" alt="Build status"></a></li>
+<li><a href="https://codecov.io/github/jentjr/manager?branch=master"><img src="https://img.shields.io/codecov/c/github/jentjr/manager/master.svg" alt="Coverage Status"></a></li>
 </ul>
-</body></html>
+</div>
 </div>
 
 </div>

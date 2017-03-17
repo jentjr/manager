@@ -1,5 +1,5 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-[![Build Status](https://travis-ci.org/jentjr/manager.svg?branch=master)](https://travis-ci.org/jentjr/manager) [![Build status](https://ci.appveyor.com/api/projects/status/wmatiqqb5e8v01lp/branch/master?svg=true)](https://ci.appveyor.com/project/jentjr/manager/branch/master)
+[![Build Status](https://travis-ci.org/jentjr/manager.svg?branch=master)](https://travis-ci.org/jentjr/manager) [![Build status](https://ci.appveyor.com/api/projects/status/wmatiqqb5e8v01lp/branch/master?svg=true)](https://ci.appveyor.com/project/jentjr/manager/branch/master) [![Coverage Status](https://img.shields.io/codecov/c/github/jentjr/manager/master.svg)](https://codecov.io/github/jentjr/manager?branch=master)
 
 Overview
 --------
@@ -10,6 +10,8 @@ Example
 -------
 
 ``` r
+library(manager)
+
 # reading data from external sources
 data <- read_manages3("C:/path/to/Site.mdb")
 ```
