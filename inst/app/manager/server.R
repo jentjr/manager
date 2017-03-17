@@ -1,5 +1,6 @@
 # Server File for use with MANAGES Database
 library(manager)
+library(plotly)
 
 # change options to handle large file size
 options(shiny.maxRequestSize = -1)
@@ -92,57 +93,45 @@ shinyServer(function(input, output, session) {
                          multiple = TRUE)
   
   boxplot <- reactive({
-      
+
       box_data <- boxplotfile()
-      box_wells <- unique(box_data$location_id)
-      box_analytes <- unique(box_data$param_name)
-    
-      box_list <- lapply(1:length(box_analytes), function(i) {
-        box_name <- paste("box_plot", i, sep = "")
-        plotOutput(box_name)
-      })
+      box_wells <- get_wells(box_data)
+      box_params <- get_constituents(box_data)
       
-      for (i in 1:length(box_analytes)) {
+      box_list <- lapply(seq_along(box_params), function(i) {
+        box_name <- paste("box_plot", i, sep = "")
+        plotlyOutput(box_name)
+      })
+
+      for (i in seq_along(box_params)) {
         local({
           box_i <- i
           box_name <- paste("box_plot", box_i, sep = "")
-          output[[box_name]] <- renderPlot({
-            box <- manager::boxplot(
-              box_data[box_data$param_name == 
-                         box_analytes[box_i], ],
-              x = paste(input$box_x),
-              y = paste(input$box_y),
-              fill = paste(input$box_group),
-              short_name = input$box_short_name,
-              coord_flip = input$coord_flip_box
+          output[[box_name]] <- renderPlotly({
+            box <- manager::.boxplot(
+              box_data[box_data$param_name ==
+                         box_params[box_i], ],
+              x = "location_id",
+              y = "analysis_result"
             )
-            box
+            ggplotly(box)
           })
         })
       }
     do.call(tagList, box_list)
   })
-  
-  boxplot_react <- eventReactive(input$box_submit, {
-    boxplot()
-  })
-  
+
   output$boxplot_out <- renderUI({
-    if (input$box_interactive == TRUE) {
       boxplot()
-    } else {
-      boxplot_react()
-    }
   })
   
   # Begin Boxplot Download Page-------------------------------------------------
   get_box_data <- reactive({
-    validate(
-      need(input$data_path != "", "")
-    )
+    
     box_data <- boxplotfile()
-    box_wells <- unique(box_data$location_id)
-    box_analytes <- unique(box_data$param_name)
+    box_wells <- get_wells(box_data)
+    box_params <- get_constituents(box_data) 
+    
   })
   
   output$box_download <- downloadHandler(
@@ -151,9 +140,7 @@ shinyServer(function(input, output, session) {
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      manager::boxplot(get_box_data(), facet_by = input$box_facet_by, 
-                       short_name = input$box_short_name, 
-                       coord_flip = input$box_coord_flip)
+      manager::boxplot(get_box_data())
       dev.off()
     }
   )
@@ -168,79 +155,54 @@ shinyServer(function(input, output, session) {
   ts_plot <- reactive({
 
     ts_data <- tsplotfile()
-    ts_wells <- unique(ts_data$location_id)
-    ts_analytes <- unique(ts_data$param_name)
+    ts_wells <- get_wells(ts_data)
+    ts_params <- get_constituents(ts_data)
     
-    # num_plots <- length(ts_data[[paste(input$ts_group_by)]])  
-   
-    manager::ts_plot(ts_data, 
-                     x = "sample_date",
-                     y = "analysis_result",
-                     facet_var = "location_id",
-                     group_var = "param_name",
-                     trend = NULL, 
-                     back_date = NULL, 
-                     comp_date = NULL, 
-                     limit1 = NULL, 
-                     limit2 = NULL, 
-                     short_name = FALSE, 
-                     pnt = 3, 
-                     ncol = NULL
-                     ) 
-    # ts_list <- lapply(1:num_plots, function(i) {
-    #   ts_name <- paste("ts_plot", i, sep = "")
-    #   plotOutput(ts_name)
-    # })
-    #   
-    # for (i in 1:num_plots) {
-    #   local({
-    #     ts_i <- i
-    #     ts_name <- paste("ts_plot", ts_i, sep = "")
-    #     output[[ts_name]] <- renderPlot({
-    #         
-    #       ts <- manager::ts_plot(
-    #         ts_data[ts_data$location_id == ts_well[ts_i], ],
-    #         group_var = input$ts_group_by,
-    #         facet_var = input$ts_facet_by,
-    #         trend = input$ts_trend,
-    #         short_name = input$ts_short_name, 
-    #         ncol = input$ts_ncol)
-    #         
-    #         # if (input$ts_date_lines) {
-    #         #   b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-    #         #   c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-    #         #   b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-    #         #   c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-    #         #   
-    #         #   ts <- manager::ts_plot(
-    #         #     ts_data[ts_data$location_id == 
-    #         #                    ts_well[ts_i], ], 
-    #         #     facet_by = "location_id",
-    #         #     trend = input$ts_trend,
-    #         #     short_name = input$ts_short_name,
-    #         #     back_date = c(b1, b2), 
-    #         #     comp_date = c(c1, c2),
-    #         #     ncol = input$ts_ncol
-    #         #   )
-    #         # }
-    #         ts
-    #       })
-    #     })
-    #   }
-    # do.call(tagList, ts_list)
-  })
-  
-  # plot time series when actioButton is clicked
-  ts_plot_react <- eventReactive(input$ts_submit, {
-    ts_plot()
+    ts_list <- lapply(seq_along(num_plots), function(i) {
+      ts_name <- paste("ts_plot", i, sep = "")
+      plotOutput(ts_name)
+    })
+
+    for (i in 1:num_plots) {
+      local({
+        ts_i <- i
+        ts_name <- paste("ts_plot", ts_i, sep = "")
+        output[[ts_name]] <- renderPlot({
+
+          ts <- manager::ts_plot(
+            ts_data[ts_data$location_id == ts_well[ts_i], ],
+            group_var = input$ts_group_by,
+            facet_var = input$ts_facet_by,
+            trend = input$ts_trend,
+            short_name = input$ts_short_name,
+            ncol = input$ts_ncol)
+
+            if (input$ts_date_lines) {
+              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+
+              ts <- manager::ts_plot(
+                ts_data[ts_data$location_id ==
+                               ts_well[ts_i], ],
+                facet_by = "location_id",
+                trend = input$ts_trend,
+                short_name = input$ts_short_name,
+                back_date = c(b1, b2),
+                comp_date = c(c1, c2),
+                ncol = input$ts_ncol
+              )
+            }
+            ts
+          })
+        })
+      }
+    do.call(tagList, ts_list)
   })
   
   output$ts_out <- renderUI({
-    if (input$ts_interactive == TRUE) {
       ts_plot()
-    } else {
-      ts_plot_react()
-    }
   })
   # Begin Time Series Download Page --------------------------------------------
   get_ts_data <- reactive({

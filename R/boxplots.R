@@ -83,13 +83,13 @@ boxplot <- function(df,
            linetype = guide_legend("Limits")) +
     theme(legend.background = element_rect()) + 
     theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
-    theme(axis.title.x = element_text(vjust = -0.5, size = 15)) +
-    theme(axis.text.x = element_text(angle = 90, size = 13)) +
-    theme(axis.title.y = element_text(vjust = 0.5, size = 15)) +
-    theme(axis.text.y = element_text(size = 13)) +
+    theme(axis.title.x = element_text(vjust = -1.5, size = 12)) +
+    theme(axis.text.x = element_text(angle = 90, size = 10)) +
+    theme(axis.title.y = element_text(vjust = 0.5, size = 12)) +
+    theme(axis.text.y = element_text(size = 10)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     geom_boxplot() + 
-    ggtitle(paste("Boxplot for", df$name_units, "\n", sep = " "))
+    ggtitle(paste("Boxplot for", df$name_units[1], "\n", sep = " "))
   
   if (!is.null(limit1)) {
     df$limit1_name <- paste(limit1[[1]])

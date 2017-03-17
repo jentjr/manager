@@ -14,47 +14,13 @@ boxPlot <- function(input, output, session, data, multiple) {
                   selected = get_constituents(data)[1],
                   multiple = multiple),
       
-      selectInput(
-        ns("box_x"), 
-        label = "X-Axis Variable", 
-        choices = colnames(data)
-      ),
-      
-      selectInput(
-        ns("box_y"), 
-        label = "Y-Axis Variable", 
-        choices = colnames(data)
-      ),
-      
-      selectInput(
-        ns("box_group"), 
-        label = "Fill by groups", 
-        choices = colnames(data)
-        ),
-      
-      checkboxInput("box_short_name", "Abbreviate Constituent Name"),
-      
-      downloadButton("box_download", "Download Plots"),
-      
-      checkboxInput(
-        inputId = "box_interactive",
-        label = "Interactive",
-        value = TRUE
-      ),
-      
-      conditionalPanel(
-        sprintf("input['%s'] == '0'", ns("box_interactive")),
-        actionButton(
-          inputId = "box_submit",
-          label = "Click to Plot"
-        )
-      )
-    )
+      downloadButton("box_download", "Download Plots")
+    ) 
   }) 
   
   return(reactive({
     data %>%
-      filter(location_id %in% input$wells, 
-             param_name %in% input$constituents)
+      dplyr::filter(location_id %in% input$wells, 
+                    param_name %in% input$constituents)
   }))
 }

@@ -41,42 +41,6 @@ userFileInput <- function(id, label = "File Input") {
           'Single Quote' = "\'"
         ),
         selected = '\"'
-      ),
-      
-      selectInput(
-        ns('location_id'), "Location ID Column", 
-        choices = colnames(data)
-      ),
-      
-      selectInput(
-        ns('sample_date'), "Sample Date Column", 
-        choices = colnames(data)
-      ),
-      
-      textInput(
-        ns("date_format"), 
-        label = "Date format", 
-        value = "%m/%d/%Y"
-        ),
-      
-      selectInput(
-        ns('param_name'), "Constituent Column", 
-        choices = colnames(data)
-      ),
-      
-      selectInput(
-        ns('lt_measure'), "Detection Column", 
-        choices = colnames(data)
-      ),
-      
-      selectInput(
-        ns('analysis_result'), "Results Column", 
-        choices = colnames(data)
-      ),
-      
-      selectInput(
-        ns('default_unit'), "Units Column", 
-        choices = colnames(data)
       )
     ),
     
