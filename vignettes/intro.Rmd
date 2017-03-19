@@ -26,3 +26,34 @@ package
 data("ohio_data")
 data("indiana_data")
 ```
+#Prediction Intervals
+```{r}
+data("gw_data")
+
+nested_gw <- gw_data %>%
+  group_by(location_id, param_name, default_unit) %>%
+  nest()
+
+nested_gw %>% 
+  filter(location_id == "MW-2", 
+         param_name %in% c("Potassium, dissolved", "Magnesium, dissolved")) %>%
+  mutate(trend = map(data, kendall_trend))
+
+
+mw1_K <- nested_gw %>% 
+  filter(location_id == "MW-1", param_name == "Potassium, dissolved")
+
+start <- mw1_K %>%
+  start_date()
+
+end <- mw1_K %>%
+  nth_date(start = start, n = 7)
+
+test <- mw1_K %>%
+  mutate(background = map(data, set_background, start = start, end = end),
+         percent_left_censored = map(background, percent_lt),
+         distribution = map(percent_left_censored, est_dist),
+         pred_int = map(distribution, pred_int))
+
+```
+

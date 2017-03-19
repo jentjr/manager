@@ -4,12 +4,14 @@
 \alias{is_lognormal_censored}
 \title{Function to check if censored groundwater data has a Lognormal distribution}
 \usage{
-is_lognormal_censored(x, censored, ...)
+is_lognormal_censored(x, censored, p = 0.01, ...)
 }
 \arguments{
 \item{x}{column of analysis result for groundwater data in tidy format}
 
 \item{censored}{logical vector of censored values}
+
+\item{p}{the p-value}
 
 \item{...}{other variable inputs passed to gofTestCensored}
 }

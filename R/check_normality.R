@@ -59,8 +59,6 @@ dist <- function(x, p = 0.01) {
 #' @export
 
 est_dist <- function(df, p = 0.01) {  
-  dist_result <- df %>%
-    group_by(location_id, param_name, default_unit) %>%
-    summarise(distribution = dist(analysis_result, p = p))
-  return(dist_result)
+  df %>%
+    mutate(distribution = dist(analysis_result, p = p))
 }

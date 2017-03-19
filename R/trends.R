@@ -17,3 +17,16 @@ get_theilsen <- function(df, x = "analysis_result", y = "sample_date", ...) {
   
   return(c(est, pv))
 }
+
+#' Kendall Trend
+#' 
+#' @param df dataframe of groundwater data
+#' @param conf.level
+#' @export
+
+kendall_trend <- function(df, conf.level = 0.99) {
+  
+  EnvStats::kendallTrendTest(analysis_result ~ sample_date, 
+                             conf.level = conf.level, 
+                             data=df)
+}

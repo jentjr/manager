@@ -38,18 +38,13 @@ get_constituents <- function(df, param_name){
 #' 
 #' @param df df data frame of groundwater monitoring data in long format
 #' @param lt_measure lt_measure column of less than detection limit symbol.
-#' @param percent_lt percent_lt the new column name for the percentage of non-detects.
 #' @export
 
-percent_lt <- function(df, 
-                       lt_measure = "lt_measure", 
-                       percent_lt = "percent_lt") {
-  
-  mutate_call <- lazyeval::interp(~ sum(x == "<")/n()*100, 
-                                 x = as.name(lt_measure))
+percent_lt <- function(df, lt_measure) { 
   
   df %>%
-    mutate_(.dots = setNames(list(mutate_call), percent_lt))
+    mutate(percent_left_censored = sum(lt_measure == "<", na.rm = TRUE)/n()*100)
+
 }
 
 #' Calculate the percentage of right censored data

@@ -4,12 +4,14 @@
 \alias{is_normal_censored}
 \title{Function to check if censored groundwater data has a Normal distribution}
 \usage{
-is_normal_censored(x, censored, ...)
+is_normal_censored(x, censored, p = 0.01, ...)
 }
 \arguments{
 \item{x}{column of analysis result for groundwater data in tidy format}
 
 \item{censored}{logical vector of censored values}
+
+\item{p}{the p-value}
 
 \item{...}{other variable inputs passed to gofTestCensored}
 }

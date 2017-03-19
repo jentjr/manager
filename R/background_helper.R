@@ -46,19 +46,27 @@ nth_date <- function(df,
 #' @param sample_date the column for the sampling dates
 #' @param start the start date for background
 #' @param end the end date for background
+#' @param return_all logical condition to return all values, or only background
 #' @export
 
 set_background <- function(df, 
                            sample_date,
                            start, 
-                           end) {
+                           end, 
+                           return_all = FALSE) {
 
-  df %>%
+  df <- df %>%
     arrange_(~sample_date) %>%
     mutate(background = if_else(sample_date >= start &
                                  sample_date <= end, 
                                  TRUE, FALSE))
-    
+  if (!return_all) {
+    df <- df %>%
+      filter(background == TRUE)
+  }
+  
+  df
+  
 }
 
 #' Function to return a column of the proposed background data 
