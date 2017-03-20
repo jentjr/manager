@@ -57,7 +57,7 @@
       <h1>Introduction to manager</h1>
                         <h4 class="author">Justin Jent</h4>
             
-            <h4 class="date">2017-03-17</h4>
+            <h4 class="date">2017-03-19</h4>
           </div>
 
     
@@ -69,10 +69,46 @@
 <p>Example data sets for groundwater in Indiana and Ohio are provided with the package</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">"ohio_data"</span>)
 <span class="kw">data</span>(<span class="st">"indiana_data"</span>)</code></pre></div>
+<div id="prediction-intervals" class="section level1">
+<h1 class="hasAnchor">
+<html><body><a href="#prediction-intervals" class="anchor"> </a></body></html>Prediction Intervals</h1>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">"gw_data"</span>)
+
+nested_gw &lt;-<span class="st"> </span>gw_data %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(location_id, param_name, default_unit) %&gt;%
+<span class="st">  </span><span class="kw">nest</span>()
+
+nested_gw %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(location_id ==<span class="st"> "MW-2"</span>, 
+         param_name %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">"Potassium, dissolved"</span>, <span class="st">"Magnesium, dissolved"</span>)) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">trend =</span> <span class="kw">map</span>(data, kendall_trend))</code></pre></div>
+<pre><code>## # A tibble: 2 × 5
+##   location_id           param_name default_unit              data
+##         &lt;chr&gt;                &lt;chr&gt;        &lt;chr&gt;            &lt;list&gt;
+## 1        MW-2 Magnesium, dissolved         mg/L &lt;tibble [20 × 3]&gt;
+## 2        MW-2 Potassium, dissolved         mg/L &lt;tibble [20 × 3]&gt;
+## # ... with 1 more variables: trend &lt;list&gt;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mw1_K &lt;-<span class="st"> </span>nested_gw %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(location_id ==<span class="st"> "MW-1"</span>, param_name ==<span class="st"> "Potassium, dissolved"</span>)
+
+test &lt;-<span class="st"> </span>mw1_K %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">start =</span> <span class="kw">map</span>(data, start_date),
+         <span class="dt">end  =</span> <span class="kw">map</span>(data, nth_date, <span class="dt">start =</span> start[[<span class="dv">1</span>]], <span class="dt">n =</span> <span class="dv">7</span>),
+         <span class="dt">background =</span> <span class="kw">map</span>(data, set_background, <span class="dt">start =</span> start, <span class="dt">end =</span> end),
+         <span class="dt">percent_left_censored =</span> <span class="kw">map</span>(background, percent_lt),
+         <span class="dt">distribution =</span> <span class="kw">map</span>(percent_left_censored, est_dist),
+         <span class="dt">pred_int =</span> <span class="kw">map</span>(distribution, pred_int))</code></pre></div>
+</div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+        <div id="tocnav">
+      <h2>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#prediction-intervals">Prediction Intervals</a></li>
+      </ul>
+</div>
       </div>
 
 </div>

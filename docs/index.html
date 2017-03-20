@@ -63,7 +63,7 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"> </a>Overview</h2>
-<p>The goal of manager is to provide a set of tools for plotting and analyzing groundwater data as well as reading data from external sources such as MANAGES and gINT.</p>
+<p>The goal of manager is to provide a set of tools to simplify plotting and analyzing groundwater data that is in a <a href="https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html">tidy format</a>. Manager also provides functions to read data from external sources such as MANAGES and gINT.</p>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
@@ -74,7 +74,7 @@
 data &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_manages3.html">read_manages3</a></span>(<span class="st">"C:/path/to/Site.mdb"</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># load example data and plot time series of selected wells and constituents</span>
 <span class="kw">data</span>(<span class="st">"gw_data"</span>)
-wells &lt;-<span class="st"> "MW-1"</span>
+wells &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">"MW-1"</span>, <span class="st">"MW-2"</span>)
 params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">"Magnesium, dissolved"</span>, 
             <span class="st">"Sodium, dissolved"</span>, 
             <span class="st">"Chloride, total"</span>, 
@@ -84,7 +84,7 @@ params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">
 gw_data %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(location_id %in%<span class="st"> </span>wells, param_name %in%<span class="st"> </span>params) %&gt;%
 <span class="st">  </span><span class="kw"><a href="reference/ts_plot.html">ts_plot</a></span>(., <span class="dt">facet_var =</span> <span class="st">"param_name"</span>, <span class="dt">group_var =</span> <span class="st">"location_id"</span>)</code></pre></div>
-<p><img src="README-unnamed-chunk-3-1.png" width="864"></p>
+<p><img src="README-unnamed-chunk-3-1.png" width="864"><img src="README-unnamed-chunk-3-2.png" width="864"></p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
