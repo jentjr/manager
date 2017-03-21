@@ -4,7 +4,7 @@
 \alias{set_proposed_background}
 \title{Function to return a column of the proposed background data}
 \usage{
-set_proposed_background(df, sample_date, start, end)
+set_proposed_background(df, sample_date, start, end, return_all = FALSE)
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}
@@ -14,6 +14,9 @@ set_proposed_background(df, sample_date, start, end)
 \item{start}{the start date for background}
 
 \item{end}{the end date for background}
+
+\item{return_all}{TRUE/FALSE to return all values, 
+or only proposed background}
 }
 \description{
 Function to return a column of the proposed background data
