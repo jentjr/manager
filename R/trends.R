@@ -21,7 +21,7 @@ get_theilsen <- function(df, x = "analysis_result", y = "sample_date", ...) {
 #' Kendall Trend
 #' 
 #' @param df dataframe of groundwater data
-#' @param conf.level
+#' @param conf.level confidence level between 0 and 1
 #' @export
 
 kendall_trend <- function(df, conf.level = 0.99) {

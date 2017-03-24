@@ -8,6 +8,8 @@ kendall_trend(df, conf.level = 0.99)
 }
 \arguments{
 \item{df}{dataframe of groundwater data}
+
+\item{conf.level}{confidence level between 0 and 1}
 }
 \description{
 Kendall Trend
