@@ -7,7 +7,7 @@
 
 assign_limits <- function(df, column = "param_name", type = "all"){
   
-  data(mcl)
+  mcl <- data("mcl")
   
   if (isTRUE(type == "primary")) {
     mcl <- mcl[mcl$type == "primary", ]

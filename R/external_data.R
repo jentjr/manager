@@ -3,56 +3,68 @@
 #' This function connects to the MANAGES database for the path supplied.
 #' R must be in 32-bit mode. 
 #' 
-#' @param manages_path manages_path Path to MANAGES Site.mdb file
+#' @param manages3_path manages_path Path to MANAGES Site.mdb file
 #' @export
 
-read_manages3 <- function(manages_path) {
+connect_manages3 <- function(manages3_path) {
   
-  manages_conn <- RODBC::odbcDriverConnect(
-    paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)}",
-                    ";DBQ=", manages_path)
+  con <- DBI::dbConnect(odbc::odbc(), 
+          .connection_string = paste0(
+            "Driver={Microsoft Access Driver (*.mdb, *.accdb)}",
+            ";DBQ=", manages3_path)
     )
-  
-  manages_query <- paste0("SELECT sample_results.location_id, ",
-                "sample_results.lab_id, ", 
-                "sample_results.sample_date, ",
-                "sample_results.lt_measure, ",
-                "sample_results.analysis_result, ", 
-                "sample_results.detection_limit, ",
-                "sample_results.PQL, ",
-                "site_parameters.default_unit, ", 
-                "site_parameters.param_name, ",
-                "site_parameters.short_name ",
-                "FROM ", 
-                "sample_results LEFT JOIN site_parameters ON ", 
-                "sample_results.storet_code = site_parameters.storet_code")
-  
-  data <- RODBC::sqlQuery(channel = manages_conn, query = manages_query)
-
-  close(manages_conn)
-  
-  return(data)
 }
 
-#' function to connect to MANAGES database and read spatial data
+#' Function return a MANAGES 3.x Site.mdb database in memory
 #' 
-#' @param manages_path path to MANAGES database
+#' This function connects to the MANAGES database for the path supplied, and 
+#' returns data in memory. R must be in 32-bit mode. 
+#' 
+#' @param manages3_path manages_path Path to MANAGES Site.mdb file
 #' @export
 
-read_manages3_spatial <- function(manages_path){
+read_manages3 <- function(manages3_path) {
   
-  manages_conn <- RODBC::odbcDriverConnect(
-    paste0("Driver={Microsoft Access Driver (*.mdb, *.accdb)}",
-           ";DBQ=", manages_path)
+  con <- connect_manages3(manages3_path)
+  
+  query <- paste0(
+    "SELECT sample_results.location_id, ",
+    "sample_results.lab_id, ", 
+    "sample_results.sample_date, ",
+    "sample_results.lt_measure, ",
+    "sample_results.analysis_result, ", 
+    "sample_results.detection_limit, ",
+    "sample_results.PQL, ",
+    "site_parameters.default_unit, ", 
+    "site_parameters.param_name, ",
+    "site_parameters.short_name ",
+    "FROM ", 
+    "sample_results LEFT JOIN site_parameters ON ", 
+    "sample_results.storet_code = site_parameters.storet_code"
   )
   
-  manages_query <- paste0("SELECT * FROM locations")
+  data <- DBI::dbGetQuery(con, query)
   
-  sp_data <- RODBC::sqlQuery(manages_conn, manages_query)
+  dbDisconnect(con)
   
-  close(manages_conn)
+  return(data)
   
-  return(sp_data)
+}
+
+
+#' Function to connect to MANAGES 4.0 database
+#' 
+#' @param server server name
+#' @param database database name
+#' @export
+
+connect_manages4 <- function(driver = "SQL Server", server, database) {
+  
+  con <- DBI::dbConnect(odbc::odbc(), 
+                   driver = driver, 
+                   server = server, 
+                   database = database)
+  
 }
 
 #' function to read data in csv format and convert date to POSIXct with lubridate

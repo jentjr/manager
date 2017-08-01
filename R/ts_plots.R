@@ -6,6 +6,10 @@
 #' @param y y column for y variable
 #' @param facet_var column to facet wrap plots by, default is by location
 #' @param group_var column to group plots by, default is by constituent
+#' @param scale_y_trans type of transformation to use for y scale. Default is
+#' "identity".  Built-in transformations include "asn", "atanh", "boxcox", 
+#' "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability", 
+#' "probit", "reciprocal", "reverse" and "sqrt".
 #' @param trend trend add trend line to time series plot
 #' @param back_date dates for background date range
 #' @param comp_date dates for compliance date range
@@ -22,6 +26,8 @@ ts_plot <- function(df,
                     y = "analysis_result",
                     facet_var = "location_id",
                     group_var = "param_name",
+                    lt_measure = "lt_measure",
+                    scale_y_trans = "identity",
                     trend = NULL, 
                     back_date = NULL, 
                     comp_date = NULL, 
@@ -38,6 +44,8 @@ ts_plot <- function(df,
                          y = y, 
                          group_var = group_var, 
                          facet_var = facet_var,
+                         lt_measure = lt_measure,
+                         scale_y_trans = scale_y_trans,
                          trend = trend,
                          back_date = back_date,
                          comp_date = comp_date,
@@ -69,8 +77,10 @@ ts_plot <- function(df,
 .ts_plot <- function(df,
                      x = "sample_date",
                      y = "analysis_result",
+                     lt_measure = "lt_measure",
                      facet_var = NULL,
                      group_var = NULL,
+                     scale_y_trans = "identity",
                      trend = NULL, 
                      back_date = NULL, 
                      comp_date = NULL, 
@@ -81,9 +91,9 @@ ts_plot <- function(df,
                      ncol = NULL,
                      ...) {
   
-  df$non_detect <- if_else(df$lt_measure == "<", 
+  df$non_detect <- if_else(df[, lt_measure] == "<", 
                            "non-detect", "detected", 
-                           missing = "detected")
+                            missing = "detected")
   
   if (isTRUE(short_name)) {
     
@@ -105,6 +115,7 @@ ts_plot <- function(df,
     ylab("Analysis Result") +
     xlab("Sample Date") + 
     scale_x_datetime(labels = scales::date_format("%Y")) +
+    scale_y_continuous(trans = scale_y_trans) +
     theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) + 
     theme_bw() +  
     theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +

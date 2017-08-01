@@ -3,6 +3,11 @@
 #' @param df groundwater data in tidy format
 #' @param x column to be used for the x axis, default is location
 #' @param y column to be used for the y axis, default is analysis result
+#' @param lt_measure column for >, or < identifier
+#' @param scale_y_trans type of transformation to use for y scale. Default is
+#' "identity".  Built-in transformations include "asn", "atanh", "boxcox", 
+#' "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability", 
+#' "probit", "reciprocal", "reverse" and "sqrt".
 #' @param fill column used to fill the variable
 #' @param limit1 column to be used to draw horizontal line
 #' @param limit2 column to be used to draw a second horizontal line
@@ -14,21 +19,28 @@
 boxplot <- function(df, 
                     x = "location_id",
                     y = "analysis_result",
+                    lt_measure = "lt_measure",
+                    group_var = "param_name",
+                    scale_y_trans = "identity",
                     fill = NULL,
                     limit1 = NULL,
                     limit2 = NULL,
+                    pnt = 2,
                     short_name = FALSE, 
                     coord_flip = FALSE,
                     legend_title = NULL){
   
     df %>% 
-      group_by(param_name) %>%
+      group_by_(group_var) %>%
       do(plot = .boxplot(.,
                   x = x,
                   y = y,
+                  lt_measure = lt_measure,
+                  scale_y_trans = scale_y_trans,
                   fill = fill,
                   limit1 = limit1,
                   limit2 = limit2,
+                  pnt = pnt,
                   short_name = short_name,
                   coord_flip = coord_flip,
                   legend_title = legend_title
@@ -51,10 +63,13 @@ boxplot <- function(df,
 
 .boxplot <- function(df, 
                      x = "location_id", 
-                     y = "analysis_result", 
+                     y = "analysis_result",
+                     lt_measure = "lt_measure",
+                     scale_y_trans = "identity",
                      fill = NULL,
                      limit1 = NULL,
                      limit2 = NULL,
+                     pnt = 2,
                      short_name = FALSE, 
                      coord_flip = FALSE,
                      legend_title = NULL) {
@@ -75,9 +90,14 @@ boxplot <- function(df,
     
   }
   
+  df$non_detect <- if_else(df[, lt_measure] == "<", 
+                           "non-detect", "detected", 
+                           missing = "detected")
+  
   b <- ggplot(df, aes_string(x = x, y = y, fill = fill)) + 
     theme_bw() + 
-    ylab(paste("Analysis Result"," (", df$default_unit[1], ")", sep = "")) + 
+    ylab(paste("Analysis Result"," (", df$default_unit[1], ")", "\nScale: ", 
+               scale_y_trans, sep = "")) + 
     xlab("Location ID") +
     guides(fill = guide_legend(paste0(legend_title)), 
            linetype = guide_legend("Limits")) +
@@ -89,6 +109,12 @@ boxplot <- function(df,
     theme(axis.text.y = element_text(size = 10)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     geom_boxplot() + 
+    geom_beeswarm(aes(shape = factor(non_detect, exclude = NULL), size = pnt)) +
+    scale_y_continuous(trans = scale_y_trans) + 
+    guides(colour = guide_legend(override.aes = list(linetype = 0)), 
+           shape = guide_legend("Detection", override.aes = list(linetype = 0)),
+           size = guide_legend("none")) +
+    scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) +
     ggtitle(paste("Boxplot for", df$name_units[1], "\n", sep = " "))
   
   if (!is.null(limit1)) {

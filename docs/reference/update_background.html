@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to flag outliers from Grubb's test for outliers — grubbs_flag â€¢ manager</title>
+<title>Function to update background data — update_background â€¢ manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -95,25 +95,43 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to flag outliers from Grubb's test for outliers</h1>
+    <h1>Function to update background data</h1>
     </div>
 
     
-    <p>Function to flag outliers from Grubb's test for outliers</p>
+    <p>Function to update background data</p>
     
 
-    <pre class="usage"><span class='fu'>grubbs_flag</span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>update_background</span>(<span class='no'>df</span>, <span class='no'>well</span>, <span class='no'>param</span>, <span class='kw'>start</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>n_end</span> <span class='kw'>=</span> <span class='fl'>8</span>, <span class='kw'>n_prop</span> <span class='kw'>=</span> <span class='fl'>4</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
-      <td><p>column of analysis results</p></td>
+      <th>df</th>
+      <td><p>data frame of groundwater data in tidy format</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>other arguments passed to grubbs test</p></td>
+      <th>well</th>
+      <td><p>the location to update</p></td>
+    </tr>
+    <tr>
+      <th>param</th>
+      <td><p>the constituent to update</p></td>
+    </tr>
+    <tr>
+      <th>start</th>
+      <td><p>the start date of the background data. IF not provide the 
+start of the data will be found using <code><a href='start_date.html'>start_date()</a></code></p></td>
+    </tr>
+    <tr>
+      <th>n_end</th>
+      <td><p>the number of samples in current background. The date will be 
+found from this sample.</p></td>
+    </tr>
+    <tr>
+      <th>n_prop</th>
+      <td><p>the number of samples to include in the proposed background</p></td>
     </tr>
     </table>
     

@@ -4,9 +4,10 @@
 \alias{boxplot}
 \title{Function to plot boxplots for groundwater data}
 \usage{
-boxplot(df, x = "location_id", y = "analysis_result", fill = NULL,
-  limit1 = NULL, limit2 = NULL, short_name = FALSE, coord_flip = FALSE,
-  legend_title = NULL)
+boxplot(df, x = "location_id", y = "analysis_result",
+  lt_measure = "lt_measure", group_var = "param_name",
+  scale_y_trans = "identity", fill = NULL, limit1 = NULL, limit2 = NULL,
+  pnt = 2, short_name = FALSE, coord_flip = FALSE, legend_title = NULL)
 }
 \arguments{
 \item{df}{groundwater data in tidy format}
@@ -14,6 +15,13 @@ boxplot(df, x = "location_id", y = "analysis_result", fill = NULL,
 \item{x}{column to be used for the x axis, default is location}
 
 \item{y}{column to be used for the y axis, default is analysis result}
+
+\item{lt_measure}{column for >, or < identifier}
+
+\item{scale_y_trans}{type of transformation to use for y scale. Default is
+"identity".  Built-in transformations include "asn", "atanh", "boxcox", 
+"exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability", 
+"probit", "reciprocal", "reverse" and "sqrt".}
 
 \item{fill}{column used to fill the variable}
 

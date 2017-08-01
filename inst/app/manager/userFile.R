@@ -2,63 +2,15 @@
 userFile <- function(input, output, session, stringsAsFactors) {
   
   userFileReact <- reactive({
-
-    tidy_message = 
-"Please upload a file in the following format: 
-\n\n
-location_id | sample_date | param_name     | lt_measure | analysis_result | default_unit
-------------| ------------| ---------------| -----------| ----------------| ------------
-MW-1        | 2008-01-01  | Arsenic, diss  |      <     |     0.01        |       ug/L
-------------| ------------| ---------------| -----------| ----------------| ------------
-MW-1        | 2008-01-01  | Boron, diss    |            |     0.24        |       mg/L 
-\n\n
-Check the boxes to the left, and MANAGER will try to do the rest."
     
-    if (input$fileInputType == 'csv') {
-      
-      validate(need(input$csvfile,
-               message  = tidy_message))
-      
-      inputdata <- readr::read_delim(
-        file = input$csvfile$datapath,
-        col_names = input$csvheader,
-        delim = input$csvsep,
-        quote = input$csvquote
-      ) 
-      
-      #   rename_(
-      #     location_id = input$location_id,
-      #     sample_date = input$sample_date,
-      #     param_name = input$param_name,
-      #     lt_measure = input$lt_measure,
-      #     analysis_result = input$analysis_result,
-      #     default_unit = input$default_unit
-      #   )
-
-    }
-    
-    if (input$fileInputType == 'excel') {
-      
-      validate(need(input$excelfile$datapath, 
-                    message = tidy_message))
-      
-      inputdata <- readxl::read_excel(
-        path = input$excelfile$datapath,
-        sheet = input$excelsheet
-      )
-    }
-    
-    if (input$fileInputType == 'manages') {
-      
       validate(need(input$managesfile$datapath,
-                    message = "Please upload a MANAGES Site.mdb file\n\n
+                    message = "Please upload a MANAGES 3.X Site.mdb file\n\n
                     Only works when running locally for now..."))
       
       inputdata <- manager::read_manages3(
          input$managesfile$datapath
         )
       
-    }
     return(inputdata)
   })
 }

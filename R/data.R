@@ -27,3 +27,12 @@
 #' Example groundwater quality data 
 #' 
 "gw_data"
+
+
+#' U.S. EPA Maximum Contaminant Level Lookup Table
+#'
+#' @name mcl
+#' @return mcl data frame
+#' @docType data
+#' @export mcl
+NULL

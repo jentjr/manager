@@ -6,11 +6,13 @@ timeSeries <- function(input, output, session, data, multiple) {
     
     tagList(
       
-      selectInput(ns("ts_wells"), "Wells", get_wells(data), 
+      selectInput(ns("ts_wells"), "Wells", 
+                  get_wells(data, location_id), 
                   selected = get_wells(data)[1], 
                   multiple = multiple),
       
-      selectInput(ns("ts_constituents"), "Constituents", get_constituents(data),
+      selectInput(ns("ts_constituents"), "Constituents", 
+                  get_constituents(data, param_name),
                   selected = get_constituents(data)[1],
                   multiple = multiple),
       

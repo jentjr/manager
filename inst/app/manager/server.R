@@ -1,6 +1,6 @@
 # Server File for use with MANAGES Database
 library(manager)
-library(plotly)
+#library(plotly)
 
 # change options to handle large file size
 options(shiny.maxRequestSize = -1)
@@ -186,7 +186,7 @@ shinyServer(function(input, output, session) {
               ts <- manager::ts_plot(
                 ts_data[ts_data$location_id ==
                                ts_well[ts_i], ],
-                facet_by = "location_id",
+                facet_var = "location_id",
                 trend = input$ts_trend,
                 short_name = input$ts_short_name,
                 back_date = c(b1, b2),
