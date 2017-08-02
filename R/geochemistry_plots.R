@@ -13,7 +13,10 @@
 #' @export
 
 get_major_ions <- function(df, 
-                           param_name,
+                           location_id = "location_id",
+                           sample_date = "sample_date",
+                           param_name = "param_name",
+                           analysis_result = "analysis_result",
                            Mg = "Magnesium, dissolved", 
                            Ca = "Calcium, dissolved", 
                            Na = "Sodium, dissolved", 
@@ -21,7 +24,9 @@ get_major_ions <- function(df,
                            Cl = "Chloride, total", 
                            SO4 = "Sulfate, total", 
                            Alk = "Alkalinity, total (lab)", 
-                           TDS = NULL) {
+                           TDS = NULL,
+                           pH = NULL) {
+
 #   TODO: add other major ions like Fe
 #   input_list <- list(...)
   
@@ -29,14 +34,11 @@ get_major_ions <- function(df,
   
   data <- df %>% 
     filter_(~param_name %in% params) %>%
-    group_by(location_id, sample_date, param_name) %>%
-    mutate(group = n())
-  
-  plot_data <- reshape2::dcast(id, value.var = "analysis_result", 
-                        location_id + group + sample_date ~ param_name, mean,
-                        margins = FALSE)[-2]
+    spread_(param_name, analysis_result) %>%
+    group_by_(~location_id, ~sample_date) %>%
+    summarise_at(vars(params), mean, na.rm = TRUE)
 
-  return(plot_data)
+  return(data)
   
 }
 
