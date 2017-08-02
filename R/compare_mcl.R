@@ -5,28 +5,16 @@
 #' @param type can be all, primary, or secondary 
 #' @export
 
-assign_limits <- function(df, column = "param_name", type = "all"){
+assign_limits <- function(df, column = "param_name"){
   
-  mcl <- data("mcl")
-  
-  if (isTRUE(type == "primary")) {
-    mcl <- mcl[mcl$type == "primary", ]
-  }
-  
-  if (isTRUE(type == "secondary")) {
-    mcl <- mcl[mcl$type == "secondary", ]
-  }
-  
-  for (i in 1:nrow(mcl)) {
-    element <- mcl$param_name[i]
+  for (i in 1:nrow(ccr_mcl)) {
+    element <- ccr_mcl$param_name[i]
     rws <- grepl(paste(element), df[[paste(column)]])
-    df[rws, "mcl_type"] <- mcl$type[i]
-    df[rws, "mcl_unit"] <- mcl$mcl_unit[i]
-    df[rws, "mcl_lower_limit"] <- mcl$lower_limit[i]
-    df[rws, "mcl_upper_limit"] <- mcl$upper_limit[i]
+    df[rws, "mcl_unit"] <- ccr_mcl$default_unit[i]
+    df[rws, "mcl"] <- ccr_mcl$mcl[i]
   }
 
-  df <- convert_mcl_units(df)
+  df <- .convert_mcl_units(df)
   
   return(df)
   
@@ -35,19 +23,30 @@ assign_limits <- function(df, column = "param_name", type = "all"){
 #' Function to compare groundwater parameter units to EPA MCL data
 #' 
 #' @param df dataframe of groundwater data
-#' @export
 
-convert_mcl_units <- function(df){
+.convert_mcl_units <- function(df){
+  
   for (i in 1:nrow(df)) {
-    if (df[i, "default_unit"] == "ug/L") {
-      df[i,"analysis_result"] <- udunits2::ud.convert(df[i, "analysis_result"],
-                                                      "ug/L", "mg/L")
-      df[i,"default_unit"] <- "mg/L"
-    }
-    else{
+    
+    if (df[i, "default_unit"] != df[i, "mcl_unit"] &
+        !is.na(df[i, "mcl_unit"])) {
+      
+      df[i, "mcl"] <- udunits2::ud.convert(
+        df[i, "mcl"], 
+        paste(df[[i, "mcl_unit"]]), 
+        paste(df[[i, "default_unit"]])
+      )
+      
+      df[i, "mcl_unit"] <- paste(df[i, "default_unit"])
+      
+    } else{
+       
       next
+      
     }
+    
   }
+  
   return(df)
 }
 

@@ -4,10 +4,12 @@
 \alias{get_major_ions}
 \title{Function to gather parameters needed for geochemistry plots.}
 \usage{
-get_major_ions(df, param_name, Mg = "Magnesium, dissolved",
-  Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
-  K = "Potassium, dissolved", Cl = "Chloride, total",
-  SO4 = "Sulfate, total", Alk = "Alkalinity, total (lab)", TDS = NULL)
+get_major_ions(df, location_id = "location_id", sample_date = "sample_date",
+  param_name = "param_name", analysis_result = "analysis_result",
+  Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
+  Na = "Sodium, dissolved", K = "Potassium, dissolved",
+  Cl = "Chloride, total", SO4 = "Sulfate, total",
+  Alk = "Alkalinity, total (lab)", TDS = NULL, pH = NULL)
 }
 \arguments{
 \item{df}{data frame of groundwater monitoring data in tidy format}

@@ -4,7 +4,7 @@
 \alias{assign_limits}
 \title{Function to assign EPA primary and seconday Maximum Contaminant Levels}
 \usage{
-assign_limits(df, column = "param_name", type = "all")
+assign_limits(df, column = "param_name")
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}
