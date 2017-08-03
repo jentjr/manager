@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to gather parameters needed for geochemistry plots. � get_major_ions • manager</title>
+<title>Function to gather parameters needed for geochemistry plots. — get_major_ions • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -102,10 +102,12 @@
     <p>Function to gather parameters needed for geochemistry plots.</p>
     
 
-    <pre class="usage"><span class='fu'>get_major_ions</span>(<span class='no'>df</span>, <span class='no'>param_name</span>, <span class='kw'>Mg</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>,
-  <span class='kw'>Ca</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>Na</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>,
-  <span class='kw'>K</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>, <span class='kw'>Cl</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>,
-  <span class='kw'>SO4</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>, <span class='kw'>Alk</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>get_major_ions</span>(<span class='no'>df</span>, <span class='kw'>location_id</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>sample_date</span> <span class='kw'>=</span> <span class='st'>"sample_date"</span>,
+  <span class='kw'>param_name</span> <span class='kw'>=</span> <span class='st'>"param_name"</span>, <span class='kw'>analysis_result</span> <span class='kw'>=</span> <span class='st'>"analysis_result"</span>,
+  <span class='kw'>Mg</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>, <span class='kw'>Ca</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>,
+  <span class='kw'>Na</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>,
+  <span class='kw'>Cl</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>, <span class='kw'>SO4</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>,
+  <span class='kw'>Alk</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>pH</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">

@@ -75,16 +75,15 @@
       <h1>Updating Background Groundwater Quality Data Used in Detection Monitoring</h1>
                         <h4 class="author">Justin Jent</h4>
             
-            <h4 class="date">2017-07-31</h4>
+            <h4 class="date">2017-08-02</h4>
           </div>
 
     
     
 <div class="contents">
 <p>This document describes how to update background data used in detection monitoring. The well, constituent, current background and proposed data can be selected and the underlying assumptions are checked and the data are analyzed.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(manager)</code></pre></div>
-<pre><code>## Warning: package 'dplyr' was built under R version 3.4.1</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">"gw_data"</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(manager)
+<span class="kw">data</span>(<span class="st">"gw_data"</span>)
 
 MW1_Arsenic &lt;-<span class="st"> </span>gw_data %&gt;%
 <span class="st">  </span><span class="kw">filter</span>(location_id ==<span class="st"> "MW-1"</span>, param_name ==<span class="st"> "Arsenic, dissolved"</span>)
@@ -95,9 +94,9 @@ MW1_Arsenic &lt;-<span class="st"> </span>gw_data %&gt;%
 ## Groups: &lt;by row&gt;
 ## 
 ## # A tibble: 1 x 2
-##           param_name     plot
-## *              &lt;chr&gt;   &lt;list&gt;
-## 1 Arsenic, dissolved &lt;S3: gg&gt;</code></pre>
+##           param_name       plot
+## *              &lt;chr&gt;     &lt;list&gt;
+## 1 Arsenic, dissolved &lt;list [3]&gt;</code></pre>
 </div>
   </div>
 
