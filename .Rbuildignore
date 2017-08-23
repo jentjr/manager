@@ -4,3 +4,4 @@
 ^\.Rprofile$
 ^appveyor\.yml$
 ^codecov\.yml$
+^packrat/

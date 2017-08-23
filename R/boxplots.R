@@ -109,7 +109,8 @@ boxplot <- function(df,
     theme(axis.text.y = element_text(size = 10)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     geom_boxplot() + 
-    geom_beeswarm(aes(shape = factor(non_detect, exclude = NULL), size = pnt)) +
+    geom_beeswarm(aes(shape = factor(non_detect, exclude = NULL), 
+                      size = pnt), groupOnX = TRUE) +
     scale_y_continuous(trans = scale_y_trans) + 
     guides(colour = guide_legend(override.aes = list(linetype = 0)), 
            shape = guide_legend("Detection", override.aes = list(linetype = 0)),
