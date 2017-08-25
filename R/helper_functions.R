@@ -4,7 +4,7 @@
 #' @param location_id column for the sample location id
 #' @export
 
-get_wells <- function(df, location_id){
+sample_locations <- function(df, location_id){
   
   wells <- df %>%
     group_by_(~location_id) %>% 
@@ -22,7 +22,7 @@ get_wells <- function(df, location_id){
 #' @param param_name the column for the constituents
 #' @export
 
-get_constituents <- function(df, param_name){
+constituents <- function(df, param_name){
   
   constituents <- df %>%
     group_by_(~param_name) %>%
