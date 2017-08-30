@@ -12,27 +12,23 @@ BugIssues: https://github.com/jentjr/manager/issues
 Depends:
     R (>= 3.0.2),
     tidyverse,
-    forcats,
-    lubridate,
     EnvStats,
-    ggbeeswarm,
-    DBI,
-    odbc
+    ggbeeswarm
 Imports:
     openxlsx,
-    readxl,
     animation,
     reshape2,
     scales,
-    grid,
+    grid
+Suggests: 
+    DBI,
+    odbc,
     shiny,
-    units
-Suggests:
-    sf,
     testthat,
     knitr,
     rmarkdown,
-    covr
+    covr,
+    udunits2
 License: MIT + file LICENSE
 LazyData: true
 VignetteBuilder: knitr
