@@ -45,7 +45,7 @@ read_manages3 <- function(manages3_path) {
   
   data <- DBI::dbGetQuery(con, query)
   
-  dbDisconnect(con)
+  DBI::dbDisconnect(con)
   
   return(data)
   
