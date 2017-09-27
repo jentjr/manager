@@ -21,12 +21,14 @@ shinyServer(function(input, output, session) {
   # End Data Entry -------------------------------------------------------------
   
   # Summary table --------------------------------------------------------------
-  # summaryfile <- callModule(wellConstituent, "summary", datafile(), 
-  #                             multiple = FALSE)
-  # 
-  # output$summary_table <- renderPrint({
-  #   EnvStats::summaryFull(summaryfile()$analysis_result)
-  # })
+  summaryfile <- callModule(wellConstituent, "summary", datafile(),
+                              multiple = TRUE)
+
+  output$summary_table <- renderPrint({
+    
+    summary(summaryfile)
+    
+  })
   # End Summary table ----------------------------------------------------------
   
   # Begin Distribution Plots ---------------------------------------------------
@@ -95,26 +97,26 @@ shinyServer(function(input, output, session) {
   boxplot <- reactive({
 
       box_data <- boxplotfile()
-      box_wells <- get_wells(box_data)
-      box_params <- get_constituents(box_data)
+      box_wells <- sample_locations(box_data)
+      box_params <- constituents(box_data)
       
       box_list <- lapply(seq_along(box_params), function(i) {
         box_name <- paste("box_plot", i, sep = "")
-        plotlyOutput(box_name)
+        plotOutput(box_name)
       })
 
       for (i in seq_along(box_params)) {
         local({
           box_i <- i
           box_name <- paste("box_plot", box_i, sep = "")
-          output[[box_name]] <- renderPlotly({
+          output[[box_name]] <- renderPlot({
             box <- manager::boxplot(
               box_data[box_data$param_name ==
                          box_params[box_i], ],
               x = "location_id",
               y = "analysis_result"
             )
-            ggplotly(box$plot[[1]])
+            box
           })
         })
       }
@@ -129,8 +131,8 @@ shinyServer(function(input, output, session) {
   get_box_data <- reactive({
     
     box_data <- boxplotfile()
-    box_wells <- get_wells(box_data)
-    box_params <- get_constituents(box_data) 
+    box_wells <- sample_locations(box_data)
+    box_params <- constituents(box_data) 
     
   })
   
@@ -155,8 +157,8 @@ shinyServer(function(input, output, session) {
   ts_plot <- reactive({
 
     ts_data <- tsplotfile()
-    ts_wells <- get_wells(ts_data)
-    ts_params <- get_constituents(ts_data)
+    ts_wells <- sample_locations(ts_data)
+    ts_params <- constituents(ts_data)
     
     ts_list <- lapply(seq_along(num_plots), function(i) {
       ts_name <- paste("ts_plot", i, sep = "")

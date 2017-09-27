@@ -6,12 +6,12 @@ boxPlot <- function(input, output, session, data, multiple) {
     
     tagList(
       
-      selectInput(ns("wells"), "Wells", get_wells(data), 
-                  selected = get_wells(data)[1], 
+      selectInput(ns("wells"), "Wells", sample_locations(data), 
+                  selected = sample_locations(data)[1], 
                   multiple = multiple),
       
-      selectInput(ns("constituents"), "Constituents", get_constituents(data),
-                  selected = get_constituents(data)[1],
+      selectInput(ns("constituents"), "Constituents", constituents(data),
+                  selected = constituents(data)[1],
                   multiple = multiple),
       
       downloadButton("box_download", "Download Plots")

@@ -10,16 +10,16 @@ shinyUI(navbarPage("MANAGER",
       )
     )
   ),
-  # tabPanel("Summary",
-  #   sidebarLayout(
-  #     sidebarPanel(
-  #       wellConstituentInput("summary")
-  #    ),
-  #    mainPanel(
-  #     verbatimTextOutput("summary_table")
-  #     )
-  #   )
-  # ),
+  tabPanel("Summary",
+    sidebarLayout(
+      sidebarPanel(
+        wellConstituentInput("summary")
+     ),
+     mainPanel(
+      verbatimTextOutput("summary_table")
+      )
+    )
+  ),
   navbarMenu("Plots",
     tabPanel("Distribution Plots",
       sidebarLayout(
