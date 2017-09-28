@@ -160,13 +160,9 @@ Hash: 48fd7b88ecf2dda957c03ea1740b5a43
 Requires: crayon, httr, jsonlite, rex, withr
 
 Package: crayon
-Source: github
-Version: 1.3.2.9000
-Hash: 42fe74d399ace4ed48c99e1950b08773
-GithubRepo: crayon
-GithubUsername: gaborcsardi
-GithubRef: master
-GithubSha1: e4dba3b4e27f571c1eebaafbfc8724ca10a090bc
+Source: CRAN
+Version: 1.3.4
+Hash: ff2840dd9b0d563fc80377a5a45510cd
 
 Package: curl
 Source: CRAN
@@ -191,8 +187,8 @@ Hash: e53fb8c58673df868183697e39a6a4d6
 
 Package: dplyr
 Source: CRAN
-Version: 0.7.2
-Hash: 5a8ce60afbf0ec97d124970f75be3b03
+Version: 0.7.3
+Hash: 8083d22491cbb94e00727a9d7f590bf5
 Requires: BH, R6, Rcpp, assertthat, bindrcpp, glue, magrittr,
     pkgconfig, plogr, rlang, tibble
 
@@ -340,8 +336,8 @@ GithubSha1: f0c92d683e0df8f23c3499d836129b0161a8981f
 
 Package: openssl
 Source: CRAN
-Version: 0.9.6
-Hash: 5f4711e142a44655dfea4d64fcf2f641
+Version: 0.9.7
+Hash: 225d43f64f60e8996d10efe15b381c66
 
 Package: openxlsx
 Source: github
@@ -391,8 +387,8 @@ GithubSha1: 124030a369c86538e980f9671b436048aae9ef77
 
 Package: psych
 Source: CRAN
-Version: 1.7.5
-Hash: 0c076a96de916d0d26d866e83909d961
+Version: 1.7.8
+Hash: a9e7713423365e42e06413285a89e610
 Requires: mnormt
 
 Package: purrr
@@ -459,13 +455,9 @@ Hash: fdcac51a7f47decd60556ceefc3c26b1
 Requires: backports
 
 Package: rstudioapi
-Source: github
-Version: 0.6.0.9000
-Hash: d3e74482c5ab52fbde7ea44243a37d06
-GithubRepo: rstudioapi
-GithubUsername: rstudio
-GithubRef: master
-GithubSha1: e1e466ba16a6c22c6be2e25ed1808906d4031c86
+Source: CRAN
+Version: 0.7
+Hash: e2ebaff8160aff3e6b32e6e78a693c2d
 
 Package: rvest
 Source: CRAN
@@ -531,16 +523,16 @@ Requires: Rcpp, rlang
 
 Package: tidyr
 Source: CRAN
-Version: 0.7.0
-Hash: 2a57379324a1f6ba921f53481dcf9e2c
+Version: 0.7.1
+Hash: 7168c380464c53d2ab81074697631f64
 Requires: Rcpp, dplyr, glue, magrittr, purrr, rlang, stringi, tibble,
     tidyselect
 
 Package: tidyselect
 Source: CRAN
-Version: 0.1.1
-Hash: b4a923c118b74d3e7ab54563b32d4ed9
-Requires: Rcpp, glue, rlang
+Version: 0.2.0
+Hash: f6ef011a82d0718e198d30639ea42044
+Requires: Rcpp, glue, purrr, rlang
 
 Package: tidyverse
 Source: github
