@@ -1,6 +1,20 @@
 # Server File for use with MANAGES Database
 library(manager)
-#library(plotly)
+library(shiny)
+library(DBI)
+library(pool)
+
+# dw <- config::get("datawarehouse")
+# 
+# pool <- dbPool(
+#   drv = odbc::odbc(),
+#   Driver = dw$driver,
+#   Server = dw$server,
+#   UID    = dw$uid,
+#   PWD    = dw$pwd,
+#   Port   = dw$port,
+#   Database = dw$database
+# )
 
 # change options to handle large file size
 options(shiny.maxRequestSize = -1)
@@ -26,7 +40,7 @@ shinyServer(function(input, output, session) {
 
   output$summary_table <- renderPrint({
     
-    summary(summaryfile)
+    manager::summary(summaryfile())
     
   })
   # End Summary table ----------------------------------------------------------
@@ -114,7 +128,8 @@ shinyServer(function(input, output, session) {
               box_data[box_data$param_name ==
                          box_params[box_i], ],
               x = "location_id",
-              y = "analysis_result"
+              y = "analysis_result",
+              fill = box_data$group
             )
             box
           })
