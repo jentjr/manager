@@ -1,22 +1,21 @@
-library(manager)
 shinyUI(navbarPage("MANAGER",
   tabPanel("Data",
     sidebarLayout(
       sidebarPanel(
-        userFileInput("datafile", "") 
+        selectDataUI("select_data")
         ),
       mainPanel(
-        dataTableOutput("table")
+        dataTableOutput("data_table")
       )
     )
   ),
   tabPanel("Summary",
     sidebarLayout(
       sidebarPanel(
-        wellConstituentInput("summary")
+        selectDataUI("summary_data")
      ),
      mainPanel(
-      verbatimTextOutput("summary_table")
+        dataTableOutput("summary_table")
       )
     )
   ),
@@ -24,8 +23,7 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Distribution Plots",
       sidebarLayout(
         sidebarPanel(
-          wellConstituentInput("dist"),
-          uiOutput("dist_date_ranges"),
+          selectDataUI("distribution_data"),
           radioButtons(
             inputId = "dist_plot_type", 
             label = "Type of Distribution Plot",
@@ -89,7 +87,7 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Time Series",
       sidebarLayout(
         sidebarPanel(
-          timeSeriesInput("tsplot")
+          selectDataUI("ts_data")
         ),
         mainPanel(
           uiOutput("ts_out")
@@ -99,7 +97,7 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Boxplots",
       sidebarLayout(
         sidebarPanel(
-          boxplotInput("boxplot")
+          selectDataUI("boxplot_data")
         ),
         mainPanel(
           uiOutput("boxplot_out")  

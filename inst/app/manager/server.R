@@ -1,119 +1,121 @@
-# Server File for use with MANAGES Database
-library(manager)
-library(shiny)
-library(DBI)
-library(pool)
-
-# dw <- config::get("datawarehouse")
-# 
-# pool <- dbPool(
-#   drv = odbc::odbc(),
-#   Driver = dw$driver,
-#   Server = dw$server,
-#   UID    = dw$uid,
-#   PWD    = dw$pwd,
-#   Port   = dw$port,
-#   Database = dw$database
-# )
-
-# change options to handle large file size
-options(shiny.maxRequestSize = -1)
-# force numbers to be decimal instead of scientific
-options(scipen = 6, digits = 8)
-
 shinyServer(function(input, output, session) {
   
-  # Data Entry -----------------------------------------------------------------
-  datafile <- callModule(userFile, "datafile")
-
-  output$table <- renderDataTable({
-    datafile()
+  # Data Table -----------------------------------------------------------------
+  select_data <- callModule(selectData, "select_data", multiple = TRUE)
+  
+  output$data_table <- renderDataTable({
+    
+    select_data()
+    
   }, options = list(scrollY = "100%", scrollX = "100%",
                     lengthMenu = c(5, 10, 15, 25, 50, 100),
                     pageLength = 10)
   )
-  # End Data Entry -------------------------------------------------------------
+  
+  output$data_table_download <- downloadHandler(
+    
+    filename = function() {
+      
+      paste("MANAGER_EXPORT_", Sys.Date(), "_.csv", sep = "")
+      
+    },
+    
+    content = function(file) {
+      
+      write.csv(select_data(), file, row.names = FALSE)
+      
+    }
+    
+  )
+  # End Data Table -------------------------------------------------------------
   
   # Summary table --------------------------------------------------------------
-  summaryfile <- callModule(wellConstituent, "summary", datafile(),
-                              multiple = TRUE)
+  summary_data <- callModule(selectData, "summary_data", multiple = TRUE)
 
-  output$summary_table <- renderPrint({
-    
-    manager::summary(summaryfile())
-    
-  })
+  output$summary_table <- renderDataTable({
+
+    manager::summary(summary_data())
+
+  }, options = list(scrollY = "100%", scrollX = "100%",
+                    lengthMenu = c(5, 10, 15, 25, 50, 100),
+                    pageLength = 10)
+  )
   # End Summary table ----------------------------------------------------------
   
   # Begin Distribution Plots ---------------------------------------------------
-  distfile <- callModule(wellConstituent, "dist", datafile(),
-                         multiple = FALSE)
-  
+  distribution_data <- callModule(selectData, "distribution_data", 
+                                  multiple = FALSE)
+
   output$gof_test <- renderPrint({
-    df <- distfile()
+    df <- distribution_data()
 
     if (isTRUE(input$dist_plot_type == "Censored")) {
-      df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
+      df$CENSORED <- ifelse(df$LT_MEASURE == "<", TRUE, FALSE)
       out <- EnvStats::gofTestCensored(
-        x = df$analysis_result, censored = df$censored, 
+        x = df$ANALYSIS_RESULT, censored = df$CENSORED,
         censoring.side = input$cen_dist_side,
         test = input$cen_dist_test,
         distribution = input$cen_dist_dist,
         prob.method = input$cen_dist_method,
         plot.pos.con =  input$cen_dist_plot.pos.con
         )
-      out["data.name"] <- paste(df$location_id, 
-                                df$param_name, 
+      out["data.name"] <- paste(df$LOCATION_ID,
+                                df$PARAM_NAME,
                                 sep = " ")
     } else {
       out <- EnvStats::gofTest(
-        df$analysis_result, distribution = input$dist_type
+        df$ANALYSIS_RESULT, distribution = input$dist_type
       )
-      out["data.name"] <- paste(df$location_id, 
-                                df$param_name, 
+      out["data.name"] <- paste(df$LOCATION_ID,
+                                df$PARAM_NAME,
                                 sep = " ")
     }
     out
   })
-  
+
   output$gof_plot <- renderPlot({
-    df <- distfile()
+    
+    df <- distribution_data()
 
     if (isTRUE(input$dist_plot_type == "Censored")) {
-      df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
+      
+      df$CENSORED <- ifelse(df$LT_MEASURE == "<", TRUE, FALSE)
+      
       out <- EnvStats::gofTestCensored(
-        x = df$analysis_result, censored = df$censored, 
+        
+        x = df$ANALYSIS_RESULT, censored = df$CENSORED,
         censoring.side = input$cen_dist_side,
         test = input$cen_dist_test,
         distribution = input$cen_dist_dist,
         prob.method = input$cen_dist_method,
         plot.pos.con =  input$cen_dist_plot.pos.con
       )
-      out["data.name"] <- paste(df$location_id, 
-                                df$param_name, 
+      out["data.name"] <- paste(df$LOCATION_ID,
+                                df$PARAM_NAME,
                                 sep = " ")
     } else {
+      
       out <- EnvStats::gofTest(
-        df$analysis_result, distribution = input$dist_type
+        df$ANALYSIS_RESULT, distribution = input$dist_type
       )
-      out["data.name"] <- paste(df$location_id, 
-                                df$param_name, 
+      out["data.name"] <- paste(df$LOCATION_ID,
+                                df$PARAM_NAME,
                                 sep = " ")
     }
     plot(out)
   })
   # End Distribution Plots -----------------------------------------------------
-  
+  # 
   # Begin Boxplot Page----------------------------------------------------------
-  boxplotfile <- callModule(boxPlot, "boxplot", datafile(),
-                         multiple = TRUE)
+  boxplot_data <- callModule(selectData, "boxplot_data", multiple = TRUE)
+  
   
   boxplot <- reactive({
 
-      box_data <- boxplotfile()
+      box_data <- boxplot_data()
       box_wells <- sample_locations(box_data)
       box_params <- constituents(box_data)
-      
+
       box_list <- lapply(seq_along(box_params), function(i) {
         box_name <- paste("box_plot", i, sep = "")
         plotOutput(box_name)
@@ -125,11 +127,11 @@ shinyServer(function(input, output, session) {
           box_name <- paste("box_plot", box_i, sep = "")
           output[[box_name]] <- renderPlot({
             box <- manager::boxplot(
-              box_data[box_data$param_name ==
+              box_data[box_data$PARAM_NAME ==
                          box_params[box_i], ],
-              x = "location_id",
-              y = "analysis_result",
-              fill = box_data$group
+              x = "LOCATION_ID",
+              y = "ANALYSIS_RESULT"
+              # fill = box_data$LOCATION_CLASS
             )
             box
           })
@@ -141,16 +143,16 @@ shinyServer(function(input, output, session) {
   output$boxplot_out <- renderUI({
       boxplot()
   })
-  
+
   # Begin Boxplot Download Page-------------------------------------------------
   get_box_data <- reactive({
-    
+
     box_data <- boxplotfile()
     box_wells <- sample_locations(box_data)
-    box_params <- constituents(box_data) 
-    
+    box_params <- constituents(box_data)
+
   })
-  
+
   output$box_download <- downloadHandler(
     filename = function() {
       paste("boxplot_", Sys.Date(), ".pdf", sep = "")
@@ -161,63 +163,57 @@ shinyServer(function(input, output, session) {
       dev.off()
     }
   )
-  
+
   # End Boxplot Page------------------------------------------------------------
-  
+
   # Time Series Page -----------------------------------------------------------
-  tsplotfile <- callModule(timeSeries, "tsplot", datafile(),
-                            multiple = TRUE)
-  
+  ts_data <- callModule(selectData, "ts_data", multiple = TRUE)
+
   # time series plot output
   ts_plot <- reactive({
 
-    ts_data <- tsplotfile()
+    ts_data <- ts_data()
     ts_wells <- sample_locations(ts_data)
     ts_params <- constituents(ts_data)
+
+    # Need to inlcude group_var option 
+    # Using PARAM_NAME for now
     
-    ts_list <- lapply(seq_along(num_plots), function(i) {
+    ts_list <- lapply(seq_along(ts_params), function(i) {
       ts_name <- paste("ts_plot", i, sep = "")
       plotOutput(ts_name)
     })
 
-    for (i in 1:num_plots) {
+    for (i in seq_along(ts_params)) {
       local({
         ts_i <- i
         ts_name <- paste("ts_plot", ts_i, sep = "")
         output[[ts_name]] <- renderPlot({
 
           ts <- manager::ts_plot(
-            ts_data[ts_data$location_id == ts_well[ts_i], ],
-            group_var = input$ts_group_by,
-            facet_var = input$ts_facet_by,
-            trend = input$ts_trend,
-            short_name = input$ts_short_name,
-            ncol = input$ts_ncol)
+            ts_data[ts_data$PARAM_NAME == ts_params[ts_i], ]
+            )
 
-            if (input$ts_date_lines) {
-              b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-              c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-              b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-              c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-
-              ts <- manager::ts_plot(
-                ts_data[ts_data$location_id ==
-                               ts_well[ts_i], ],
-                facet_var = "location_id",
-                trend = input$ts_trend,
-                short_name = input$ts_short_name,
-                back_date = c(b1, b2),
-                comp_date = c(c1, c2),
-                ncol = input$ts_ncol
-              )
-            }
+            # if (input$ts_date_lines) {
+            #   b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+            #   c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+            #   b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
+            #   c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+            # 
+            #   ts <- manager::ts_plot(
+            #     ts_data[ts_data$LOCATION_ID ==
+            #                    ts_well[ts_i], ],
+            #     back_date = c(b1, b2),
+            #     comp_date = c(c1, c2)
+            #   )
+            # }
             ts
           })
         })
       }
     do.call(tagList, ts_list)
   })
-  
+
   output$ts_out <- renderUI({
       ts_plot()
   })
@@ -233,7 +229,7 @@ shinyServer(function(input, output, session) {
                            data$param_name %in% ts_analyte, ]
     ts_data
   })
-  
+
   output$ts_download <- downloadHandler(
     filename = function() {
       paste("ts_plot_", Sys.Date(), ".pdf", sep = "")
@@ -244,9 +240,9 @@ shinyServer(function(input, output, session) {
         c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
         b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
         c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-        
+
         pdf(file = file, width = 17, height = 11)
-        manager::ts_plot(get_ts_data(), back_date = c(b1, b2), 
+        manager::ts_plot(get_ts_data(), back_date = c(b1, b2),
                          facet_by = input$ts_facet_by,
                          trend = input$ts_trend,
                          short_name = input$ts_short_name,

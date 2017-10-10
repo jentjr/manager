@@ -67,6 +67,34 @@ connect_manages4 <- function(driver = "SQL Server", server, database) {
   
 }
 
+read_manages4 <- function() { 
+  
+  sites <- pool %>% tbl("SITE")
+  locations <- pool %>% tbl("LOCATIONS")
+  site_parameters <- pool %>% tbl("SITE_PARAMETERS")
+  sample_results <- pool %>% tbl("SAMPLE_RESULTS")
+  
+  query <- sample_results %>% 
+    left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) %>% 
+    left_join(locations, by = c("SITE_ID", "LOCATION_ID")) %>% 
+    left_join(sites, by = "SITE_ID") %>% 
+    select(SITE_ID, 
+           NAME, 
+           LOCATION_ID,
+           LAB_ID,
+           PARAM_NAME,
+           SHORT_NAME,
+           SAMPLE_DATE,
+           LT_MEASURE,
+           FLAGS,
+           ANALYSIS_RESULT,
+           DETECTION_LIMIT,
+           RL,
+           DEFAULT_UNIT
+    )
+  
+}
+
 #' function to read data in csv format and convert date to POSIXct with lubridate
 #' 
 #' @param path path to the csv file of groundwater data in the format 

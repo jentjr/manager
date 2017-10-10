@@ -22,11 +22,11 @@
 #' @export
 
 ts_plot <- function(df, 
-                    x = "sample_date",
-                    y = "analysis_result",
-                    facet_var = "location_id",
-                    group_var = "param_name",
-                    lt_measure = "lt_measure",
+                    x = "SAMPLE_DATE",
+                    y = "ANALYSIS_RESULT",
+                    facet_var = "LOCATION_ID",
+                    group_var = "PARAM_NAME",
+                    lt_measure = "LT_MEASURE",
                     scale_y_trans = "identity",
                     trend = NULL, 
                     back_date = NULL, 
@@ -75,9 +75,9 @@ ts_plot <- function(df,
 #' @param ... parameters passed to get_theilsen
 
 .ts_plot <- function(df,
-                     x = "sample_date",
-                     y = "analysis_result",
-                     lt_measure = "lt_measure",
+                     x = "SAMPLE_DATE",
+                     y = "ANALYSIS_RESULT",
+                     lt_measure = "LT_MEASURE",
                      facet_var = NULL,
                      group_var = NULL,
                      scale_y_trans = "identity",
@@ -91,18 +91,18 @@ ts_plot <- function(df,
                      ncol = NULL,
                      ...) {
   
-  df$non_detect <- if_else(df[, lt_measure] == "<", 
+  df$NON_DETECT <- if_else(df[, "LT_MEASURE"] == "<", 
                            "non-detect", "detected", 
                             missing = "detected")
   
   if (isTRUE(short_name)) {
     
-    df$param_name <- paste(df$short_name, " (", df$default_unit, ")", 
+    df$PARAM_NAME <- paste(df$SHORT_NAME, " (", df$DEFAULT_UNIT, ")", 
                            sep = "")
     
   } else {
     
-    df$param_name <- paste(df$param_name, " (", df$default_unit, ")", 
+    df$PARAM_NAME <- paste(df$PARAM_NAME, " (", df$DEFAULT_UNIT, ")", 
                            sep = "")
     
   }
@@ -110,7 +110,7 @@ ts_plot <- function(df,
   # main plot
   p <- ggplot(data = df, aes_string(x = x, y = y)) + 
     geom_line(data = df) +
-    geom_point(data = df, aes(shape = factor(non_detect, exclude = NULL)), 
+    geom_point(data = df, aes(shape = factor(NON_DETECT, exclude = NULL)), 
                size = pnt) +
     ylab("Analysis Result") +
     xlab("Sample Date") + 

@@ -4,11 +4,11 @@
 #' @param location_id column for the sample location id
 #' @export
 
-sample_locations <- function(df, location_id){
+sample_locations <- function(df, LOCATION_ID){
   
   wells <- df %>%
-    group_by_(~location_id) %>% 
-    select_(~location_id) %>%
+    group_by_(~LOCATION_ID) %>% 
+    select_(~LOCATION_ID) %>%
     first() %>%
     unique()
   
@@ -22,11 +22,11 @@ sample_locations <- function(df, location_id){
 #' @param param_name the column for the constituents
 #' @export
 
-constituents <- function(df, param_name){
+constituents <- function(df, PARAM_NAME){
   
   constituents <- df %>%
-    group_by_(~param_name) %>%
-    select_(~param_name) %>%
+    group_by_(~PARAM_NAME) %>%
+    select_(~PARAM_NAME) %>%
     first() %>%
     unique()
   

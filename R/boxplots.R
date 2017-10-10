@@ -17,10 +17,10 @@
 #' @export
 
 boxplot <- function(df, 
-                    x = "location_id",
-                    y = "analysis_result",
-                    lt_measure = "lt_measure",
-                    group_var = "param_name",
+                    x = "LOCATION_ID",
+                    y = "ANALYSIS_RESULT",
+                    lt_measure = "LT_MEASURE",
+                    group_var = "PARAM_NAME",
                     scale_y_trans = "identity",
                     fill = NULL,
                     limit1 = NULL,
@@ -62,9 +62,9 @@ boxplot <- function(df,
 #' @param legend_title Legend title for fill variable
 
 .boxplot <- function(df, 
-                     x = "location_id", 
-                     y = "analysis_result",
-                     lt_measure = "lt_measure",
+                     x = "LOCATION_ID", 
+                     y = "ANALYSIS_RESULT",
+                     lt_measure = "LT_MEASURE",
                      scale_y_trans = "identity",
                      fill = NULL,
                      limit1 = NULL,
@@ -82,21 +82,21 @@ boxplot <- function(df,
   
   if (isTRUE(short_name)) {
     
-    df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
+    df$NAME_UNITS <- paste(df$SHORT_NAME, " (", df$DEFAULT_UNIT, ")", sep = "")
     
   } else {
     
-    df$name_units <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
+    df$NAME_UNITS <- paste(df$PARAM_NAME, " (", df$DEFAULT_UNIT, ")", sep = "")
     
   }
   
-  df$non_detect <- if_else(df[, lt_measure] == "<", 
+  df$NON_DETECT <- if_else(df[, "LT_MEASURE"] == "<", 
                            "non-detect", "detected", 
                            missing = "detected")
   
   b <- ggplot(df, aes_string(x = x, y = y, fill = fill)) + 
     theme_bw() + 
-    ylab(paste("Analysis Result"," (", df$default_unit[1], ")", "\nScale: ", 
+    ylab(paste("Analysis Result"," (", df$DEFAULT_UNIT[1], ")", "\nScale: ", 
                scale_y_trans, sep = "")) + 
     xlab("Location ID") +
     guides(fill = guide_legend(paste0(legend_title)), 
@@ -109,14 +109,14 @@ boxplot <- function(df,
     theme(axis.text.y = element_text(size = 10)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     geom_boxplot() + 
-    geom_beeswarm(aes(shape = factor(non_detect, exclude = NULL), 
+    geom_beeswarm(aes(shape = factor(NON_DETECT, exclude = NULL), 
                       size = pnt), groupOnX = TRUE) +
     scale_y_continuous(trans = scale_y_trans) + 
     guides(colour = guide_legend(override.aes = list(linetype = 0)), 
            shape = guide_legend("Detection", override.aes = list(linetype = 0)),
            size = guide_legend("none")) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) +
-    ggtitle(paste("Boxplot for", df$name_units[1], "\n", sep = " "))
+    ggtitle(paste("Boxplot for", df$NAME_UNITS[1], "\n", sep = " "))
   
   if (!is.null(limit1)) {
     df$limit1_name <- paste(limit1[[1]])

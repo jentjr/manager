@@ -8,3 +8,6 @@ packrat/lib*/
 inst/doc
 inst/app/manager/rsconnect/
 packrat/src/
+
+# database config.yml
+inst/app/config.yml

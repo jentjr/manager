@@ -6,14 +6,14 @@
 summary <- function(df, na.rm = TRUE) {
  
   df %>%
-    group_by(location_id, param_name) %>%
+    group_by(LOCATION_ID, PARAM_NAME) %>%
     summarise(n = n(),
-              percent_lt = sum(lt_measure == "<", na.rm = na.rm)/n()*100,
-              mean = mean(analysis_result, na.rm = na.rm),
-              median = median(analysis_result, na.rm = na.rm),
-              sd = sd(analysis_result, na.rm = na.rm),
-              min = min(analysis_result, na.rm = na.rm),
-              max = max(analysis_result, na.rm = na.rm),
-              cv = cv(analysis_result, na.rm = na.rm)
+              percent_lt = sum(LT_MEASURE == "<", na.rm = na.rm)/n()*100,
+              mean = mean(ANALYSIS_RESULT, na.rm = na.rm),
+              median = median(ANALYSIS_RESULT, na.rm = na.rm),
+              sd = sd(ANALYSIS_RESULT, na.rm = na.rm),
+              min = min(ANALYSIS_RESULT, na.rm = na.rm),
+              max = max(ANALYSIS_RESULT, na.rm = na.rm),
+              cv = cv(ANALYSIS_RESULT, na.rm = na.rm)
               )
 } 
