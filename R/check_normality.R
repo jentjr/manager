@@ -60,5 +60,5 @@ dist <- function(x, p = 0.01) {
 
 est_dist <- function(df, p = 0.01) {  
   df %>%
-    mutate(distribution = dist(analysis_result, p = p))
+    mutate(distribution = dist(ANALYSIS_RESULT, p = p))
 }

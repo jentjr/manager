@@ -26,7 +26,7 @@ assign_limits <- function(df, column = "param_name"){
 
 .convert_mcl_units <- function(df){
   
-  if (!requireNamespace("udunits2", quietly = TRUE)){
+  if (!requireNamespace("udunits2", quietly = TRUE)) {
     stop("udunits2 needed for this function to work. Please install it.", 
          call. = FALSE)
   }

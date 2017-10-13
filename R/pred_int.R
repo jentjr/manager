@@ -1,7 +1,7 @@
 #' Function to calculate prediction interval 
 #' 
 #' @param df df data frame of groundwater data in tidy format
-#' @param analysis_result the analysis result column
+#' @param ANALYSIS_RESULT the analysis result column
 #' @param distribution the distribution colum
 #' @param n.mean n.mean positive integer specifying the sample size associated 
 #' with the future averages. 
@@ -21,7 +21,7 @@
 #' @export
 
 pred_int <- function(df,
-                          analysis_result,
+                          ANALYSIS_RESULT,
                           n.mean = 1, 
                           k = 1, 
                           m = 1,
@@ -31,7 +31,7 @@ pred_int <- function(df,
                           conf.level = 0.95) {
   
     EnvStats::predIntNormSimultaneous(
-      df$analysis_result, 
+      df$ANALYSIS_RESULT, 
       n.mean = n.mean,
       k = k,
       m = m,

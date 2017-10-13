@@ -2,7 +2,9 @@ shinyUI(navbarPage("MANAGER",
   tabPanel("Data",
     sidebarLayout(
       sidebarPanel(
-        selectDataUI("select_data")
+        selectDataUI("select_data"),
+        downloadButton(outputId = "data_table_download", 
+                       label = "Download Data")
         ),
       mainPanel(
         dataTableOutput("data_table")
@@ -12,7 +14,9 @@ shinyUI(navbarPage("MANAGER",
   tabPanel("Summary",
     sidebarLayout(
       sidebarPanel(
-        selectDataUI("summary_data")
+        selectDataUI("summary_data"),
+        downloadButton(outputId = "summary_table_download", 
+                       label = "Download Data")
      ),
      mainPanel(
         dataTableOutput("summary_table")
@@ -97,7 +101,9 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Boxplots",
       sidebarLayout(
         sidebarPanel(
-          selectDataUI("boxplot_data")
+          selectDataUI("boxplot_data"),
+          selectInput(inputId = "box_y_transform", label = "Transform y scale",
+                    c("identity", "log", "log10", "sqrt", "boxcox"))
         ),
         mainPanel(
           uiOutput("boxplot_out")  
@@ -295,91 +301,64 @@ tabPanel("Trends",
     tabPanel("Intra-well",
       sidebarLayout(
        sidebarPanel(
-        uiOutput("wells_intra"),
-        uiOutput("analytes_intra"),
-        uiOutput("date_ranges_intra"),
-        radioButtons(inputId = "pred_int_type", 
-                     label = "Type of Prediction Limit",
-                     choices = c("Simultaneous", "Regular")),
-        conditionalPanel(
-            condition = "input.pred_int_type == 'Simultaneous'",
-#             numericInput(inputId = "sim_intra_n.mean", label = "Specify 
-#                          positive integer for the sample size associated 
-#                          with the future averages. The default value is 
-#                          n.mean=1 (i.e., individual observations). 
-#                          Note that all future averages must be based on the 
-#                          same sample size", value = 1, min = 0),
-            numericInput(inputId = "sim_intra_k", label = "Specify an integer k 
-                         in the k-of-m rule for the minimum number of 
-                         observations (or averages) out of m observations 
-                         (or averages) (all obtained on one future 
-                         sampling “occassion”) the prediction interval 
-                         should contain with the specified confidence level.",
-                         value = 1, min = 0),
-            numericInput(inputId = "sim_intra_m", label = "Specify a positive
-                         integer, m, for the maximum number of future 
-                         observations (or averages) on one future sampling
-                         'occasion'", value = 2, min = 0, max = 4),
-            numericInput(inputId = "sim_intra_r", label = "Sampling frequency
-                         annually = 1, semi-annually = 2, etc.", value = 2, 
-                         min = 1, max = 4),
-            textInput(inputId = "sim_intra_rule", label = "Character string
-                      specifying which rule to use. The possible values are 
-                      'k.of.m', the default, 'CA' (California rule), and
-                      'Modified.CA' (modified California rule).", 
-                      value = "k.of.m"),
-            textInput(inputId = "sim_intra_pi.type", label = "Specify what kind 
-                      of prediction interval to compute. The possible values 
-                      are 'upper' (the default), and 'lower'", value = "upper"),
-            numericInput(inputId = "sim_intra_swfpr", label = "Site-Wide False
-                        Positive Rate", value = 0.1, min = 0, max = 1)
-          ),
-        conditionalPanel(
-            condition = "input.pred_int_type == 'Regular'",
-            numericInput("reg_intra_mean", "Specify a positive integer for the
-                         sample size associated with the k future averages 
-                         (i.e., individual observations). Note that all future
-                         averages must be based on the same sample size.", 
-                         1, min = 0),
-            numericInput("reg_intra_k", "Specify a positive integer for the
-                         number of future observations or averages the 
-                         prediction interval should contain with 
-                         confidence level", 2, min = 0),
-            textInput(inputId = "reg_intra_method", label = "Character string
-                      specifying the method to use if the number of future
-                      observations (k) is greater than 1. The possible values 
-                      are 'Bonferroni'(approximate method based on 
-                      Bonferonni inequality; the default), 'exact'
-                      (exact method due to Dunnett, 1955", 
-                      value = "Bonferroni"),
-            textInput(inputId = "reg_intra_pi.type", 
-                      label = "Character string indicating what kind of 
-                      prediction interval to compute. The possible 
-                      values are 'two-sided' (the default), 'lower', and 
-                      'upper'.", value = "two-sided"),
-            numericInput(inputId = "reg_intra_conf.level", label = "Scalar
-                         between 0 and 1 indicating the confidence level of 
-                         the prediction interval", value = 0.95, min = 0, 
-                         max = 1)
-          ),
-        checkboxInput(inputId = "intra_plot", label = "Plot Time Series"),
-        conditionalPanel(
-            condition = "input.intra_plot == true",
-            selectInput("ts_intra_facet_by", "Group plot by:",
-                        c("location_id", "param_name")),
-            checkboxInput("ts_intra_short_name", "Abbreviate Constituent Name"),
-            checkboxInput("ts_intra_date_lines", "Show Date Ranges"),
-            numericInput("ncol_intra_ts", "Number of Columns in Plot", 
-                         value = 1)               
-         )
-       ),
+        
+         uiOutput("wells_intra"),
+        
+         uiOutput("analytes_intra"),
+        
+         uiOutput("date_ranges_intra"),
+        
+         numericInput(inputId = "sim_intra_n.mean", label = "Specify
+                      positive integer for the sample size associated
+                      with the future averages. The default value is
+                      n.mean=1 (i.e., individual observations).
+                      Note that all future averages must be based on the
+                      same sample size", value = 1, min = 0),
+        
+        numericInput(inputId = "sim_intra_k", label = "Specify an integer k 
+                     in the k-of-m rule for the minimum number of 
+                     observations (or averages) out of m observations 
+                     (or averages) (all obtained on one future 
+                     sampling “occassion”) the prediction interval 
+                     should contain with the specified confidence level.",
+                     value = 1, min = 0),
+        
+        numericInput(inputId = "sim_intra_m", label = "Specify a positive
+                     integer, m, for the maximum number of future 
+                     observations (or averages) on one future sampling
+                     'occasion'", value = 2, min = 0, max = 4),
+         
+        numericInput(inputId = "sim_intra_r", label = "Sampling frequency
+                     annually = 1, semi-annually = 2, etc.", value = 2, 
+                     min = 1, max = 4),
+        
+        selectInput(inputId = "sim_intra_rule", label = "Character string
+                  specifying which rule to use. The possible values are 
+                  'k.of.m', the default, 'CA' (California rule), and
+                  'Modified.CA' (modified California rule).", 
+                  choices = c("k.of.m" = "k.of.m", 
+                             "CA" = "CA", 
+                             "Modified.CA" = "Modified.CA")),
+         
+        textInput(inputId = "sim_intra_pi.type", label = "Specify what kind 
+                  of prediction interval to compute. The possible values 
+                  are 'upper' (the default), and 'lower'", value = "upper"),
+         
+        numericInput(inputId = "sim_intra_swfpr", label = "Site-Wide False
+                    Positive Rate", value = 0.1, min = 0, max = 1)
+       
+        ),
+       
        mainPanel(
-        dataTableOutput("intra_limit_out"),
-        br(),
-        uiOutput("ts_intra_out")
-       )
-      )       
-    ),
-    tabPanel("Inter-well")
+        
+         verbatimTextOutput("intra_limit_out")
+       
+      )
+    )       
+  ),
+  
+  tabPanel("Inter-well")
+ 
   )
+
 ))

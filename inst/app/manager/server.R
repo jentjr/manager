@@ -5,7 +5,9 @@ shinyServer(function(input, output, session) {
   
   output$data_table <- renderDataTable({
     
-    select_data()
+    data <- select_data()
+    
+    data
     
   }, options = list(scrollY = "100%", scrollX = "100%",
                     lengthMenu = c(5, 10, 15, 25, 50, 100),
@@ -30,24 +32,42 @@ shinyServer(function(input, output, session) {
   # End Data Table -------------------------------------------------------------
   
   # Summary table --------------------------------------------------------------
-  summary_data <- callModule(selectData, "summary_data", multiple = TRUE)
+  # summary_data <- callModule(selectData, "summary_data", multiple = TRUE)
 
   output$summary_table <- renderDataTable({
 
-    manager::summary(summary_data())
+    # manager::summary(summary_data())
+    manager::summary(select_data())
 
   }, options = list(scrollY = "100%", scrollX = "100%",
                     lengthMenu = c(5, 10, 15, 25, 50, 100),
                     pageLength = 10)
   )
+  
+  output$summary_table_download <- downloadHandler(
+    
+    filename = function() {
+      
+      paste("MANAGER_EXPORT_", Sys.Date(), "_.csv", sep = "")
+      
+    },
+    
+    content = function(file) {
+      
+      write.csv(summary(summary_data()), file, row.names = FALSE)
+      
+    }
+    
+  )
   # End Summary table ----------------------------------------------------------
   
   # Begin Distribution Plots ---------------------------------------------------
-  distribution_data <- callModule(selectData, "distribution_data", 
-                                  multiple = FALSE)
-
+  # distribution_data <- callModule(selectData, "distribution_data", 
+  #                                 multiple = FALSE)
+  
   output$gof_test <- renderPrint({
-    df <- distribution_data()
+    # df <- distribution_data()
+    df <- select_data()
 
     if (isTRUE(input$dist_plot_type == "Censored")) {
       df$CENSORED <- ifelse(df$LT_MEASURE == "<", TRUE, FALSE)
@@ -75,8 +95,10 @@ shinyServer(function(input, output, session) {
 
   output$gof_plot <- renderPlot({
     
-    df <- distribution_data()
+    # df <- distribution_data()
 
+    df <- select_data()
+    
     if (isTRUE(input$dist_plot_type == "Censored")) {
       
       df$CENSORED <- ifelse(df$LT_MEASURE == "<", TRUE, FALSE)
@@ -107,12 +129,11 @@ shinyServer(function(input, output, session) {
   # End Distribution Plots -----------------------------------------------------
   # 
   # Begin Boxplot Page----------------------------------------------------------
-  boxplot_data <- callModule(selectData, "boxplot_data", multiple = TRUE)
-  
+  # boxplot_data <- callModule(selectData, "boxplot_data", multiple = TRUE)
   
   boxplot <- reactive({
 
-      box_data <- boxplot_data()
+      box_data <- select_data()
       box_wells <- sample_locations(box_data)
       box_params <- constituents(box_data)
 
@@ -130,8 +151,9 @@ shinyServer(function(input, output, session) {
               box_data[box_data$PARAM_NAME ==
                          box_params[box_i], ],
               x = "LOCATION_ID",
-              y = "ANALYSIS_RESULT"
-              # fill = box_data$LOCATION_CLASS
+              y = "ANALYSIS_RESULT",
+              fill = "LOCATION_CLASS",
+              scale_y_trans = input$box_y_transform
             )
             box
           })
@@ -147,7 +169,7 @@ shinyServer(function(input, output, session) {
   # Begin Boxplot Download Page-------------------------------------------------
   get_box_data <- reactive({
 
-    box_data <- boxplotfile()
+    box_data <- select_data()
     box_wells <- sample_locations(box_data)
     box_params <- constituents(box_data)
 
@@ -167,12 +189,12 @@ shinyServer(function(input, output, session) {
   # End Boxplot Page------------------------------------------------------------
 
   # Time Series Page -----------------------------------------------------------
-  ts_data <- callModule(selectData, "ts_data", multiple = TRUE)
+  # ts_data <- callModule(selectData, "ts_data", multiple = TRUE)
 
   # time series plot output
   ts_plot <- reactive({
 
-    ts_data <- ts_data()
+    ts_data <- select_data()
     ts_wells <- sample_locations(ts_data)
     ts_params <- constituents(ts_data)
 
@@ -225,8 +247,8 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     ts_well <- input$ts_well
     ts_analyte <- input$ts_analyte
-    ts_data <- data[data$location_id %in% ts_well &
-                           data$param_name %in% ts_analyte, ]
+    ts_data <- data[data$LOCATION_ID %in% ts_well &
+                           data$PARAM_NAME %in% ts_analyte, ]
     ts_data
   })
 
@@ -301,7 +323,7 @@ shinyServer(function(input, output, session) {
     TDS = paste(input$TDS)
 
     data_selected <- data %>%
-      filter(location_id %in% wells, 
+      filter(LOCATION_ID %in% wells, 
              sample_date >= start &
                sample_date <= end)
     
@@ -366,7 +388,7 @@ shinyServer(function(input, output, session) {
     end <- max(lubridate::ymd(input$date_range_stiff, tz = Sys.timezone()))
     
     data_selected <- data %>%
-      filter(location_id %in% input$well_stiff &
+      filter(LOCATION_ID %in% input$well_stiff &
              sample_date >= start & 
              sample_date <= end)
     
@@ -400,7 +422,7 @@ shinyServer(function(input, output, session) {
         need(input$data_path != "", "")
       )
       data <- get_stiff_data()
-      wells <- unique(data$location_id)
+      wells <- unique(data$LOCATION_ID)
       
       stiff_list <- lapply(1:length(wells), function(i) {
         name_stiff <- paste("stiff_plot", i, sep = "")
@@ -413,7 +435,7 @@ shinyServer(function(input, output, session) {
           name_stiff <- paste("stiff_plot", stiff_i, sep = "")
           output[[name_stiff]] <- renderPlot({
             stiff_plot(
-              data[data$location_id == wells[stiff_i], ], 
+              data[data$LOCATION_ID == wells[stiff_i], ], 
               TDS = input$TDS_plot_stiff,
               lines = input$stiff_lines
             )
@@ -470,7 +492,7 @@ shinyServer(function(input, output, session) {
     end <- max(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
     
     data_selected <- data %>%
-      filter(location_id %in% input$well_schoeller &
+      filter(LOCATION_ID %in% input$well_schoeller &
              sample_date >= start & 
              sample_date <= end)
     
@@ -572,8 +594,8 @@ shinyServer(function(input, output, session) {
                na.rm = TRUE)
     
     data_selected <- df %>%
-      filter(location_id %in% input$outlier_well,
-             param_name %in% input$outlier_analyte,
+      filter(LOCATION_ID %in% input$outlier_well,
+             PARAM_NAME %in% input$outlier_analyte,
              sample_date >= start & 
                df$sample_date <= end)
     
@@ -587,24 +609,24 @@ shinyServer(function(input, output, session) {
     
     df <- get_outlier_data()
     validate(
-      need(length(unique(df$analysis_result)) > 2, "")
+      need(length(unique(df$ANALYSIS_RESULT)) > 2, "")
     )
     
     if (input$outlier_test_name == "Rosner") {
-      out <- EnvStats::rosnerTest(df$analysis_result, 
+      out <- EnvStats::rosnerTest(df$ANALYSIS_RESULT, 
                                   k = input$rosnerN, 
                                   alpha = input$rosnerAlpha)
     } 
     
     if (input$outlier_test_name == "Grubb") {
-      out <- outliers::grubbs.test(df$analysis_result, 
+      out <- outliers::grubbs.test(df$ANALYSIS_RESULT, 
                                    type = input$grubbType,
                                    opposite = as.integer(input$grubbOpposite),
                                    two.sided = as.integer(input$grubbSide))
     } 
     
     if (input$outlier_test_name == "Dixon") {
-      out <- outliers::dixon.test(df$analysis_result, 
+      out <- outliers::dixon.test(df$ANALYSIS_RESULT, 
                                   type = input$dixonType, 
                                   opposite = as.integer(input$dixonOpposite),
                                   two.sided = as.integer(input$dixonSide))
@@ -671,8 +693,8 @@ shinyServer(function(input, output, session) {
                na.rm = TRUE)
     
     data_selected <- df %>%
-      filter(location_id %in% input$trend_well,
-             param_name %in% input$trend_analyte,
+      filter(LOCATION_ID %in% input$trend_well,
+             PARAM_NAME %in% input$trend_analyte,
              sample_date >= start & 
                sample_date <= end)
     
@@ -686,10 +708,10 @@ shinyServer(function(input, output, session) {
     
     df <- get_trend_data()
     validate(
-      need(length(unique(df$analysis_result)) > 2, "")
+      need(length(unique(df$ANALYSIS_RESULT)) > 2, "")
     )
     
-    out <- EnvStats::kendallTrendTest(analysis_result ~ sample_date, 
+    out <- EnvStats::kendallTrendTest(ANALYSIS_RESULT ~ sample_date, 
                                       data  = df)
     out
   })
@@ -698,56 +720,41 @@ shinyServer(function(input, output, session) {
   
   # Begin Intrawell Prediction Limits-------------------------------------------
   output$wells_intra <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      well_names <- as.character(get_wells(data))
+
+      data <- select_data()
+      well_names <- as.character(sample_locations(data))
       selectInput("well_intra", "Monitoring Wells", well_names, 
-                  multiple = TRUE,
+                  multiple = FALSE,
                   selected = well_names[1])
   })
 
   output$analytes_intra <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      analyte_names <- as.character(get_analytes(data))
+      data <- select_data()
+      analyte_names <- as.character(constituents(data))
       selectInput("analyte_intra", "Constituents", analyte_names, 
-                  multiple = TRUE,
+                  multiple = FALSE,
                   selected = analyte_names[1])
   })
 
   output$date_ranges_intra <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
+      data <- select_data()
       tagList(
         dateRangeInput("back_dates_intra", "Background Date Range", 
-                       start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE)),
+                       start = min(data$SAMPLE_DATE, na.rm = TRUE),
+                       end = max(data$SAMPLE_DATE, na.rm = TRUE)),
         dateRangeInput("comp_dates_intra", "Compliance Date Range", 
-                       start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE))
+                       start = min(data$SAMPLE_DATE, na.rm = TRUE),
+                       end = max(data$SAMPLE_DATE, na.rm = TRUE))
       )
   })
 
   intra_limit <- reactive({
-    validate(
-      need(input$data_path != "", "")
-    )
+    df <- select_data()
+    df <- df %>% 
+      filter(LOCATION_ID %in% input$well_intra,
+             PARAM_NAME %in% input$analyte_intra)
     
-    df <- get_data()
-    
-    df <- to_censored(df)
-    
-    df <- df %>%
-      filter(
-        location_id %in% input$well_intra,
-        param_name %in% input$analyte_intra
-      )
+
     
     bkgd_start <- min(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
     bkgd_end <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
@@ -757,150 +764,22 @@ shinyServer(function(input, output, session) {
     comp_end <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
     comp <- c(comp_start, comp_end)
   
-    validate(
-      need(
-        length(unique(df$analysis_result)) > 2, 
-           "One of the input variables has fewer than 2 unique data points."
-        )
-      )
-    if (isTRUE(input$pred_int_type == "Simultaneous")) {
-      out <- intra_pred_int(df, analysis_result, input$well_intra, 
-                            input$analyte_intra,
-                            bkgd, comp, 
-                            k = input$sim_intra_k, m = input$sim_intra_m,
-                            r = input$sim_intra_r, 
-                            rule = input$sim_intra_rule,
-                            pi.type = input$sim_intra_pi.type,
-                            SWFPR = input$sim_intra_swfpr)
-    }
-    if (isTRUE(input$pred_int_type == "Regular")) {
-      out <- intra_pred_int(df, analysis_result, input$well_intra, 
-                            input$analyte_intra, bkgd, comp,
-                            k = input$reg_intra_k,
-                            method = input$reg_intra_method,
-                            pi.type = input$reg_intra_pi.type,
-                            intra.conf.level = input$reg_intra_conf.level,
-                            simultaneous = FALSE 
-                            )
-    }
+
+    out <- EnvStats::predIntNormSimultaneous(
+              df$ANALYSIS_RESULT,
+              k = input$sim_intra_k,
+              m = input$sim_intra_m,
+              r = input$sim_intra_r, 
+              rule = input$sim_intra_rule,
+              pi.type = input$sim_intra_pi.type,
+              conf.level = input$sim_intra_swfpr
+          )
     out
   })
   
-  output$intra_limit_out <- renderDataTable({
+  output$intra_limit_out <- renderPrint({
     intra_limit()
-  }, options = list(scrollY = "100%", scrollX = "100%", 
-                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    pageLength = 10)
-  )
-  
-  ts_intra_plot <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    
-    ts_intra_well <- input$well_intra
-    ts_intra_analyte <- input$analyte_intra
-    ts_intra_data <- intra_limit()
-    
-    if (input$ts_intra_facet_by == "location_id") {
-      
-      ts_intra_list <- lapply(1:length(ts_intra_well), function(i) {
-        ts_intra_name <- paste("ts_intra_plot", i, sep = "")
-        plotOutput(ts_intra_name)
-      })
-      
-      for (i in 1:length(ts_intra_well)) {
-        local({
-          ts_intra_i <- i
-          ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep = "")
-          output[[ts_intra_name]] <- renderPlot({
-            
-            ts <- manager::ts_plot(
-              ts_intra_data[ts_intra_data$location_id == 
-              ts_intra_well[ts_intra_i], ],
-              facet_by = "location_id", 
-              short_name = input$ts_intra_short_name, 
-              ncol = input$ncol_intra_ts,
-              limit1 = "lower_limit",
-              limit2 = "upper_limit"
-              )
-            
-            if (input$ts_intra_date_lines) {
-              b1 <- min(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
-              c1 <- min(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
-              b2 <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
-              c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
-              
-              ts <- manager::ts_plot(
-                ts_intra_data[ts_intra_data$location_id == 
-                          ts_intra_well[ts_intra_i], ], 
-                facet_by = "location_id",
-                short_name = input$ts_intra_short_name,
-                back_date = c(b1, b2), 
-                comp_date = c(c1, c2),
-                ncol = input$ncol_intra_ts,
-                limit1 = "lower_limit",
-                limit2 = "upper_limit"
-              )
-            }
-            ts
-          })
-        })
-      }
-    }
-    
-    if (input$ts_intra_facet_by == "param_name") {
-      ts_intra_list <- lapply(1:length(ts_intra_analyte), function(i) {
-        ts_intra_name <- paste("ts_intra_plot", i, sep = "")
-        plotOutput(ts_intra_name)
-      })
-      
-      for (i in 1:length(ts_intra_analyte)) {
-        local({
-          ts_intra_i <- i
-          ts_intra_name <- paste("ts_intra_plot", ts_intra_i, sep = "")
-          output[[ts_intra_name]] <- renderPlot({
-            
-            ts <- manager::ts_plot(
-              ts_intra_data[ts_intra_data$param_name == 
-              ts_intra_analyte[ts_intra_i], ],
-              facet_by = "param_name", 
-              short_name = input$ts_intra_short_name,
-              limit1 = "lower_limit",
-              limit2 = "upper_limit",
-              ncol = input$ncol_intra_ts
-              )
-            
-            if (input$ts_intra_date_lines) {
-              b1 <- min(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
-              c1 <- min(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
-              b2 <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
-              c2 <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
-              
-              ts <- manager::ts_plot(
-                ts_intra_data[ts_intra_data$param_name == 
-                ts_intra_analyte[ts_intra_i], ], 
-                facet_by = "param_name",
-                short_name = input$ts_intra_short_name,
-                back_date = c(b1, b2), 
-                comp_date = c(c1, c2),
-                limit1 = "lower_limit",
-                limit2 = "upper_limit",
-                ncol = input$ncol_intra_ts
-              )
-            }
-            ts
-          })
-        })
-      }
-    }
-    do.call(tagList, ts_intra_list)
   })
   
-  output$ts_intra_out <- renderUI({
-    if (input$intra_plot) {
-      ts_intra_plot()
-    }
-  })
   # End Prediction Limits ------------------------------------------------------
 })

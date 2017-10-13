@@ -37,29 +37,29 @@ constituents <- function(df, PARAM_NAME){
 #' Calculate the percentage of left censored data
 #' 
 #' @param df df data frame of groundwater monitoring data in long format
-#' @param lt_measure lt_measure column of less than detection limit symbol.
+#' @param LT_MEASURE LT_MEASURE column of less than detection limit symbol.
 #' @export
 
-percent_lt <- function(df, lt_measure) { 
+percent_lt <- function(df, LT_MEASURE) { 
   
   df %>%
-    mutate(percent_left_censored = sum(lt_measure == "<", na.rm = TRUE)/n()*100)
+    mutate(percent_left_censored = sum(LT_MEASURE == "<", na.rm = TRUE)/n()*100)
 
 }
 
 #' Calculate the percentage of right censored data
 #' 
 #' @param df df data frame of groundwater monitoring data in long format
-#' @param lt_measure lt_measure column of greater than detection limit symbol.
+#' @param LT_MEASURE LT_MEASURE column of greater than detection limit symbol.
 #' @param percent_gt percent_gt new column name
 #' @export
 
 percent_gt <- function(df, 
-                       lt_measure = "lt_measure", 
+                       LT_MEASURE = "LT_MEASURE", 
                        percent_gt = "percent_gt") {
  
   mutate_call <- lazyeval::interp(~ sum(x == ">")/n()*100, 
-                                  x = as.name(lt_measure))
+                                  x = as.name(LT_MEASURE))
   
   df %>%
     mutate_(.dots = setNames(list(mutate_call), percent_gt))
@@ -129,8 +129,8 @@ to_censored <- function(df) {
   df <- df %>%
     group_by(location_id, param_name, default_unit) %>%
     mutate(
-      left_censored = ifelse(lt_measure == "<", TRUE, FALSE),
-      right_censored = ifelse(lt_measure == ">", TRUE, FALSE)
+      left_censored = ifelse(LT_MEASURE == "<", TRUE, FALSE),
+      right_censored = ifelse(LT_MEASURE == ">", TRUE, FALSE)
     )
   
   df <- as.data.frame(df)
@@ -138,7 +138,7 @@ to_censored <- function(df) {
   return(df)
 }
 
-#' Function to join columns of lt_measure and sample results
+#' Function to join columns of LT_MEASURE and sample results
 #' 
 #' @param df groundwater data frame
 #' @param col_name qouted column name for the result
@@ -147,10 +147,10 @@ to_censored <- function(df) {
 join_lt <- function(df, col_name) {
   
   .join_lt <- function() {
-    paste(df$lt_measure, df$analysis_result, sep = " ")
+    paste(df$LT_MEASURE, df$analysis_result, sep = " ")
   }
   
-  df$result <- ifelse(df$lt_measure == "<" | df$lt_measure == ">", 
+  df$result <- ifelse(df$LT_MEASURE == "<" | df$LT_MEASURE == ">", 
                         .join_lt(), df$analysis_result)
   
   names(df)[names(df) == "result"] <- col_name

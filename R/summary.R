@@ -6,7 +6,7 @@
 summary <- function(df, na.rm = TRUE) {
  
   df %>%
-    group_by(LOCATION_ID, PARAM_NAME) %>%
+    group_by(LOCATION_ID, PARAM_NAME, DEFAULT_UNIT) %>%
     summarise(n = n(),
               percent_lt = sum(LT_MEASURE == "<", na.rm = na.rm)/n()*100,
               mean = mean(ANALYSIS_RESULT, na.rm = na.rm),

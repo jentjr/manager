@@ -28,7 +28,7 @@ grubbs_flag <- function(x, ...) {
 #' @param ... other arguments passed to rosner test
 #' @export
 
-rosner_flag <- function(df, x = "analysis_result", replace = NULL, ...) {
+rosner_flag <- function(df, x = "ANALYSIS_RESULT", replace = NULL, ...) {
   
   outliers <- NULL
   test <- df[, x]
@@ -39,11 +39,11 @@ rosner_flag <- function(df, x = "analysis_result", replace = NULL, ...) {
     filter(Outlier == TRUE) %>%
     select(Value)
  
-  df$outlier <- ifelse(df$analysis_result %in% outliers$Value, TRUE, FALSE)
+  df$outlier <- ifelse(df$ANALYSIS_RESULT %in% outliers$Value, TRUE, FALSE)
   
   if (!missing(replace)) {
     df$replaced_values <- ifelse(df$outlier == TRUE, replace, 
-                                 df$analysis_result)
+                                 df$ANALYSIS_RESULT)
   }
    
   return(df)
