@@ -1,25 +1,22 @@
 shinyUI(navbarPage("MANAGER",
   tabPanel("Data",
-    sidebarLayout(
-      sidebarPanel(
-        selectDataUI("select_data"),
-        downloadButton(outputId = "data_table_download", 
-                       label = "Download Data")
+    fluidPage(
+      fluidRow(
+        column(2, 
+          selectDataUI("select_data"),
+          downloadButton(outputId = "data_table_download", 
+                         label = "Download Data")
         ),
-      mainPanel(
-        dataTableOutput("data_table")
+        column(10, 
+          dataTableOutput("data_table")
+        )
       )
     )
   ),
   tabPanel("Summary",
-    sidebarLayout(
-      sidebarPanel(
-        selectDataUI("summary_data"),
-        downloadButton(outputId = "summary_table_download", 
-                       label = "Download Data")
-     ),
-     mainPanel(
-        dataTableOutput("summary_table")
+    fluidPage(
+      fluidRow(
+        column(12, dataTableOutput("summary_table"))
       )
     )
   ),
@@ -89,34 +86,26 @@ shinyUI(navbarPage("MANAGER",
       )  
     ),
     tabPanel("Time Series",
-      sidebarLayout(
-        sidebarPanel(
-          selectDataUI("ts_data")
-        ),
-        mainPanel(
-          uiOutput("ts_out")
-        )
-      )       
+      fluidRow(
+        column(12, uiOutput("ts_out"))       
+      )
     ),
     tabPanel("Boxplots",
-      sidebarLayout(
-        sidebarPanel(
-          selectDataUI("boxplot_data"),
+      fluidRow(
+        column(2, 
           selectInput(inputId = "box_y_transform", label = "Transform y scale",
-                    c("identity", "log", "log10", "sqrt", "boxcox"))
-        ),
-        mainPanel(
-          uiOutput("boxplot_out")  
+                      c("identity", "log", "log10", "sqrt", "boxcox"))
+          ),
+        column(10, 
+          uiOutput("boxplot_out")     
         )
-      )         
+      )
     )
   ),
   navbarMenu("Geochemical Plots",
     tabPanel("Piper Diagram",
       sidebarLayout(
         sidebarPanel(
-          uiOutput("wells_piper"),
-          uiOutput("date_ranges_piper"),
           textInput(inputId = "Mg", label = "Mg", 
                     value = "Magnesium, dissolved"),
           textInput(inputId = "Ca", label = "Ca", 

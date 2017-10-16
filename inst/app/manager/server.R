@@ -32,11 +32,8 @@ shinyServer(function(input, output, session) {
   # End Data Table -------------------------------------------------------------
   
   # Summary table --------------------------------------------------------------
-  # summary_data <- callModule(selectData, "summary_data", multiple = TRUE)
-
   output$summary_table <- renderDataTable({
 
-    # manager::summary(summary_data())
     manager::summary(select_data())
 
   }, options = list(scrollY = "100%", scrollX = "100%",
@@ -62,11 +59,8 @@ shinyServer(function(input, output, session) {
   # End Summary table ----------------------------------------------------------
   
   # Begin Distribution Plots ---------------------------------------------------
-  # distribution_data <- callModule(selectData, "distribution_data", 
-  #                                 multiple = FALSE)
-  
   output$gof_test <- renderPrint({
-    # df <- distribution_data()
+    
     df <- select_data()
 
     if (isTRUE(input$dist_plot_type == "Censored")) {
@@ -95,8 +89,6 @@ shinyServer(function(input, output, session) {
 
   output$gof_plot <- renderPlot({
     
-    # df <- distribution_data()
-
     df <- select_data()
     
     if (isTRUE(input$dist_plot_type == "Censored")) {
@@ -127,9 +119,8 @@ shinyServer(function(input, output, session) {
     plot(out)
   })
   # End Distribution Plots -----------------------------------------------------
-  # 
+   
   # Begin Boxplot Page----------------------------------------------------------
-  # boxplot_data <- callModule(selectData, "boxplot_data", multiple = TRUE)
   
   boxplot <- reactive({
 
@@ -189,9 +180,7 @@ shinyServer(function(input, output, session) {
   # End Boxplot Page------------------------------------------------------------
 
   # Time Series Page -----------------------------------------------------------
-  # ts_data <- callModule(selectData, "ts_data", multiple = TRUE)
 
-  # time series plot output
   ts_plot <- reactive({
 
     ts_data <- select_data()
@@ -284,35 +273,11 @@ shinyServer(function(input, output, session) {
   # End Time Series Page--------------------------------------------------------
   
   # Begin Piper Diagram Page----------------------------------------------------
-  output$wells_piper <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      well_names <- as.character(get_wells(data))
-      selectInput("well_piper", "Monitoring Wells", well_names, 
-                  multiple = TRUE, selected = well_names[1])
-  })
-  
-  output$date_ranges_piper <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      dateRangeInput("date_range_piper", "Date Range", 
-                     start = min(data$sample_date, na.rm = TRUE), 
-                     end = max(data$sample_date, na.rm = TRUE))
-  })
-  
+ 
   get_piper_data <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
     
-    data <- get_data()
-    start <- min(lubridate::ymd(input$date_range_piper, tz = Sys.timezone()))
-    end <- max(lubridate::ymd(input$date_range_piper, tz = Sys.timezone()))
-    wells <- input$well_piper
+    data <- select_data()
+
     Mg = paste(input$Mg)
     Ca = paste(input$Ca)
     Na = paste(input$Na)
@@ -322,22 +287,39 @@ shinyServer(function(input, output, session) {
     Alk = paste(input$Alk)
     TDS = paste(input$TDS)
 
-    data_selected <- data %>%
-      filter(LOCATION_ID %in% wells, 
-             sample_date >= start &
-               sample_date <= end)
+    major_ions <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
     
-    ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, K = K, 
-                           Cl = Cl, SO4 = SO4, Alk = Alk, TDS = TDS)
+    piper_data <- data %>%
+      filter(PARAM_NAME %in% major_ions) %>%
+      spread(PARAM_NAME, ANALYSIS_RESULT) %>%
+      group_by(LOCATION_ID, SAMPLE_DATE) %>%
+      summarise_at(vars(major_ions), mean, na.rm = TRUE)
     
-    piper_data <- transform_piper_data(ions, Mg = Mg, Ca = Ca, Na = Na, K = K,
-                                       Cl = Cl, SO4 = SO4, Alk = Alk, TDS = TDS)
     piper_data
+    
   })
   
   plot_piper <- reactive({
-    piper_plot(df = get_piper_data(), TDS = input$TDS_plot, 
-               title = input$piper_title)
+    
+    
+    piper <- piperPlot(
+      xCat = piper_data[, "Calcium, total"],
+      yCat = piper_data[, "Magnesium, total"],
+      zCat = piper_data[, "Sodium, total"] + piper_data[, "Potassium, total"],
+      xAn = piper_data[, "Chloride, total"] + piper_data[, "Fluoride, total"],
+      yAn = piper_data[, "Alkalinity, as CaCO3"],
+      zAn = piper_data[, "Sulfate, total"],
+      Plot = list(
+        name = piper_data[, "LOCATION_ID"][["LOCATION_ID"]],
+        color = setColor(bap_ions[, "LOCATION_ID"][["LOCATION_ID"]])
+      ),
+      xAn.title = "Chloride + Fluoride",
+      yAn.title = "Alkalinity, as CaCO3"
+    )
+    
+    addExplanation(piper, where = "ul", title = "Well ID")
+    
+    
   })
   
   output$piper_plot <- renderPlot({
@@ -550,170 +532,176 @@ shinyServer(function(input, output, session) {
   
   # Begin outlier detecion -----------------------------------------------------
   output$outlier_wells <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- datafile()
-    well_names <- as.character(get_wells(data))
+    
+    data <- select_data()
+    
+    well_names <- as.character(sample_locations(data))
+    
     selectInput("outlier_well", "Monitoring Well", well_names,
                 multiple = FALSE,
                 selected = well_names[1])
+    
   })
   
   output$outlier_analytes <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- datafile()
-    analyte_names <- as.character(get_analytes(data))
+    
+    data <- select_data()
+    
+    analyte_names <- as.character(constituents(data))
+    
     selectInput("outlier_analyte", "Constituent", analyte_names, 
                 multiple = FALSE,
                 selected = analyte_names[1])
+    
   })
   
   output$outlier_date_ranges <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- datafile()
+    
+    data <- select_data()
+    
     tagList(
+      
       dateRangeInput("outlier_date_range", "Date Range", 
-                     start = min(data$sample_date, na.rm = TRUE),
-                     end = max(data$sample_date, na.rm = TRUE))
+                     start = min(data$SAMPLE_DATE, na.rm = TRUE),
+                     end = max(data$SAMPLE_DATE, na.rm = TRUE))
+      
     )
+    
   })
   
   get_outlier_data <- reactive({
-    validate(
-      need(input$data_path != "", "")
-    )
-    df <- datafile()
+    
+    df <- select_data()
+    
     start <- min(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()),
                  na.rm = TRUE)
+    
     end <- max(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()), 
                na.rm = TRUE)
     
     data_selected <- df %>%
       filter(LOCATION_ID %in% input$outlier_well,
              PARAM_NAME %in% input$outlier_analyte,
-             sample_date >= start & 
-               df$sample_date <= end)
+             SAMPLE_DATE >= start & 
+               SAMPLE_DATE <= end)
     
     data_selected
+    
   })
   
   output$outlier_test <- renderPrint({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
     
     df <- get_outlier_data()
+    
     validate(
       need(length(unique(df$ANALYSIS_RESULT)) > 2, "")
     )
     
     if (input$outlier_test_name == "Rosner") {
+      
       out <- EnvStats::rosnerTest(df$ANALYSIS_RESULT, 
-                                  k = input$rosnerN, 
-                                  alpha = input$rosnerAlpha)
+                k = input$rosnerN, 
+                alpha = input$rosnerAlpha
+             )
     } 
     
     if (input$outlier_test_name == "Grubb") {
+      
       out <- outliers::grubbs.test(df$ANALYSIS_RESULT, 
-                                   type = input$grubbType,
-                                   opposite = as.integer(input$grubbOpposite),
-                                   two.sided = as.integer(input$grubbSide))
+                type = input$grubbType,
+                opposite = as.integer(input$grubbOpposite),
+                two.sided = as.integer(input$grubbSide)
+             )
     } 
     
     if (input$outlier_test_name == "Dixon") {
+      
       out <- outliers::dixon.test(df$ANALYSIS_RESULT, 
-                                  type = input$dixonType, 
-                                  opposite = as.integer(input$dixonOpposite),
-                                  two.sided = as.integer(input$dixonSide))
+                type = input$dixonType, 
+                opposite = as.integer(input$dixonOpposite),
+                two.sided = as.integer(input$dixonSide)
+             )
     }
+    
     out
+    
   })
   
   output$outlier_table <- renderDataTable({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
+    
     data <- get_outlier_data()
+    
     data
+    
   }, options = list(scrollY = "100%", scrollX = "100%", 
                     lengthMenu = c(5, 10, 15, 25, 50, 100), 
                     pageLength = 10)
   )
-  
   # End outlier detection ------------------------------------------------------
   
   # Begin trend analysis -------------------------------------------------------
   output$trend_wells <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
-    well_names <- as.character(get_wells(data))
+
+    data <- select_data()
+    well_names <- as.character(sample_locations(data))
     selectInput("trend_well", "Monitoring Well", well_names,
                 multiple = FALSE,
                 selected = well_names[1])
   })
   
   output$trend_analytes <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
-    analyte_names <- as.character(get_analytes(data))
+    
+    data <- select_data()
+    analyte_names <- as.character(constituents(data))
     selectInput("trend_analyte", "Constituent", analyte_names, 
                 multiple = FALSE,
                 selected = analyte_names[1])
   })
   
   output$trend_date_ranges <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
+    
+    data <- select_data()
+    
     tagList(
+      
       dateRangeInput("trend_date_range", "Date Range", 
-                     start = min(data$sample_date, na.rm = TRUE),
-                     end = max(data$sample_date, na.rm = TRUE))
+                     start = min(data$SAMPLE_DATE, na.rm = TRUE),
+                     end = max(data$SAMPLE_DATE, na.rm = TRUE))
     )
   })
   
   get_trend_data <- reactive({
-    validate(
-      need(input$data_path != "", "")
-    )
-    df <- get_data()
+
+    df <- select_data()
+    
     start <- min(lubridate::ymd(input$trend_date_range, tz = Sys.timezone()), 
                  na.rm = TRUE)
+    
     end <- max(lubridate::ymd(input$trend_date_range, tz = Sys.timezone()), 
                na.rm = TRUE)
     
     data_selected <- df %>%
       filter(LOCATION_ID %in% input$trend_well,
              PARAM_NAME %in% input$trend_analyte,
-             sample_date >= start & 
-               sample_date <= end)
+             SAMPLE_DATE >= start & 
+               SAMPLE_DATE <= end)
     
     data_selected
+    
   })
   
   output$trend_test <- renderPrint({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
     
     df <- get_trend_data()
+    
     validate(
       need(length(unique(df$ANALYSIS_RESULT)) > 2, "")
     )
     
-    out <- EnvStats::kendallTrendTest(ANALYSIS_RESULT ~ sample_date, 
-                                      data  = df)
+    out <- EnvStats::kendallTrendTest(ANALYSIS_RESULT ~ SAMPLE_DATE, data  = df)
+    
     out
+    
   })
   
   # End trend analysis ---------------------------------------------------------
@@ -753,9 +741,7 @@ shinyServer(function(input, output, session) {
     df <- df %>% 
       filter(LOCATION_ID %in% input$well_intra,
              PARAM_NAME %in% input$analyte_intra)
-    
 
-    
     bkgd_start <- min(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
     bkgd_end <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
     bkgd <- c(bkgd_start, bkgd_end)
