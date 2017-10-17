@@ -1,6 +1,6 @@
 Package: manager
-Title: Tools to help with plotting and analyzing groundwater monitoring data
-Description: Tools to help with plotting and analyzing groundwater monitoring
+Title: Tools for plotting and analyzing environmental data
+Description: Tools for plotting and analyzing environmental
     data as well as for reading data from external sources such as 
     MANAGES and gINT.
 Version: 0.1.0.9000
