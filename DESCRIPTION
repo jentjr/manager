@@ -13,13 +13,15 @@ Depends:
     R (>= 3.0.2),
     tidyverse,
     EnvStats,
-    ggbeeswarm
+    ggbeeswarm,
+    viridis
 Imports:
     openxlsx,
     animation,
     reshape2,
     scales,
-    grid
+    grid,
+    outliers
 Suggests: 
     DBI,
     odbc,

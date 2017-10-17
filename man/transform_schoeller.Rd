@@ -9,7 +9,7 @@ transform_schoeller(df, Mg = "Magnesium, dissolved",
   Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
   K = "Potassium, dissolved", Cl = "Chloride, total",
   SO4 = "Sulfate, total", HCO3 = "Alkalinity, total (lab)",
-  name = "location_id", date = "sample_date")
+  name = "LOCATION_ID", date = "SAMPLE_DATE")
 }
 \arguments{
 \item{df}{dataframe of major ions gathered using \code{\link{get_major_ions}}}

@@ -99,10 +99,26 @@ params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">
             <span class="st">"Sulfate, total"</span>, 
             <span class="st">"Potassium, dissolved"</span>)
 
-gw_data %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(location_id %in%<span class="st"> </span>wells, param_name %in%<span class="st"> </span>params) %&gt;%
-<span class="st">  </span><span class="kw"><a href="reference/ts_plot.html">ts_plot</a></span>(., <span class="dt">facet_var =</span> <span class="st">"param_name"</span>, <span class="dt">group_var =</span> <span class="st">"location_id"</span>)</code></pre></div>
+gw_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select_all</span>(., toupper) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(LOCATION_ID <span class="op">%in%</span><span class="st"> </span>wells, PARAM_NAME <span class="op">%in%</span><span class="st"> </span>params) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/ts_plot.html">ts_plot</a></span>(., <span class="dt">facet_var =</span> <span class="st">"PARAM_NAME"</span>, <span class="dt">group_var =</span> <span class="st">"LOCATION_ID"</span>)</code></pre></div>
 <p><img src="README-unnamed-chunk-3-1.png" width="864"><img src="README-unnamed-chunk-3-2.png" width="864"></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+
+<span class="co"># create boxplots filled by gradient</span>
+gw_data <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select_all</span>(., toupper) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(PARAM_NAME <span class="op">==</span><span class="st"> "Chloride, total"</span>, 
+         LOCATION_ID <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"MW-1"</span>, <span class="st">"MW-2"</span>, <span class="st">"MW-3"</span>, <span class="st">"MW-4"</span>, <span class="st">"MW-5"</span>, <span class="st">"MW-6"</span>, <span class="st">"MW-7"</span>, <span class="st">"MW-8"</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">gradient =</span> <span class="kw">if_else</span>(LOCATION_ID <span class="op">%in%</span><span class="st"> </span>wells, <span class="st">"upgradient"</span>, <span class="st">"downgradient"</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/boxplot.html">boxplot</a></span>(., <span class="dt">fill =</span> <span class="st">"gradient"</span>)</code></pre></div>
+<p><img src="README-unnamed-chunk-3-3.png" width="864"></p>
+<p>Create Piper plots…</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gw_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select_all</span>(., toupper) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/piper_plot.html">piper_plot</a></span>()</code></pre></div>
+<p><img src="README-unnamed-chunk-4-1.png" width="864"></p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -121,13 +137,13 @@ gw_data %&gt;%
 <p>Then, install the <code>devtools</code> package from CRAN with</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>)</code></pre></div>
 <p>After you have <code>devtools</code> installed you can install <code>manager</code> using the command</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install_github</span>(<span class="st">"jentjr/manager"</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"jentjr/manager"</span>)</code></pre></div>
 <p>Eventually, the package might be submitted to CRAN, but until then you’ll have to install with <code>devtools</code>.</p>
 </div>
 <div id="shiny-app" class="section level2">
 <h2 class="hasAnchor">
 <a href="#shiny-app" class="anchor"></a>Shiny App</h2>
-<p>A <a href="http://shiny.rstudio.com">shiny app</a> is included with the package. It can be launched locally by running <code><a href="http://www.rdocumentation.org/packages/manager/topics/manager">manager::manager()</a></code>, or you can browse to the <a href="http://shinyapps.io">shinyapps.io</a> website for <a href="http://jentjr.shinyapps.io/manager">manager</a>. In order to read a MANAGES, or gINT database you must be running a local server with <code>RODBC</code> installed. <code>R</code> must either be in 32-bit, or 64-bit mode depending on which drivers are installed for microsoft access. MANAGER has only been tested in 32-bit mode.</p>
+<p>A <a href="http://shiny.rstudio.com">shiny app</a> is included with the package. It can be launched locally by running <code>manager::manager()</code>, or you can browse to the <a href="http://shinyapps.io">shinyapps.io</a> website for <a href="http://jentjr.shinyapps.io/manager">manager</a>. In order to read a MANAGES, or gINT database you must be running a local server with <code>RODBC</code> installed. <code>R</code> must either be in 32-bit, or 64-bit mode depending on which drivers are installed for microsoft access. MANAGER has only been tested in 32-bit mode.</p>
 </div>
 </div>
   </div>

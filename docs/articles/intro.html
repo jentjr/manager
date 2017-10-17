@@ -75,7 +75,7 @@
       <h1>Introduction to manager</h1>
                         <h4 class="author">Justin Jent</h4>
             
-            <h4 class="date">2017-08-24</h4>
+            <h4 class="date">2017-10-17</h4>
           </div>
 
     
@@ -92,24 +92,23 @@
 <a href="#prediction-intervals" class="anchor"></a>Prediction Intervals</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">"gw_data"</span>)
 
-nested_gw &lt;-<span class="st"> </span>gw_data %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(location_id, param_name, default_unit) %&gt;%
+gw_data &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select_all</span>(., toupper)
+
+nested_gw &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(LOCATION_ID, PARAM_NAME, DEFAULT_UNIT) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">nest</span>()
 
-nested_gw %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">filter</span>(location_id ==<span class="st"> "MW-2"</span>, 
-         param_name %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">"Potassium, dissolved"</span>, <span class="st">"Magnesium, dissolved"</span>)) %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">trend =</span> <span class="kw">map</span>(data, kendall_trend))</code></pre></div>
-<pre><code>## # A tibble: 2 x 5
-##   location_id           param_name default_unit              data
-##         &lt;chr&gt;                &lt;chr&gt;        &lt;chr&gt;            &lt;list&gt;
-## 1        MW-2 Magnesium, dissolved         mg/L &lt;tibble [20 x 3]&gt;
-## 2        MW-2 Potassium, dissolved         mg/L &lt;tibble [20 x 3]&gt;
-## # ... with 1 more variables: trend &lt;list&gt;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mw1_K &lt;-<span class="st"> </span>nested_gw %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">filter</span>(location_id ==<span class="st"> "MW-1"</span>, param_name ==<span class="st"> "Potassium, dissolved"</span>)
+nested_gw <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(LOCATION_ID <span class="op">==</span><span class="st"> "MW-2"</span>, 
+         PARAM_NAME <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"Potassium, dissolved"</span>, <span class="st">"Magnesium, dissolved"</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">trend =</span> <span class="kw">map</span>(data, kendall_trend))
 
-test &lt;-<span class="st"> </span>mw1_K %&gt;%
+
+mw1_K &lt;-<span class="st"> </span>nested_gw <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">filter</span>(LOCATION_ID <span class="op">==</span><span class="st"> "MW-1"</span>, PARAM_NAME <span class="op">==</span><span class="st"> "Potassium, dissolved"</span>)
+
+test &lt;-<span class="st"> </span>mw1_K <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">start =</span> <span class="kw">map</span>(data, start_date),
          <span class="dt">end  =</span> <span class="kw">map</span>(data, nth_date, <span class="dt">start =</span> start[[<span class="dv">1</span>]], <span class="dt">n =</span> <span class="dv">7</span>),
          <span class="dt">background =</span> <span class="kw">map</span>(data, set_background, <span class="dt">start =</span> start, <span class="dt">end =</span> end),

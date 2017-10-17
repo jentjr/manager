@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to plot data from <code><a href='transform_piper_data.html'>transform_piper_data</a></code> onto base 
-ggplot_piper background. Points are sized by Total Dissolved Solids — piper_plot • manager</title>
+<title>Create a piper plot — piper_plot • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -96,24 +95,58 @@ ggplot_piper background. Points are sized by Total Dissolved Solids — piper_pl
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to plot data from <code><a href='transform_piper_data.html'>transform_piper_data</a></code> onto base 
-ggplot_piper background. Points are sized by Total Dissolved Solids</h1>
+    <h1>Create a piper plot</h1>
     </div>
 
     
-    <p>Function to plot data from <code><a href='transform_piper_data.html'>transform_piper_data</a></code> onto base 
-ggplot_piper background. Points are sized by Total Dissolved Solids</p>
+    <p>Create a piper plot</p>
     
 
-    <pre class="usage"><span class='fu'>piper_plot</span>(<span class='no'>df</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>piper_plot</span>(<span class='no'>df</span>, <span class='kw'>location_id</span> <span class='kw'>=</span> <span class='st'>"LOCATION_ID"</span>, <span class='kw'>sample_date</span> <span class='kw'>=</span> <span class='st'>"SAMPLE_DATE"</span>,
+  <span class='kw'>x_cation</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>y_cation</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>,
+  <span class='kw'>z_cation</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Sodium, dissolved"</span>, <span class='st'>"Potassium, dissolved"</span>),
+  <span class='kw'>x_anion</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Chloride, total"</span>, <span class='st'>"Fluoride, total"</span>),
+  <span class='kw'>y_anion</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>z_anion</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>,
+  <span class='kw'>pnt</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>transparency</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>data frame of groundwater data transformed into piper coordinates 
-using <code><a href='transform_piper_data.html'>transform_piper_data</a></code></p></td>
+      <td><p>data frame of water quality data in tidy format</p></td>
+    </tr>
+    <tr>
+      <th>location_id</th>
+      <td><p>column for sample location</p></td>
+    </tr>
+    <tr>
+      <th>sample_date</th>
+      <td><p>column for sample date</p></td>
+    </tr>
+    <tr>
+      <th>x_cation</th>
+      <td><p>default is Calcium, dissolved</p></td>
+    </tr>
+    <tr>
+      <th>y_cation</th>
+      <td><p>default is Magnesium, dissolved</p></td>
+    </tr>
+    <tr>
+      <th>z_cation</th>
+      <td><p>default is Sodium, dissolved + Potassium, dissolved</p></td>
+    </tr>
+    <tr>
+      <th>x_anion</th>
+      <td><p>default is Chloride, total + Fluoride, total</p></td>
+    </tr>
+    <tr>
+      <th>y_anion</th>
+      <td><p>default is Alkalinity, total (lab)</p></td>
+    </tr>
+    <tr>
+      <th>z_anion</th>
+      <td><p>default is Sulfate, total</p></td>
     </tr>
     <tr>
       <th>TDS</th>

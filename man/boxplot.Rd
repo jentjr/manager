@@ -4,8 +4,8 @@
 \alias{boxplot}
 \title{Function to plot boxplots for groundwater data}
 \usage{
-boxplot(df, x = "location_id", y = "analysis_result",
-  lt_measure = "lt_measure", group_var = "param_name",
+boxplot(df, x = "LOCATION_ID", y = "ANALYSIS_RESULT",
+  lt_measure = "LT_MEASURE", group_var = "PARAM_NAME",
   scale_y_trans = "identity", fill = NULL, limit1 = NULL, limit2 = NULL,
   pnt = 2, short_name = FALSE, coord_flip = FALSE, legend_title = NULL)
 }

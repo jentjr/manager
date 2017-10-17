@@ -4,12 +4,12 @@
 \alias{start_date}
 \title{Function to find the start of sampling for a well constituent pair}
 \usage{
-start_date(df, sample_date)
+start_date(df, SAMPLE_DATE)
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}
 
-\item{sample_date}{the column for the sampling dates}
+\item{SAMPLE_DATE}{the column for the sampling dates}
 }
 \description{
 Function to find the start of sampling for a well constituent pair

@@ -28,11 +28,36 @@ params <- c("Magnesium, dissolved",
             "Potassium, dissolved")
 
 gw_data %>%
-  filter(location_id %in% wells, param_name %in% params) %>%
-  ts_plot(., facet_var = "param_name", group_var = "location_id")
+  select_all(., toupper) %>%
+  filter(LOCATION_ID %in% wells, PARAM_NAME %in% params) %>%
+  ts_plot(., facet_var = "PARAM_NAME", group_var = "LOCATION_ID")
 ```
 
 ![](README-unnamed-chunk-3-1.png)![](README-unnamed-chunk-3-2.png)
+
+``` r
+
+
+# create boxplots filled by gradient
+gw_data %>% 
+  select_all(., toupper) %>%
+  filter(PARAM_NAME == "Chloride, total", 
+         LOCATION_ID %in% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5", "MW-6", "MW-7", "MW-8")) %>%
+  mutate(gradient = if_else(LOCATION_ID %in% wells, "upgradient", "downgradient")) %>% 
+  boxplot(., fill = "gradient")
+```
+
+![](README-unnamed-chunk-3-3.png)
+
+Create Piper plots...
+
+``` r
+gw_data %>%
+  select_all(., toupper) %>%
+  piper_plot()
+```
+
+![](README-unnamed-chunk-4-1.png)
 
 Installation
 ------------

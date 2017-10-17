@@ -5,8 +5,10 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 The `manager` packages provides functions for reading external data.
@@ -27,21 +29,24 @@ data("ohio_data")
 data("indiana_data")
 ```
 #Prediction Intervals
-```{r}
+```{r, eval=FALSE}
 data("gw_data")
 
+gw_data <- gw_data %>%
+  select_all(., toupper)
+
 nested_gw <- gw_data %>%
-  group_by(location_id, param_name, default_unit) %>%
+  group_by(LOCATION_ID, PARAM_NAME, DEFAULT_UNIT) %>%
   nest()
 
 nested_gw %>% 
-  filter(location_id == "MW-2", 
-         param_name %in% c("Potassium, dissolved", "Magnesium, dissolved")) %>%
+  filter(LOCATION_ID == "MW-2", 
+         PARAM_NAME %in% c("Potassium, dissolved", "Magnesium, dissolved")) %>%
   mutate(trend = map(data, kendall_trend))
 
 
 mw1_K <- nested_gw %>% 
-  filter(location_id == "MW-1", param_name == "Potassium, dissolved")
+  filter(LOCATION_ID == "MW-1", PARAM_NAME == "Potassium, dissolved")
 
 test <- mw1_K %>%
   mutate(start = map(data, start_date),

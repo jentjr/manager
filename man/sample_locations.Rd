@@ -4,7 +4,7 @@
 \alias{sample_locations}
 \title{Function to return a list of all the location IDs}
 \usage{
-sample_locations(df, location_id)
+sample_locations(df, LOCATION_ID)
 }
 \arguments{
 \item{df}{data frame of groundwater data in the format with column names}

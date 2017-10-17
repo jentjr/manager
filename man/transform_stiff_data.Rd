@@ -8,7 +8,7 @@ transform_stiff_data(df, Mg = "Magnesium, dissolved",
   Ca = "Calcium, dissolved", Na = "Sodium, dissolved",
   K = "Potassium, dissolved", Cl = "Chloride, total",
   SO4 = "Sulfate, total", Alk = "Alkalinity, total (lab)",
-  name = "location_id", date = "sample_date", TDS = NULL, units = NULL)
+  name = "LOCATION_ID", date = "SAMPLE_DATE", TDS = NULL, units = NULL)
 }
 \arguments{
 \item{df}{data frame of groundwater data from \code{\link{get_major_ions}}}
@@ -25,9 +25,9 @@ transform_stiff_data(df, Mg = "Magnesium, dissolved",
 
 \item{SO4}{Sulfate}
 
-\item{name}{location_id}
+\item{name}{LOCATION_ID}
 
-\item{date}{sample_date}
+\item{date}{SAMPLE_DATE}
 
 \item{TDS}{Total Dissolved Solids}
 

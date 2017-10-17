@@ -4,14 +4,14 @@
 \alias{intra_pred_int}
 \title{Function to calculate intrawell prediction interval}
 \usage{
-intra_pred_int(df, analysis_result, wells, params, bkgd_dates, comp_dates,
+intra_pred_int(df, ANALYSIS_RESULT, wells, params, bkgd_dates, comp_dates,
   non_detect = c(15, 50), cen_method = "mle", intra.conf.level = 0.95,
   simultaneous = TRUE, SWFPR = NULL, ...)
 }
 \arguments{
 \item{df}{data frame of groundwater data}
 
-\item{analysis_result}{name of column containing analysis results}
+\item{ANALYSIS_RESULT}{name of column containing analysis results}
 
 \item{wells}{vector of wells to be included}
 

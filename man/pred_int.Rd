@@ -4,13 +4,13 @@
 \alias{pred_int}
 \title{Function to calculate prediction interval}
 \usage{
-pred_int(df, analysis_result, n.mean = 1, k = 1, m = 1, r = 1,
+pred_int(df, ANALYSIS_RESULT, n.mean = 1, k = 1, m = 1, r = 1,
   rule = "k.of.m", pi.type = "upper", conf.level = 0.95)
 }
 \arguments{
 \item{df}{df data frame of groundwater data in tidy format}
 
-\item{analysis_result}{the analysis result column}
+\item{ANALYSIS_RESULT}{the analysis result column}
 
 \item{n.mean}{n.mean positive integer specifying the sample size associated 
 with the future averages. 

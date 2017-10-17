@@ -1,57 +1,92 @@
 #' Create a piper plot 
 #' 
 #' @param df data frame of water quality data in tidy format
+#' @param location_id column for sample location
+#' @param sample_date column for sample date
+#' @param x_cation default is Calcium, dissolved
+#' @param y_cation default is Magnesium, dissolved
+#' @param z_cation default is Sodium, dissolved + Potassium, dissolved
+#' @param x_anion default is Chloride, total + Fluoride, total
+#' @param y_anion default is Alkalinity, total (lab)
+#' @param z_anion default is Sulfate, total
 #' @param TDS Scale plot by Total Dissolved Solids, default = FALSE
 #' @param title Title for plot, default = NULL
 #' @export
 
-piper_plot <- function(df, x_cation, y_cation, z_cation, 
-                       x_anion, y_anion, z_anion, 
-                       TDS=FALSE, title=NULL) {
+piper_plot <- function(df, 
+                       location_id = "LOCATION_ID",
+                       sample_date = "SAMPLE_DATE",
+                       x_cation = "Calcium, dissolved", 
+                       y_cation = "Magnesium, dissolved",
+                       z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
+                       x_anion = c("Chloride, total", "Fluoride, total"), 
+                       y_anion = "Alkalinity, total (lab)", 
+                       z_anion = "Sulfate, total", 
+                       pnt = 3,
+                       transparency = 0.2,
+                       TDS=FALSE, 
+                       title=NULL) {
   
-  .get_piper_ions(x_cation, y_cation, z_cation, x_anion, y_anion, z_anion)
-  
-  
-  sym <- seq(1, length(unique(df$LOCATION_ID)), by = 1)
+  df <- df %>%
+    .get_piper_ions(x_cation = x_cation, 
+                    y_cation = y_cation, 
+                    z_cation = z_cation, 
+                    x_anion = x_anion, 
+                    y_anion = y_anion, 
+                    z_anion = z_anion) %>%
+    .transform_piper_data(x_cation = x_cation, 
+                          y_cation = y_cation, 
+                          z_cation = z_cation, 
+                          x_anion = x_anion, 
+                          y_anion = y_anion, 
+                          z_anion = z_anion)
   
   if (isTRUE(TDS)) {
-    .ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
-                                                colour = LOCATION_ID,
-                                                shape = LOCATION_ID,
-                                                size = TDS, alpha = 0.2)) +
-      geom_point(data = df, aes(x = anion_x, y = anion_y, shape = LOCATION_ID,
-                                size = TDS, colour = LOCATION_ID, 
-                                alpha = 0.2)) +
-      geom_point(data = df, aes(x = diam_x, y = diam_y, shape = LOCATION_ID,
-                                size = TDS, colour = LOCATION_ID, 
-                                alpha = 0.2)) +
+    .ggplot_piper() + 
+      geom_point(data = df, aes(x = cation_x, 
+                                y = cation_y, 
+                                colour = LOCATION_ID),
+                                alpha = transparency) +
+      geom_point(data = df, aes(x = anion_x, 
+                                y = anion_y,
+                                colour = LOCATION_ID),
+                                alpha = transparency) +
+      geom_point(data = df, aes(x = diamond_x, 
+                                y = diamond_y,
+                                colour = LOCATION_ID, 
+                                size = TDS),
+                                alpha = transparency) +
       scale_size("TDS", range = c(5, 25)) +
-      scale_colour_brewer(palette = "Dark2") +
-      ggtitle(paste(title)) + guides(size = guide_legend("TDS"),
-                                     colour = guide_legend("Location ID"),
-                                     shape = guide_legend("Location ID"),
-                                     alpha = guide_legend("none")) +
+      scale_colour_viridis(discrete = TRUE) +
+      ggtitle(paste(title)) + 
+      guides(size = guide_legend("TDS"),
+             colour = guide_legend("Location ID"),
+             alpha = guide_legend("none")) +
       theme(plot.title = element_text(hjust = 0.5))
-  }else{
-    .ggplot_piper() + geom_point(data = df, aes(x = cation_x, y = cation_y, 
-                                                color = LOCATION_ID, 
-                                                shape = LOCATION_ID,
-                                                alpha = 0.2), size = 5) +
-      geom_point(data = df, aes(x = anion_x, y = anion_y, 
-                                color = LOCATION_ID,
-                                shape = LOCATION_ID,
-                                alpha = 0.2), size = 5) +
-      geom_point(data = df, aes(x = diam_x, y = diam_y, 
-                                color = LOCATION_ID,
-                                shape = LOCATION_ID,
-                                alpha = 0.2), size = 5) +
-      ggtitle(paste(title)) + guides(color = guide_legend("Location ID"),
-                                     shape = guide_legend("Location ID"),
-                                     alpha = guide_legend("none")) +
+    
+  } else {
+    
+    .ggplot_piper() + 
+      geom_point(data = df, aes(x = cation_x, 
+                                y = cation_y, 
+                                colour = LOCATION_ID), 
+                                alpha = transparency, size = pnt) +
+      geom_point(data = df, aes(x = anion_x, 
+                                y = anion_y, 
+                                colour = LOCATION_ID),
+                                alpha = transparency, size = pnt) +
+      geom_point(data = df, aes(x = diamond_x, 
+                                y = diamond_y, 
+                                colour = LOCATION_ID),
+                                alpha = transparency, size = pnt) +
+      ggtitle(paste(title)) + 
+      guides(color = guide_legend("Location ID"),
+             alpha = guide_legend("none")) +
       theme(plot.title = element_text(hjust = 0.5)) +
-      scale_color_brewer(palette = "Dark2") +
-      scale_shape_manual(values = sym)
+      scale_colour_viridis(discrete = TRUE) 
+    
   }
+  
 }
 
 #' Function to create an animated Piper plot through time
@@ -171,7 +206,8 @@ piper_time_html <- function(df, TDS = FALSE){
   # Convert data into xy coordinates
   cations <- cations %>%
     mutate(cation_x = cation_right + cation_top/2, 
-           cation_y = sqrt(3)/2*cation_top)
+           cation_y = sqrt(3)/2*cation_top) %>%
+    select(cation_x, cation_y)
 
   # anion data
   # Convert data to %
@@ -191,29 +227,37 @@ piper_time_html <- function(df, TDS = FALSE){
   
   # Convert data into xy coordinates
   anions <- anions %>%
-    mutate(anion_x = anion_right + anion_top/2, 
-           anion_y = sqrt(3)/2*anion_top)
+    mutate(anion_x = 120 + (anion_right + anion_top/2), 
+           anion_y = sqrt(3)/2*anion_top) %>%
+    select(anion_x, anion_y)
   
   # diamond points
-  calc_diam_point <- function(cation_x, anion_x, cation_y, anion_y, 
-                              grad = 2 * sin(pi / 3)){
-    b1 <- cation_y - (grad * cation_x)
-    b2 <- anion_y - (-grad * anion_x)
+  y1 <- cations$cation_y
+  x1 <- cations$cation_x
+  y2 <- anions$anion_y
+  x2 <- anions$anion_x
+  
+  calc_diam_point <- function(x1, x2, y1, y2, grad = 2*sin(pi/3)) {
+    
+    b1 <- y1 - (grad*x1)
+    b2 <- y2 - (-grad*x2)
+    
     M <- matrix(c(grad, -grad, -1, -1), ncol = 2)
-    t_mat <- -solve(M) %*% cbind(b1, b2)
-    data.frame(diam_x = t_mat[1, 1], diam_y = t_mat[2, 1])
+    intercepts <- as.matrix(c(b1, b2))
+    
+    t_mat <- -solve(M) %*% intercepts
+    
+    data.frame(diamond_x = t_mat[1, 1], diamond_y = t_mat[2, 1])
+    
   }
-  
-  diam_list <- lapply(1:length(cation_x), function(i) calc_diam_point(cation_x[i],
-                                                                      anion_x[i], cation_y[i], 
-                                                                      anion_y[i]))
-  
+
+  diam_list <- lapply(1:length(x1), 
+                      function(i) calc_diam_point(x1[i], x2[i], y1[i], y2[i]))
+
   npoints <- do.call("rbind", diam_list)
   
-  piper_data <- data.frame(LOCATION_ID = df[,name], SAMPLE_DATE = df[,date], 
-                           cation_x, anion_x, cation_y, anion_y, 
-                           diam_x = npoints$diam_x, diam_y = npoints$diam_y, 
-                           TDS = df[,TDS])
+  piper_data <- bind_cols(df, cations, anions, npoints) %>%
+    select(LOCATION_ID, SAMPLE_DATE, cation_x, cation_y, anion_x, anion_y, diamond_x, diamond_y)
   
   return(piper_data)
   
