@@ -22,68 +22,71 @@ shinyUI(navbarPage("MANAGER",
   ),
   navbarMenu("Plots",
     tabPanel("Distribution Plots",
-      sidebarLayout(
-        sidebarPanel(
-          selectDataUI("distribution_data"),
-          radioButtons(
-            inputId = "dist_plot_type", 
-            label = "Type of Distribution Plot",
-            choices = c("Regular", "Censored"),
-            selected = "Regular"
+      fluidPage(
+        fluidRow(
+          column(2,
+            uiOutput("select_distribution_wells"),
+            uiOutput("select_distribution_params"),
+            radioButtons(
+               inputId = "dist_plot_type", 
+               label = "Type of Distribution Plot",
+               choices = c("Regular", "Censored"),
+               selected = "Regular"
+            ),
+            conditionalPanel(
+               condition = "input.dist_plot_type == 'Censored'",
+               selectInput(
+                 inputId = "cen_dist_side", 
+                 label = "Censoring Side",
+                 choices = c("left", "right")
+            ),
+            selectInput(
+               inputId = "cen_dist_test", 
+               label = "Select test",
+               choices = c("Shapiro-Francia" = "sf", 
+                           "Shapiro-Wilk" = "sw", 
+                           "Prob-Plot-Corr-Coeff" = "ppcc")
+             ),
+            selectInput(
+               inputId = "cen_dist_dist", 
+               label = "Distribution",
+               choices = c("Normal" = "norm", "Lognormal" = "lnorm")
+            ),
+            selectInput(
+               inputId = "cen_dist_method", 
+               label = "Select method to compute plotting position",
+               choices = c("michael-schucany", 
+                           "modified kaplan-meier", 
+                           "nelson", 
+                           "hirsch-stedinger")
+            ),
+            numericInput(
+               inputId = "cen_dist_plot.pos.con", 
+               label = "Scalar for plotting position constant",
+               value = 0.375, 
+               min = 0, 
+               max = 1
+            )
           ),
           conditionalPanel(
-              condition = "input.dist_plot_type == 'Censored'",
-              selectInput(
-                inputId = "cen_dist_side", 
-                label = "Censoring Side",
-                choices = c("left", "right")
-              ),
-              selectInput(
-                inputId = "cen_dist_test", 
-                label = "Select test",
-                choices = c("Shapiro-Francia" = "sf", 
-                            "Shapiro-Wilk" = "sw", 
-                            "Prob-Plot-Corr-Coeff" = "ppcc")
-              ),
-              selectInput(
-                inputId = "cen_dist_dist", 
-                label = "Distribution",
-                choices = c("Normal" = "norm", "Lognormal" = "lnorm")
-              ),
-              selectInput(
-                inputId = "cen_dist_method", 
-                label = "Select method to compute plotting position",
-                choices = c("michael-schucany", 
-                            "modified kaplan-meier", 
-                            "nelson", 
-                            "hirsch-stedinger")
-              ),
-              numericInput(
-                inputId = "cen_dist_plot.pos.con", 
-                label = "Scalar for plotting position constant",
-                value = 0.375, 
-                min = 0, 
-                max = 1
-              )
-            ),
-          conditionalPanel(
-            condition = "input.dist_plot_type == 'Regular'",
-            selectInput(
-              inputId = "dist_type", 
-              label = "Type of Distribution", 
-              choices = row.names(Distribution.df), 
-              selected = "norm"
-            )
+             condition = "input.dist_plot_type == 'Regular'",
+               selectInput(
+                  inputId = "dist_type", 
+                  label = "Type of Distribution", 
+                  choices = row.names(Distribution.df), 
+                  selected = "norm"
+                )
+              )     
+          ),
+          column(10,
+            tableOutput("lt_summary"),
+            br(),
+            plotOutput("gof_plot"),
+            br(),
+            verbatimTextOutput("gof_test")     
           )
-        ),
-        mainPanel(
-          tableOutput("lt_summary"),
-          br(),
-          plotOutput("gof_plot"),
-          br(),
-          verbatimTextOutput("gof_test")
         )
-      )  
+      )       
     ),
     tabPanel("Time Series",
       fluidRow(
@@ -104,34 +107,36 @@ shinyUI(navbarPage("MANAGER",
   ),
   navbarMenu("Geochemical Plots",
     tabPanel("Piper Diagram",
-      sidebarLayout(
-        sidebarPanel(
-          selectInput(inputId = "x_cation", label = "x-cation", 
-                      choices = c("Calcium, dissolved")),
-          selectInput(inputId = "y_cation", label = "y-cation", 
-                      choices = c("Magnesium, dissolved")),
-          selectInput(inputId = "z_cation", label = "z-cation", multiple = TRUE,
-                      choices = c("Potassium, dissolved", "Sodium, dissolved"),
-                      selected = c("Potassium, dissolved", "Sodium, dissolved")),
-          selectInput(inputId = "x_anion", label = "x-anion", multiple = TRUE,
-                      choices = c("Chloride, total", "Fluoride, total"),
-                      selected = c("Chloride, total", "Fluoride, total")),
-          selectInput(inputId = "y_anion", label = "y-anion", 
-                      choices = c("Alkalinity, total (lab)")),
-          selectInput(inputId = "z_anion", label = "z-anion", 
-                      choices = c("Sulfate, total")),
-          selectInput(inputId = "TDS", label = "TDS", 
-                      choices = c("Total Dissolved Solids")),
-          textInput(inputId = "piper_title", label = "Enter Plot Title", 
-                    value = "Piper Diagram"),
-          checkboxInput(inputId = "TDS_plot",
-                        label = "Scale by Total Dissolved Solids"),
-          downloadButton("piper_download", "Download Plot")
-        ),
-        mainPanel(
-          plotOutput("piper_plot", height = 700, width = 800)
-        )
+      fluidPage(
+        fluidRow(
+          column(2,
+            selectInput(inputId = "x_cation", label = "x-cation", 
+                       choices = c("Calcium, dissolved")),
+            selectInput(inputId = "y_cation", label = "y-cation", 
+                       choices = c("Magnesium, dissolved")),
+            selectInput(inputId = "z_cation", label = "z-cation", multiple = TRUE,
+                       choices = c("Potassium, dissolved", "Sodium, dissolved"),
+                       selected = c("Potassium, dissolved", "Sodium, dissolved")),
+            selectInput(inputId = "x_anion", label = "x-anion", multiple = TRUE,
+                       choices = c("Chloride, total", "Fluoride, total"),
+                       selected = c("Chloride, total", "Fluoride, total")),
+            selectInput(inputId = "y_anion", label = "y-anion", 
+                       choices = c("Alkalinity, total (lab)")),
+            selectInput(inputId = "z_anion", label = "z-anion", 
+                       choices = c("Sulfate, total")),
+            selectInput(inputId = "TDS", label = "TDS", 
+                       choices = c("Total Dissolved Solids")),
+            textInput(inputId = "piper_title", label = "Enter Plot Title", 
+                      value = "Piper Diagram"),
+            checkboxInput(inputId = "TDS_plot",
+                          label = "Scale by Total Dissolved Solids"),
+            downloadButton("piper_download", "Download Plot")    
+          ),
+          column(10, 
+            plotOutput("piper_plot", height = 700, width = "100%")    
+          )
       )
+    )
     ),
     tabPanel("Stiff Diagram",
       sidebarLayout(
@@ -167,7 +172,7 @@ shinyUI(navbarPage("MANAGER",
     tabPanel("Schoeller Diagram",
       sidebarLayout(
         sidebarPanel(
-          uiOutput("wells_schoeller"),
+          uiOutput("select_schoeller_wells"),
           uiOutput("date_ranges_schoeller"),
           textInput(inputId = "Mg_schoeller", label = "Mg", 
                     value = "Magnesium, dissolved"),
@@ -268,9 +273,9 @@ tabPanel("Outliers",
              )
            ),
            mainPanel(
-             verbatimTextOutput("outlier_test"),
-             br(),
-             dataTableOutput("outlier_table")
+             verbatimTextOutput("outlier_test")
+             # br(),
+             # dataTableOutput("outlier_table")
            )
          )
 ),

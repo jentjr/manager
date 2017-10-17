@@ -59,9 +59,39 @@ shinyServer(function(input, output, session) {
   # End Summary table ----------------------------------------------------------
   
   # Begin Distribution Plots ---------------------------------------------------
-  output$gof_test <- renderPrint({
+  output$select_distribution_wells <- renderUI({
+    
+    data <- select_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("dist_well", "Monitoring Wells", well_names, 
+                multiple = FALSE,
+                selected = well_names[1])
+  })
+  
+  output$select_distribution_params <- renderUI({
+    data <- select_data()
+    analyte_names <- as.character(constituents(data))
+    selectInput("dist_param", "Constituents", analyte_names, 
+                multiple = FALSE,
+                selected = analyte_names[1])
+  })
+  
+  
+  get_distribution_data <- reactive({
     
     df <- select_data()
+    
+    df <- df %>%
+      filter(LOCATION_ID %in% input$dist_well, 
+             PARAM_NAME %in% input$dist_param)
+    
+    df
+    
+  })
+  
+  output$gof_test <- renderPrint({
+    
+    df <- get_distribution_data()
 
     if (isTRUE(input$dist_plot_type == "Censored")) {
       df$CENSORED <- ifelse(df$LT_MEASURE == "<", TRUE, FALSE)
@@ -413,21 +443,17 @@ shinyServer(function(input, output, session) {
   # End Stiff Diagram Page------------------------------------------------------
   
   # Begin Schoeller Diagram Page------------------------------------------------
-  output$wells_schoeller <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
+  output$select_schoeller_wells <- renderUI({
+    
+    data <- select_data()
     well_names <- as.character(get_wells(data))
     selectInput("well_schoeller", "Monitoring Wells", well_names, 
                 multiple = TRUE, selected = well_names[1])
   })
   
   output$date_ranges_schoeller <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-    data <- get_data()
+    
+    data <- select_data()
     dateRangeInput("date_range_schoeller", "Date Range", 
                    start = min(data$sample_date, na.rm = TRUE), 
                    end = max(data$sample_date, na.rm = TRUE))
@@ -594,17 +620,17 @@ shinyServer(function(input, output, session) {
     out
     
   })
-  
-  output$outlier_table <- renderDataTable({
-    
-    data <- get_outlier_data()
-    
-    data
-    
-  }, options = list(scrollY = "100%", scrollX = "100%", 
-                    lengthMenu = c(5, 10, 15, 25, 50, 100), 
-                    pageLength = 10)
-  )
+  # 
+  # output$outlier_table <- renderDataTable({
+  #   
+  #   data <- get_outlier_data()
+  #   
+  #   data
+  #   
+  # }, options = list(scrollY = "100%", scrollX = "100%", 
+  #                   lengthMenu = c(5, 10, 15, 25, 50, 100), 
+  #                   pageLength = 10)
+  # )
   # End outlier detection ------------------------------------------------------
   
   # Begin trend analysis -------------------------------------------------------
