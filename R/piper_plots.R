@@ -24,8 +24,8 @@ piper_plot <- function(df,
                        z_anion = "Sulfate, total", 
                        pnt = 3,
                        transparency = 0.2,
-                       TDS=FALSE, 
-                       title=NULL) {
+                       TDS = FALSE, 
+                       title = NULL) {
   
   df <- df %>%
     .get_piper_ions(x_cation = x_cation, 

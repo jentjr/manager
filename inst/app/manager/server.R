@@ -273,52 +273,20 @@ shinyServer(function(input, output, session) {
   # End Time Series Page--------------------------------------------------------
   
   # Begin Piper Diagram Page----------------------------------------------------
- 
-  get_piper_data <- reactive({
+
+  plot_piper <- reactive({
     
     data <- select_data()
 
-    Mg = paste(input$Mg)
-    Ca = paste(input$Ca)
-    Na = paste(input$Na)
-    K = paste(input$K)
-    Cl = paste(input$Cl)
-    SO4 = paste(input$SO4)
-    Alk = paste(input$Alk)
-    TDS = paste(input$TDS)
-
-    major_ions <- c(Mg, Ca, Na, K, Cl, SO4, Alk, TDS)
-    
-    piper_data <- data %>%
-      filter(PARAM_NAME %in% major_ions) %>%
-      spread(PARAM_NAME, ANALYSIS_RESULT) %>%
-      group_by(LOCATION_ID, SAMPLE_DATE) %>%
-      summarise_at(vars(major_ions), mean, na.rm = TRUE)
-    
-    piper_data
-    
-  })
-  
-  plot_piper <- reactive({
-    
-    
-    piper <- piperPlot(
-      xCat = piper_data[, "Calcium, total"],
-      yCat = piper_data[, "Magnesium, total"],
-      zCat = piper_data[, "Sodium, total"] + piper_data[, "Potassium, total"],
-      xAn = piper_data[, "Chloride, total"] + piper_data[, "Fluoride, total"],
-      yAn = piper_data[, "Alkalinity, as CaCO3"],
-      zAn = piper_data[, "Sulfate, total"],
-      Plot = list(
-        name = piper_data[, "LOCATION_ID"][["LOCATION_ID"]],
-        color = setColor(bap_ions[, "LOCATION_ID"][["LOCATION_ID"]])
-      ),
-      xAn.title = "Chloride + Fluoride",
-      yAn.title = "Alkalinity, as CaCO3"
-    )
-    
-    addExplanation(piper, where = "ul", title = "Well ID")
-    
+    piper_plot(data,
+               x_cation = paste(input$x_cation),
+               y_cation = paste(input$y_cation),
+               z_cation = paste(input$z_cation),
+               x_anion = paste(input$x_anion),
+               y_anion = paste(input$y_anion),
+               z_anion = paste(input$z_anion)
+               # TDS = paste(input$TDS)
+               )
     
   })
   
