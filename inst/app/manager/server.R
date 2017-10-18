@@ -171,24 +171,14 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE, selected = param_names[1])
   })
   
-  get_corr_data <- reactive({
+  output$corr_plot <- renderPlot({
     
     df <- select_data()
     
-    df <- df %>%
-      filter(LOCATION_ID %in% input$corr_wells, 
-             PARAM_NAME %in% input$corr_params)
-    df
-    
-  })
-  
-  output$corr_plot <- renderPlot({
-    
-    df <- get_corr_data()
-    
     df %>%
-      spread(PARAM_NAME, ANALYSIS_RESULT) %>%
-      ggpairs(., columns = input$corr_params, aes(colour = LOCATION_ID))
+      corr_plot(., sample_locations = c(input$corr_wells),  
+                constituents = c(input$corr_params))
+
     
   })
   
@@ -495,61 +485,43 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE, selected = well_names[1])
   })
   
-  output$date_ranges_schoeller <- renderUI({
+  output$select_schoeller_dates <- renderUI({
     
     data <- select_data()
     dateRangeInput("date_range_schoeller", "Date Range", 
-                   start = min(data$sample_date, na.rm = TRUE), 
-                   end = max(data$sample_date, na.rm = TRUE))
+                   start = min(data$SAMPLE_DATE, na.rm = TRUE), 
+                   end = max(data$SAMPLE_DATE, na.rm = TRUE))
   })
   
   get_schoeller_data <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    data <- get_data()
+    
+    data <- select_data()
+    
     start <- min(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
     end <- max(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
     
     data_selected <- data %>%
       filter(LOCATION_ID %in% input$well_schoeller &
-             sample_date >= start & 
-             sample_date <= end)
+             SAMPLE_DATE >= start & 
+             SAMPLE_DATE <= end)
     
-    Mg = paste(input$Mg_schoeller)
-    Ca = paste(input$Ca_schoeller)
-    Na = paste(input$Na_schoeller)
-    K = paste(input$K_schoeller)
-    Cl = paste(input$Cl_schoeller)
-    SO4 = paste(input$SO4_schoeller)
-    Alk = paste(input$Alk_schoeller)
-    
-    ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, 
-                           K = K, Cl = Cl, SO4 = SO4, Alk = Alk)
-    
-    ions <- ions[complete.cases(ions), ]
-    
-    plot_data <- conc_to_meq(ions, Mg = Mg, Ca = Ca, Na = Na, K = K, 
-                             Cl = Cl, SO4 = SO4, HCO3 = Alk)
-    
-    schoeller_data <- transform_schoeller(plot_data, Mg = Mg, 
-                                       Ca = Ca, 
-                                       Na = Na, 
-                                       K = K, 
-                                       Cl = Cl,
-                                       SO4 = SO4, 
-                                       HCO3 = Alk)
-    schoeller_data
+    data_selected
+
   })
   
   schoeller_diagram <- reactive({
-    validate(
-      need(input$data_path != "", "")
-    )
     
     data <- get_schoeller_data()
     
-    schoeller(data, facet_by = input$facet_schoeller)
+    data %>%
+      schoeller_plot(Mg = paste(input$Mg_schoeller),
+                     Ca = paste(input$Ca_schoeller),
+                     Na = paste(input$Na_schoeller),
+                     K = paste(input$K_schoeller),
+                     Cl = paste(input$Cl_schoeller),
+                     SO4 = paste(input$SO4_schoeller),
+                     Alk = paste(input$Alk_schoeller), 
+                     facet_by = input$facet_schoeller)
   })
   
   output$schoeller_diagram_out <- renderPlot({

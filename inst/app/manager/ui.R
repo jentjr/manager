@@ -79,11 +79,9 @@ shinyUI(navbarPage("MANAGER",
               )     
           ),
           column(10,
-            tableOutput("lt_summary"),
-            br(),
-            plotOutput("gof_plot"),
-            br(),
-            verbatimTextOutput("gof_test")     
+            plotOutput("gof_plot")
+            # br(),
+            # verbatimTextOutput("gof_test")     
           )
         )
       )       
@@ -183,114 +181,104 @@ shinyUI(navbarPage("MANAGER",
       )         
     ),
     tabPanel("Schoeller Diagram",
-      sidebarLayout(
-        sidebarPanel(
-          uiOutput("select_schoeller_wells"),
-          uiOutput("date_ranges_schoeller"),
-          textInput(inputId = "Mg_schoeller", label = "Mg", 
-                    value = "Magnesium, dissolved"),
-          textInput(inputId = "Ca_schoeller", label = "Ca", 
-                    value = "Calcium, dissolved"),
-          textInput(inputId = "K_schoeller", label = "K", 
-                    value = "Potassium, dissolved"),
-          textInput(inputId = "Na_schoeller", label = "Na", 
-                    value = "Sodium, dissolved"),
-          textInput(inputId = "Cl_schoeller", label = "Cl", 
-                    value = "Chloride, total"),
-          textInput(inputId = "SO4_schoeller", label = "SO4", 
-                    value = "Sulfate, total"),
-          textInput(inputId = "Alk_schoeller", label = "Alkalinity", 
-                    value = "Alkalinity, total (lab)"),
-          selectInput(inputId = "facet_schoeller", label = "Facet plot by:",
-                       c("location_id", "sample_date")),
-#           conditionalPanel(
-#             condition = "input.schoeller_type == 'separate'",
-#             selectInput(inputId = "group_schoeller", 
-#                         label = "Group plot by:",
-#                         c("location_id", "sample_date"))
-#             ),
-#           conditionalPanel(
-#             condition = "input.schoeller_type == 'group'",
-#             selectInput(inputId = "facet_schoeller_by", 
-#                         label = "Facet plots by:",
-#                         c("location_id", "sample_date"))
-#             ),
-          downloadButton("schoeller_download", "Download Plots")
-        ),
-        mainPanel(
-          plotOutput("schoeller_diagram_out")  
+      fluidPage(
+        fluidRow(
+          column(2,
+            uiOutput("select_schoeller_wells"),
+            uiOutput("select_schoeller_dates"),
+            textInput(inputId = "Mg_schoeller", label = "Mg", 
+                      value = "Magnesium, dissolved"),
+            textInput(inputId = "Ca_schoeller", label = "Ca", 
+                      value = "Calcium, dissolved"),
+            textInput(inputId = "K_schoeller", label = "K", 
+                      value = "Potassium, dissolved"),
+            textInput(inputId = "Na_schoeller", label = "Na", 
+                      value = "Sodium, dissolved"),
+            textInput(inputId = "Cl_schoeller", label = "Cl", 
+                      value = "Chloride, total"),
+            textInput(inputId = "SO4_schoeller", label = "SO4", 
+                      value = "Sulfate, total"),
+            textInput(inputId = "Alk_schoeller", label = "Alkalinity", 
+                      value = "Alkalinity, total (lab)"),
+            selectInput(inputId = "facet_schoeller", label = "Facet plot by:",
+                        c("LOCATION_ID", "SAMPLE_DATE")),
+            downloadButton("schoeller_download", "Download Plots")    
+            ),
+          column(10, 
+            plotOutput("schoeller_diagram_out")     
+          )
         )
-      )  
+      )
     )
-  ),
+  ), 
 tabPanel("Outliers",
-         sidebarLayout(
-           sidebarPanel(
-             uiOutput("outlier_wells"),
-             uiOutput("outlier_analytes"),
-             uiOutput("outlier_date_ranges"),
-             selectInput(
-               inputId = "outlier_test_name", 
-               label = "Outlier Test",
-               choices = c("Rosner", "Grubb", "Dixon")
-             ),
-             conditionalPanel(
-               condition = "input.outlier_test_name == 'Rosner'",
-               numericInput(
+  sidebarLayout(
+    sidebarPanel(
+      uiOutput("outlier_wells"),
+      uiOutput("outlier_analytes"),
+      uiOutput("outlier_date_ranges"),
+        selectInput(
+          inputId = "outlier_test_name", 
+          label = "Outlier Test",
+          choices = c("Rosner", "Grubb", "Dixon")
+        ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Rosner'",
+          numericInput(
                  inputId = "rosnerN", 
                  label = "Number of suspected outliers",
                  value = 2, min = 0
-               ),
-               numericInput(
+          ),
+          numericInput(
                  inputId = "rosnerAlpha",
                  label = "alpha",
                  value = 0.01, min = 0, max = 1
-               )
-             ),
-             conditionalPanel(
-               condition = "input.outlier_test_name == 'Grubb'",
-               selectInput(
+          )
+        ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Grubb'",
+             selectInput(
                  inputId = "grubbType",
                  label = "Type of Test",
                  choices = c("10" = 10, "11" = 11, "20" = 20)
-               ),
-               selectInput(
+              ),
+              selectInput(
                  inputId = "grubbOpposite",
                  label = "Choose Opposite",
                  choices = c("FALSE" = 0, "TRUE" = 1)
-               ),
-               selectInput(
+              ),
+              selectInput(
                  inputId = "grubbSide",
                  label = "Treat as two-sided",
                  choices = c("FALSE" = 0, "TRUE" = 1)
-               )
-             ),
-             conditionalPanel(
-               condition = "input.outlier_test_name == 'Dixon'",
-               selectInput(
+          )
+        ),
+        conditionalPanel(
+          condition = "input.outlier_test_name == 'Dixon'",
+            selectInput(
                  inputId = "dixonType",
                  label = "Type of Test",
                  choices = c("0" = 0, "10" = 10, "11" = 11, 
                              "12" = 12, "20" = 20, "21" = 21)
-               ),
-               selectInput(
+            ),
+            selectInput(
                  inputId = "dixonOpposite",
                  label = "Choose Opposite",
                  choices = c("FALSE" = 0, "TRUE" = 1)
-               ),
-               selectInput(
+            ),
+            selectInput(
                  inputId = "dixonSide",
                  label = "Treat as two-sided",
                  choices = c("TRUE" = 1, "FALSE" = 0)
-               )
-             )
-           ),
-           mainPanel(
-             verbatimTextOutput("outlier_test")
+            )
+        )
+    ),
+    mainPanel(
+      verbatimTextOutput("outlier_test")
              # br(),
              # dataTableOutput("outlier_table")
-           )
-         )
+    )
+  )
 ),
 tabPanel("Trends",
          sidebarLayout(
