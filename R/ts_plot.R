@@ -112,10 +112,13 @@ ts_plot <- function(df,
     geom_line(data = df) +
     geom_point(data = df, aes(shape = factor(NON_DETECT, exclude = NULL)), 
                size = pnt) +
-    ylab("Analysis Result") +
+    ylab(paste("Analysis Result", "\nScale: ", 
+               scale_y_trans, sep = "")) +
     xlab("Sample Date") + 
     scale_x_datetime(labels = scales::date_format("%Y")) +
-    scale_y_continuous(trans = scale_y_trans) +
+    scale_y_continuous(trans = scale_y_trans, 
+                       breaks = scales::pretty_breaks(),
+                       labels = prettyNum) +
     theme(plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) + 
     theme_bw() +  
     theme(axis.title.x = element_text(size = 15, vjust = -0.3)) +

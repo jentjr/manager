@@ -151,6 +151,7 @@ piper_time_html <- function(df, TDS = FALSE){
                             SAMPLE_DATE = "SAMPLE_DATE",
                             PARAM_NAME = "PARAM_NAME",
                             ANALYSIS_RESULT = "ANALYSIS_RESULT",
+                            DEFAULT_UNIT = "DEFAULT_UNIT",
                             x_cation = "Calcium, dissolved", 
                             y_cation = "Magnesium, dissolved",
                             z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
@@ -162,14 +163,14 @@ piper_time_html <- function(df, TDS = FALSE){
   
   ions <- c(x_cation, y_cation, z_cation, x_anion, y_anion, z_anion, TDS, pH)
   
-  data <- df %>% 
+  df <- df %>% 
     filter_(~PARAM_NAME %in% ions) %>%
     spread_(PARAM_NAME, ANALYSIS_RESULT) %>%
-    group_by_(~LOCATION_ID, ~SAMPLE_DATE) %>%
+    group_by_(~LOCATION_ID, ~SAMPLE_DATE, ~DEFAULT_UNIT) %>%
     summarise_at(vars(ions), mean, na.rm = TRUE) %>%
     ungroup()
   
-  return(data)
+  return(df)
   
 }
 

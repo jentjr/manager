@@ -149,7 +149,51 @@ shinyServer(function(input, output, session) {
     plot(out)
   })
   # End Distribution Plots -----------------------------------------------------
-   
+  
+  # Begin Correlation Plots ----------------------------------------------------
+  output$select_corr_wells <- renderUI({
+    
+    data <- select_data()
+    
+    well_names <- as.character(sample_locations(data))
+    
+    selectInput("corr_wells", "Monitoring Wells", well_names, 
+                multiple = TRUE, selected = well_names[1])
+  })
+  
+  output$select_corr_params <- renderUI({
+    
+    data <- select_data()
+    
+    param_names <- as.character(constituents(data))
+    
+    selectInput("corr_params", "Constituents", param_names, 
+                multiple = TRUE, selected = param_names[1])
+  })
+  
+  get_corr_data <- reactive({
+    
+    df <- select_data()
+    
+    df <- df %>%
+      filter(LOCATION_ID %in% input$corr_wells, 
+             PARAM_NAME %in% input$corr_params)
+    df
+    
+  })
+  
+  output$corr_plot <- renderPlot({
+    
+    df <- get_corr_data()
+    
+    df %>%
+      spread(PARAM_NAME, ANALYSIS_RESULT) %>%
+      ggpairs(., columns = input$corr_params, aes(colour = LOCATION_ID))
+    
+  })
+  
+  # End Correlation Plots ------------------------------------------------------
+  
   # Begin Boxplot Page----------------------------------------------------------
   
   boxplot <- reactive({
@@ -343,7 +387,7 @@ shinyServer(function(input, output, session) {
       need(input$data_path != "", "")
     )
       data <- get_data()
-      well_names <- as.character(get_wells(data))
+      well_names <- as.character(sample_locations(data))
       selectInput("well_stiff", "Monitoring Wells", well_names, 
                   multiple = TRUE, selected = well_names[1])
   })
@@ -446,7 +490,7 @@ shinyServer(function(input, output, session) {
   output$select_schoeller_wells <- renderUI({
     
     data <- select_data()
-    well_names <- as.character(get_wells(data))
+    well_names <- as.character(sample_locations(data))
     selectInput("well_schoeller", "Monitoring Wells", well_names, 
                 multiple = TRUE, selected = well_names[1])
   })

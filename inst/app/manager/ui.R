@@ -88,6 +88,19 @@ shinyUI(navbarPage("MANAGER",
         )
       )       
     ),
+    tabPanel("Correlation",
+      fluidPage(
+        fluidRow(
+          column(2, 
+            uiOutput("select_corr_wells"),
+            uiOutput("select_corr_params")     
+          ),
+          column(10, 
+            plotOutput("corr_plot", height = 700, width = "100%")       
+          )
+        )
+      )       
+    ),
     tabPanel("Time Series",
       fluidRow(
         column(12, uiOutput("ts_out"))       

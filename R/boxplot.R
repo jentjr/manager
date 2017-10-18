@@ -111,7 +111,9 @@ boxplot <- function(df,
     geom_boxplot() + 
     geom_beeswarm(aes(shape = factor(NON_DETECT, exclude = NULL), 
                       size = pnt), groupOnX = TRUE) +
-    scale_y_continuous(trans = scale_y_trans) + 
+    scale_y_continuous(trans = scale_y_trans, 
+                       breaks = scales::pretty_breaks(), 
+                       labels = prettyNum) + 
     guides(colour = guide_legend(override.aes = list(linetype = 0)), 
            shape = guide_legend("Detection", override.aes = list(linetype = 0)),
            size = guide_legend("none")) +
