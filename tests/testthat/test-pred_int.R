@@ -1,33 +1,33 @@
 set.seed(14)
 
 df_norm1 <- data.frame(
-  location_id = rep(1, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
+  LOCATION_ID = rep(1, 20),
+  SAMPLE_DATE = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
                     by = "quarter", length.out = 20),
-  param_name = rep("test", 20),
-  lt_measure = rep("", 20),
-  analysis_result = rnorm(20, mean = 5, sd = 1),
-  default_unit = rep("mg/L", 20)
+  PARAM_NAME = rep("test", 20),
+  LT_MEASURE = rep("", 20),
+  ANALYSIS_RESULT = rnorm(20, mean = 5, sd = 1),
+  DEFAULT_UNIT = rep("mg/L", 20)
 )
 
 df_lnorm1 <- data.frame(
-  location_id = rep(2, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
+  LOCATION_ID = rep(2, 20),
+  SAMPLE_DATE = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
                     by = "quarter", length.out = 20),
-  param_name = rep("test", 20),
-  lt_measure = rep("", 20),
-  analysis_result = rlnorm(20, meanlog = 5, sdlog = 1),
-  default_unit = rep("mg/L", 20)
+  PARAM_NAME = rep("test", 20),
+  LT_MEASURE = rep("", 20),
+  ANALYSIS_RESULT = rlnorm(20, meanlog = 5, sdlog = 1),
+  DEFAULT_UNIT = rep("mg/L", 20)
 )
 
 df_nonpar1 <- data.frame(
-  location_id = rep(3, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
+  LOCATION_ID = rep(3, 20),
+  SAMPLE_DATE = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
                     by = "quarter", length.out = 20),
-  param_name = rep("test", 20),
-  lt_measure = rep("", 20),
-  analysis_result = rhyper(20, m = 30, n = 1, k = 20),
-  default_unit = rep("mg/L", 20)
+  PARAM_NAME = rep("test", 20),
+  LT_MEASURE = rep("", 20),
+  ANALYSIS_RESULT = rhyper(20, m = 30, n = 1, k = 20),
+  DEFAULT_UNIT = rep("mg/L", 20)
 )
 
 # test_that("normal prediction limit", {

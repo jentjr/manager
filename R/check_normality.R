@@ -60,5 +60,7 @@ dist <- function(x, p = 0.01) {
 
 est_dist <- function(df, p = 0.01) {  
   df %>%
-    mutate(distribution = dist(ANALYSIS_RESULT, p = p))
+    group_by(LOCATION_ID, PARAM_NAME) %>%
+    mutate(distribution = dist(ANALYSIS_RESULT, p = p)) %>%
+    ungroup()
 }
