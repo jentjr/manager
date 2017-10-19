@@ -12,8 +12,11 @@ summary <- function(df, na.rm = TRUE) {
               mean = mean(ANALYSIS_RESULT, na.rm = na.rm),
               median = median(ANALYSIS_RESULT, na.rm = na.rm),
               sd = sd(ANALYSIS_RESULT, na.rm = na.rm),
+              var = var(ANALYSIS_RESULT, na.rm = na.rm),
               min = min(ANALYSIS_RESULT, na.rm = na.rm),
               max = max(ANALYSIS_RESULT, na.rm = na.rm),
-              cv = cv(ANALYSIS_RESULT, na.rm = na.rm)
+              cv = cv(ANALYSIS_RESULT, na.rm = na.rm),
+              IQR = IQR(ANALYSIS_RESULT, na.rm = na.rm),
+              mad = mad(ANALYSIS_RESULT, na.rm = na.rm)
               )
 } 

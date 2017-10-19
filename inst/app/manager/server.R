@@ -89,37 +89,37 @@ shinyServer(function(input, output, session) {
     
   })
   
-  output$gof_test <- renderPrint({
-    
-    df <- get_distribution_data()
-
-    if (isTRUE(input$dist_plot_type == "Censored")) {
-      df$CENSORED <- ifelse(df$LT_MEASURE == "<", TRUE, FALSE)
-      out <- EnvStats::gofTestCensored(
-        x = df$ANALYSIS_RESULT, censored = df$CENSORED,
-        censoring.side = input$cen_dist_side,
-        test = input$cen_dist_test,
-        distribution = input$cen_dist_dist,
-        prob.method = input$cen_dist_method,
-        plot.pos.con =  input$cen_dist_plot.pos.con
-        )
-      out["data.name"] <- paste(df$LOCATION_ID,
-                                df$PARAM_NAME,
-                                sep = " ")
-    } else {
-      out <- EnvStats::gofTest(
-        df$ANALYSIS_RESULT, distribution = input$dist_type
-      )
-      out["data.name"] <- paste(df$LOCATION_ID,
-                                df$PARAM_NAME,
-                                sep = " ")
-    }
-    out
-  })
+  # output$gof_test <- renderPrint({
+  #   
+  #   df <- get_distribution_data()
+  # 
+  #   if (isTRUE(input$dist_plot_type == "Censored")) {
+  #     df$CENSORED <- ifelse(df$LT_MEASURE == "<", TRUE, FALSE)
+  #     out <- EnvStats::gofTestCensored(
+  #       x = df$ANALYSIS_RESULT, censored = df$CENSORED,
+  #       censoring.side = input$cen_dist_side,
+  #       test = input$cen_dist_test,
+  #       distribution = input$cen_dist_dist,
+  #       prob.method = input$cen_dist_method,
+  #       plot.pos.con =  input$cen_dist_plot.pos.con
+  #       )
+  #     out["data.name"] <- paste(df$LOCATION_ID,
+  #                               df$PARAM_NAME,
+  #                               sep = " ")
+  #   } else {
+  #     out <- EnvStats::gofTest(
+  #       df$ANALYSIS_RESULT, distribution = input$dist_type
+  #     )
+  #     out["data.name"] <- paste(df$LOCATION_ID,
+  #                               df$PARAM_NAME,
+  #                               sep = " ")
+  #   }
+  #   out
+  # })
 
   output$gof_plot <- renderPlot({
     
-    df <- select_data()
+    df <- get_distribution_data()
     
     if (isTRUE(input$dist_plot_type == "Censored")) {
       

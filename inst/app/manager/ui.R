@@ -122,25 +122,39 @@ shinyUI(navbarPage("MANAGER",
         fluidRow(
           column(2,
             selectInput(inputId = "x_cation", label = "x-cation", 
-                       choices = c("Calcium, dissolved")),
+                        choices = c("Calcium, dissolved", "Calcium, total"),
+                        selected = "Calcium, dissolved"),
+            
             selectInput(inputId = "y_cation", label = "y-cation", 
-                       choices = c("Magnesium, dissolved")),
-            selectInput(inputId = "z_cation", label = "z-cation", multiple = TRUE,
-                       choices = c("Potassium, dissolved", "Sodium, dissolved"),
-                       selected = c("Potassium, dissolved", "Sodium, dissolved")),
+                        choices = c("Magnesium, dissolved", "Magnesium, total")),
+            
+            selectInput(inputId = "z_cation", label = "z-cation", 
+                        multiple = TRUE,
+                        choices = c("Potassium, dissolved", "Potassium, total", 
+                                   "Sodium, dissolved", "Sodium, total"),
+                        selected = c("Potassium, dissolved", "Sodium, dissolved")),
+            
             selectInput(inputId = "x_anion", label = "x-anion", multiple = TRUE,
-                       choices = c("Chloride, total", "Fluoride, total"),
-                       selected = c("Chloride, total", "Fluoride, total")),
+                        choices = c("Chloride, total", "Chloride, dissolved", 
+                                    "Fluoride, total", "Fluoride, dissolved"),
+                        selected = c("Chloride, total", "Fluoride, total")),
+            
             selectInput(inputId = "y_anion", label = "y-anion", 
-                       choices = c("Alkalinity, total (lab)")),
+                        choices = c("Alkalinity, total (lab)")),
+            
             selectInput(inputId = "z_anion", label = "z-anion", 
-                       choices = c("Sulfate, total")),
+                        choices = c("Sulfate, total", "Sulfate, dissolved"),
+                        selected = "Sulfate, total"),
+            
             selectInput(inputId = "TDS", label = "TDS", 
                        choices = c("Total Dissolved Solids")),
+            
             textInput(inputId = "piper_title", label = "Enter Plot Title", 
                       value = "Piper Diagram"),
+            
             checkboxInput(inputId = "TDS_plot",
                           label = "Scale by Total Dissolved Solids"),
+           
             downloadButton("piper_download", "Download Plot")    
           ),
           column(10, 
@@ -186,22 +200,37 @@ shinyUI(navbarPage("MANAGER",
           column(2,
             uiOutput("select_schoeller_wells"),
             uiOutput("select_schoeller_dates"),
-            textInput(inputId = "Mg_schoeller", label = "Mg", 
-                      value = "Magnesium, dissolved"),
-            textInput(inputId = "Ca_schoeller", label = "Ca", 
-                      value = "Calcium, dissolved"),
-            textInput(inputId = "K_schoeller", label = "K", 
-                      value = "Potassium, dissolved"),
-            textInput(inputId = "Na_schoeller", label = "Na", 
-                      value = "Sodium, dissolved"),
-            textInput(inputId = "Cl_schoeller", label = "Cl", 
-                      value = "Chloride, total"),
-            textInput(inputId = "SO4_schoeller", label = "SO4", 
-                      value = "Sulfate, total"),
-            textInput(inputId = "Alk_schoeller", label = "Alkalinity", 
-                      value = "Alkalinity, total (lab)"),
+            
+            selectInput(inputId = "Mg_schoeller", label = "Mg", 
+                        choices = c("Magnesium, dissolved", 
+                                    "Magnesium, total")),
+            
+            selectInput(inputId = "Ca_schoeller", label = "Ca", 
+                      choices = c("Calcium, dissolved",
+                                  "Calcium, total")),
+            
+            selectInput(inputId = "K_schoeller", label = "K", 
+                        choices = c("Potassium, dissolved",
+                                    "Potassium, total")),
+            
+            selectInput(inputId = "Na_schoeller", label = "Na", 
+                        choices = c("Sodium, dissolved",
+                                    "Sodium, total")),
+            
+            selectInput(inputId = "Cl_schoeller", label = "Cl", 
+                        choices = c("Chloride, total", 
+                                    "Chloride, dissolved")),
+            
+            selectInput(inputId = "SO4_schoeller", label = "SO4", 
+                        choices = c("Sulfate, total",
+                                    "Sulfate, dissolved")),
+            
+            selectInput(inputId = "Alk_schoeller", label = "Alkalinity", 
+                      choices = c("Alkalinity, total (lab)")),
+            
             selectInput(inputId = "facet_schoeller", label = "Facet plot by:",
                         c("LOCATION_ID", "SAMPLE_DATE")),
+            
             downloadButton("schoeller_download", "Download Plots")    
             ),
           column(10, 

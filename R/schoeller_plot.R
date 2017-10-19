@@ -120,12 +120,12 @@ schoeller_plot <- function(df,
     bind_cols(df) %>%
     select(LOCATION_ID, SAMPLE_DATE, DEFAULT_UNIT, 
            Ca, Mg, Na_K, Cl, Alk, SO4) %>%
-    rename(Mg = "Magnesium, dissolved",
-           Ca = "Calcium, dissolved",
+    rename(Mg := Mg,
+           Ca := Ca,
            `Na+K` = "Na_K",
-           Cl = "Chloride, total",
-           HCO3 = "Alkalinity, total (lab)",
-           SO4 = "Sulfate, total")
+           Cl := Cl,
+           HCO3 := Alk,
+           SO4 := SO4)
   
   df <- df %>%
     gather(key = PARAM_NAME, 
