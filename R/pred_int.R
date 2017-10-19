@@ -2,7 +2,7 @@
 #' 
 #' @param df df data frame of groundwater data in tidy format
 #' @param ANALYSIS_RESULT the analysis result column
-#' @param distribution the distribution colum
+#' @param DISTRIBUTION the distribution colum
 #' @param n.mean n.mean positive integer specifying the sample size associated 
 #' with the future averages. 
 #' The default value is n.mean=1 (i.e., individual observations). 
@@ -21,24 +21,45 @@
 #' @export
 
 pred_int <- function(df,
-                          ANALYSIS_RESULT,
-                          n.mean = 1, 
-                          k = 1, 
-                          m = 1,
-                          r = 1, 
-                          rule = "k.of.m",
-                          pi.type = "upper", 
-                          conf.level = 0.95) {
+                     ANALYSIS_RESULT = "ANALYSIS_RESULT",
+                     DISTRIBUTION = "DISTRIBUTION",
+                     n.mean = 1, 
+                     k = 1, 
+                     m = 1,
+                     r = 1, 
+                     rule = "k.of.m",
+                     pi.type = "upper", 
+                     conf.level = 0.95) {
   
-    EnvStats::predIntNormSimultaneous(
-      df$ANALYSIS_RESULT, 
-      n.mean = n.mean,
-      k = k,
-      m = m,
-      r = r,
-      rule = rule,
-      pi.type = pi.type,
-      conf.level = conf.level
-      )
+  if (df$DISTRIBUTION[1] == "norm") {
+    int <- EnvStats::predIntNormSimultaneous(df$ANALYSIS_RESULT, 
+                                             n.mean = n.mean,
+                                             k = k, 
+                                             m = m,
+                                             r = r,
+                                             rule = rule,
+                                             pi.type = pi.type,
+                                             conf.level = conf.level
+                                             )
   
+  } else if (df$DISTRIBUTION[1] == "lnorm") {
+     int <-EnvStats::predIntLnormSimultaneous(df$ANALYSIS_RESULT, 
+                                              n.geomean = n.mean,
+                                              k = k,
+                                              m = m,
+                                              r = r,
+                                              rule = rule,
+                                              pi.type = pi.type,
+                                              conf.level = conf.level
+                                              )
+  } else { 
+    int <- EnvStats::predIntNpar(df$ANALYSIS_RESULT,
+                                 k = k,
+                                 m = m, 
+                                 pi.type = pi.type
+                                 ) 
+  }
+  
+  return(int)
+
 }
