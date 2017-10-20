@@ -113,7 +113,8 @@ shinyUI(navbarPage("MANAGER",
                        value = 3, min = 0, max = 3),
           numericInput(inputId = "box_pnt_size", label = "Point size",
                        value = 2, min = 1),
-          checkboxInput(inputId = "box_points", label = "Show points", FALSE)
+          checkboxInput(inputId = "box_points", label = "Show points", FALSE),
+          downloadButton("box_download", "Download Plots")
           ),
         column(10, 
           uiOutput("boxplot_out")     
@@ -129,40 +130,14 @@ shinyUI(navbarPage("MANAGER",
       fluidPage(
         fluidRow(
           column(2,
-            selectInput(inputId = "x_cation", label = "x-cation", 
-                        choices = c("Calcium, dissolved", "Calcium, total"),
-                        selected = "Calcium, dissolved"),
-            
-            selectInput(inputId = "y_cation", label = "y-cation", 
-                        choices = c("Magnesium, dissolved", "Magnesium, total")),
-            
-            selectInput(inputId = "z_cation", label = "z-cation", 
-                        multiple = TRUE,
-                        choices = c("Potassium, dissolved", "Potassium, total", 
-                                   "Sodium, dissolved", "Sodium, total"),
-                        selected = c("Potassium, dissolved", "Sodium, dissolved")),
-            
-            selectInput(inputId = "x_anion", label = "x-anion", multiple = TRUE,
-                        choices = c("Chloride, total", "Chloride, dissolved", 
-                                    "Fluoride, total", "Fluoride, dissolved"),
-                        selected = c("Chloride, total", "Fluoride, total")),
-            
-            selectInput(inputId = "y_anion", label = "y-anion", 
-                        choices = c("Alkalinity, total (lab)")),
-            
-            selectInput(inputId = "z_anion", label = "z-anion", 
-                        choices = c("Sulfate, total", "Sulfate, dissolved"),
-                        selected = "Sulfate, total"),
-            
-            selectInput(inputId = "TDS", label = "TDS", 
-                       choices = c("Total Dissolved Solids")),
-            
+            uiOutput("select_piper_data"),
+
             textInput(inputId = "piper_title", label = "Enter Plot Title", 
                       value = "Piper Diagram"),
-            
+
             checkboxInput(inputId = "TDS_plot",
                           label = "Scale by Total Dissolved Solids"),
-           
+
             downloadButton("piper_download", "Download Plot")    
           ),
           column(10, 

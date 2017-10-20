@@ -238,7 +238,14 @@ shinyServer(function(input, output, session) {
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      manager::boxplot(get_box_data())
+      df <- get_box_data() %>%
+        boxplot(., x = "location_id",
+                y = "analysis_result",
+                fill = "location_class",
+                scale_y_trans = input$box_y_transform,
+                coef = input$box_iqr_mult,
+                show_points = input$box_points,
+                pnt = input$box_pnt_size)
       dev.off()
     }
   )
@@ -339,6 +346,44 @@ shinyServer(function(input, output, session) {
   
   # Begin Piper Diagram Page----------------------------------------------------
 
+  output$select_piper_data <- renderUI({
+
+    data <- select_data()
+    
+    x_cation_list <- data %>%
+      filter(grepl("Calcium", param_name)) %>%
+      select(param_name) %>%
+      first()
+
+    selectInput(inputId = "x_cation", label = "Select X Cation",
+                choices = x_cation_list, selected = x_cation_list[1])
+    
+    selectInput(inputId = "y_cation", label = "y-cation", 
+                choices = c("Magnesium, dissolved", "Magnesium, total"))
+    
+    selectInput(inputId = "z_cation", label = "z-cation", 
+                multiple = TRUE,
+                choices = c("Potassium, dissolved", "Potassium, total", 
+                            "Sodium, dissolved", "Sodium, total"),
+                selected = c("Potassium, dissolved", "Sodium, dissolved"))
+    
+    selectInput(inputId = "x_anion", label = "x-anion", multiple = TRUE,
+                choices = c("Chloride, total", "Chloride, dissolved", 
+                            "Fluoride, total", "Fluoride, dissolved"),
+                selected = c("Chloride, total", "Fluoride, total"))
+    
+    selectInput(inputId = "y_anion", label = "y-anion", 
+                choices = c("Alkalinity, total (lab)"))
+    
+    selectInput(inputId = "z_anion", label = "z-anion", 
+                choices = c("Sulfate, total", "Sulfate, dissolved"),
+                selected = "Sulfate, total")
+    
+    selectInput(inputId = "TDS", label = "TDS", 
+                choices = c("Total Dissolved Solids"))
+    
+  }) 
+  
   plot_piper <- reactive({
 
     data <- select_data()
