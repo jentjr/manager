@@ -108,7 +108,12 @@ shinyUI(navbarPage("MANAGER",
       fluidRow(
         column(2, 
           selectInput(inputId = "box_y_transform", label = "Transform y scale",
-                      c("identity", "log", "log10", "sqrt", "boxcox"))
+                      c("identity", "log", "log10", "sqrt", "boxcox")),
+          numericInput(inputId = "box_iqr_mult", label = "IQR Multiplier",
+                       value = 3, min = 0, max = 3),
+          numericInput(inputId = "box_pnt_size", label = "Point size",
+                       value = 2, min = 1),
+          checkboxInput(inputId = "box_points", label = "Show points", FALSE)
           ),
         column(10, 
           uiOutput("boxplot_out")     
@@ -116,6 +121,9 @@ shinyUI(navbarPage("MANAGER",
       )
     )
   ),
+
+# Geochemical Plots Navigation Bar ---------------------------------------------  
+  
   navbarMenu("Geochemical Plots",
     tabPanel("Piper Diagram",
       fluidPage(

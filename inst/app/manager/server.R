@@ -207,7 +207,10 @@ shinyServer(function(input, output, session) {
               x = "location_id",
               y = "analysis_result",
               fill = "location_class",
-              scale_y_trans = input$box_y_transform
+              scale_y_trans = input$box_y_transform,
+              coef = input$box_iqr_mult,
+              show_points = input$box_points,
+              pnt = input$box_pnt_size
             )
             box
           })
