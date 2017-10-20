@@ -321,10 +321,10 @@ tabPanel("Trends",
            )
          )
 ),
-  navbarMenu("Prediction Intervals",
-    tabPanel("Intra-well",
-      sidebarLayout(
-       sidebarPanel(
+navbarMenu("Prediction Intervals",
+  tabPanel("Intra-well",
+    sidebarLayout(
+      sidebarPanel(
         
          uiOutput("wells_intra"),
         
@@ -380,9 +380,19 @@ tabPanel("Trends",
       )
     )       
   ),
-  
-  tabPanel("Inter-well")
- 
+  tabPanel("Inter-well",
+    fluidPage(
+      fluidRow(
+        column(2,
+          uiOutput("select_wells_inter"),
+          uiOutput("select_analyte_inter"),
+          uiOutput("select_date_ranges_inter")
+        ),
+        column(10, 
+          verbatimTextOutput("inter_limit_out")
+        )
+      )
+    )
   )
-
+  )
 ))

@@ -1,5 +1,5 @@
-#' Create a piper plot 
-#' 
+#' Create a piper plot
+#'
 #' @param df data frame of water quality data in tidy format
 #' @param location_id column for sample location
 #' @param sample_date column for sample date
@@ -9,106 +9,109 @@
 #' @param x_anion default is Chloride, total + Fluoride, total
 #' @param y_anion default is Alkalinity, total (lab)
 #' @param z_anion default is Sulfate, total
-#' @param TDS Scale plot by Total Dissolved Solids, default = FALSE
+#' @param total_dissolved_solids Scale plot by Total Dissolved Solids,
+#' default = FALSE
 #' @param title Title for plot, default = NULL
 #' @export
 
-piper_plot <- function(df, 
-                       location_id = "LOCATION_ID",
-                       sample_date = "SAMPLE_DATE",
-                       x_cation = "Calcium, dissolved", 
+piper_plot <- function(df,
+                       location_id = "location_id",
+                       sample_date = "sample_date",
+                       x_cation = "Calcium, dissolved",
                        y_cation = "Magnesium, dissolved",
-                       z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
-                       x_anion = c("Chloride, total", "Fluoride, total"), 
-                       y_anion = "Alkalinity, total (lab)", 
-                       z_anion = "Sulfate, total", 
+                       z_cation = c("Sodium, dissolved",
+                                    "Potassium, dissolved"),
+                       x_anion = c("Chloride, total",
+                                   "Fluoride, total"),
+                       y_anion = "Alkalinity, total (lab)",
+                       z_anion = "Sulfate, total",
                        pnt = 3,
                        transparency = 0.2,
-                       TDS = FALSE, 
+                       total_dissolved_solids = FALSE,
                        title = NULL) {
-  
+
   df <- df %>%
-    .get_piper_ions(x_cation = x_cation, 
-                    y_cation = y_cation, 
-                    z_cation = z_cation, 
-                    x_anion = x_anion, 
-                    y_anion = y_anion, 
+    .get_piper_ions(x_cation = x_cation,
+                    y_cation = y_cation,
+                    z_cation = z_cation,
+                    x_anion = x_anion,
+                    y_anion = y_anion,
                     z_anion = z_anion) %>%
-    .transform_piper_data(x_cation = x_cation, 
-                          y_cation = y_cation, 
-                          z_cation = z_cation, 
-                          x_anion = x_anion, 
-                          y_anion = y_anion, 
+    .transform_piper_data(x_cation = x_cation,
+                          y_cation = y_cation,
+                          z_cation = z_cation,
+                          x_anion = x_anion,
+                          y_anion = y_anion,
                           z_anion = z_anion)
-  
-  if (isTRUE(TDS)) {
-    .ggplot_piper() + 
-      geom_point(data = df, aes(x = cation_x, 
-                                y = cation_y, 
-                                colour = LOCATION_ID),
+
+  if (isTRUE(total_dissolved_solids)) {
+    .ggplot_piper() +
+      geom_point(data = df, aes(x = cation_x,
+                                y = cation_y,
+                                colour = location_id),
                                 alpha = transparency) +
-      geom_point(data = df, aes(x = anion_x, 
+      geom_point(data = df, aes(x = anion_x,
                                 y = anion_y,
-                                colour = LOCATION_ID),
+                                colour = location_id),
                                 alpha = transparency) +
-      geom_point(data = df, aes(x = diamond_x, 
+      geom_point(data = df, aes(x = diamond_x,
                                 y = diamond_y,
-                                colour = LOCATION_ID, 
-                                size = TDS),
+                                colour = location_id,
+                                size = total_dissolved_solids),
                                 alpha = transparency) +
-      scale_size("TDS", range = c(5, 25)) +
+      scale_size("total_dissolved_solids", range = c(5, 25)) +
       scale_colour_viridis(discrete = TRUE) +
-      ggtitle(paste(title)) + 
-      guides(size = guide_legend("TDS"),
+      ggtitle(paste(title)) +
+      guides(size = guide_legend("total_dissolved_solids"),
              colour = guide_legend("Location ID"),
              alpha = guide_legend("none")) +
       theme(plot.title = element_text(hjust = 0.5))
-    
+
   } else {
-    
-    .ggplot_piper() + 
-      geom_point(data = df, aes(x = cation_x, 
-                                y = cation_y, 
-                                colour = LOCATION_ID), 
+
+    .ggplot_piper() +
+      geom_point(data = df, aes(x = cation_x,
+                                y = cation_y,
+                                colour = location_id),
                                 alpha = transparency, size = pnt) +
-      geom_point(data = df, aes(x = anion_x, 
-                                y = anion_y, 
-                                colour = LOCATION_ID),
+      geom_point(data = df, aes(x = anion_x,
+                                y = anion_y,
+                                colour = location_id),
                                 alpha = transparency, size = pnt) +
-      geom_point(data = df, aes(x = diamond_x, 
-                                y = diamond_y, 
-                                colour = LOCATION_ID),
+      geom_point(data = df, aes(x = diamond_x,
+                                y = diamond_y,
+                                colour = location_id),
                                 alpha = transparency, size = pnt) +
-      ggtitle(paste(title)) + 
+      ggtitle(paste(title)) +
       guides(color = guide_legend("Location ID"),
              alpha = guide_legend("none")) +
       theme(plot.title = element_text(hjust = 0.5)) +
-      scale_colour_viridis(discrete = TRUE) 
-    
+      scale_colour_viridis(discrete = TRUE)
+
   }
-  
+
 }
 
 #' Function to create an animated Piper plot through time
 #' using the animation package
-#' 
-#' @param df data frame of groundwater data transformed using 
+#'
+#' @param df data frame of groundwater data transformed using
 #' \code{\link{transform_piper_data}}
-#' @param TDS Scale by Total Dissolved Solids
+#' @param total_dissolved_solids Scale by Total Dissolved Solids
 #' @export
 
-piper_time_plot <- function(df, TDS = FALSE, title = NULL) {
-  iter <- unique(df$SAMPLE_DATE)
+piper_time_plot <- function(df, total_dissolved_solids = FALSE, title = NULL) {
+  iter <- unique(df$sample_date)
   .ggplot_piper()
   dev.hold()
   for (i in 1:length(iter)) {
-    if (isTRUE(TDS)) {
-      print(piper_plot(df[df$SAMPLE_DATE == iter[i], ], 
-                       TDS = TRUE, title = paste(title, iter[i], 
-                                                 sep = "\n")))
+    if (isTRUE(total_dissolved_solids)) {
+      print(piper_plot(df[df$sample_date == iter[i], ],
+                       total_dissolved_solids = TRUE,
+                       title = paste(title, iter[i], sep = "\n")))
       animation::ani.pause()
     }else{
-      print(piper_plot(df[df$SAMPLE_DATE == iter[i], ], 
+      print(piper_plot(df[df$sample_date == iter[i], ],
                        title = paste(title, iter[i], sep = "\n")))
       animation::ani.pause()
     }
@@ -117,290 +120,301 @@ piper_time_plot <- function(df, TDS = FALSE, title = NULL) {
 
 #' Function to create an aminated Piper plot and save to html
 #'
-#' @param df data frame of groundwater data transformed using 
+#' @param df data frame of groundwater data transformed using
 #' \code{\link{transform_piper_data}}
-#' @param TDS Scale by Total Dissolved Solids
+#' @param total_dissolved_solids Scale by Total Dissolved Solids
 #' @export
 
-piper_time_html <- function(df, TDS = FALSE){
-  if (isTRUE(TDS)) {
+piper_time_html <- function(df, total_dissolved_solids = FALSE) {
+
     animation::saveHTML({
-      animation::ani.options(nmax = length(unique(df$SAMPLE_DATE)), 
+
+      animation::ani.options(nmax = length(unique(df$sample_date)),
                              outdir = getwd())
-      piper_time_plot(df, TDS = TRUE)
-    }, 
+
+      piper_time_plot(df, total_dissolved_solids = total_dissolved_solids)
+
+    },
+
     img.name = "PiperPlot", htmlfile = "Piper_plot.html",
     autobrowse = TRUE, title = "Piper Plot"
+
     )
-  }else{
-    animation::saveHTML({
-      animation::ani.options(nmax = length(unique(df$SAMPLE_DATE)), 
-                             outdir = getwd())
-      piper_time_plot(df)
-    }, 
-    img.name = "PiperPlot", htmlfile = "Piper_plot.html",
-    autobrowse = TRUE, title = "Piper Plot"
-    )
-  }
+
 }
 
-#' Function to gather major ions for piper plot. 
+#' Function to gather major ions for piper plot.
 
-.get_piper_ions <- function(df, 
-                            LOCATION_ID = "LOCATION_ID",
-                            SAMPLE_DATE = "SAMPLE_DATE",
-                            PARAM_NAME = "PARAM_NAME",
-                            ANALYSIS_RESULT = "ANALYSIS_RESULT",
-                            DEFAULT_UNIT = "DEFAULT_UNIT",
-                            x_cation = "Calcium, dissolved", 
+.get_piper_ions <- function(df,
+                            location_id = "location_id",
+                            sample_date = "sample_date",
+                            param_name = "param_name",
+                            analysis_result = "analysis_result",
+                            default_unit = "default_unit",
+                            x_cation = "Calcium, dissolved",
                             y_cation = "Magnesium, dissolved",
-                            z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
-                            x_anion = c("Chloride, total", "Fluoride, total"), 
-                            y_anion = "Alkalinity, total (lab)", 
+                            z_cation = c("Sodium, dissolved",
+                                         "Potassium, dissolved"),
+                            x_anion = c("Chloride, total",
+                                        "Fluoride, total"),
+                            y_anion = "Alkalinity, total (lab)",
                             z_anion = "Sulfate, total",
-                            TDS = NULL,
+                            total_dissolved_solids = NULL,
                             pH = NULL) {
-  
-  ions <- c(x_cation, y_cation, z_cation, x_anion, y_anion, z_anion, TDS, pH)
-  
-  df <- df %>% 
-    filter_(~PARAM_NAME %in% ions) %>%
-    spread_(PARAM_NAME, ANALYSIS_RESULT) %>%
-    group_by_(~LOCATION_ID, ~SAMPLE_DATE, ~DEFAULT_UNIT) %>%
+
+  ions <- c(x_cation, y_cation, z_cation,
+            x_anion, y_anion, z_anion,
+            total_dissolved_solids, pH)
+
+  df <- df %>%
+    filter_(~param_name %in% ions) %>%
+    spread_(param_name, analysis_result) %>%
+    group_by_(~location_id, ~sample_date, ~default_unit) %>%
     summarise_at(vars(ions), mean, na.rm = TRUE) %>%
     ungroup()
-  
+
   return(df)
-  
+
 }
 
-#' Function to transform data for piper plot 
+#' Function to transform data for piper plot
 
-.transform_piper_data <- function(df, 
-                                  LOCATION_ID = "LOCATION_ID",
-                                  SAMPLE_DATE = "SAMPLE_DATE",
-                                  x_cation = "Calcium, dissolved", 
+.transform_piper_data <- function(df,
+                                  location_id = "location_id",
+                                  sample_date = "sample_date",
+                                  x_cation = "Calcium, dissolved",
                                   y_cation = "Magnesium, dissolved",
-                                  z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
-                                  x_anion = c("Chloride, total", "Fluoride, total"), 
-                                  y_anion = "Alkalinity, total (lab)", 
+                                  z_cation = c("Sodium, dissolved",
+                                               "Potassium, dissolved"),
+                                  x_anion = c("Chloride, total",
+                                              "Fluoride, total"),
+                                  y_anion = "Alkalinity, total (lab)",
                                   z_anion = "Sulfate, total",
-                                  TDS = NULL,
+                                  total_dissolved_solids = NULL,
                                   pH = NULL) {
-  
+
   # cation data
   # Convert data to %
-  cations <- df %>% 
+  cations <- df %>%
     select(x_cation, y_cation, z_cation) %>%
     mutate(cation_total = rowSums(.))
-  
-  cations <- cations %>% 
-    mutate_at(vars(y_cation), funs(cation_top = ./cation_total*100))
-  
+
   cations <- cations %>%
-    mutate_at(vars(x_cation), funs(cation_left = ./cation_total*100))
+    mutate_at(vars(y_cation), funs(cation_top = . / cation_total * 100))
+
+  cations <- cations %>%
+    mutate_at(vars(x_cation), funs(cation_left = . / cation_total * 100))
 
   cations <- cations %>%
     select(cation_top, cation_left) %>%
     mutate(cation_right = 100 - (cation_top + cation_left))
-  
+
   # Convert data into xy coordinates
   cations <- cations %>%
-    mutate(cation_x = cation_right + cation_top/2, 
-           cation_y = sqrt(3)/2*cation_top) %>%
+    mutate(cation_x = cation_right + cation_top / 2,
+           cation_y = sqrt(3) / 2 * cation_top) %>%
     select(cation_x, cation_y)
 
   # anion data
   # Convert data to %
-  anions <- df %>% 
+  anions <- df %>%
     select(x_anion, y_anion, z_anion) %>%
     mutate(anion_total = rowSums(.))
-  
-  anions <- anions %>% 
-    mutate_at(vars(z_anion), funs(anion_top = ./anion_total*100))
-  
+
   anions <- anions %>%
-    mutate_at(vars(y_anion), funs(anion_left = ./anion_total*100))
-  
+    mutate_at(vars(z_anion), funs(anion_top = . / anion_total * 100))
+
+  anions <- anions %>%
+    mutate_at(vars(y_anion), funs(anion_left = . / anion_total * 100))
+
   anions <- anions %>%
     select(anion_top, anion_left) %>%
     mutate(anion_right = 100 - (anion_top + anion_left))
-  
+
   # Convert data into xy coordinates
   anions <- anions %>%
-    mutate(anion_x = 120 + (anion_right + anion_top/2), 
-           anion_y = sqrt(3)/2*anion_top) %>%
+    mutate(anion_x = 120 + (anion_right + anion_top / 2),
+           anion_y = sqrt(3) / 2 * anion_top) %>%
     select(anion_x, anion_y)
-  
+
   # diamond points
   y1 <- cations$cation_y
   x1 <- cations$cation_x
   y2 <- anions$anion_y
   x2 <- anions$anion_x
-  
-  calc_diam_point <- function(x1, x2, y1, y2, grad = 2*sin(pi/3)) {
-    
-    b1 <- y1 - (grad*x1)
-    b2 <- y2 - (-grad*x2)
-    
-    M <- matrix(c(grad, -grad, -1, -1), ncol = 2)
+
+  calc_diam_point <- function(x1, x2, y1, y2, grad = 2 * sin(pi / 3)) {
+
+    b1 <- y1 - (grad * x1)
+    b2 <- y2 - (-grad * x2)
+
+    rot_matrix <- matrix(c(grad, -grad, -1, -1), ncol = 2)
     intercepts <- as.matrix(c(b1, b2))
-    
-    t_mat <- -solve(M) %*% intercepts
-    
+
+    t_mat <- -solve(rot_matrix) %*% intercepts
+
     data.frame(diamond_x = t_mat[1, 1], diamond_y = t_mat[2, 1])
-    
+
   }
 
-  diam_list <- lapply(1:length(x1), 
+  diam_list <- lapply(1:length(x1),
                       function(i) calc_diam_point(x1[i], x2[i], y1[i], y2[i]))
 
   npoints <- do.call("rbind", diam_list)
-  
+
   piper_data <- bind_cols(df, cations, anions, npoints) %>%
-    select(LOCATION_ID, SAMPLE_DATE, cation_x, cation_y, anion_x, anion_y, diamond_x, diamond_y)
-  
+    select(location_id, sample_date, cation_x, cation_y,
+           anion_x, anion_y, diamond_x, diamond_y)
+
   return(piper_data)
-  
+
 }
 
 #' Function to create base Piper plot
 
 .ggplot_piper <- function() {
-  
+
   p <- ggplot() +
-    
+
     ## left hand ternary plot
     geom_segment(aes(x = 0, y = 0, xend = 100, yend = 0)) +
     geom_segment(aes(x = 0, y = 0, xend = 50, yend = 86.603)) +
     geom_segment(aes(x = 50, y = 86.603, xend = 100, yend = 0)) +
-    
+
     ## right hand ternary plot
-    ## shifted right by 20 points 
+    ## shifted right by 20 points
     geom_segment(aes(x = 120, y = 0, xend = 220, yend = 0)) +
     geom_segment(aes(x = 120, y = 0, xend = 170, yend = 86.603)) +
     geom_segment(aes(x = 170, y = 86.603, xend = 220, yend = 0)) +
-    
+
     ## Upper diamond
     geom_segment(aes(x = 110, y = 190.5266, xend = 60, yend = 103.9236)) +
     geom_segment(aes(x = 110, y = 190.5266, xend = 160, yend = 103.9236)) +
     geom_segment(aes(x = 110, y = 17.3206, xend = 160, yend = 103.9236)) +
     geom_segment(aes(x = 110, y = 17.3206, xend = 60, yend = 103.9236)) +
-    
+
     ## Add grid lines to the plots
-    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data = data.frame(x1 = c(20, 40, 60, 80), 
-                                   x2 = c(10, 20, 30, 40), 
-                                   y1 = c(0, 0, 0, 0), 
-                                   y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2),
+                 data = data.frame(
+                   x1 = c(20, 40, 60, 80),
+                   x2 = c(10, 20, 30, 40),
+                   y1 = c(0, 0, 0, 0),
+                   y2 = c(17.3206, 34.6412, 51.9618, 69.2824)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data = data.frame(x1 = c(20, 40, 60, 80), 
-                                   x2 = c(60, 70, 80, 90), 
-                                   y1 = c(0, 0, 0, 0), 
-                                   y2 = c(69.2824, 51.9618, 34.6412, 17.3206)), 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2),
+                 data = data.frame(
+                   x1 = c(20, 40, 60, 80),
+                   x2 = c(60, 70, 80, 90),
+                   y1 = c(0, 0, 0, 0),
+                   y2 = c(69.2824, 51.9618, 34.6412, 17.3206)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data = data.frame(x1 = c(10, 20, 30, 40), 
-                                   x2 = c(90, 80, 70, 60), 
-                                   y1 = c(17.3206, 34.6412, 51.9618, 69.2824), 
-                                   y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2),
+                 data = data.frame(
+                   x1 = c(10, 20, 30, 40),
+                   x2 = c(90, 80, 70, 60),
+                   y1 = c(17.3206, 34.6412, 51.9618, 69.2824),
+                   y2 = c(17.3206, 34.6412, 51.9618, 69.2824)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data = data.frame(x1 = c(140, 160, 180, 200), 
-                                   x2 = c(130, 140, 150, 160), 
-                                   y1 = c(0, 0, 0, 0), 
-                                   y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2),
+                 data = data.frame(
+                   x1 = c(140, 160, 180, 200),
+                   x2 = c(130, 140, 150, 160),
+                   y1 = c(0, 0, 0, 0),
+                   y2 = c(17.3206, 34.6412, 51.9618, 69.2824)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data = data.frame(x1 = c(140, 160, 180, 200), 
-                                   x2 = c(180, 190, 200, 210), 
-                                   y1 = c(0, 0, 0, 0), 
-                                   y2 = c(69.2824, 51.9618, 34.6412, 17.3206)), 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2),
+                 data = data.frame(
+                   x1 = c(140, 160, 180, 200),
+                   x2 = c(180, 190, 200, 210),
+                   y1 = c(0, 0, 0, 0),
+                   y2 = c(69.2824, 51.9618, 34.6412, 17.3206)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data = data.frame(x1 = c(130, 140, 150, 160), 
-                                   x2 = c(210, 200, 190, 180), 
-                                   y1 = c(17.3206, 34.6412, 51.9618, 69.2824), 
-                                   y2 = c(17.3206, 34.6412, 51.9618, 69.2824)), 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2),
+                 data = data.frame(
+                   x1 = c(130, 140, 150, 160),
+                   x2 = c(210, 200, 190, 180),
+                   y1 = c(17.3206, 34.6412, 51.9618, 69.2824),
+                   y2 = c(17.3206, 34.6412, 51.9618, 69.2824)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data = data.frame(x1 = c(100,90, 80, 70), 
-                                   y1 = c(34.6412, 51.9618, 69.2824, 86.603), 
-                                   x2 = c(150, 140, 130, 120), 
-                                   y2 = c(121.2442, 138.5648, 155.8854, 173.2060)), 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2),
+                 data = data.frame(
+                   x1 = c(100, 90, 80, 70),
+                   y1 = c(34.6412, 51.9618, 69.2824, 86.603),
+                   x2 = c(150, 140, 130, 120),
+                   y2 = c(121.2442, 138.5648, 155.8854, 173.2060)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2), 
-                 data = data.frame(x1 = c(70, 80, 90, 100), 
-                                   y1 = c(121.2442, 138.5648, 155.8854, 173.2060), 
-                                   x2 = c(120, 130, 140, 150), 
-                                   y2 = c(34.6412, 51.9618, 69.2824, 86.603)), 
+    geom_segment(aes(x = x1, y = y1, yend = y2, xend = x2),
+                 data = data.frame(
+                   x1 = c(70, 80, 90, 100),
+                   y1 = c(121.2442, 138.5648, 155.8854, 173.2060),
+                   x2 = c(120, 130, 140, 150),
+                   y2 = c(34.6412, 51.9618, 69.2824, 86.603)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_text(aes(x = c(20, 40, 60, 80), y = c(-5,-5,-5,-5), 
+    geom_text(aes(x = c(20, 40, 60, 80), y = c(-5, -5, -5, -5),
                   label = c(80, 60, 40, 20)), size = 3) +
-    geom_text(aes(x = c(35, 25, 15, 5), 
-                  y = c(69.2824, 51.9618, 34.6412, 17.3206), 
+    geom_text(aes(x = c(35, 25, 15, 5),
+                  y = c(69.2824, 51.9618, 34.6412, 17.3206),
                   label = c(80, 60, 40, 20)), size = 3) +
-    geom_text(aes(x = c(95, 85, 75, 65), 
+    geom_text(aes(x = c(95, 85, 75, 65),
                   y = c(17.3206, 34.6412, 51.9618, 69.2824),
                   label = c(80, 60, 40, 20)), size = 3) +
-    coord_equal(ratio = 1) +  
-    
+    coord_equal(ratio = 1) +
+
     # Labels for cations
-    geom_text(aes(x = 17, y = 50, label = "-phantom()~Mg^+2 %->%phantom()"), 
-              angle = 60, size = 4, parse = TRUE) +  
-    geom_text(aes(x = 82, y = 50, 
-                  label = "-phantom()~Na^+phantom()~+~K^+phantom() %->%phantom()"),
+    geom_text(aes(x = 17, y = 50, label = "Magnesium"),
+              angle = 60, size = 4, parse = TRUE) +
+    geom_text(aes(x = 82, y = 50,
+                  label = "Sodium + Potassium"),
               angle = -60, size = 4, parse = TRUE) +
-    geom_text(aes(x = 50,y = -10, 
-                  label = "phantom()%<-%phantom()~Ca^+2~-phantom()"), 
+    geom_text(aes(x = 50, y = -10,
+                  label = "Calcium"),
               size = 4, parse = TRUE) +
-    
+
     # labels for anion plot
-    geom_text(aes(x = 170, y = -10, 
-                  label = "- Cl^-phantom() %->%phantom()"), size = 4, parse = TRUE) +
-    geom_text(aes(x = 205, y = 50, 
-                  label = "phantom()%<-%phantom()~SO[4]^+2~-phantom()"), 
+    geom_text(aes(x = 170, y = -10,
+                  label = "Chloride"), size = 4, parse = TRUE) +
+    geom_text(aes(x = 205, y = 50,
+                  label = "Sulfate"),
               angle = -60, size = 4, parse = TRUE) +
-    geom_text(aes(x = 138.5, y = 50, 
-                  label = "phantom()%<-%phantom()~Alkalinity~-phantom()"), 
+    geom_text(aes(x = 138.5, y = 50,
+                  label = "Alkalinity"),
               angle = 60, size = 4, parse = TRUE) +
-    
+
     # Diamond Labels
-    geom_text(aes(x = 72.5, y = 150, 
-                  label = "-phantom()~SO[4]^+2~+~Cl^-phantom()~phantom()%->%phantom()"),
+    geom_text(aes(x = 72.5, y = 150,
+                  label = "Sulfate + Chloride"),
               angle = 60, size = 4, parse = TRUE) +
-    geom_text(aes(x = 147.5, y = 150, 
-                  label = "phantom()%<-%phantom()~Ca^+2~+~Mg^+2~-phantom()"), 
-              angle = -60, size = 4, parse = TRUE) + 
-    geom_text(aes(x = c(155, 145, 135, 125), 
+    geom_text(aes(x = 147.5, y = 150,
+                  label = "Calcium + Magnesium"),
+              angle = -60, size = 4, parse = TRUE) +
+    geom_text(aes(x = c(155, 145, 135, 125),
                   y = c(69.2824, 51.9618, 34.6412, 17.3206),
                   label = c(20, 40, 60, 80)), size = 3) +
-    geom_text(aes(x = c(215, 205, 195, 185), 
+    geom_text(aes(x = c(215, 205, 195, 185),
                   y = c(17.3206, 34.6412, 51.9618, 69.2824),
                   label = c(20, 40, 60, 80)), size = 3) +
-    geom_text(aes(x = c(140, 160, 180, 200), 
-                  y = c(-5, -5, -5, -5), 
+    geom_text(aes(x = c(140, 160, 180, 200),
+                  y = c(-5, -5, -5, -5),
                   label = c(20, 40, 60, 80)), size = 3) +
-    geom_text(aes(x = c(95, 85, 75, 65), 
-                  y = c(34.6412, 51.9618, 69.2824, 86.603), 
+    geom_text(aes(x = c(95, 85, 75, 65),
+                  y = c(34.6412, 51.9618, 69.2824, 86.603),
                   label = c(80, 60, 40, 20)), size = 3) +
-    geom_text(aes(x = c(155, 145, 135, 125), 
+    geom_text(aes(x = c(155, 145, 135, 125),
                   y = c(121.2442, 138.5648, 155.8854, 173.2060),
                   label = c(20, 40, 60, 80)), size = 3) +
-    geom_text(aes(x = c(65, 75, 85, 95), 
+    geom_text(aes(x = c(65, 75, 85, 95),
                   y = c(121.2442, 138.5648, 155.8854, 173.2060),
                   label = c(20, 40, 60, 80)), size = 3) +
-    geom_text(aes(x = c(125, 135, 145, 155), 
+    geom_text(aes(x = c(125, 135, 145, 155),
                   y = c(34.6412, 51.9618, 69.2824, 86.603),
                   label = c(80, 60, 40, 20)), size = 3) +
     theme_bw() +
-    theme(panel.grid.major = element_blank(), 
+    theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           panel.border = element_blank(), axis.ticks = element_blank(),
           axis.text.x = element_blank(), axis.text.y = element_blank(),
           axis.title.x = element_blank(), axis.title.y = element_blank())
-  
+
   return(p)
-  
+
 }
