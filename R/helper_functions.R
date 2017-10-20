@@ -1,66 +1,67 @@
 #' Function to return a list of all the location IDs
-#' 
+#'
 #' @param df data frame of groundwater data in the format with column names
 #' @param location_id column for the sample location id
 #' @export
 
-sample_locations <- function(df, LOCATION_ID){
-  
+sample_locations <- function(df, location_id){
+
   wells <- df %>%
-    group_by_(~LOCATION_ID) %>% 
-    select_(~LOCATION_ID) %>%
+    group_by_(~location_id) %>%
+    select_(~location_id) %>%
     first() %>%
     unique()
-  
+
   return(wells)
-  
+
 }
 
 #' Function to return a list of all the constituents
-#' 
+#'
 #' @param df data frame of groundwater data in the format with column names
 #' @param param_name the column for the constituents
 #' @export
 
-constituents <- function(df, PARAM_NAME){
-  
+constituents <- function(df, param_name){
+
   constituents <- df %>%
-    group_by_(~PARAM_NAME) %>%
-    select_(~PARAM_NAME) %>%
+    group_by_(~param_name) %>%
+    select_(~param_name) %>%
     first() %>%
     unique()
-  
+
   return(constituents)
-  
+
 }
 
 #' Calculate the percentage of left censored data
-#' 
+#'
 #' @param df df data frame of groundwater monitoring data in long format
-#' @param LT_MEASURE LT_MEASURE column of less than detection limit symbol.
+#' @param lt_measure lt_measure column of less than detection limit symbol.
 #' @export
 
-percent_lt <- function(df, LT_MEASURE) { 
-  
+percent_lt <- function(df, lt_measure) {
+
   df %>%
-    mutate(percent_left_censored = sum(LT_MEASURE == "<", na.rm = TRUE)/n()*100)
+    mutate(percent_left_censored = sum(lt_measure == "<",
+                                       na.rm = TRUE) / n() * 100)
 
 }
 
 #' Calculate the percentage of right censored data
-#' 
+#'
 #' @param df df data frame of groundwater monitoring data in long format
-#' @param LT_MEASURE LT_MEASURE column of greater than detection limit symbol.
+#' @param lt_measure lt_measure column of greater than detection limit symbol.
 #' @param percent_gt percent_gt new column name
 #' @export
 
-percent_gt <- function(df, 
-                       LT_MEASURE = "LT_MEASURE", 
+percent_gt <- function(df,
+                       lt_measure = "lt_measure",
                        percent_gt = "percent_gt") {
- 
-  mutate_call <- lazyeval::interp(~ sum(x == ">")/n()*100, 
-                                  x = as.name(LT_MEASURE))
-  
+
+  mutate_call <- lazyeval::interp(~ sum(x == ">") / n() * 100,
+                                  x = as.name(lt_measure))
+
   df %>%
     mutate_(.dots = setNames(list(mutate_call), percent_gt))
 }
@@ -73,11 +74,11 @@ percent_gt <- function(df,
 #' @export
 
 remove_dup <- function(df){
-  
+
   df_nodup <- df[-grep("*Dup", df$location_id), ]
-  
+
   return(df_nodup)
-  
+
 }
 
 #' Function to include duplicate samples
@@ -87,101 +88,101 @@ remove_dup <- function(df){
 #' @export
 
 include_dup <- function(df, wells) {
-  
+
   pattern <- paste(wells, "[:space:]*Dup")
-  
+
   dups <- unique(df[grep(pattern, df$location_id), ]$location_id)
-  
+
   dups <- as.character(droplevels(dups))
-  
+
   wells <- append(wells, dups)
-  
+
   df_dup <- df %>%
     filter(location_id %in% wells)
-  
+
   df_dup <- droplevels(df_dup)
-  
+
   return(df_dup)
-  
+
 }
 
 #' Function to replace missing values
-#' 
+#'
 #' @param df groundwater data frame
 #' @export
 
 replace_missing <- function(df){
-  
-  df$analysis_result <- ifelse(df$analysis_result == -999.9, NA, 
+
+  df$analysis_result <- ifelse(df$analysis_result == -999.9, NA,
                                  df$analysis_result)
   return(df)
-  
+
 }
 
-#' Function to convert character column of less than, or greater than 
+#' Function to convert character column of less than, or greater than
 #' symbols to logical vectors and return a data frame
-#' 
+#'
 #' @param df data frame of groundwater data
 #' @export
 
 to_censored <- function(df) {
-  
+
   df <- df %>%
     group_by(location_id, param_name, default_unit) %>%
     mutate(
-      left_censored = ifelse(LT_MEASURE == "<", TRUE, FALSE),
-      right_censored = ifelse(LT_MEASURE == ">", TRUE, FALSE)
+      left_censored = ifelse(lt_measure == "<", TRUE, FALSE),
+      right_censored = ifelse(lt_measure == ">", TRUE, FALSE)
     )
-  
+
   df <- as.data.frame(df)
-  
+
   return(df)
 }
 
-#' Function to join columns of LT_MEASURE and sample results
-#' 
+#' Function to join columns of lt_measure and sample results
+#'
 #' @param df groundwater data frame
 #' @param col_name qouted column name for the result
 #' @export
 
 join_lt <- function(df, col_name) {
-  
+
   .join_lt <- function() {
-    paste(df$LT_MEASURE, df$analysis_result, sep = " ")
+    paste(df$lt_measure, df$analysis_result, sep = " ")
   }
-  
-  df$result <- ifelse(df$LT_MEASURE == "<" | df$LT_MEASURE == ">", 
+
+  df$result <- ifelse(df$lt_measure == "<" | df$lt_measure == ">",
                         .join_lt(), df$analysis_result)
-  
+
   names(df)[names(df) == "result"] <- col_name
-  
+
   return(df)
-  
+
 }
 
 #' Function to return a column of parameter name with units
-#' 
+#'
 #' @param df groundwater data frame
 #' @param col_name quoted column name to return
 #' @param short_name If TRUE will use abbreviated constituent names
 #' @export
 
 name_units <- function(df, col_name, short_name = TRUE) {
-  
+
   if (short_name == TRUE) {
-    
+
     df$param_unit <- paste0(df$short_name, " (", df$default_unit, ")")
-    
+
   }
-  
+
   else {
-    
+
     df$param_unit <- paste0(df$param_name, " (", df$default_unit, ")")
-    
+
   }
- 
+
   names(df)[names(df) == "param_unit"] <- col_name
-  
+
   return(df)
 
 }

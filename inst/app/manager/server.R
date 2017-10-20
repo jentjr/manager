@@ -512,14 +512,15 @@ shinyServer(function(input, output, session) {
     data <- get_schoeller_data()
     
     data %>%
-      schoeller_plot(Mg = paste(input$Mg_schoeller),
-                     Ca = paste(input$Ca_schoeller),
-                     Na = paste(input$Na_schoeller),
-                     K = paste(input$K_schoeller),
-                     Cl = paste(input$Cl_schoeller),
-                     SO4 = paste(input$SO4_schoeller),
-                     Alk = paste(input$Alk_schoeller), 
-                     facet_by = input$facet_schoeller)
+      schoeller_plot(magnesium = paste(input$Mg_schoeller),
+                     calcium = paste(input$Ca_schoeller),
+                     sodium = paste(input$Na_schoeller),
+                     potassium = paste(input$K_schoeller),
+                     chloride = paste(input$Cl_schoeller),
+                     sulfate = paste(input$SO4_schoeller),
+                     alkalinity = paste(input$Alk_schoeller), 
+                     facet_by = input$facet_schoeller,
+                     title = input$schoeller_title)
   })
   
   output$schoeller_diagram_out <- renderPlot({

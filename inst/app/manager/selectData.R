@@ -1,23 +1,23 @@
 selectData <- function(input, output, session, multiple) {
- 
+
   ns <- session$ns
-  
+
   output$selectSites <- renderUI({
-    
-    selectInput(ns("sites"), "Sites", site_list, 
+
+    selectInput(ns("sites"), "Sites", site_list,
                 selected = site_list[1],
                 multiple = FALSE)
-    
+
   })
- 
+
   get_locations <- reactive({
     query %>%
-      filter(NAME %in% input$sites) %>%
-      select(LOCATION_ID) %>%
+      filter(name %in% input$sites) %>%
+      select(location_id) %>%
       collect() %>%
       first()
-  }) 
-  
+  })
+
   output$selectLocations <- renderUI({
 
     if (is.null(input$sites)) {
@@ -35,12 +35,12 @@ selectData <- function(input, output, session, multiple) {
 
   get_constituents <- reactive({
     query %>%
-      filter(NAME %in% input$sites, LOCATION_ID %in% input$locations) %>%
-      select(PARAM_NAME) %>%
+      filter(name %in% input$sites, location_id %in% input$locations) %>%
+      select(param_name) %>%
       collect() %>%
       first()
   })
-  
+
   output$selectConstituents <- renderUI({
 
     if (is.null(input$sites) || is.null(input$locations)) {
@@ -57,13 +57,13 @@ selectData <- function(input, output, session, multiple) {
 
 
   return(reactive({
-    
+
     query %>%
-      filter(NAME %in% input$sites, 
-             LOCATION_ID %in% input$locations,
-             PARAM_NAME %in% input$constituents) %>%
+      filter(name %in% input$sites,
+             location_id %in% input$locations,
+             param_name %in% input$constituents) %>%
       collect()
 
   }))
-  
+
 }

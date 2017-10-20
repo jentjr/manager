@@ -229,7 +229,10 @@ shinyUI(navbarPage("MANAGER",
                       choices = c("Alkalinity, total (lab)")),
             
             selectInput(inputId = "facet_schoeller", label = "Facet plot by:",
-                        c("LOCATION_ID", "SAMPLE_DATE")),
+                        c("location_id", "sample_date")),
+            
+            textInput(inputId = "schoeller_title", label = "Enter Plot Title", 
+                      value = "Schoeller Diagram"),
             
             downloadButton("schoeller_download", "Download Plots")    
             ),
