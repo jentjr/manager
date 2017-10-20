@@ -44,11 +44,11 @@ constituent_list <- site_parameters %>%
 
 sample_results <- pool %>% tbl("SAMPLE_RESULTS")
 
-query <- sample_results %>% 
-  left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) %>% 
-  left_join(locations, by = c("SITE_ID", "LOCATION_ID")) %>% 
-  left_join(sites, by = "SITE_ID") %>% 
-  select(SITE_ID, 
+query <- sample_results %>%
+  left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) %>%
+  left_join(locations, by = c("SITE_ID", "LOCATION_ID")) %>%
+  left_join(sites, by = "SITE_ID") %>%
+  select(SITE_ID,
          NAME,
          LAB_ID,
          LOCATION_ID,
@@ -66,7 +66,8 @@ query <- sample_results %>%
          COORDINATE_REFERENCE,
          WATER_CLASS,
          LOCATION_CLASS
-  )
+  ) %>%
+  select_all(., tolower)
 
 onStop(function() {
   poolClose(pool)
