@@ -2,15 +2,19 @@
 % Please edit documentation in R/piper_plot.R
 \name{piper_plot}
 \alias{piper_plot}
-\title{Create a piper plot}
+\title{Create a piper diagram}
 \usage{
 piper_plot(df, location_id = "location_id", sample_date = "sample_date",
-  x_cation = "Calcium, dissolved", y_cation = "Magnesium, dissolved",
+  x_cation = "Calcium, dissolved", x_cation_label = "Ca",
+  y_cation = "Magnesium, dissolved", y_cation_label = "Mg",
   z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
-  x_anion = c("Chloride, total", "Fluoride, total"),
-  y_anion = "Alkalinity, total (lab)", z_anion = "Sulfate, total",
-  total_dissolved_solids = NULL, transparency = 0.2, pnt = 3,
-  title = NULL)
+  z_cation_label = "Na + K", x_anion = c("Chloride, total",
+  "Fluoride, total"), x_anion_label = "Cl + F",
+  y_anion = "Alkalinity, total (lab)", y_anion_label = "HCO3 + CO2",
+  z_anion = "Sulfate, total", z_anion_label = "SO4",
+  x_z_anion_label = "SO4 + Cl + F", x_y_cation_label = "Ca + Mg",
+  total_dissolved_solids = NULL, transparency = 0.2, pnt_size = 3,
+  label_size = 3, title = NULL)
 }
 \arguments{
 \item{df}{data frame of water quality data in tidy format}
@@ -21,15 +25,29 @@ piper_plot(df, location_id = "location_id", sample_date = "sample_date",
 
 \item{x_cation}{default is Calcium, dissolved}
 
+\item{x_cation_label}{label for x cation}
+
 \item{y_cation}{default is Magnesium, dissolved}
+
+\item{y_cation_label}{label for y cation}
 
 \item{z_cation}{default is Sodium, dissolved + Potassium, dissolved}
 
+\item{z_cation_label}{label for z cation}
+
 \item{x_anion}{default is Chloride, total + Fluoride, total}
+
+\item{x_anion_label}{label for x anion}
 
 \item{y_anion}{default is Alkalinity, total (lab)}
 
+\item{y_anion_label}{label for y anion}
+
 \item{z_anion}{default is Sulfate, total}
+
+\item{z_anion_label}{label for z anion}
+
+\item{x_y_cation_label}{label for the upper right diamond}
 
 \item{total_dissolved_solids}{Scale plot by Total Dissolved Solids,
 default = FALSE}
@@ -37,23 +55,33 @@ default = FALSE}
 \item{transparency}{the setting for transparency value for points. Default
 is 0.2}
 
-\item{pnt}{the size of the points. Default is 3}
+\item{pnt_size}{the size of the points. Default is 3}
+
+\item{label_size}{size of font for labels}
 
 \item{title}{Title for plot, default = NULL}
+
+\item{z_x_anion_label}{label for the upper left diamond}
 }
 \description{
-Create a piper plot
+labels accept plotmath expressions
 }
 \examples{
 data(gw_data)
-gw_data \%>\%
-filter(location_id \%in\% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")) \%>\%
+wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")
+gw_data \%>\% 
+filter(location_id \%in\% wells) \%>\%
 piper_plot(., title = "Example Piper Diagram")
 
 # scaled by Total Dissolved Solids
 gw_data \%>\%
-filter(location_id \%in\% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")) \%>\%
+filter(location_id \%in\% wells) \%>\%
 piper_plot(., total_dissolved_solids = "Total Dissolved Solids",
 title = "Example Piper Diagram")
+
+# use plotmath expressions for labels
+gw_data \%>\%
+filter(location_id \%in\% wells) \%>\%
+piper_plot(., x_cation_label = "Ca~phantom()^+2")
 
 }

@@ -22,7 +22,7 @@ conc_to_meq <- function(df,
   # TODO: add ... feature and a data base of elements perhaps from phreeqc.
   # add check that units supplied are in mg/L
 
-  # formuala weights
+  # molecular weights (mg/mmol)
   calcium_fwt <- 40.078
   magnesium_fwt <- 24.305
   sodium_fwt <- 22.990
@@ -33,7 +33,7 @@ conc_to_meq <- function(df,
   carbon_fwt <- 12.011
   chloride_fwt <- 35.45
 
-  # absolute value of charge
+  # absolute value of charge (meq/mmol)
   calcium_chrg <- 2
   magnesium_chrg <- 2
   sodium_chrg <- 1
@@ -43,26 +43,26 @@ conc_to_meq <- function(df,
   bicarbonate_chrg <- 1
   chloride_chrg <- 1
 
-  #molar mass
-  magnesium_mol <- magnesium_fwt * magnesium_chrg
-  calcium_mol <- calcium_fwt * calcium_chrg
-  sodium_mol <- sodium_fwt * sodium_chrg
-  potassium_mol <- potassium_fwt * potassium_chrg
-  chloride_mol <- chloride_fwt * chloride_chrg
-  sulfate_mol <- (sulfur_fwt + 4 * oxygen_fwt) * sulfate_chrg
-  carbonate_mol <- (carbon_fwt + 3 * oxygen_fwt) * carbonate_chrg
-  bicarbonate_mol <- (hydrogen_fwt + carbon_fwt + 3 * oxygen_fwt) * bicarbonate_chrg
-  total_alk_mol <- carbonate_mol + bicarbonate_mol
+  # equivalent weight (mg/meq)
+  magnesium_ew <- magnesium_chrg / magnesium_fwt
+  calcium_ew <- calcium_chrg / calcium_fwt
+  sodium_ew <- sodium_chrg / sodium_fwt
+  potassium_ew <- potassium_chrg / potassium_fwt
+  chloride_ew <- chloride_chrg / chloride_fwt
+  sulfate_ew <- sulfate_chrg / (sulfur_fwt + 4 * oxygen_fwt)
+  carbonate_ew <- carbonate_chrg / (carbon_fwt + 3 * oxygen_fwt)
+  bicarbonate_ew <- bicarbonate_chrg / (hydrogen_fwt + carbon_fwt + 3 * oxygen_fwt)
+  total_alk_ew <- carbonate_ew + bicarbonate_ew
 
-  # conversion
+  # conversion from mg/L to meq/L
   df <- df %>%
-    mutate_at(vars(magnesium), funs(. / magnesium_mol)) %>%
-    mutate_at(vars(calcium), funs(. / calcium_mol)) %>%
-    mutate_at(vars(sodium), funs(. / sodium_mol)) %>%
-    mutate_at(vars(potassium), funs(. / potassium_mol)) %>%
-    mutate_at(vars(chloride), funs(. / chloride_mol)) %>%
-    mutate_at(vars(sulfate), funs(. / sulfate_mol)) %>%
-    mutate_at(vars(alkalinity), funs(. / total_alk_mol))
+    mutate_at(vars(magnesium), funs(. * magnesium_ew)) %>%
+    mutate_at(vars(calcium), funs(. * calcium_ew)) %>%
+    mutate_at(vars(sodium), funs(. * sodium_ew)) %>%
+    mutate_at(vars(potassium), funs(. * potassium_ew)) %>%
+    mutate_at(vars(chloride), funs(. * chloride_ew)) %>%
+    mutate_at(vars(sulfate), funs(. * sulfate_ew)) %>%
+    mutate_at(vars(alkalinity), funs(. * total_alk_ew))
 
   return(df)
 

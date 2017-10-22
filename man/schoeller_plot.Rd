@@ -11,7 +11,7 @@ schoeller_plot(df, location_id = "location_id", sample_date = "sample_date",
   magnesium = "Magnesium, dissolved", sodium = "Sodium, dissolved",
   potassium = "Potassium, dissolved", chloride = "Chloride, total",
   alkalinity = "Alkalinity, total (lab)", sulfate = "Sulfate, total",
-  facet_by = NULL, title = NULL, lwt = 1)
+  facet_by = "location_id", title = NULL, lwt = 1)
 }
 \arguments{
 \item{df}{dataframe of environmental data in tidy format. The function
@@ -39,7 +39,7 @@ will convert data from mg/L to meq/L}
 
 \item{sulfate}{name of sulfate. Default is "Sulfate, total"}
 
-\item{facet_by}{parameter to facet plots by}
+\item{facet_by}{parameter to facet plots by. Default is location}
 
 \item{title}{title of plot}
 

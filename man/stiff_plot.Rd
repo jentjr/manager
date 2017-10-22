@@ -2,23 +2,57 @@
 % Please edit documentation in R/stiff_plot.R
 \name{stiff_plot}
 \alias{stiff_plot}
-\title{Function to plot a Stiff Diagram. Data must have been transformed using
- \code{\link{transform_stiff_data}}.}
+\title{Stiff Diagram.}
 \usage{
-stiff_plot(df, lines = FALSE, TDS = FALSE, cex = 1)
+stiff_plot(df, location_id = "location_id", sample_date = "sample_date",
+  param_name = "param_name", analysis_result = "analysis_result",
+  default_unit = "default_unit", magnesium = "Magnesium, dissolved",
+  calcium = "Calcium, dissolved", sodium = "Sodium, dissolved",
+  potassium = "Potassium, dissolved", chloride = "Chloride, total",
+  sulfate = "Sulfate, total", alkalinity = "Alkalinity, total (lab)",
+  total_dissolved_solids = NULL, lines = FALSE, cex = 1)
 }
 \arguments{
-\item{df}{data frame of groundwater data transformed using}
+\item{df}{data frame of water quality data}
+
+\item{location_id}{column for sample locations}
+
+\item{sample_date}{column for sample date}
+
+\item{param_name}{column for constituent names}
+
+\item{analysis_result}{column for analysis result}
+
+\item{default_unit}{column for units. Assumes all units are in mg/L and
+converts usign \code{\link{conc_to_meq}}}
+
+\item{magnesium}{name for magnesium}
+
+\item{calcium}{name for calcium}
+
+\item{sodium}{name for sodium}
+
+\item{potassium}{name for potassium}
+
+\item{chloride}{name for chloride}
+
+\item{sulfate}{name for sulfate}
+
+\item{alkalinity}{name for alkalinity}
+
+\item{total_dissolved_solids}{name for TDS to scale color of plot.
+Default is NULL}
 
 \item{lines}{TRUE/FALSE plots lines}
-
-\item{TDS}{TRUE/FALSE fills in the color of the stiff diagram by TDS}
 
 \item{cex}{multiplier to scale plot height}
 }
 \description{
-Function to plot a Stiff Diagram. Data must have been transformed using
- \code{\link{transform_stiff_data}}.
+plots a stiff diagram
+}
+\details{
+tidy dataframe of water quality data in mg/L is converted to
+meq/L and then transformed to coordinates for Stiff diagmram.
 }
 \keyword{Diagram}
 \keyword{Stiff}

@@ -1,32 +1,49 @@
-#' Create a piper plot
+#' Create a piper diagram
 #'
+#' labels accept plotmath expressions
+#' 
 #' @param df data frame of water quality data in tidy format
 #' @param location_id column for sample location
 #' @param sample_date column for sample date
 #' @param x_cation default is Calcium, dissolved
+#' @param x_cation_label label for x cation
 #' @param y_cation default is Magnesium, dissolved
+#' @param y_cation_label label for y cation
 #' @param z_cation default is Sodium, dissolved + Potassium, dissolved
+#' @param z_cation_label label for z cation
 #' @param x_anion default is Chloride, total + Fluoride, total
+#' @param x_anion_label label for x anion
 #' @param y_anion default is Alkalinity, total (lab)
+#' @param y_anion_label label for y anion
 #' @param z_anion default is Sulfate, total
+#' @param z_anion_label label for z anion
+#' @param z_x_anion_label label for the upper left diamond
+#' @param x_y_cation_label label for the upper right diamond
 #' @param total_dissolved_solids Scale plot by Total Dissolved Solids,
 #' default = FALSE
 #' @param transparency the setting for transparency value for points. Default
 #' is 0.2
-#' @param pnt the size of the points. Default is 3
+#' @param pnt_size the size of the points. Default is 3
+#' @param label_size size of font for labels
 #' @param title Title for plot, default = NULL
 #' 
 #' @examples
 #' data(gw_data)
-#' gw_data %>%
-#' filter(location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")) %>%
+#' wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")
+#' gw_data %>% 
+#' filter(location_id %in% wells) %>%
 #' piper_plot(., title = "Example Piper Diagram")
 #' 
 #' # scaled by Total Dissolved Solids
 #' gw_data %>%
-#' filter(location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")) %>%
+#' filter(location_id %in% wells) %>%
 #' piper_plot(., total_dissolved_solids = "Total Dissolved Solids",
 #' title = "Example Piper Diagram")
+#' 
+#' # use plotmath expressions for labels
+#' gw_data %>%
+#' filter(location_id %in% wells) %>%
+#' piper_plot(., x_cation_label = "Ca~phantom()^+2")
 #' 
 #' @export
 
@@ -34,16 +51,25 @@ piper_plot <- function(df,
                        location_id = "location_id",
                        sample_date = "sample_date",
                        x_cation = "Calcium, dissolved",
+                       x_cation_label = "Ca",
                        y_cation = "Magnesium, dissolved",
+                       y_cation_label = "Mg",
                        z_cation = c("Sodium, dissolved",
                                     "Potassium, dissolved"),
+                       z_cation_label = "Na + K",
                        x_anion = c("Chloride, total",
                                    "Fluoride, total"),
+                       x_anion_label = "Cl + F",
                        y_anion = "Alkalinity, total (lab)",
+                       y_anion_label = "HCO3 + CO2",
                        z_anion = "Sulfate, total",
+                       z_anion_label = "SO4",
+                       x_z_anion_label = "SO4 + Cl + F",
+                       x_y_cation_label = "Ca + Mg",
                        total_dissolved_solids = NULL,
                        transparency = 0.2,
-                       pnt = 3,
+                       pnt_size = 3,
+                       label_size = 3,
                        title = NULL) {
 
   df <- df %>%
@@ -62,51 +88,81 @@ piper_plot <- function(df,
                           z_anion = z_anion,
                           total_dissolved_solids = total_dissolved_solids)
 
+  piper <- .ggplot_piper() +
+    geom_point(data = df, aes(x = cation_x,
+                              y = cation_y,
+                              colour = location_id),
+               alpha = transparency, size = pnt_size) +
+    geom_point(data = df, aes(x = anion_x,
+                              y = anion_y,
+                              colour = location_id),
+               alpha = transparency, size = pnt_size) +
+
+    # Labels for cations
+    geom_text(aes_(x = 17, y = 50, 
+                   label = y_cation_label),
+              angle = 60,
+              size = label_size, parse = TRUE) +
+    
+    geom_text(aes_(x = 82, y = 50,
+                   label = z_cation_label),
+              angle = -60,
+              size = label_size, parse = TRUE) +
+    geom_text(aes_(x = 50, y = -10,
+                   label = x_cation_label),
+              size = label_size, parse = TRUE) +
+    
+    # labels for anion plot
+    geom_text(aes_(x = 170, y = -10,
+                   label = x_anion_label),
+              size = label_size, parse = TRUE) +
+    geom_text(aes_(x = 205, y = 50,
+                   label = z_anion_label),
+              angle = -60, size = label_size, parse = TRUE) +
+    geom_text(aes_(x = 138.5, y = 50,
+                   label = y_anion_label),
+              angle = 60, size = label_size, parse = TRUE) +
+    
+    # Diamond Labels
+    geom_text(aes_(x = 72.5, y = 150,
+                   label = x_z_anion_label),
+              angle = 60, size = label_size, parse = TRUE) +
+    geom_text(aes_(x = 147.5, y = 150,
+                   label = x_y_cation_label),
+              angle = -60, size = label_size, parse = TRUE) +
+    
+    ggtitle(paste(title)) +
+    guides(color = guide_legend("Location ID"),
+           alpha = guide_legend("none")) +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    scale_colour_viridis(discrete = TRUE)
+
+  # Scale by TDS
   if (!is.null(total_dissolved_solids)) {
-    .ggplot_piper() +
-      geom_point(data = df, aes(x = cation_x,
-                                y = cation_y,
-                                colour = location_id),
-                                alpha = transparency) +
-      geom_point(data = df, aes(x = anion_x,
-                                y = anion_y,
-                                colour = location_id),
-                                alpha = transparency) +
+
+    piper <-  piper +
       geom_point(data = df, aes(x = diamond_x,
                                 y = diamond_y,
                                 colour = location_id,
                                 size = total_dissolved_solids),
                                 alpha = transparency) +
       scale_size("total_dissolved_solids", range = c(0, 10)) +
-      scale_colour_viridis(discrete = TRUE) +
-      ggtitle(paste(title)) +
       guides(size = guide_legend("Total Dissolved Solids"),
              colour = guide_legend("Location ID"),
-             alpha = guide_legend("none")) +
-      theme(plot.title = element_text(hjust = 0.5))
+             alpha = guide_legend("none"))
 
   } else {
 
-    .ggplot_piper() +
-      geom_point(data = df, aes(x = cation_x,
-                                y = cation_y,
-                                colour = location_id),
-                                alpha = transparency, size = pnt) +
-      geom_point(data = df, aes(x = anion_x,
-                                y = anion_y,
-                                colour = location_id),
-                                alpha = transparency, size = pnt) +
-      geom_point(data = df, aes(x = diamond_x,
-                                y = diamond_y,
-                                colour = location_id),
-                                alpha = transparency, size = pnt) +
-      ggtitle(paste(title)) +
-      guides(color = guide_legend("Location ID"),
-             alpha = guide_legend("none")) +
-      theme(plot.title = element_text(hjust = 0.5)) +
-      scale_colour_viridis(discrete = TRUE)
-
+   piper <- piper +
+     geom_point(data = df, aes(x = diamond_x,
+                               y = diamond_y,
+                               colour = location_id),
+                               alpha = transparency,
+                size = pnt_size)
+    
   }
+
+    return(piper)
 
 }
 
@@ -375,64 +431,60 @@ piper_time_html <- function(df, total_dissolved_solids = FALSE) {
                    x2 = c(120, 130, 140, 150),
                    y2 = c(34.6412, 51.9618, 69.2824, 86.603)),
                  linetype = "dashed", size = 0.25, colour = "grey50") +
-    geom_text(aes(x = c(20, 40, 60, 80), y = c(-5, -5, -5, -5),
-                  label = c(80, 60, 40, 20)), size = 3) +
+
+    # add the grid labels
+    # X Cation
+    geom_text(aes(x = c(20, 40, 60, 80),
+                  y = c(-5, -5, -5, -5),
+                  label = c(80, 60, 40, 20)),
+              size = 2.5) +
+    # Y Cation
     geom_text(aes(x = c(35, 25, 15, 5),
                   y = c(69.2824, 51.9618, 34.6412, 17.3206),
-                  label = c(80, 60, 40, 20)), size = 3) +
+                  label = c(80, 60, 40, 20)),
+              size = 2.5) +
+    # Z Cation
     geom_text(aes(x = c(95, 85, 75, 65),
                   y = c(17.3206, 34.6412, 51.9618, 69.2824),
-                  label = c(80, 60, 40, 20)), size = 3) +
+                  label = c(80, 60, 40, 20)),
+              size = 2.5) +
     coord_equal(ratio = 1) +
-
-    # Labels for cations
-    geom_text(aes(x = 17, y = 50, label = "Magnesium"),
-              angle = 60, size = 4, parse = TRUE) +
-    geom_text(aes(x = 82, y = 50,
-                  label = "Sodium + Potassium"),
-              angle = -60, size = 4, parse = TRUE) +
-    geom_text(aes(x = 50, y = -10,
-                  label = "Calcium"),
-              size = 4, parse = TRUE) +
-
-    # labels for anion plot
-    geom_text(aes(x = 170, y = -10,
-                  label = "Chloride"), size = 4, parse = TRUE) +
-    geom_text(aes(x = 205, y = 50,
-                  label = "Sulfate"),
-              angle = -60, size = 4, parse = TRUE) +
-    geom_text(aes(x = 138.5, y = 50,
-                  label = "Alkalinity"),
-              angle = 60, size = 4, parse = TRUE) +
-
-    # Diamond Labels
-    geom_text(aes(x = 72.5, y = 150,
-                  label = "Sulfate + Chloride"),
-              angle = 60, size = 4, parse = TRUE) +
-    geom_text(aes(x = 147.5, y = 150,
-                  label = "Calcium + Magnesium"),
-              angle = -60, size = 4, parse = TRUE) +
+    
+    # Y Anion 
     geom_text(aes(x = c(155, 145, 135, 125),
                   y = c(69.2824, 51.9618, 34.6412, 17.3206),
-                  label = c(20, 40, 60, 80)), size = 3) +
+                  label = c(20, 40, 60, 80)),
+              size = 2.5) +
+    # Z Anion
     geom_text(aes(x = c(215, 205, 195, 185),
                   y = c(17.3206, 34.6412, 51.9618, 69.2824),
-                  label = c(20, 40, 60, 80)), size = 3) +
+                  label = c(20, 40, 60, 80)),
+              size = 2.5) +
+    # X Anion
     geom_text(aes(x = c(140, 160, 180, 200),
                   y = c(-5, -5, -5, -5),
-                  label = c(20, 40, 60, 80)), size = 3) +
+                  label = c(20, 40, 60, 80)),
+              size = 2.5) +
+    # left lower diamond
     geom_text(aes(x = c(95, 85, 75, 65),
                   y = c(34.6412, 51.9618, 69.2824, 86.603),
-                  label = c(80, 60, 40, 20)), size = 3) +
+                  label = c(80, 60, 40, 20)),
+              size = 2.5) +
+    # right upper diamond
     geom_text(aes(x = c(155, 145, 135, 125),
                   y = c(121.2442, 138.5648, 155.8854, 173.2060),
-                  label = c(20, 40, 60, 80)), size = 3) +
+                  label = c(20, 40, 60, 80)),
+              size = 2.5) +
+    # left upper diamond
     geom_text(aes(x = c(65, 75, 85, 95),
                   y = c(121.2442, 138.5648, 155.8854, 173.2060),
-                  label = c(20, 40, 60, 80)), size = 3) +
+                  label = c(20, 40, 60, 80)),
+              size = 2.5) +
+    # right lower diamond
     geom_text(aes(x = c(125, 135, 145, 155),
                   y = c(34.6412, 51.9618, 69.2824, 86.603),
-                  label = c(80, 60, 40, 20)), size = 3) +
+                  label = c(80, 60, 40, 20)),
+              size = 2.5) +
     theme_bw() +
     theme(panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),

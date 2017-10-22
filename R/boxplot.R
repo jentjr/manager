@@ -20,7 +20,7 @@
 #' @examples 
 #' data(gw_data)
 #' gw_data %>%
-#' filter(param_name == "Chloride, total", 
+#' filter(param_name %in% c("Chloride, total", "Sulfate, total"), 
 #'       location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4",
 #'       "MW-5", "MW-6", "MW-7", "MW-8")) %>%
 #'  mutate(gradient = if_else(location_id %in% c("MW-1", "MW-2", "MW-3", "MW-5"),

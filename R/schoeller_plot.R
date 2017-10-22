@@ -14,7 +14,7 @@
 #' @param chloride name for chloride. Default is "Chloride, total"
 #' @param alkalinity name for alkalinity. Default is "Alkalinity, total (lab)"
 #' @param sulfate name of sulfate. Default is "Sulfate, total"
-#' @param facet_by parameter to facet plots by
+#' @param facet_by parameter to facet plots by. Default is location
 #' @param title title of plot
 #' @param lwt lineweight
 #'
@@ -43,7 +43,9 @@ schoeller_plot <- function(df,
                            chloride =  "Chloride, total",
                            alkalinity = "Alkalinity, total (lab)",
                            sulfate = "Sulfate, total",
-                           facet_by = NULL, title = NULL, lwt = 1) {
+                           facet_by = "location_id",
+                           title = NULL,
+                           lwt = 1) {
 
   df <- df %>%
     .transform_schoeller_data(location_id = location_id,
@@ -64,38 +66,29 @@ schoeller_plot <- function(df,
     scale_y_continuous(trans = scales::log10_trans(),
                        breaks = scales::pretty_breaks(),
                        labels = prettyNum) +
+    scale_x_discrete() + 
     theme_bw() +
     theme(axis.title.y = element_blank(),
           axis.title.x = element_blank()) +
     ggtitle(paste(title)) +
     theme(plot.title = element_text(hjust = 0.5))
 
-  if (is.null(facet_by)) {
+  if (facet_by == "sample_date") {
 
-    p <- p + geom_line(size = lwt) + theme_bw()
-
-  }
-
-  if (!is.null(facet_by)) {
-
-    if (facet_by == "sample_date") {
-
-      p <- p + facet_wrap(~sample_date, scale = "free_y") +
-        geom_line(aes(colour = location_id, group = location_id), size = lwt) +
-        scale_color_viridis(discrete = TRUE) +
-        guides(colour = guide_legend("Location ID"))
+    p <- p + facet_wrap(~sample_date, scale = "free_y") +
+      geom_line(aes(colour = location_id, group = location_id), size = lwt) +
+      scale_color_viridis(discrete = TRUE) +
+      guides(colour = guide_legend("Location ID"))
 
     }
 
-    if (facet_by == "location_id") {
+  if (facet_by == "location_id") {
 
-      p <- p + facet_wrap(~location_id, scale = "free_y") +
-        geom_line(aes(colour = factor(sample_date), group = sample_date),
-                  size = lwt) +
-        scale_colour_viridis(discrete = TRUE) +
-        guides(colour = guide_legend("Sample Date"))
-
-    }
+    p <- p + facet_wrap(~location_id, scale = "free_y") +
+      geom_line(aes(colour = factor(sample_date), group = sample_date),
+                size = lwt) +
+      scale_colour_viridis(discrete = TRUE) +
+      guides(colour = guide_legend("Sample Date"))
 
   }
 
