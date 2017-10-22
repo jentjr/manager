@@ -5,10 +5,12 @@
 \title{Function to return either normal, lognormal, or non-parametric multiple 
 groundwater data locations and parameters.}
 \usage{
-est_dist_censored(df)
+est_dist_censored(df, p_value = 0.05)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
+
+\item{p_value}{p-value}
 }
 \description{
 Function to return either normal, lognormal, or non-parametric multiple 

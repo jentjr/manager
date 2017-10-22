@@ -2,19 +2,10 @@
 % Please edit documentation in R/check_normality_censored.R
 \name{dist_censored}
 \alias{dist_censored}
-\title{Function to return distribution based on using p-value}
+\title{Helpre function to return distribution based on using p-value}
 \usage{
 dist_censored(x, censored, p = 0.01, ...)
 }
-\arguments{
-\item{x}{column of analysis result for groundwater data in tidy format}
-
-\item{censored}{logical vector of censored values}
-
-\item{p}{the p-value}
-
-\item{...}{other variable inputs passed to gofTestCensored}
-}
 \description{
-Function to return distribution based on using p-value
+Helpre function to return distribution based on using p-value
 }

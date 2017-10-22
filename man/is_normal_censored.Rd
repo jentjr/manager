@@ -2,19 +2,12 @@
 % Please edit documentation in R/check_normality_censored.R
 \name{is_normal_censored}
 \alias{is_normal_censored}
-\title{Function to check if censored groundwater data has a Normal distribution}
+\title{Helper function to check if censored groundwater data has a
+Normal distribution}
 \usage{
 is_normal_censored(x, censored, p = 0.01, ...)
 }
-\arguments{
-\item{x}{column of analysis result for groundwater data in tidy format}
-
-\item{censored}{logical vector of censored values}
-
-\item{p}{the p-value}
-
-\item{...}{other variable inputs passed to gofTestCensored}
-}
 \description{
-Function to check if censored groundwater data has a Normal distribution
+Helper function to check if censored groundwater data has a
+Normal distribution
 }

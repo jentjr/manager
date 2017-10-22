@@ -5,12 +5,12 @@
 \title{Function to return either normal, lognormal, or non-parametric multiple 
 groundwater data locations and parameters.}
 \usage{
-est_dist(df, p = 0.01)
+est_dist(df, p_value = 0.01)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
 
-\item{p}{p-value for gofTest}
+\item{p_value}{p-value for gofTest}
 }
 \description{
 Function to return either normal, lognormal, or non-parametric multiple 

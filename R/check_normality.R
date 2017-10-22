@@ -2,13 +2,13 @@
 #' groundwater data locations and parameters.
 #' 
 #' @param df groundwater data frame in tidy format
-#' @param p p-value for gofTest
+#' @param p_value p-value for gofTest
 #' @export
 
-est_dist <- function(df, p = 0.01) {  
+est_dist <- function(df, p_value = 0.01) {  
   df %>%
     group_by(location_id, param_name) %>%
-    mutate(distribution = dist(analysis_result, p = p)) %>%
+    mutate(distribution = dist(analysis_result, p = p_value)) %>%
     ungroup()
 }
 
