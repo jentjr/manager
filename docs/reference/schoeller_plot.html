@@ -111,7 +111,7 @@
   <span class='kw'>magnesium</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>, <span class='kw'>sodium</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>,
   <span class='kw'>potassium</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>, <span class='kw'>chloride</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>,
   <span class='kw'>alkalinity</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>sulfate</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>,
-  <span class='kw'>facet_by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lwt</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+  <span class='kw'>facet_by</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lwt</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -167,7 +167,7 @@ will convert data from mg/L to meq/L</p></td>
     </tr>
     <tr>
       <th>facet_by</th>
-      <td><p>parameter to facet plots by</p></td>
+      <td><p>parameter to facet plots by. Default is location</p></td>
     </tr>
     <tr>
       <th>title</th>

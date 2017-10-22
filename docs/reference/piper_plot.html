@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create a piper plot — piper_plot • manager</title>
+<title>Create a piper diagram — piper_plot • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -95,20 +95,24 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create a piper plot</h1>
+    <h1>Create a piper diagram</h1>
     </div>
 
     
-    <p>Create a piper plot</p>
+    <p>labels accept plotmath expressions</p>
     
 
     <pre class="usage"><span class='fu'>piper_plot</span>(<span class='no'>df</span>, <span class='kw'>location_id</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>sample_date</span> <span class='kw'>=</span> <span class='st'>"sample_date"</span>,
-  <span class='kw'>x_cation</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>y_cation</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>,
+  <span class='kw'>x_cation</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>x_cation_label</span> <span class='kw'>=</span> <span class='st'>"Ca"</span>,
+  <span class='kw'>y_cation</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>, <span class='kw'>y_cation_label</span> <span class='kw'>=</span> <span class='st'>"Mg"</span>,
   <span class='kw'>z_cation</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Sodium, dissolved"</span>, <span class='st'>"Potassium, dissolved"</span>),
-  <span class='kw'>x_anion</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Chloride, total"</span>, <span class='st'>"Fluoride, total"</span>),
-  <span class='kw'>y_anion</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>z_anion</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>,
-  <span class='kw'>total_dissolved_solids</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>transparency</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>pnt</span> <span class='kw'>=</span> <span class='fl'>3</span>,
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='kw'>z_cation_label</span> <span class='kw'>=</span> <span class='st'>"Na + K"</span>, <span class='kw'>x_anion</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Chloride, total"</span>,
+  <span class='st'>"Fluoride, total"</span>), <span class='kw'>x_anion_label</span> <span class='kw'>=</span> <span class='st'>"Cl + F"</span>,
+  <span class='kw'>y_anion</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>y_anion_label</span> <span class='kw'>=</span> <span class='st'>"HCO3 + CO2"</span>,
+  <span class='kw'>z_anion</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>, <span class='kw'>z_anion_label</span> <span class='kw'>=</span> <span class='st'>"SO4"</span>,
+  <span class='kw'>x_z_anion_label</span> <span class='kw'>=</span> <span class='st'>"SO4 + Cl + F"</span>, <span class='kw'>x_y_cation_label</span> <span class='kw'>=</span> <span class='st'>"Ca + Mg"</span>,
+  <span class='kw'>total_dissolved_solids</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>transparency</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>pnt_size</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+  <span class='kw'>label_size</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -130,24 +134,52 @@
       <td><p>default is Calcium, dissolved</p></td>
     </tr>
     <tr>
+      <th>x_cation_label</th>
+      <td><p>label for x cation</p></td>
+    </tr>
+    <tr>
       <th>y_cation</th>
       <td><p>default is Magnesium, dissolved</p></td>
+    </tr>
+    <tr>
+      <th>y_cation_label</th>
+      <td><p>label for y cation</p></td>
     </tr>
     <tr>
       <th>z_cation</th>
       <td><p>default is Sodium, dissolved + Potassium, dissolved</p></td>
     </tr>
     <tr>
+      <th>z_cation_label</th>
+      <td><p>label for z cation</p></td>
+    </tr>
+    <tr>
       <th>x_anion</th>
       <td><p>default is Chloride, total + Fluoride, total</p></td>
+    </tr>
+    <tr>
+      <th>x_anion_label</th>
+      <td><p>label for x anion</p></td>
     </tr>
     <tr>
       <th>y_anion</th>
       <td><p>default is Alkalinity, total (lab)</p></td>
     </tr>
     <tr>
+      <th>y_anion_label</th>
+      <td><p>label for y anion</p></td>
+    </tr>
+    <tr>
       <th>z_anion</th>
       <td><p>default is Sulfate, total</p></td>
+    </tr>
+    <tr>
+      <th>z_anion_label</th>
+      <td><p>label for z anion</p></td>
+    </tr>
+    <tr>
+      <th>x_y_cation_label</th>
+      <td><p>label for the upper right diamond</p></td>
     </tr>
     <tr>
       <th>total_dissolved_solids</th>
@@ -160,26 +192,39 @@ default = FALSE</p></td>
 is 0.2</p></td>
     </tr>
     <tr>
-      <th>pnt</th>
+      <th>pnt_size</th>
       <td><p>the size of the points. Default is 3</p></td>
+    </tr>
+    <tr>
+      <th>label_size</th>
+      <td><p>size of font for labels</p></td>
     </tr>
     <tr>
       <th>title</th>
       <td><p>Title for plot, default = NULL</p></td>
+    </tr>
+    <tr>
+      <th>z_x_anion_label</th>
+      <td><p>label for the upper left diamond</p></td>
     </tr>
     </table>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'>data</span>(<span class='no'>gw_data</span>)
+<span class='no'>wells</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"MW-1"</span>, <span class='st'>"MW-2"</span>, <span class='st'>"MW-3"</span>, <span class='st'>"MW-4"</span>, <span class='st'>"MW-5"</span>)
 <span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
-<span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"MW-1"</span>, <span class='st'>"MW-2"</span>, <span class='st'>"MW-3"</span>, <span class='st'>"MW-4"</span>, <span class='st'>"MW-5"</span>)) <span class='kw'>%&gt;%</span>
+<span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='no'>wells</span>) <span class='kw'>%&gt;%</span>
 <span class='fu'>piper_plot</span>(<span class='no'>.</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"Example Piper Diagram"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='img'><img src='piper_plot-1.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
 <span class='co'># scaled by Total Dissolved Solids</span>
 <span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
-<span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"MW-1"</span>, <span class='st'>"MW-2"</span>, <span class='st'>"MW-3"</span>, <span class='st'>"MW-4"</span>, <span class='st'>"MW-5"</span>)) <span class='kw'>%&gt;%</span>
+<span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='no'>wells</span>) <span class='kw'>%&gt;%</span>
 <span class='fu'>piper_plot</span>(<span class='no'>.</span>, <span class='kw'>total_dissolved_solids</span> <span class='kw'>=</span> <span class='st'>"Total Dissolved Solids"</span>,
 <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"Example Piper Diagram"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='img'><img src='piper_plot-2.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+<span class='co'># use plotmath expressions for labels</span>
+<span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
+<span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='no'>wells</span>) <span class='kw'>%&gt;%</span>
+<span class='fu'>piper_plot</span>(<span class='no'>.</span>, <span class='kw'>x_cation_label</span> <span class='kw'>=</span> <span class='st'>"Ca~phantom()^+2"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='img'><img src='piper_plot-3.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

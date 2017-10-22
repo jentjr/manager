@@ -2,15 +2,10 @@
 % Please edit documentation in R/check_normality.R
 \name{is_normal}
 \alias{is_normal}
-\title{Function to check if groundwater data has a Normal distribution}
+\title{Helper function to check if data has a Normal distribution}
 \usage{
 is_normal(x, p = 0.01)
 }
-\arguments{
-\item{x}{column of analysis result for groundwater data in tidy format}
-
-\item{p}{p-value for gofTest}
-}
 \description{
-Function to check if groundwater data has a Normal distribution
+Helper function to check if data has a Normal distribution
 }

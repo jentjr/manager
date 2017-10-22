@@ -2,15 +2,10 @@
 % Please edit documentation in R/check_normality.R
 \name{dist}
 \alias{dist}
-\title{Function to return distribution based on using p-value}
+\title{Helper function to return distribution based on using p-value}
 \usage{
 dist(x, p = 0.01)
 }
-\arguments{
-\item{x}{column of analysis result for groundwater data in tidy format}
-
-\item{p}{p-value for gofTest}
-}
 \description{
-Function to return distribution based on using p-value
+Helper function to return distribution based on using p-value
 }

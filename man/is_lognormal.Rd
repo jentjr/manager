@@ -2,15 +2,10 @@
 % Please edit documentation in R/check_normality.R
 \name{is_lognormal}
 \alias{is_lognormal}
-\title{Function to check if groundwater data has a Lognormal distribution}
+\title{Helper function to check if data has a Lognormal distribution}
 \usage{
 is_lognormal(x, p = 0.01)
 }
-\arguments{
-\item{x}{column of analysis result for groundwater data in tidy format}
-
-\item{p}{p-value for gofTest}
-}
 \description{
-Function to check if groundwater data has a Lognormal distribution
+Helper function to check if data has a Lognormal distribution
 }

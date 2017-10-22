@@ -6,8 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to plot a Stiff Diagram. Data must have been transformed using
- <code><a href='transform_stiff_data.html'>transform_stiff_data</a></code>. — stiff_plot • manager</title>
+<title>Stiff Diagram. — stiff_plot • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -96,31 +95,85 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to plot a Stiff Diagram. Data must have been transformed using
- <code><a href='transform_stiff_data.html'>transform_stiff_data</a></code>.</h1>
+    <h1>Stiff Diagram.</h1>
     </div>
 
     
-    <p>Function to plot a Stiff Diagram. Data must have been transformed using
- <code><a href='transform_stiff_data.html'>transform_stiff_data</a></code>.</p>
+    <p>plots a stiff diagram</p>
     
 
-    <pre class="usage"><span class='fu'>stiff_plot</span>(<span class='no'>df</span>, <span class='kw'>lines</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>cex</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'>stiff_plot</span>(<span class='no'>df</span>, <span class='kw'>location_id</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>sample_date</span> <span class='kw'>=</span> <span class='st'>"sample_date"</span>,
+  <span class='kw'>param_name</span> <span class='kw'>=</span> <span class='st'>"param_name"</span>, <span class='kw'>analysis_result</span> <span class='kw'>=</span> <span class='st'>"analysis_result"</span>,
+  <span class='kw'>default_unit</span> <span class='kw'>=</span> <span class='st'>"default_unit"</span>, <span class='kw'>magnesium</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>,
+  <span class='kw'>calcium</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>sodium</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>,
+  <span class='kw'>potassium</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>, <span class='kw'>chloride</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>,
+  <span class='kw'>sulfate</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>, <span class='kw'>alkalinity</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>,
+  <span class='kw'>total_dissolved_solids</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>lines</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>cex</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>data frame of groundwater data transformed using</p></td>
+      <td><p>data frame of water quality data</p></td>
+    </tr>
+    <tr>
+      <th>location_id</th>
+      <td><p>column for sample locations</p></td>
+    </tr>
+    <tr>
+      <th>sample_date</th>
+      <td><p>column for sample date</p></td>
+    </tr>
+    <tr>
+      <th>param_name</th>
+      <td><p>column for constituent names</p></td>
+    </tr>
+    <tr>
+      <th>analysis_result</th>
+      <td><p>column for analysis result</p></td>
+    </tr>
+    <tr>
+      <th>default_unit</th>
+      <td><p>column for units. Assumes all units are in mg/L and
+converts usign <code><a href='conc_to_meq.html'>conc_to_meq</a></code></p></td>
+    </tr>
+    <tr>
+      <th>magnesium</th>
+      <td><p>name for magnesium</p></td>
+    </tr>
+    <tr>
+      <th>calcium</th>
+      <td><p>name for calcium</p></td>
+    </tr>
+    <tr>
+      <th>sodium</th>
+      <td><p>name for sodium</p></td>
+    </tr>
+    <tr>
+      <th>potassium</th>
+      <td><p>name for potassium</p></td>
+    </tr>
+    <tr>
+      <th>chloride</th>
+      <td><p>name for chloride</p></td>
+    </tr>
+    <tr>
+      <th>sulfate</th>
+      <td><p>name for sulfate</p></td>
+    </tr>
+    <tr>
+      <th>alkalinity</th>
+      <td><p>name for alkalinity</p></td>
+    </tr>
+    <tr>
+      <th>total_dissolved_solids</th>
+      <td><p>name for TDS to scale color of plot.
+Default is NULL</p></td>
     </tr>
     <tr>
       <th>lines</th>
       <td><p>TRUE/FALSE plots lines</p></td>
-    </tr>
-    <tr>
-      <th>TDS</th>
-      <td><p>TRUE/FALSE fills in the color of the stiff diagram by TDS</p></td>
     </tr>
     <tr>
       <th>cex</th>
@@ -128,13 +181,20 @@
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>tidy dataframe of water quality data in mg/L is converted to
+meq/L and then transformed to coordinates for Stiff diagmram.</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>
