@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tools to help with plotting and analyzing groundwater monitoring data • manager</title>
+<title>Tools for plotting and analyzing environmental data • manager</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
@@ -81,7 +81,7 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
-<p>The goal of manager is to provide a set of tools to simplify plotting and analyzing groundwater data that is in a <a href="https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html">tidy format</a>. Manager also provides functions to read data from external sources such as MANAGES and gINT.</p>
+<p>The goal of manager is to provide a set of tools to simplify plotting and analyzing environmental data that is in a <a href="https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html">tidy format</a>. Manager also provides functions to read data from external sources such as MANAGES and gINT.</p>
 </div>
 <div id="example" class="section level2">
 <h2 class="hasAnchor">
@@ -92,7 +92,9 @@
 data &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_manages3.html">read_manages3</a></span>(<span class="st">"C:/path/to/Site.mdb"</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># load example data and plot time series of selected wells and constituents</span>
 <span class="kw">data</span>(<span class="st">"gw_data"</span>)
+
 wells &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">"MW-1"</span>, <span class="st">"MW-2"</span>)
+
 params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">"Magnesium, dissolved"</span>, 
             <span class="st">"Sodium, dissolved"</span>, 
             <span class="st">"Chloride, total"</span>, 
@@ -100,23 +102,19 @@ params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">
             <span class="st">"Potassium, dissolved"</span>)
 
 gw_data <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">select_all</span>(., toupper) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">filter</span>(LOCATION_ID <span class="op">%in%</span><span class="st"> </span>wells, PARAM_NAME <span class="op">%in%</span><span class="st"> </span>params) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="reference/ts_plot.html">ts_plot</a></span>(., <span class="dt">facet_var =</span> <span class="st">"PARAM_NAME"</span>, <span class="dt">group_var =</span> <span class="st">"LOCATION_ID"</span>)</code></pre></div>
+<span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">%in%</span><span class="st"> </span>wells, param_name <span class="op">%in%</span><span class="st"> </span>params) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/ts_plot.html">ts_plot</a></span>(., <span class="dt">facet_var =</span> <span class="st">"param_name"</span>, <span class="dt">group_var =</span> <span class="st">"location_id"</span>)</code></pre></div>
 <p><img src="README-unnamed-chunk-3-1.png" width="864"><img src="README-unnamed-chunk-3-2.png" width="864"></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-
 <span class="co"># create boxplots filled by gradient</span>
-gw_data <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">select_all</span>(., toupper) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">filter</span>(PARAM_NAME <span class="op">==</span><span class="st"> "Chloride, total"</span>, 
-         LOCATION_ID <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"MW-1"</span>, <span class="st">"MW-2"</span>, <span class="st">"MW-3"</span>, <span class="st">"MW-4"</span>, <span class="st">"MW-5"</span>, <span class="st">"MW-6"</span>, <span class="st">"MW-7"</span>, <span class="st">"MW-8"</span>)) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">gradient =</span> <span class="kw">if_else</span>(LOCATION_ID <span class="op">%in%</span><span class="st"> </span>wells, <span class="st">"upgradient"</span>, <span class="st">"downgradient"</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
+gw_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(param_name <span class="op">==</span><span class="st"> "Chloride, total"</span>, 
+         location_id <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"MW-1"</span>, <span class="st">"MW-2"</span>, <span class="st">"MW-3"</span>, <span class="st">"MW-4"</span>, <span class="st">"MW-5"</span>, <span class="st">"MW-6"</span>, <span class="st">"MW-7"</span>, <span class="st">"MW-8"</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">gradient =</span> <span class="kw">if_else</span>(location_id <span class="op">%in%</span><span class="st"> </span>wells, <span class="st">"upgradient"</span>, <span class="st">"downgradient"</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/boxplot.html">boxplot</a></span>(., <span class="dt">fill =</span> <span class="st">"gradient"</span>)</code></pre></div>
 <p><img src="README-unnamed-chunk-3-3.png" width="864"></p>
 <p>Create Piper plots…</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gw_data <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">select_all</span>(., toupper) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="reference/piper_plot.html">piper_plot</a></span>()</code></pre></div>
 <p><img src="README-unnamed-chunk-4-1.png" width="864"></p>
 </div>
@@ -143,7 +141,7 @@ gw_data <span class="op">%&gt;%</span><span class="st"> </span>
 <div id="shiny-app" class="section level2">
 <h2 class="hasAnchor">
 <a href="#shiny-app" class="anchor"></a>Shiny App</h2>
-<p>A <a href="http://shiny.rstudio.com">shiny app</a> is included with the package. It can be launched locally by running <code>manager::manager()</code>, or you can browse to the <a href="http://shinyapps.io">shinyapps.io</a> website for <a href="http://jentjr.shinyapps.io/manager">manager</a>. In order to read a MANAGES, or gINT database you must be running a local server with <code>RODBC</code> installed. <code>R</code> must either be in 32-bit, or 64-bit mode depending on which drivers are installed for microsoft access. MANAGER has only been tested in 32-bit mode.</p>
+<p>A <a href="http://shiny.rstudio.com">shiny app</a> is included with the package. It can be launched locally by running <code><a href="http://www.rdocumentation.org/packages/manager/topics/manager">manager::manager()</a></code>, or you can browse to the <a href="http://shinyapps.io">shinyapps.io</a> website for <a href="http://jentjr.shinyapps.io/manager">manager</a>. In order to read a MANAGES, or gINT database you must be running a local server with <code>RODBC</code> installed. <code>R</code> must either be in 32-bit, or 64-bit mode depending on which drivers are installed for microsoft access. MANAGER has only been tested in 32-bit mode.</p>
 </div>
 </div>
   </div>

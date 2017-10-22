@@ -75,7 +75,7 @@
       <h1>Introduction to manager</h1>
                         <h4 class="author">Justin Jent</h4>
             
-            <h4 class="date">2017-10-17</h4>
+            <h4 class="date">2017-10-21</h4>
           </div>
 
     
@@ -92,21 +92,19 @@
 <a href="#prediction-intervals" class="anchor"></a>Prediction Intervals</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">"gw_data"</span>)
 
-gw_data &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">select_all</span>(., toupper)
 
 nested_gw &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">group_by</span>(LOCATION_ID, PARAM_NAME, DEFAULT_UNIT) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(location_id, param_name, default_unit) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">nest</span>()
 
 nested_gw <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">filter</span>(LOCATION_ID <span class="op">==</span><span class="st"> "MW-2"</span>, 
-         PARAM_NAME <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"Potassium, dissolved"</span>, <span class="st">"Magnesium, dissolved"</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">==</span><span class="st"> "MW-2"</span>, 
+         param_name <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"Potassium, dissolved"</span>, <span class="st">"Magnesium, dissolved"</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">trend =</span> <span class="kw">map</span>(data, kendall_trend))
 
 
 mw1_K &lt;-<span class="st"> </span>nested_gw <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">filter</span>(LOCATION_ID <span class="op">==</span><span class="st"> "MW-1"</span>, PARAM_NAME <span class="op">==</span><span class="st"> "Potassium, dissolved"</span>)
+<span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">==</span><span class="st"> "MW-1"</span>, param_name <span class="op">==</span><span class="st"> "Potassium, dissolved"</span>)
 
 test &lt;-<span class="st"> </span>mw1_K <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">start =</span> <span class="kw">map</span>(data, start_date),

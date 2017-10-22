@@ -102,7 +102,9 @@
     <p>Summary function</p>
     
 
-    <pre class="usage"><span class='fu'>summary</span>(<span class='no'>df</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>summary</span>(<span class='no'>df</span>, <span class='kw'>location_id</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>param_name</span> <span class='kw'>=</span> <span class='st'>"param_name"</span>,
+  <span class='kw'>lt_measure</span> <span class='kw'>=</span> <span class='st'>"lt_measure"</span>, <span class='kw'>analysis_result</span> <span class='kw'>=</span> <span class='st'>"analysis_result"</span>,
+  <span class='kw'>default_unit</span> <span class='kw'>=</span> <span class='st'>"default_unit"</span>, <span class='kw'>na.rm</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -110,6 +112,26 @@
     <tr>
       <th>df</th>
       <td><p>dataframe of groundwater data in tidy format</p></td>
+    </tr>
+    <tr>
+      <th>location_id</th>
+      <td><p>column of sample locations</p></td>
+    </tr>
+    <tr>
+      <th>param_name</th>
+      <td><p>column of constituents</p></td>
+    </tr>
+    <tr>
+      <th>lt_measure</th>
+      <td><p>column of less than symbols for non-detect data</p></td>
+    </tr>
+    <tr>
+      <th>analysis_result</th>
+      <td><p>column for numerical result</p></td>
+    </tr>
+    <tr>
+      <th>default_unit</th>
+      <td><p>column of units</p></td>
     </tr>
     </table>
     

@@ -102,12 +102,13 @@
     <p>Create a piper plot</p>
     
 
-    <pre class="usage"><span class='fu'>piper_plot</span>(<span class='no'>df</span>, <span class='kw'>location_id</span> <span class='kw'>=</span> <span class='st'>"LOCATION_ID"</span>, <span class='kw'>sample_date</span> <span class='kw'>=</span> <span class='st'>"SAMPLE_DATE"</span>,
+    <pre class="usage"><span class='fu'>piper_plot</span>(<span class='no'>df</span>, <span class='kw'>location_id</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>sample_date</span> <span class='kw'>=</span> <span class='st'>"sample_date"</span>,
   <span class='kw'>x_cation</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>y_cation</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>,
   <span class='kw'>z_cation</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Sodium, dissolved"</span>, <span class='st'>"Potassium, dissolved"</span>),
   <span class='kw'>x_anion</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"Chloride, total"</span>, <span class='st'>"Fluoride, total"</span>),
   <span class='kw'>y_anion</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>, <span class='kw'>z_anion</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>,
-  <span class='kw'>pnt</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>transparency</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+  <span class='kw'>total_dissolved_solids</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>transparency</span> <span class='kw'>=</span> <span class='fl'>0.2</span>, <span class='kw'>pnt</span> <span class='kw'>=</span> <span class='fl'>3</span>,
+  <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -149,8 +150,18 @@
       <td><p>default is Sulfate, total</p></td>
     </tr>
     <tr>
-      <th>TDS</th>
-      <td><p>Scale plot by Total Dissolved Solids, default = FALSE</p></td>
+      <th>total_dissolved_solids</th>
+      <td><p>Scale plot by Total Dissolved Solids,
+default = FALSE</p></td>
+    </tr>
+    <tr>
+      <th>transparency</th>
+      <td><p>the setting for transparency value for points. Default
+is 0.2</p></td>
+    </tr>
+    <tr>
+      <th>pnt</th>
+      <td><p>the size of the points. Default is 3</p></td>
     </tr>
     <tr>
       <th>title</th>
@@ -159,12 +170,24 @@
     </table>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>data</span>(<span class='no'>gw_data</span>)
+<span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
+<span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"MW-1"</span>, <span class='st'>"MW-2"</span>, <span class='st'>"MW-3"</span>, <span class='st'>"MW-4"</span>, <span class='st'>"MW-5"</span>)) <span class='kw'>%&gt;%</span>
+<span class='fu'>piper_plot</span>(<span class='no'>.</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"Example Piper Diagram"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='img'><img src='piper_plot-1.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+<span class='co'># scaled by Total Dissolved Solids</span>
+<span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
+<span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"MW-1"</span>, <span class='st'>"MW-2"</span>, <span class='st'>"MW-3"</span>, <span class='st'>"MW-4"</span>, <span class='st'>"MW-5"</span>)) <span class='kw'>%&gt;%</span>
+<span class='fu'>piper_plot</span>(<span class='no'>.</span>, <span class='kw'>title</span> <span class='kw'>=</span> <span class='st'>"Example Piper Diagram"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='output co'>#&gt; <span class='warning'>Warning: Removed 2 rows containing missing values (geom_point).</span></div><div class='img'><img src='piper_plot-2.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+            
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

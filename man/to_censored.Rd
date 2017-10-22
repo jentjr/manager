@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{to_censored}
 \alias{to_censored}
-\title{Function to convert character column of less than, or greater than 
+\title{Function to convert character column of less than, or greater than
 symbols to logical vectors and return a data frame}
 \usage{
 to_censored(df)
@@ -11,6 +11,6 @@ to_censored(df)
 \item{df}{data frame of groundwater data}
 }
 \description{
-Function to convert character column of less than, or greater than 
+Function to convert character column of less than, or greater than
 symbols to logical vectors and return a data frame
 }

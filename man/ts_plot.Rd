@@ -2,12 +2,12 @@
 % Please edit documentation in R/ts_plot.R
 \name{ts_plot}
 \alias{ts_plot}
-\title{This function plots multiple groundwater data time series by location, 
+\title{This function plots multiple groundwater data time series by location,
 or constituent.}
 \usage{
-ts_plot(df, x = "SAMPLE_DATE", y = "ANALYSIS_RESULT",
-  facet_var = "LOCATION_ID", group_var = "PARAM_NAME",
-  lt_measure = "LT_MEASURE", scale_y_trans = "identity", trend = NULL,
+ts_plot(df, x = "sample_date", y = "analysis_result",
+  facet_var = "location_id", group_var = "param_name",
+  lt_measure = "lt_measure", scale_y_trans = "identity", trend = NULL,
   back_date = NULL, comp_date = NULL, limit1 = NULL, limit2 = NULL,
   short_name = FALSE, pnt = 3, ncol = NULL, ...)
 }
@@ -23,8 +23,8 @@ ts_plot(df, x = "SAMPLE_DATE", y = "ANALYSIS_RESULT",
 \item{group_var}{column to group plots by, default is by constituent}
 
 \item{scale_y_trans}{type of transformation to use for y scale. Default is
-"identity".  Built-in transformations include "asn", "atanh", "boxcox", 
-"exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability", 
+"identity".  Built-in transformations include "asn", "atanh", "boxcox",
+"exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
 "probit", "reciprocal", "reverse" and "sqrt".}
 
 \item{trend}{trend add trend line to time series plot}
@@ -46,6 +46,6 @@ ts_plot(df, x = "SAMPLE_DATE", y = "ANALYSIS_RESULT",
 \item{...}{parameters passed to get_theilsen}
 }
 \description{
-This function plots multiple groundwater data time series by location, 
+This function plots multiple groundwater data time series by location,
 or constituent.
 }

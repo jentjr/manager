@@ -4,12 +4,12 @@
 \alias{percent_gt}
 \title{Calculate the percentage of right censored data}
 \usage{
-percent_gt(df, LT_MEASURE = "LT_MEASURE", percent_gt = "percent_gt")
+percent_gt(df, lt_measure = "lt_measure", percent_gt = "percent_gt")
 }
 \arguments{
 \item{df}{df data frame of groundwater monitoring data in long format}
 
-\item{LT_MEASURE}{LT_MEASURE column of greater than detection limit symbol.}
+\item{lt_measure}{lt_measure column of greater than detection limit symbol.}
 
 \item{percent_gt}{percent_gt new column name}
 }

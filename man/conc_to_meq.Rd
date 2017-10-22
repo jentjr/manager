@@ -4,27 +4,27 @@
 \alias{conc_to_meq}
 \title{Function to convert chemical data from mg/L to meq/L}
 \usage{
-conc_to_meq(df, Mg = "Magnesium, dissolved", Ca = "Calcium, dissolved",
-  Na = "Sodium, dissolved", K = "Potassium, dissolved",
-  Cl = "Chloride, total", SO4 = "Sulfate, total",
-  Alk = "Alkalinity, total (lab)")
+conc_to_meq(df, magnesium = "Magnesium, dissolved",
+  calcium = "Calcium, dissolved", sodium = "Sodium, dissolved",
+  potassium = "Potassium, dissolved", chloride = "Chloride, total",
+  sulfate = "Sulfate, total", alkalinity = "Alkalinity, total (lab)")
 }
 \arguments{
-\item{df}{data frame}
+\item{df}{data frame in wide format i.e, column names are major ions}
 
-\item{Mg}{Magnesium}
+\item{magnesium}{magnesium}
 
-\item{Ca}{Calcium}
+\item{calcium}{calcium}
 
-\item{Na}{Sodium}
+\item{sodium}{sodium}
 
-\item{K}{Potassium}
+\item{potassium}{potassium}
 
-\item{Cl}{Chloride}
+\item{chloride}{chloride}
 
-\item{SO4}{Sulfate}
+\item{sulfate}{sulfate}
 
-\item{Alk}{Total Alkalinity}
+\item{alkalinity}{Total Alkalinity}
 }
 \description{
 Function to convert chemical data from mg/L to meq/L

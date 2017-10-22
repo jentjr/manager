@@ -1,10 +1,33 @@
 #' Function to plot data transformed to schoeller coordinates using
 #' \code{\link{.transform_schoeller_data}}
 #'
-#' @param df dataframe of groundwater data transformed to Schoeller coordinates
+#' @param df dataframe of environmental data in tidy format. The function
+#' will convert data from mg/L to meq/L
+#' @param location_id the column for sample locations
+#' @param sample_date column for sample date
+#' @param analysis_result column containing the numerical analysis result
+#' @param default_unit column containing the units. Assumes mg/L.
+#' @param calcium name of calcium. Default is "Calcium, dissolved"
+#' @param magnesium name of magnesium. Default is "Magnesium, dissolved"
+#' @param sodium name for sodium. Default is "Sodium, dissolved"
+#' @param potassium name for potassium. Default is "Potassium, dissolved"
+#' @param chloride name for chloride. Default is "Chloride, total"
+#' @param alkalinity name for alkalinity. Default is "Alkalinity, total (lab)"
+#' @param sulfate name of sulfate. Default is "Sulfate, total"
 #' @param facet_by parameter to facet plots by
 #' @param title title of plot
 #' @param lwt lineweight
+#'
+#' @examples 
+#' data(gw_data)
+#' gw_data %>%
+#' filter(location_id %in% c("MW-1", "MW-2")) %>%
+#' schoeller_plot(., facet_by = "location_id", title = "Example Scholler Plot")
+#'  
+#' gw_data %>%
+#' filter(location_id %in% c("MW-1", "MW-2")) %>%
+#' schoeller_plot(., facet_by = "sample_date", lwt = 2)
+#'
 #' @export
 
 schoeller_plot <- function(df,
@@ -80,7 +103,7 @@ schoeller_plot <- function(df,
 
 }
 
-#' Function to transform data to schoeller coordinates
+#' Help function to transform data to schoeller coordinates
 
 .transform_schoeller_data <- function(df,
                                  location_id = "location_id",

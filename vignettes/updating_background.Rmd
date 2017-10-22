@@ -22,11 +22,8 @@ are analyzed.
 library(manager)
 data("gw_data")
 
-gw_data <- gw_data %>%
-  select_all(., toupper)
-
 MW1_Arsenic <- gw_data %>%
-  filter(LOCATION_ID == "MW-1", PARAM_NAME == "Arsenic, dissolved")
+  filter(location_id == "MW-1", param_name == "Arsenic, dissolved")
 
 ts_plot(MW1_Arsenic)
 ```

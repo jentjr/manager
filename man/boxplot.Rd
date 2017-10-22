@@ -2,12 +2,13 @@
 % Please edit documentation in R/boxplot.R
 \name{boxplot}
 \alias{boxplot}
-\title{Function to plot boxplots for groundwater data}
+\title{Boxplot function}
 \usage{
-boxplot(df, x = "LOCATION_ID", y = "ANALYSIS_RESULT",
-  lt_measure = "LT_MEASURE", group_var = "PARAM_NAME",
-  scale_y_trans = "identity", fill = NULL, limit1 = NULL, limit2 = NULL,
-  pnt = 2, short_name = FALSE, coord_flip = FALSE, legend_title = NULL)
+boxplot(df, x = "location_id", y = "analysis_result",
+  lt_measure = "lt_measure", group_var = "param_name", coef = 3,
+  scale_y_trans = "identity", show_points = TRUE, fill = NULL,
+  limit1 = NULL, limit2 = NULL, pnt = 2, short_name = FALSE,
+  coord_flip = FALSE, legend_title = NULL)
 }
 \arguments{
 \item{df}{groundwater data in tidy format}
@@ -18,10 +19,14 @@ boxplot(df, x = "LOCATION_ID", y = "ANALYSIS_RESULT",
 
 \item{lt_measure}{column for >, or < identifier}
 
+\item{coef}{length of the whiskers as multiple of the IQR. Defualt is 3.}
+
 \item{scale_y_trans}{type of transformation to use for y scale. Default is
-"identity".  Built-in transformations include "asn", "atanh", "boxcox", 
-"exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability", 
+"identity".  Built-in transformations include "asn", "atanh", "boxcox",
+"exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
 "probit", "reciprocal", "reverse" and "sqrt".}
+
+\item{show_points}{plot the individual points using ggbeeswarm.}
 
 \item{fill}{column used to fill the variable}
 
@@ -36,5 +41,16 @@ boxplot(df, x = "LOCATION_ID", y = "ANALYSIS_RESULT",
 \item{legend_title}{Legend title for fill variable}
 }
 \description{
-Function to plot boxplots for groundwater data
+Boxplot function
+}
+\examples{
+data(gw_data)
+gw_data \%>\%
+filter(param_name == "Chloride, total", 
+      location_id \%in\% c("MW-1", "MW-2", "MW-3", "MW-4",
+      "MW-5", "MW-6", "MW-7", "MW-8")) \%>\%
+ mutate(gradient = if_else(location_id \%in\% c("MW-1", "MW-2", "MW-3", "MW-5"),
+ "upgradient", "downgradient")) \%>\% 
+ boxplot(., fill = "gradient")
+
 }
