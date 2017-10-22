@@ -4,7 +4,7 @@
 \alias{constituents}
 \title{Function to return a list of all the constituents}
 \usage{
-constituents(df, PARAM_NAME)
+constituents(df, param_name)
 }
 \arguments{
 \item{df}{data frame of groundwater data in the format with column names}

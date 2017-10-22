@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to convert geochemical plot data from mg/L to meq/L — conc_to_meq • manager</title>
+<title>Function to convert chemical data from mg/L to meq/L — conc_to_meq • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -95,51 +95,51 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to convert geochemical plot data from mg/L to meq/L</h1>
+    <h1>Function to convert chemical data from mg/L to meq/L</h1>
     </div>
 
     
-    <p>Function to convert geochemical plot data from mg/L to meq/L</p>
+    <p>Function to convert chemical data from mg/L to meq/L</p>
     
 
-    <pre class="usage"><span class='fu'>conc_to_meq</span>(<span class='no'>df</span>, <span class='kw'>Mg</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>, <span class='kw'>Ca</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>,
-  <span class='kw'>Na</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>, <span class='kw'>K</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>,
-  <span class='kw'>Cl</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>, <span class='kw'>SO4</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>,
-  <span class='kw'>total_alk</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>)</pre>
+    <pre class="usage"><span class='fu'>conc_to_meq</span>(<span class='no'>df</span>, <span class='kw'>magnesium</span> <span class='kw'>=</span> <span class='st'>"Magnesium, dissolved"</span>,
+  <span class='kw'>calcium</span> <span class='kw'>=</span> <span class='st'>"Calcium, dissolved"</span>, <span class='kw'>sodium</span> <span class='kw'>=</span> <span class='st'>"Sodium, dissolved"</span>,
+  <span class='kw'>potassium</span> <span class='kw'>=</span> <span class='st'>"Potassium, dissolved"</span>, <span class='kw'>chloride</span> <span class='kw'>=</span> <span class='st'>"Chloride, total"</span>,
+  <span class='kw'>sulfate</span> <span class='kw'>=</span> <span class='st'>"Sulfate, total"</span>, <span class='kw'>alkalinity</span> <span class='kw'>=</span> <span class='st'>"Alkalinity, total (lab)"</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>data frame</p></td>
+      <td><p>data frame in wide format i.e, column names are major ions</p></td>
     </tr>
     <tr>
-      <th>Mg</th>
-      <td><p>Magnesium</p></td>
+      <th>magnesium</th>
+      <td><p>magnesium</p></td>
     </tr>
     <tr>
-      <th>Ca</th>
-      <td><p>Calcium</p></td>
+      <th>calcium</th>
+      <td><p>calcium</p></td>
     </tr>
     <tr>
-      <th>Na</th>
-      <td><p>Sodium</p></td>
+      <th>sodium</th>
+      <td><p>sodium</p></td>
     </tr>
     <tr>
-      <th>K</th>
-      <td><p>Potassium</p></td>
+      <th>potassium</th>
+      <td><p>potassium</p></td>
     </tr>
     <tr>
-      <th>Cl</th>
-      <td><p>Chloride</p></td>
+      <th>chloride</th>
+      <td><p>chloride</p></td>
     </tr>
     <tr>
-      <th>SO4</th>
-      <td><p>Sulfate</p></td>
+      <th>sulfate</th>
+      <td><p>sulfate</p></td>
     </tr>
     <tr>
-      <th>total_alk</th>
+      <th>alkalinity</th>
       <td><p>Total Alkalinity</p></td>
     </tr>
     </table>

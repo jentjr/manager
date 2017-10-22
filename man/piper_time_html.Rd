@@ -4,13 +4,13 @@
 \alias{piper_time_html}
 \title{Function to create an aminated Piper plot and save to html}
 \usage{
-piper_time_html(df, TDS = FALSE)
+piper_time_html(df, total_dissolved_solids = FALSE)
 }
 \arguments{
-\item{df}{data frame of groundwater data transformed using 
+\item{df}{data frame of groundwater data transformed using
 \code{\link{transform_piper_data}}}
 
-\item{TDS}{Scale by Total Dissolved Solids}
+\item{total_dissolved_solids}{Scale by Total Dissolved Solids}
 }
 \description{
 Function to create an aminated Piper plot and save to html

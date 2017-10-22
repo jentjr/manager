@@ -5,16 +5,39 @@
 \title{Function to plot data transformed to schoeller coordinates using
 \code{\link{.transform_schoeller_data}}}
 \usage{
-schoeller_plot(df, LOCATION_ID = "LOCATION_ID", SAMPLE_DATE = "SAMPLE_DATE",
-  PARAM_NAME = "PARAM_NAME", ANALYSIS_RESULT = "ANALYSIS_RESULT",
-  DEFAULT_UNIT = "DEFAULT_UNIT", Ca = "Calcium, dissolved",
-  Mg = "Magnesium, dissolved", Na = "Sodium, dissolved",
-  K = "Potassium, dissolved", Cl = "Chloride, total",
-  Alk = "Alkalinity, total (lab)", SO4 = "Sulfate, total",
+schoeller_plot(df, location_id = "location_id", sample_date = "sample_date",
+  param_name = "param_name", analysis_result = "analysis_result",
+  default_unit = "default_unit", calcium = "Calcium, dissolved",
+  magnesium = "Magnesium, dissolved", sodium = "Sodium, dissolved",
+  potassium = "Potassium, dissolved", chloride = "Chloride, total",
+  alkalinity = "Alkalinity, total (lab)", sulfate = "Sulfate, total",
   facet_by = NULL, title = NULL, lwt = 1)
 }
 \arguments{
-\item{df}{dataframe of groundwater data transformed to Schoeller coordinates}
+\item{df}{dataframe of environmental data in tidy format. The function
+will convert data from mg/L to meq/L}
+
+\item{location_id}{the column for sample locations}
+
+\item{sample_date}{column for sample date}
+
+\item{analysis_result}{column containing the numerical analysis result}
+
+\item{default_unit}{column containing the units. Assumes mg/L.}
+
+\item{calcium}{name of calcium. Default is "Calcium, dissolved"}
+
+\item{magnesium}{name of magnesium. Default is "Magnesium, dissolved"}
+
+\item{sodium}{name for sodium. Default is "Sodium, dissolved"}
+
+\item{potassium}{name for potassium. Default is "Potassium, dissolved"}
+
+\item{chloride}{name for chloride. Default is "Chloride, total"}
+
+\item{alkalinity}{name for alkalinity. Default is "Alkalinity, total (lab)"}
+
+\item{sulfate}{name of sulfate. Default is "Sulfate, total"}
 
 \item{facet_by}{parameter to facet plots by}
 
@@ -25,4 +48,15 @@ schoeller_plot(df, LOCATION_ID = "LOCATION_ID", SAMPLE_DATE = "SAMPLE_DATE",
 \description{
 Function to plot data transformed to schoeller coordinates using
 \code{\link{.transform_schoeller_data}}
+}
+\examples{
+ data(gw_data)
+ gw_data \%>\%
+ filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
+ schoeller_plot(., facet_by = "location_id", title = "Example Scholler Plot")
+ 
+ gw_data \%>\%
+ filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
+ schoeller_plot(., facet_by = "sample_date", lwt = 2)
+
 }

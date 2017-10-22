@@ -11,7 +11,22 @@
 #' @param z_anion default is Sulfate, total
 #' @param total_dissolved_solids Scale plot by Total Dissolved Solids,
 #' default = FALSE
+#' @param transparency the setting for transparency value for points. Default
+#' is 0.2
+#' @param pnt the size of the points. Default is 3
 #' @param title Title for plot, default = NULL
+#' 
+#' @examples
+#' data(gw_data)
+#' gw_data %>%
+#' filter(location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")) %>%
+#' piper_plot(., title = "Example Piper Diagram")
+#' 
+#' # scaled by Total Dissolved Solids
+#' gw_data %>%
+#' filter(location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")) %>%
+#' piper_plot(., title = "Example Piper Diagram")
+#' 
 #' @export
 
 piper_plot <- function(df,
@@ -25,9 +40,9 @@ piper_plot <- function(df,
                                    "Fluoride, total"),
                        y_anion = "Alkalinity, total (lab)",
                        z_anion = "Sulfate, total",
-                       pnt = 3,
+                       total_dissolved_solids = NULL,
                        transparency = 0.2,
-                       total_dissolved_solids = FALSE,
+                       pnt = 3,
                        title = NULL) {
 
   df <- df %>%
@@ -36,15 +51,17 @@ piper_plot <- function(df,
                     z_cation = z_cation,
                     x_anion = x_anion,
                     y_anion = y_anion,
-                    z_anion = z_anion) %>%
+                    z_anion = z_anion,
+                    total_dissolved_solids = total_dissolved_solids) %>%
     .transform_piper_data(x_cation = x_cation,
                           y_cation = y_cation,
                           z_cation = z_cation,
                           x_anion = x_anion,
                           y_anion = y_anion,
-                          z_anion = z_anion)
+                          z_anion = z_anion,
+                          total_dissolved_solids = total_dissolved_solids)
 
-  if (isTRUE(total_dissolved_solids)) {
+  if (!is.null(total_dissolved_solids)) {
     .ggplot_piper() +
       geom_point(data = df, aes(x = cation_x,
                                 y = cation_y,
@@ -59,10 +76,10 @@ piper_plot <- function(df,
                                 colour = location_id,
                                 size = total_dissolved_solids),
                                 alpha = transparency) +
-      scale_size("total_dissolved_solids", range = c(5, 25)) +
+      scale_size("total_dissolved_solids", range = c(0, 10)) +
       scale_colour_viridis(discrete = TRUE) +
       ggtitle(paste(title)) +
-      guides(size = guide_legend("total_dissolved_solids"),
+      guides(size = guide_legend("Total Dissolved Solids"),
              colour = guide_legend("Location ID"),
              alpha = guide_legend("none")) +
       theme(plot.title = element_text(hjust = 0.5))
@@ -159,12 +176,12 @@ piper_time_html <- function(df, total_dissolved_solids = FALSE) {
                                         "Fluoride, total"),
                             y_anion = "Alkalinity, total (lab)",
                             z_anion = "Sulfate, total",
-                            total_dissolved_solids = NULL,
-                            pH = NULL) {
+                            total_dissolved_solids = NULL
+                            ) {
 
   ions <- c(x_cation, y_cation, z_cation,
             x_anion, y_anion, z_anion,
-            total_dissolved_solids, pH)
+            total_dissolved_solids)
 
   df <- df %>%
     filter_(~param_name %in% ions) %>%
@@ -190,8 +207,8 @@ piper_time_html <- function(df, total_dissolved_solids = FALSE) {
                                               "Fluoride, total"),
                                   y_anion = "Alkalinity, total (lab)",
                                   z_anion = "Sulfate, total",
-                                  total_dissolved_solids = NULL,
-                                  pH = NULL) {
+                                  total_dissolved_solids = NULL
+                                  ) {
 
   # cation data
   # Convert data to %
@@ -262,9 +279,16 @@ piper_time_html <- function(df, total_dissolved_solids = FALSE) {
 
   npoints <- do.call("rbind", diam_list)
 
-  piper_data <- bind_cols(df, cations, anions, npoints) %>%
-    select(location_id, sample_date, cation_x, cation_y,
-           anion_x, anion_y, diamond_x, diamond_y)
+  if (!is.null(total_dissolved_solids)) {
+    piper_data <- bind_cols(df, cations, anions, npoints) %>%
+      select(location_id, sample_date, cation_x, cation_y,
+             anion_x, anion_y, diamond_x, diamond_y,
+             total_dissolved_solids = total_dissolved_solids)
+  } else {
+    piper_data <- bind_cols(df, cations, anions, npoints) %>%
+      select(location_id, sample_date, cation_x, cation_y,
+             anion_x, anion_y, diamond_x, diamond_y)
+  }
 
   return(piper_data)
 

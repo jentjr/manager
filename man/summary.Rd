@@ -4,10 +4,22 @@
 \alias{summary}
 \title{Summary function}
 \usage{
-summary(df, na.rm = TRUE)
+summary(df, location_id = "location_id", param_name = "param_name",
+  lt_measure = "lt_measure", analysis_result = "analysis_result",
+  default_unit = "default_unit", na.rm = TRUE)
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}
+
+\item{location_id}{column of sample locations}
+
+\item{param_name}{column of constituents}
+
+\item{lt_measure}{column of less than symbols for non-detect data}
+
+\item{analysis_result}{column for numerical result}
+
+\item{default_unit}{column of units}
 }
 \description{
 Summary function

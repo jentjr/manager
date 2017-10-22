@@ -13,10 +13,10 @@ update_background(df, well, param, start = NULL, n_end = 8, n_prop = 4)
 
 \item{param}{the constituent to update}
 
-\item{start}{the start date of the background data. IF not provide the 
+\item{start}{the start date of the background data. IF not provide the
 start of the data will be found using \code{\link{start_date()}}}
 
-\item{n_end}{the number of samples in current background. The date will be 
+\item{n_end}{the number of samples in current background. The date will be
 found from this sample.}
 
 \item{n_prop}{the number of samples to include in the proposed background}

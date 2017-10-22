@@ -75,7 +75,7 @@
       <h1>Updating Background Groundwater Quality Data Used in Detection Monitoring</h1>
                         <h4 class="author">Justin Jent</h4>
             
-            <h4 class="date">2017-10-17</h4>
+            <h4 class="date">2017-10-21</h4>
           </div>
 
     
@@ -85,11 +85,8 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(manager)
 <span class="kw">data</span>(<span class="st">"gw_data"</span>)
 
-gw_data &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">select_all</span>(., toupper)
-
 MW1_Arsenic &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">filter</span>(LOCATION_ID <span class="op">==</span><span class="st"> "MW-1"</span>, PARAM_NAME <span class="op">==</span><span class="st"> "Arsenic, dissolved"</span>)
+<span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">==</span><span class="st"> "MW-1"</span>, param_name <span class="op">==</span><span class="st"> "Arsenic, dissolved"</span>)
 
 <span class="kw"><a href="../reference/ts_plot.html">ts_plot</a></span>(MW1_Arsenic)</code></pre></div>
 <p><img src="updating_background_files/figure-html/unnamed-chunk-1-1.png" width="672"></p>
@@ -97,7 +94,7 @@ MW1_Arsenic &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
 ## Groups: &lt;by row&gt;
 ## 
 ## # A tibble: 1 x 2
-##           PARAM_NAME       plot
+##           param_name       plot
 ## *              &lt;chr&gt;     &lt;list&gt;
 ## 1 Arsenic, dissolved &lt;list [3]&gt;</code></pre>
 </div>

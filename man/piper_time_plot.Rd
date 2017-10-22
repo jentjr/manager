@@ -5,13 +5,13 @@
 \title{Function to create an animated Piper plot through time
 using the animation package}
 \usage{
-piper_time_plot(df, TDS = FALSE, title = NULL)
+piper_time_plot(df, total_dissolved_solids = FALSE, title = NULL)
 }
 \arguments{
-\item{df}{data frame of groundwater data transformed using 
+\item{df}{data frame of groundwater data transformed using
 \code{\link{transform_piper_data}}}
 
-\item{TDS}{Scale by Total Dissolved Solids}
+\item{total_dissolved_solids}{Scale by Total Dissolved Solids}
 }
 \description{
 Function to create an animated Piper plot through time

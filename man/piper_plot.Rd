@@ -4,12 +4,13 @@
 \alias{piper_plot}
 \title{Create a piper plot}
 \usage{
-piper_plot(df, location_id = "LOCATION_ID", sample_date = "SAMPLE_DATE",
+piper_plot(df, location_id = "location_id", sample_date = "sample_date",
   x_cation = "Calcium, dissolved", y_cation = "Magnesium, dissolved",
   z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
   x_anion = c("Chloride, total", "Fluoride, total"),
   y_anion = "Alkalinity, total (lab)", z_anion = "Sulfate, total",
-  pnt = 3, transparency = 0.2, TDS = FALSE, title = NULL)
+  total_dissolved_solids = NULL, transparency = 0.2, pnt = 3,
+  title = NULL)
 }
 \arguments{
 \item{df}{data frame of water quality data in tidy format}
@@ -30,10 +31,28 @@ piper_plot(df, location_id = "LOCATION_ID", sample_date = "SAMPLE_DATE",
 
 \item{z_anion}{default is Sulfate, total}
 
-\item{TDS}{Scale plot by Total Dissolved Solids, default = FALSE}
+\item{total_dissolved_solids}{Scale plot by Total Dissolved Solids,
+default = FALSE}
+
+\item{transparency}{the setting for transparency value for points. Default
+is 0.2}
+
+\item{pnt}{the size of the points. Default is 3}
 
 \item{title}{Title for plot, default = NULL}
 }
 \description{
 Create a piper plot
+}
+\examples{
+data(gw_data)
+gw_data \%>\%
+filter(location_id \%in\% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")) \%>\%
+piper_plot(., title = "Example Piper Diagram")
+
+# scaled by Total Dissolved Solids
+gw_data \%>\%
+filter(location_id \%in\% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")) \%>\%
+piper_plot(., title = "Example Piper Diagram")
+
 }

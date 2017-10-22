@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{join_lt}
 \alias{join_lt}
-\title{Function to join columns of LT_MEASURE and sample results}
+\title{Function to join columns of lt_measure and sample results}
 \usage{
 join_lt(df, col_name)
 }
@@ -12,5 +12,5 @@ join_lt(df, col_name)
 \item{col_name}{qouted column name for the result}
 }
 \description{
-Function to join columns of LT_MEASURE and sample results
+Function to join columns of lt_measure and sample results
 }
