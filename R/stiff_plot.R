@@ -21,12 +21,25 @@
 #' @param alkalinity name for alkalinity
 #' @param total_dissolved_solids name for TDS to scale color of plot.
 #' Default is NULL
+#' @param group_var parameter to separate plots by. Default is sample location
+#' @param facet_var parameter to facet the plot by. Default is sample date
 #' @param lines TRUE/FALSE plots lines
 #' @param cex multiplier to scale plot height
 #' @keywords geochemical plots Stiff Diagram
+#' 
+#' @examples
+#' data(gw_data)
+#' gw_data %>%
+#' filter(location_id == "MW-1", sample_date < lubridate::ymd("2008-01-01")) %>%
+#' stiff_plot()
+#' 
+#' gw_data %>%
+#' filter(location_id %in% c("MW-1", "MW-2")) %>%
+#' stiff_plot(., total_dissolved_solids = "Total Dissolved Solids")
+#' 
 #' @export
 
-stiff_plot <- function(df, 
+stiff_plot <- function(df,
                        location_id = "location_id", 
                        sample_date = "sample_date", 
                        param_name = "param_name",
@@ -40,9 +53,56 @@ stiff_plot <- function(df,
                        sulfate = "Sulfate, total", 
                        alkalinity = "Alkalinity, total (lab)", 
                        total_dissolved_solids = NULL,
+                       group_var = "location_id",
+                       facet_var = "sample_date",
                        lines = FALSE, 
                        cex = 1
-                       ) {
+                       ){
+  
+  df %>%
+    group_by_(group_var) %>%
+    do(plot = .stiff_plot(.,
+                       location_id = location_id, 
+                       sample_date = sample_date, 
+                       param_name = param_name,
+                       analysis_result = analysis_result,
+                       default_unit = default_unit,
+                       magnesium = magnesium, 
+                       calcium = calcium, 
+                       sodium = sodium, 
+                       potassium = potassium, 
+                       chloride = chloride, 
+                       sulfate = sulfate, 
+                       alkalinity = alkalinity, 
+                       total_dissolved_solids = total_dissolved_solids,
+                       facet_var = facet_var,
+                       lines = lines, 
+                       cex = cex
+                       )
+    )
+
+}
+
+#' Helper function for Stiff Diagrams. 
+
+.stiff_plot <- function(df, 
+                        location_id = "location_id", 
+                        sample_date = "sample_date", 
+                        param_name = "param_name",
+                        analysis_result = "analysis_result",
+                        default_unit = "default_unit",
+                        magnesium = "Magnesium, dissolved", 
+                        calcium = "Calcium, dissolved", 
+                        sodium = "Sodium, dissolved", 
+                        potassium = "Potassium, dissolved", 
+                        chloride = "Chloride, total", 
+                        sulfate = "Sulfate, total", 
+                        alkalinity = "Alkalinity, total (lab)", 
+                        total_dissolved_solids = NULL,
+                        facet_var = "sample_date",
+                        lines = FALSE, 
+                        cex = 1
+                        ) {
   
   df <- df %>%
     .transform_stiff_data(location_id = location_id, 
@@ -58,104 +118,62 @@ stiff_plot <- function(df,
                           sulfate = sulfate, 
                           alkalinity = alkalinity, 
                           total_dissolved_solids = total_dissolved_solids)
-  
-  grid::grid.newpage()
-  
-  line_width <- max(abs(df$stiff_x))
-  
-  xmin <- -line_width
-  xmin_lab <- xmin - 0.2
-  xmin_line <- xmin + 0.3
-  xmax <- line_width
-  xmax_lab = xmax + 0.2
-  xmax_line <- xmax - 0.3
-
-  df2 <- data.frame(y = c(3, 2, 1), cations = c("Mg", "Ca", "Na + K"), 
-                    anions = c("SO4", "Alk", "Cl"))
-  df2$y <- df2$y*cex
-  df$stiff_y <- df$stiff_y*cex
 
   if (!is.null(total_dissolved_solids)) {
     # try to fix error message when only 1 location plotted
     p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS),
-                                   colour = "black") 
-
-    for (i in 1:length(df2$anions)) {
-      p <- p + annotation_custom(
-        grob = grid::textGrob(label = df2$anions[i], 
-                              hjust = 0.4, 
-                              gp = grid::gpar(cex = 0.5)),
-        ymin = df2$y[i],
-        ymax = df2$y[i],
-        xmin = xmax_lab,
-        xmax = xmax_lab
-      )
-    }
-
-    for (i in 1:length(df2$cations)) {
-      p <- p + annotation_custom(
-        grob = grid::textGrob(label = df2$cations[i], 
-                              hjust = 0.3, 
-                              gp = grid::gpar(cex = 0.5)),
-        ymin = df2$y[i],
-        ymax = df2$y[i],
-        xmin = xmin_lab,
-        xmax = xmin_lab
-      )
-    }
+                                   colour = "black") +
+      scale_fill_viridis()
 
   } else{
-    p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y), 
-                                   fill = "GREY50", colour = "black")
-    for (i in 1:length(df2$anions)) {
-      p <- p + annotation_custom(
-        grob = grid::textGrob(label = df2$anions[i], 
-                              hjust = 0.4, 
-                              gp = grid::gpar(cex = 0.5)),
-        ymin = df2$y[i],
-        ymax = df2$y[i],
-        xmin = xmax_lab,
-        xmax = xmax_lab
-      )
-    }
+    p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y),
+                                   fill = "white", colour = "black")
 
-    for (i in 1:length(df2$cations)) {
-      p <- p + annotation_custom(
-        grob = grid::textGrob(label = df2$cations[i], 
-                              hjust = 0.3,
-                              gp = grid::gpar(cex = 0.5)),
-        ymin = df2$y[i],
-        ymax = df2$y[i],
-        xmin = xmin_lab,
-        xmax = xmin_lab
-      )
-    }
   }
 
-  p <- p + facet_wrap(~sample_date, scale = "free_x") +
-    xlab("\nmeq/L") + theme_bw() + 
-    scale_x_continuous(limits = c(xmin, xmax)) +
-    theme(panel.grid.major = element_blank(), 
+  p <- p + facet_wrap(paste(facet_var), scale = "free_x",
+                      strip.position = "top") +
+    xlab("meq/L") + theme_bw() + 
+    theme(strip.background = element_rect(colour = "white",
+                                          fill = "grey50",
+                                          size = 1),
+          strip.placement = "outside",
+          panel.grid.major = element_blank(), 
           panel.grid.minor = element_blank(),
+          axis.line.x = element_line(colour = "black", 
+                                     linetype = "solid",
+                                     size = 1),
           axis.title.y = element_blank(),
           panel.border = element_blank(),
-          axis.ticks = element_blank(),
+          axis.ticks.y = element_blank(),
           axis.text.y = element_blank(),
           plot.margin = grid::unit(c(1, 1, 1, 1), "lines")) +
-    ggtitle(paste0("Stiff Diagram for ", df$location_id[1], "\n")) +
-    theme(plot.title = element_text(hjust = 0.5))
+    geom_text(aes(x = stiff_x_label, y = stiff_y, label = param_name),
+              size = 2) +
+    scale_x_continuous(labels = abs)
+    
+  if (facet_var == "sample_date") {
+      p <- p +
+        ggtitle(paste0("Stiff Diagram for ", df$location_id[1], "\n")) +
+        theme(plot.title = element_text(hjust = 0.5))
+  }
+
+  if (facet_var == "location_id") {
+    p <- p +
+      ggtitle(paste0("Stiff Diagram for ", df$sample_date[1], "\n")) +
+      theme(plot.title = element_text(hjust = 0.5))
+  }
 
   if (isTRUE(lines)) {
-    p <- p + geom_segment(x = xmin, xend = xmax, y = 1, yend = 1,  
-                          linetype = "dotted") +
-      geom_segment(x = xmin, xend = xmax, y = 2, yend = 2, 
-                   linetype = "dotted") +
-      geom_segment(x = xmin, xend = xmax, y = 3, yend = 3, 
-                   linetype = "dotted")
-  }
-  gt <- ggplot_gtable(ggplot_build(p))
-  gt$layout$clip[grep("panel", gt$layout$name)] <- "off"
-  grid::grid.draw(gt)
+    p <- p + geom_segment(aes(x = -stiff_x_label + 0.3,
+                              xend = stiff_x_label - 0.3,
+                              y = stiff_y,
+                              yend = stiff_y),  
+                          linetype = "dotted")
+    }
+
+  print(p)
+
 }
 
 
@@ -202,9 +220,10 @@ stiff_plot <- function(df,
       select(`Na + K`) %>%
       bind_cols(df) %>%
       select(location_id = location_id, sample_date = sample_date,
-             default_unit = default_unit, Mg = magnesium, Ca = calcium,
-             `Na + K` = `Na + K`, Cl = chloride, SO4 = sulfate,
-             Alk = alkalinity, TDS = total_dissolved_solids) 
+             default_unit = default_unit, `Na + K` = `Na + K`,
+             Ca = calcium, Mg = magnesium, SO4 = sulfate, Alk = alkalinity,
+             Cl = chloride,TDS = total_dissolved_solids)
+    # The order here affects geom_polygon and geom_path 
   } else {
     df <- df %>%
       select(sodium, potassium) %>%
@@ -212,15 +231,24 @@ stiff_plot <- function(df,
       select(`Na + K`) %>%
       bind_cols(df) %>%
       select(location_id = location_id, sample_date = sample_date,
-             default_unit = default_unit, Mg = magnesium, Ca = calcium,
-             `Na + K` = `Na + K`, Cl = chloride, SO4 = sulfate,
-             Alk = alkalinity)
+             default_unit = default_unit, `Na + K` = `Na + K`,
+             Ca = calcium, Mg = magnesium, SO4 = sulfate, Alk = alkalinity,
+             Cl = chloride)
+    # The order here affects geom_polygon and geom_path
   }
 
-  df <- df %>%
-    gather(key = param_name,
-           value = analysis_result,
-           -c(location_id, default_unit, sample_date))
+  if (!is.null(total_dissolved_solids)) {
+    df <- df %>%
+      gather(key = param_name,
+             value = analysis_result,
+             -c(location_id, default_unit, sample_date, TDS))
+  } else {
+    df <- df %>%
+      gather(key = param_name,
+             value = analysis_result,
+             -c(location_id, default_unit, sample_date))
+  }
+
 
   cations <- c("Mg", "Ca", "Na + K")
   anions <- c("SO4", "Alk", "Cl")
@@ -233,16 +261,25 @@ stiff_plot <- function(df,
     filter(param_name %in% anions | param_name == "TDS") %>%
     mutate(stiff_x = analysis_result)
 
-  df <- bind_rows(df_cations, df_anions)
+  df <- bind_rows(df_cations, df_anions) %>%
+    mutate(stiff_x_label = case_when(
+      param_name == "Na + K" ~ -max(stiff_x, na.rm = TRUE) - 0.3,
+      param_name == "Ca" ~ -max(stiff_x, na.rm = TRUE) - 0.3,
+      param_name == "Mg" ~ -max(stiff_x, na.rm = TRUE) - 0.3,
+      param_name == "SO4" ~ max(stiff_x, na.rm = TRUE) + 0.3,
+      param_name == "Alk" ~ max(stiff_x, na.rm = TRUE) + 0.3,
+      param_name == "Cl" ~ max(stiff_x, na.rm = TRUE) + 0.3
+    ))
 
   poly_order <-  tibble(param_name = c("Mg", "SO4", "Alk",
                                        "Cl", "Na + K", "Ca"),
-                            stiff_y = c(3, 3, 2, 1, 1, 2))
+                            stiff_y = c(1, 1, 2, 3, 3, 2))
 
   stiff <- df %>%
     left_join(poly_order)
 
   return(stiff)
+
 }
 
 #' Function to gather major ions for stiff diagram.
@@ -276,18 +313,6 @@ stiff_plot <- function(df,
   
   return(df)
   
-}
-
-#' Function to plot multiple stiff plots by location
-#' 
-#' @param df groundwater data frame
-#' @param ... arguments passed to \code{\link{stiff_plot}}
-#' @export
-
-stiff_by_loc <- function(df, ...){
-  
-  plyr::d_ply(df, .(location_id), .progress = "text", stiff_plot, ...,
-              .print = TRUE)
 }
 
 #' Function to create an animated Stiff Diagram 

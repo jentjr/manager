@@ -10,7 +10,8 @@ stiff_plot(df, location_id = "location_id", sample_date = "sample_date",
   calcium = "Calcium, dissolved", sodium = "Sodium, dissolved",
   potassium = "Potassium, dissolved", chloride = "Chloride, total",
   sulfate = "Sulfate, total", alkalinity = "Alkalinity, total (lab)",
-  total_dissolved_solids = NULL, lines = FALSE, cex = 1)
+  total_dissolved_solids = NULL, group_var = "location_id",
+  facet_var = "sample_date", lines = FALSE, cex = 1)
 }
 \arguments{
 \item{df}{data frame of water quality data}
@@ -43,6 +44,10 @@ converts usign \code{\link{conc_to_meq}}}
 \item{total_dissolved_solids}{name for TDS to scale color of plot.
 Default is NULL}
 
+\item{group_var}{parameter to separate plots by. Default is sample location}
+
+\item{facet_var}{parameter to facet the plot by. Default is sample date}
+
 \item{lines}{TRUE/FALSE plots lines}
 
 \item{cex}{multiplier to scale plot height}
@@ -53,6 +58,17 @@ plots a stiff diagram
 \details{
 tidy dataframe of water quality data in mg/L is converted to
 meq/L and then transformed to coordinates for Stiff diagmram.
+}
+\examples{
+data(gw_data)
+gw_data \%>\%
+filter(location_id == "MW-1", sample_date < lubridate::ymd("2008-01-01")) \%>\%
+stiff_plot()
+
+gw_data \%>\%
+filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
+stiff_plot(., total_dissolved_solids = "Total Dissolved Solids")
+
 }
 \keyword{Diagram}
 \keyword{Stiff}
