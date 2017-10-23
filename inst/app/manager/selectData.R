@@ -11,6 +11,7 @@ selectData <- function(input, output, session, multiple) {
   })
 
   get_locations <- reactive({
+ 
     query %>%
       filter(name %in% input$sites) %>%
       select(location_id) %>%

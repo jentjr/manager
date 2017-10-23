@@ -346,62 +346,53 @@ shinyServer(function(input, output, session) {
   
   # Begin Piper Diagram Page----------------------------------------------------
 
-  output$select_piper_data <- renderUI({
+  output$select_piper_tds <- renderUI({
 
-    data <- select_data()
-    
-    x_cation_list <- data %>%
-      filter(grepl("Calcium", param_name)) %>%
-      select(param_name) %>%
-      first()
+    if (isTRUE(input$TDS_plot)) {
 
-    selectInput(inputId = "x_cation", label = "Select X Cation",
-                choices = x_cation_list, selected = x_cation_list[1])
-    
-    selectInput(inputId = "y_cation", label = "y-cation", 
-                choices = c("Magnesium, dissolved", "Magnesium, total"))
-    
-    selectInput(inputId = "z_cation", label = "z-cation", 
-                multiple = TRUE,
-                choices = c("Potassium, dissolved", "Potassium, total", 
-                            "Sodium, dissolved", "Sodium, total"),
-                selected = c("Potassium, dissolved", "Sodium, dissolved"))
-    
-    selectInput(inputId = "x_anion", label = "x-anion", multiple = TRUE,
-                choices = c("Chloride, total", "Chloride, dissolved", 
-                            "Fluoride, total", "Fluoride, dissolved"),
-                selected = c("Chloride, total", "Fluoride, total"))
-    
-    selectInput(inputId = "y_anion", label = "y-anion", 
-                choices = c("Alkalinity, total (lab)"))
-    
-    selectInput(inputId = "z_anion", label = "z-anion", 
-                choices = c("Sulfate, total", "Sulfate, dissolved"),
-                selected = "Sulfate, total")
-    
-    selectInput(inputId = "TDS", label = "TDS", 
-                choices = c("Total Dissolved Solids"))
-    
-  }) 
-  
+      selectInput(inputId = "piper_tds",
+                  label = "Total Dissolved Solids", 
+                  choices = c("Total Dissolved Solids"))
+
+    }
+
+  })
+
   plot_piper <- reactive({
 
     data <- select_data()
 
-    piper_plot(data,
-               x_cation = paste(input$x_cation),
-               y_cation = paste(input$y_cation),
-               z_cation = paste(input$z_cation),
-               x_anion = paste(input$x_anion),
-               y_anion = paste(input$y_anion),
-               z_anion = paste(input$z_anion)
-               # TDS = paste(input$TDS)
-               )
+    if (isTRUE(input$TDS_plot)) {
+     
+     piper_plot(data,
+                x_cation = paste(input$x_cation),
+                y_cation = paste(input$y_cation),
+                z_cation = paste(input$z_cation),
+                x_anion = paste(input$x_anion),
+                y_anion = paste(input$y_anion),
+                z_anion = paste(input$z_anion),
+                total_dissolved_solids = paste(input$piper_tds),
+                title = input$piper_title
+                )
 
+     } else { 
+     
+     piper_plot(data,
+                x_cation = paste(input$x_cation),
+                y_cation = paste(input$y_cation),
+                z_cation = paste(input$z_cation),
+                x_anion = paste(input$x_anion),
+                y_anion = paste(input$y_anion),
+                z_anion = paste(input$z_anion),
+                title = input$piper_title
+                )
+     }
   })
 
   output$piper_plot <- renderPlot({
+
     plot_piper()
+
   })
 
   output$piper_download <- downloadHandler(
@@ -418,95 +409,29 @@ shinyServer(function(input, output, session) {
   # End Piper Diagram Page------------------------------------------------------
 
   # Begin Stiff Diagram Page ---------------------------------------------------
-  output$wells_stiff <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      well_names <- as.character(sample_locations(data))
-      selectInput("well_stiff", "Monitoring Wells", well_names, 
-                  multiple = TRUE, selected = well_names[1])
-  })
-  
-  output$date_ranges_stiff <- renderUI({
-    validate(
-      need(input$data_path != "", "")
-    )
-      data <- get_data()
-      dateRangeInput("date_range_stiff", "Date Range", 
-                     start = min(data$sample_date, na.rm = TRUE), 
-                     end = max(data$sample_date, na.rm = TRUE))
-  })
 
-  get_stiff_data <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-
-    data <- get_data()
-    start <- min(lubridate::ymd(input$date_range_stiff, tz = Sys.timezone()))
-    end <- max(lubridate::ymd(input$date_range_stiff, tz = Sys.timezone()))
-
-    data_selected <- data %>%
-      filter(location_id %in% input$well_stiff &
-             sample_date >= start &
-             sample_date <= end)
-    
-    Mg = paste(input$Mg_stiff)
-    Ca = paste(input$Ca_stiff)
-    Na = paste(input$Na_stiff)
-    K = paste(input$K_stiff)
-    Cl = paste(input$Cl_stiff)
-    SO4 = paste(input$SO4_stiff)
-    Alk = paste(input$Alk_stiff)
-    TDS = paste(input$TDS_stiff)
-    
-    ions <- get_major_ions(data_selected, Mg = Mg, Ca = Ca, Na = Na, 
-                           K = K, Cl = Cl, SO4 = SO4, Alk = Alk, 
-                           TDS = TDS)
-    
-    ions <- ions[complete.cases(ions), ]
-    
-    plot_data <- conc_to_meq(ions, Mg = Mg, Ca = Ca, Na = Na, 
-                             K = K, Cl = Cl, SO4 = SO4, total_alk = Alk)
-    
-    stiff_data <- transform_stiff_data(plot_data, Mg = Mg, Ca = Ca, Na = Na, 
-                                       K = K, Cl = Cl, SO4 = SO4, Alk = Alk, 
-                                       TDS = TDS)
-    
-    stiff_data
-  })
-  
   stiff_diagram <- reactive({
-      validate(
-        need(input$data_path != "", "")
-      )
-      data <- get_stiff_data()
-      wells <- unique(data$location_id)
-      
-      stiff_list <- lapply(1:length(wells), function(i) {
-        name_stiff <- paste("stiff_plot", i, sep = "")
-        plotOutput(name_stiff)
-      })
-      
-      for (i in 1:length(wells)) {
-        local({
-          stiff_i <- i
-          name_stiff <- paste("stiff_plot", stiff_i, sep = "")
-          output[[name_stiff]] <- renderPlot({
-            stiff_plot(
-              data[data$location_id == wells[stiff_i], ], 
-              TDS = input$TDS_plot_stiff,
-              lines = input$stiff_lines
-            )
-          })
-        })
-      }
-      do.call(tagList, stiff_list)
+    
+    data <- select_data()
+    
+    data %>%
+      stiff_plot(., magnesium = paste(input$Mg_stiff), 
+                calcium = paste(input$Ca_stiff), 
+                sodium = paste(input$Na_stiff), 
+                potassium = paste(input$K_stiff), 
+                chloride = paste(input$Cl_stiff), 
+                sulfate = paste(input$SO4_stiff), 
+                alkalinity = paste(input$Alk_stiff), 
+                group_var = "location_id",
+                facet_var = "sample_date"
+                )
+
   })
 
-  output$stiff_diagram_out <- renderUI({
+  output$stiff_diagram <- renderPlot({
+
     stiff_diagram()
+
   })
 
   output$stiff_download <- downloadHandler(

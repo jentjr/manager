@@ -130,16 +130,50 @@ shinyUI(navbarPage("MANAGER",
       fluidPage(
         fluidRow(
           column(2,
-            uiOutput("select_piper_data"),
-
+            
+            selectInput(inputId = "x_cation", label = "Enter X Cation",
+                        choices = c("Calcium, dissolved",
+                                    "Calcium, total"),
+                        selected = "Calcium, dissolved"),
+                 
+                 
+            selectInput(inputId = "y_cation", label = "Select Y Cation", 
+                        choices = c("Magnesium, dissolved", 
+                                    "Magnesium, total"),
+                        selected = "Magnesium, dissolved"),
+                 
+                 
+            selectInput(inputId = "z_cation", label = "Select Z Cations", 
+                        choices = c("Potassium, dissolved", "Potassium, total",
+                                    "Sodium, dissolved", "Sodium, total"),
+                        selected = c("Potassium, dissolved",
+                                     "Sodium, dissolved"),
+                        multiple = TRUE),
+            
+            selectInput(inputId = "x_anion", label = "Select X Anion",
+                        choices = c("Chloride, total", "Chloride, dissolved", 
+                                    "Fluoride, total", "Fluoride, dissolved"),
+                        selected = c("Chloride, total", "Fluoride, total"),
+                        multiple = TRUE),
+                 
+            selectInput(inputId = "y_anion", label = "Select Y Anion", 
+                       choices = c("Alkalinity, total (lab)")),
+                 
+            selectInput(inputId = "z_anion", label = "Select Z Anion", 
+                        choices = c("Sulfate, total", "Sulfate, dissolved"),
+                        selected = "Sulfate, total"),
+            
+            checkboxInput(inputId = "TDS_plot",
+                          label = "Scale by Total Dissolved Solids"),
+            
+            uiOutput("select_piper_tds"),
+            
             textInput(inputId = "piper_title", label = "Enter Plot Title", 
                       value = "Piper Diagram"),
 
-            checkboxInput(inputId = "TDS_plot",
-                          label = "Scale by Total Dissolved Solids"),
+            downloadButton("piper_download", "Download Plot")
 
-            downloadButton("piper_download", "Download Plot")    
-          ),
+            ),
           column(10, 
             plotOutput("piper_plot", height = 700, width = "100%")    
           )
@@ -147,35 +181,35 @@ shinyUI(navbarPage("MANAGER",
     )
     ),
     tabPanel("Stiff Diagram",
-      sidebarLayout(
-        sidebarPanel(
-          uiOutput("wells_stiff"),
-          uiOutput("date_ranges_stiff"),
-          textInput(inputId = "Mg_stiff", label = "Mg", 
-                    value = "Magnesium, dissolved"),
-          textInput(inputId = "Ca_stiff", label = "Ca", 
-                    value = "Calcium, dissolved"),
-          textInput(inputId = "K_stiff", label = "K", 
-                    value = "Potassium, dissolved"),
-          textInput(inputId = "Na_stiff", label = "Na", 
-                    value = "Sodium, dissolved"),
-          textInput(inputId = "Cl_stiff", label = "Cl", 
-                    value = "Chloride, total"),
-          textInput(inputId = "SO4_stiff", label = "SO4", 
-                    value = "Sulfate, total"),
-          textInput(inputId = "Alk_stiff", label = "Alkalinity", 
-                    value = "Alkalinity, total (lab)"),
-          textInput(inputId = "TDS_stiff", label = "TDS", 
-                    value = "Total Dissolved Solids"),
-          checkboxInput(inputId = "TDS_plot_stiff",
-                        label = "Scale by Total Dissolved Solids"),
-          checkboxInput(inputId = "stiff_lines", label = "Display lines"),
-          downloadButton("stiff_download", "Download Plots")
-        ),
-        mainPanel(
-          uiOutput("stiff_diagram_out")  
+      fluidPage(
+        fluidRow(
+          column(2, 
+            textInput(inputId = "Mg_stiff", label = "Mg", 
+                      value = "Magnesium, dissolved"),
+            textInput(inputId = "Ca_stiff", label = "Ca", 
+                      value = "Calcium, dissolved"),
+            textInput(inputId = "K_stiff", label = "K", 
+                      value = "Potassium, dissolved"),
+            textInput(inputId = "Na_stiff", label = "Na", 
+                      value = "Sodium, dissolved"),
+            textInput(inputId = "Cl_stiff", label = "Cl", 
+                      value = "Chloride, total"),
+            textInput(inputId = "SO4_stiff", label = "SO4", 
+                      value = "Sulfate, total"),
+            textInput(inputId = "Alk_stiff", label = "Alkalinity", 
+                      value = "Alkalinity, total (lab)"),
+            textInput(inputId = "TDS_stiff", label = "TDS", 
+                      value = "Total Dissolved Solids"),
+            checkboxInput(inputId = "TDS_plot_stiff",
+                          label = "Scale by Total Dissolved Solids"),
+            checkboxInput(inputId = "stiff_lines", label = "Display lines"),
+            downloadButton("stiff_download", "Download Plots")
+          ),
+          column(10,
+            plotOutput("stiff_diagram") 
+          )
         )
-      )         
+      )
     ),
     tabPanel("Schoeller Diagram",
       fluidPage(
