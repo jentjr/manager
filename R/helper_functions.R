@@ -163,25 +163,24 @@ join_lt <- function(df, col_name) {
 #' Function to return a column of parameter name with units
 #'
 #' @param df groundwater data frame
-#' @param col_name quoted column name to return
 #' @param short_name If TRUE will use abbreviated constituent names
 #' @export
 
-name_units <- function(df, col_name, short_name = TRUE) {
+name_units <- function(df, short_name = TRUE) {
 
   if (short_name == TRUE) {
 
-    df$param_unit <- paste0(df$short_name, " (", df$default_unit, ")")
+    df <- df %>% 
+      mutate(param_unit = paste0(.$short_name, " (", .$default_unit, ")"))
 
   }
 
   else {
 
-    df$param_unit <- paste0(df$param_name, " (", df$default_unit, ")")
+    df <- df %>%
+      mutate(param_unit  = paste0(.$param_name, " (", .$default_unit, ")"))
 
   }
-
-  names(df)[names(df) == "param_unit"] <- col_name
 
   return(df)
 

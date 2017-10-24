@@ -89,34 +89,6 @@ shinyServer(function(input, output, session) {
 
   })
 
-  # output$gof_test <- renderPrint({
-  #
-  #   df <- get_distribution_data()
-  #
-  #   if (isTRUE(input$dist_plot_type == "Censored")) {
-  #     df$CENSORED <- ifelse(df$lt_measure == "<", TRUE, FALSE)
-  #     out <- EnvStats::gofTestCensored(
-  #       x = df$analysis_result, censored = df$CENSORED,
-  #       censoring.side = input$cen_dist_side,
-  #       test = input$cen_dist_test,
-  #       distribution = input$cen_dist_dist,
-  #       prob.method = input$cen_dist_method,
-  #       plot.pos.con =  input$cen_dist_plot.pos.con
-  #       )
-  #     out["data.name"] <- paste(df$location_id,
-  #                               df$param_name,
-  #                               sep = " ")
-  #   } else {
-  #     out <- EnvStats::gofTest(
-  #       df$analysis_result, distribution = input$dist_type
-  #     )
-  #     out["data.name"] <- paste(df$location_id,
-  #                               df$param_name,
-  #                               sep = " ")
-  #   }
-  #   out
-  # })
-
   output$gof_plot <- renderPlot({
 
     df <- get_distribution_data()
@@ -366,11 +338,19 @@ shinyServer(function(input, output, session) {
      
      piper_plot(data,
                 x_cation = paste(input$x_cation),
+                x_cation_label = input$x_cation_label,
                 y_cation = paste(input$y_cation),
+                y_cation_label = paste(input$y_cation_label),
                 z_cation = paste(input$z_cation),
+                z_cation_label = paste(input$z_cation_label),
                 x_anion = paste(input$x_anion),
+                x_anion_label = paste(input$x_anion_label),
                 y_anion = paste(input$y_anion),
+                y_anion_label = paste(input$y_anion_label),
                 z_anion = paste(input$z_anion),
+                z_anion_label = paste(input$z_anion_label),
+                x_y_cation_label = paste(input$x_y_cation_label),
+                x_z_anion_label = paste(input$x_z_anion_label),
                 total_dissolved_solids = paste(input$piper_tds),
                 title = input$piper_title
                 )
@@ -379,11 +359,19 @@ shinyServer(function(input, output, session) {
      
      piper_plot(data,
                 x_cation = paste(input$x_cation),
+                x_cation_label = input$x_cation_label,
                 y_cation = paste(input$y_cation),
+                y_cation_label = paste(input$y_cation_label),
                 z_cation = paste(input$z_cation),
+                z_cation_label = paste(input$z_cation_label),
                 x_anion = paste(input$x_anion),
+                x_anion_label = paste(input$x_anion_label),
                 y_anion = paste(input$y_anion),
+                y_anion_label = paste(input$y_anion_label),
                 z_anion = paste(input$z_anion),
+                z_anion_label = paste(input$z_anion_label),
+                x_y_cation_label = paste(input$x_y_cation_label),
+                x_z_anion_label = paste(input$x_z_anion_label),
                 title = input$piper_title
                 )
      }
@@ -410,25 +398,145 @@ shinyServer(function(input, output, session) {
 
   # Begin Stiff Diagram Page ---------------------------------------------------
 
-  stiff_diagram <- reactive({
+  get_stiff_data <- reactive({
     
-    data <- select_data()
-    
-    data %>%
-      stiff_plot(., magnesium = paste(input$Mg_stiff), 
-                calcium = paste(input$Ca_stiff), 
-                sodium = paste(input$Na_stiff), 
-                potassium = paste(input$K_stiff), 
-                chloride = paste(input$Cl_stiff), 
-                sulfate = paste(input$SO4_stiff), 
-                alkalinity = paste(input$Alk_stiff), 
-                group_var = "location_id",
-                facet_var = "sample_date"
-                )
+    stiff_data <- select_data()
+
+    ions <- c(input$Mg_stiff, input$Ca_stiff,
+              input$Na_stiff, input$K_stiff,
+              input$Cl_stiff, input$SO4_stiff,
+              input$Alk_stiff, input$stiff_tds)
+
+    stiff_data <- stiff_data %>%
+      filter(param_name %in% ions)
 
   })
+  
+  output$select_stiff_tds <- renderUI({
+    
+    if (isTRUE(input$TDS_stiff)) {
+      
+      selectInput(inputId = "stiff_tds",
+                  label = "Total Dissolved Solids", 
+                  choices = c("Total Dissolved Solids"))
+      
+    }
+    
+  })
 
-  output$stiff_diagram <- renderPlot({
+  stiff_diagram <- reactive({
+    
+    stiff_data <- get_stiff_data()
+    
+    stiff_locations <- sample_locations(stiff_data)
+    stiff_dates <- unique(stiff_data$sample_date)
+    
+    if (input$stiff_group == 'location_id') {
+      
+      stiff_list <- lapply(seq_along(stiff_locations), function(i) {
+        stiff_name <- paste("stiff_plot", i, sep = "")
+        plotOutput(stiff_name)
+      })
+      
+      for (i in seq_along(stiff_locations)) {
+        local({
+          stiff_i <- i
+          stiff_name <- paste("stiff_plot", stiff_i, sep = "")
+          output[[stiff_name]] <- renderPlot({
+            
+            if (isTRUE(input$TDS_stiff)) {
+              
+              stiff <- stiff_plot(
+                stiff_data[stiff_data$location_id == 
+                             stiff_locations[stiff_i], ],
+                magnesium = paste(input$Mg_stiff),
+                calcium = paste(input$Ca_stiff),
+                sodium = paste(input$Na_stiff),
+                potassium = paste(input$K_stiff),
+                chloride = paste(input$Cl_stiff),
+                sulfate = paste(input$SO4_stiff),
+                alkalinity = paste(input$Alk_stiff),
+                total_dissolved_solids = paste(input$stiff_tds),
+                group_var = "location_id",
+                facet_var = "sample_date",
+                lines = input$stiff_lines
+              )
+            } else {
+              stiff <- stiff_plot(
+                stiff_data[stiff_data$location_id ==
+                             stiff_locations[stiff_i], ],
+                magnesium = paste(input$Mg_stiff),
+                calcium = paste(input$Ca_stiff),
+                sodium = paste(input$Na_stiff),
+                potassium = paste(input$K_stiff),
+                chloride = paste(input$Cl_stiff),
+                sulfate = paste(input$SO4_stiff),
+                alkalinity = paste(input$Alk_stiff),
+                group_var = "location_id",
+                facet_var = "sample_date",
+                lines = input$stiff_lines
+              )
+            }
+            stiff
+          })
+        })
+      }
+    }
+    
+    if (input$stiff_group == 'sample_date') {
+      stiff_list <- lapply(seq_along(stiff_dates), function(i) {
+        stiff_name <- paste("stiff_plot", i, sep = "")
+        plotOutput(stiff_name)
+      })
+      
+      for (i in seq_along(stiff_dates)) {
+        local({
+          stiff_i <- i
+          stiff_name <- paste("stiff_plot", stiff_i, sep = "")
+          output[[stiff_name]] <- renderPlot({
+            
+            if (isTRUE(input$TDS_stiff)) {
+              
+              stiff <- stiff_plot(
+                stiff_data[stiff_data$sample_date == 
+                             stiff_dates[stiff_i], ],
+                magnesium = paste(input$Mg_stiff),
+                calcium = paste(input$Ca_stiff),
+                sodium = paste(input$Na_stiff),
+                potassium = paste(input$K_stiff),
+                chloride = paste(input$Cl_stiff),
+                sulfate = paste(input$SO4_stiff),
+                alkalinity = paste(input$Alk_stiff),
+                total_dissolved_solids = paste(input$stiff_tds),
+                group_var = "sample_date",
+                facet_var = "location_id",
+                lines = input$stiff_lines
+              )
+            } else {
+              stiff <- stiff_plot(
+                stiff_data[stiff_data$sample_date ==
+                             stiff_dates[stiff_i], ],
+                magnesium = paste(input$Mg_stiff),
+                calcium = paste(input$Ca_stiff),
+                sodium = paste(input$Na_stiff),
+                potassium = paste(input$K_stiff),
+                chloride = paste(input$Cl_stiff),
+                sulfate = paste(input$SO4_stiff),
+                alkalinity = paste(input$Alk_stiff),
+                group_var = "sample_date",
+                facet_var = "location_id",
+                lines = input$stiff_lines
+              )
+            }
+            stiff
+          })
+        })
+      }
+    }
+    do.call(tagList, stiff_list)
+  })
+
+  output$stiff_diagram <- renderUI({
 
     stiff_diagram()
 
@@ -608,17 +716,6 @@ shinyServer(function(input, output, session) {
     out
     
   })
-  # 
-  # output$outlier_table <- renderDataTable({
-  #   
-  #   data <- get_outlier_data()
-  #   
-  #   data
-  #   
-  # }, options = list(scrollY = "100%", scrollX = "100%", 
-  #                   lengthMenu = c(5, 10, 15, 25, 50, 100), 
-  #                   pageLength = 10)
-  # )
   # End outlier detection ------------------------------------------------------
   
   # Begin trend analysis -------------------------------------------------------
@@ -630,28 +727,28 @@ shinyServer(function(input, output, session) {
                 multiple = FALSE,
                 selected = well_names[1])
   })
-  
+
   output$trend_analytes <- renderUI({
-    
+
     data <- select_data()
     analyte_names <- as.character(constituents(data))
-    selectInput("trend_analyte", "Constituent", analyte_names, 
+    selectInput("trend_analyte", "Constituent", analyte_names,
                 multiple = FALSE,
                 selected = analyte_names[1])
   })
-  
+
   output$trend_date_ranges <- renderUI({
-    
+
     data <- select_data()
-    
+
     tagList(
-      
-      dateRangeInput("trend_date_range", "Date Range", 
+
+      dateRangeInput("trend_date_range", "Date Range",
                      start = min(data$sample_date, na.rm = TRUE),
                      end = max(data$sample_date, na.rm = TRUE))
     )
   })
-  
+
   get_trend_data <- reactive({
 
     df <- select_data()
