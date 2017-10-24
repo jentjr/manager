@@ -5,6 +5,9 @@ shinyUI(
       fluidRow(
         column(2, 
           selectDataUI("select_data"),
+          actionButton("run_query", "Run Query"),
+          br(),
+          br(),
           downloadButton(outputId = "data_table_download", 
                          label = "Download Data")
         ),
@@ -37,72 +40,70 @@ shinyUI(
             conditionalPanel(
                condition = "input.dist_plot_type == 'Censored'",
                selectInput(
-                 inputId = "cen_dist_side", 
+                 inputId = "cen_dist_side",
                  label = "Censoring Side",
                  choices = c("left", "right")
-            ),
-            selectInput(
-               inputId = "cen_dist_test", 
-               label = "Select test",
-               choices = c("Shapiro-Francia" = "sf", 
-                           "Shapiro-Wilk" = "sw", 
-                           "Prob-Plot-Corr-Coeff" = "ppcc")
-             ),
-            selectInput(
-               inputId = "cen_dist_dist", 
-               label = "Distribution",
-               choices = c("Normal" = "norm", "Lognormal" = "lnorm")
-            ),
-            selectInput(
-               inputId = "cen_dist_method", 
-               label = "Select method to compute plotting position",
-               choices = c("michael-schucany", 
-                           "modified kaplan-meier", 
-                           "nelson", 
-                           "hirsch-stedinger")
-            ),
-            numericInput(
-               inputId = "cen_dist_plot.pos.con", 
-               label = "Scalar for plotting position constant",
-               value = 0.375, 
-               min = 0, 
-               max = 1
-            )
-          ),
-          conditionalPanel(
-             condition = "input.dist_plot_type == 'Regular'",
+               ),
                selectInput(
+                 inputId = "cen_dist_test",
+                 label = "Select test",
+                 choices = c("Shapiro-Francia" = "sf",
+                           "Shapiro-Wilk" = "sw",
+                           "Prob-Plot-Corr-Coeff" = "ppcc")
+               ),
+               selectInput(
+                 inputId = "cen_dist_dist",
+                 label = "Distribution",
+                 choices = c("Normal" = "norm", "Lognormal" = "lnorm")
+               ),
+               selectInput(
+                 inputId = "cen_dist_method", 
+                 label = "Select method to compute plotting position",
+                 choices = c("michael-schucany", 
+                             "modified kaplan-meier", 
+                             "nelson", 
+                             "hirsch-stedinger")
+               ),
+               numericInput(
+                 inputId = "cen_dist_plot.pos.con", 
+                 label = "Scalar for plotting position constant",
+                 value = 0.375, 
+                 min = 0, 
+                 max = 1
+               )
+            ),
+            conditionalPanel(
+              condition = "input.dist_plot_type == 'Regular'",
+                selectInput(
                   inputId = "dist_type", 
                   label = "Type of Distribution", 
                   choices = row.names(Distribution.df), 
                   selected = "norm"
                 )
-              )     
+            )     
           ),
           column(10,
             plotOutput("gof_plot")
-            # br(),
-            # verbatimTextOutput("gof_test")     
           )
         )
-      )       
+      )
     ),
     tabPanel("Correlation",
       fluidPage(
         fluidRow(
           column(2, 
             uiOutput("select_corr_wells"),
-            uiOutput("select_corr_params")     
+            uiOutput("select_corr_params")
           ),
           column(10, 
-            plotOutput("corr_plot", height = 700, width = "100%")       
+            plotOutput("corr_plot", height = 700, width = "100%")
           )
         )
-      )       
+      )
     ),
     tabPanel("Time Series",
       fluidRow(
-        column(12, uiOutput("ts_out"))       
+        column(12, uiOutput("ts_out"))
       )
     ),
     tabPanel("Boxplots",

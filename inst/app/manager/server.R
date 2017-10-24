@@ -2,10 +2,16 @@ shinyServer(function(input, output, session) {
 
   # Data Table -----------------------------------------------------------------
   select_data <- callModule(selectData, "select_data", multiple = TRUE)
+  
+  get_data <- reactive({
+    input$run_query
+    data <- isolate(select_data())
+    return(data)
+  })
 
   output$data_table <- renderDataTable({
 
-    data <- select_data()
+    data <- get_data()
 
     data
 
@@ -18,13 +24,13 @@ shinyServer(function(input, output, session) {
 
     filename = function() {
 
-      paste("MANAGER_EXPORT_", Sys.Date(), "_.csv", sep = "")
+      paste("manager_export_", Sys.Date(), ".csv", sep = "")
 
     },
 
     content = function(file) {
 
-      write.csv(select_data(), file, row.names = FALSE)
+      write.csv(file, get_data(), row.names = FALSE)
 
     }
 
@@ -34,7 +40,7 @@ shinyServer(function(input, output, session) {
   # Summary table --------------------------------------------------------------
   output$summary_table <- renderDataTable({
 
-    manager::summary(select_data())
+    manager::summary(get_data())
 
   }, options = list(scrollY = "100%", scrollX = "100%",
                     lengthMenu = c(5, 10, 15, 25, 50, 100),
@@ -51,7 +57,7 @@ shinyServer(function(input, output, session) {
 
     content = function(file) {
 
-      write.csv(summary(summary_data()), file, row.names = FALSE)
+      write.csv(summary(get_data()), file, row.names = FALSE)
 
     }
 
@@ -61,7 +67,7 @@ shinyServer(function(input, output, session) {
   # Begin Distribution Plots ---------------------------------------------------
   output$select_distribution_wells <- renderUI({
 
-    data <- select_data()
+    data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("dist_well", "Monitoring Wells", well_names,
                 multiple = FALSE,
@@ -69,7 +75,8 @@ shinyServer(function(input, output, session) {
   })
 
   output$select_distribution_params <- renderUI({
-    data <- select_data()
+
+    data <- get_data()
     analyte_names <- as.character(constituents(data))
     selectInput("dist_param", "Constituents", analyte_names,
                 multiple = FALSE,
@@ -78,8 +85,8 @@ shinyServer(function(input, output, session) {
 
 
   get_distribution_data <- reactive({
-
-    df <- select_data()
+    
+    df <- get_data()
 
     df <- df %>%
       filter(location_id %in% input$dist_well,
@@ -125,7 +132,7 @@ shinyServer(function(input, output, session) {
   # Begin Correlation Plots ----------------------------------------------------
   output$select_corr_wells <- renderUI({
 
-    data <- select_data()
+    data <- get_data()
 
     well_names <- as.character(sample_locations(data))
 
@@ -135,7 +142,7 @@ shinyServer(function(input, output, session) {
 
   output$select_corr_params <- renderUI({
 
-    data <- select_data()
+    data <- get_data()
 
     param_names <- as.character(constituents(data))
 
@@ -145,7 +152,7 @@ shinyServer(function(input, output, session) {
 
   output$corr_plot <- renderPlot({
 
-    df <- select_data()
+    df <- get_data()
 
     df %>%
       corr_plot(., sample_locations = c(input$corr_wells),
@@ -159,7 +166,7 @@ shinyServer(function(input, output, session) {
 
   boxplot <- reactive({
 
-      box_data <- select_data()
+      box_data <- get_data()
       box_wells <- sample_locations(box_data)
       box_params <- constituents(box_data)
 
@@ -198,7 +205,7 @@ shinyServer(function(input, output, session) {
   # Begin Boxplot Download Page-------------------------------------------------
   get_box_data <- reactive({
 
-    box_data <- select_data()
+    box_data <- get_data()
     box_wells <- sample_locations(box_data)
     box_params <- constituents(box_data)
 
@@ -228,7 +235,7 @@ shinyServer(function(input, output, session) {
 
   ts_plot <- reactive({
 
-    ts_data <- select_data()
+    ts_data <- get_data()
     ts_wells <- sample_locations(ts_data)
     ts_params <- constituents(ts_data)
 
@@ -332,7 +339,7 @@ shinyServer(function(input, output, session) {
 
   plot_piper <- reactive({
 
-    data <- select_data()
+    data <- get_data()
 
     if (isTRUE(input$TDS_plot)) {
      
@@ -400,7 +407,7 @@ shinyServer(function(input, output, session) {
 
   get_stiff_data <- reactive({
     
-    stiff_data <- select_data()
+    stiff_data <- get_data()
 
     ions <- c(input$Mg_stiff, input$Ca_stiff,
               input$Na_stiff, input$K_stiff,
@@ -558,7 +565,7 @@ shinyServer(function(input, output, session) {
   # Begin Schoeller Diagram Page------------------------------------------------
   output$select_schoeller_wells <- renderUI({
     
-    data <- select_data()
+    data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("well_schoeller", "Monitoring Wells", well_names, 
                 multiple = TRUE, selected = well_names[1])
@@ -566,7 +573,7 @@ shinyServer(function(input, output, session) {
   
   output$select_schoeller_dates <- renderUI({
     
-    data <- select_data()
+    data <- get_data()
     dateRangeInput("date_range_schoeller", "Date Range", 
                    start = min(data$sample_date, na.rm = TRUE), 
                    end = max(data$sample_date, na.rm = TRUE))
@@ -574,7 +581,7 @@ shinyServer(function(input, output, session) {
   
   get_schoeller_data <- reactive({
     
-    data <- select_data()
+    data <- get_data()
     
     start <- min(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
     end <- max(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
@@ -623,7 +630,7 @@ shinyServer(function(input, output, session) {
   # Begin outlier detecion -----------------------------------------------------
   output$outlier_wells <- renderUI({
     
-    data <- select_data()
+    data <- get_data()
     
     well_names <- as.character(sample_locations(data))
     
@@ -635,7 +642,7 @@ shinyServer(function(input, output, session) {
   
   output$outlier_analytes <- renderUI({
     
-    data <- select_data()
+    data <- get_data()
     
     analyte_names <- as.character(constituents(data))
     
@@ -647,7 +654,7 @@ shinyServer(function(input, output, session) {
   
   output$outlier_date_ranges <- renderUI({
     
-    data <- select_data()
+    data <- get_data()
     
     tagList(
       
@@ -661,7 +668,7 @@ shinyServer(function(input, output, session) {
   
   get_outlier_data <- reactive({
     
-    df <- select_data()
+    df <- get_data()
     
     start <- min(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()),
                  na.rm = TRUE)
@@ -721,7 +728,7 @@ shinyServer(function(input, output, session) {
   # Begin trend analysis -------------------------------------------------------
   output$trend_wells <- renderUI({
 
-    data <- select_data()
+    data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("trend_well", "Monitoring Well", well_names,
                 multiple = FALSE,
@@ -730,7 +737,7 @@ shinyServer(function(input, output, session) {
 
   output$trend_analytes <- renderUI({
 
-    data <- select_data()
+    data <- get_data()
     analyte_names <- as.character(constituents(data))
     selectInput("trend_analyte", "Constituent", analyte_names,
                 multiple = FALSE,
@@ -739,7 +746,7 @@ shinyServer(function(input, output, session) {
 
   output$trend_date_ranges <- renderUI({
 
-    data <- select_data()
+    data <- get_data()
 
     tagList(
 
@@ -751,7 +758,7 @@ shinyServer(function(input, output, session) {
 
   get_trend_data <- reactive({
 
-    df <- select_data()
+    df <- get_data()
     
     start <- min(lubridate::ymd(input$trend_date_range, tz = Sys.timezone()), 
                  na.rm = TRUE)
@@ -788,7 +795,7 @@ shinyServer(function(input, output, session) {
   # Begin Intrawell Prediction Limits-------------------------------------------
   output$wells_intra <- renderUI({
 
-      data <- select_data()
+      data <- get_data()
       well_names <- as.character(sample_locations(data))
       selectInput("well_intra", "Monitoring Wells", well_names, 
                   multiple = FALSE,
@@ -796,7 +803,7 @@ shinyServer(function(input, output, session) {
   })
 
   output$analytes_intra <- renderUI({
-      data <- select_data()
+      data <- get_data()
       analyte_names <- as.character(constituents(data))
       selectInput("analyte_intra", "Constituents", analyte_names, 
                   multiple = FALSE,
@@ -804,7 +811,7 @@ shinyServer(function(input, output, session) {
   })
 
   output$date_ranges_intra <- renderUI({
-      data <- select_data()
+      data <- get_data()
       tagList(
         dateRangeInput("back_dates_intra", "Background Date Range", 
                        start = min(data$sample_date, na.rm = TRUE),
@@ -816,7 +823,7 @@ shinyServer(function(input, output, session) {
   })
 
   intra_limit <- reactive({
-    df <- select_data()
+    df <- getdata()
     df <- df %>%
       filter(location_id %in% input$well_intra,
              param_name %in% input$analyte_intra)
@@ -848,7 +855,7 @@ shinyServer(function(input, output, session) {
   # Begin Inter-well prediction intervals --------------------------------------
   output$select_wells_inter <- renderUI({
     
-    data <- select_data()
+    data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("wells_inter", "Monitoring Wells", well_names, 
                 multiple = TRUE,
@@ -856,7 +863,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$select_analyte_inter <- renderUI({
-    data <- select_data()
+    data <- get_data()
     analyte_names <- as.character(constituents(data))
     selectInput("analyte_inter", "Constituents", analyte_names, 
                 multiple = FALSE,
@@ -864,7 +871,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$select_date_ranges_inter <- renderUI({
-    data <- select_data()
+    data <- get_data()
     tagList(
       dateRangeInput("background_inter", "Background Date Range",
                      start = min(data$sample_date, na.rm = TRUE),
@@ -877,7 +884,7 @@ shinyServer(function(input, output, session) {
 
   inter_limit <- reactive({
 
-    df <- select_data()
+    df <- get_data()
 
     df <- df %>%
       filter(location_id %in% input$wells_inter,

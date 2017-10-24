@@ -27,7 +27,6 @@ selectData <- function(input, output, session, multiple) {
 
     } else
 
-
       selectInput(ns("locations"), "Locations", get_locations(),
                   selected = get_locations()[1],
                   multiple = multiple)
@@ -56,9 +55,12 @@ selectData <- function(input, output, session, multiple) {
 
   })
 
-
   return(reactive({
-
+    
+    validate(
+      need(input$sites != "", "Please submit a query")
+    )
+     
     query %>%
       filter(name %in% input$sites,
              location_id %in% input$locations,
