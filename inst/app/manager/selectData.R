@@ -6,7 +6,7 @@ selectData <- function(input, output, session, multiple) {
 
     selectInput(ns("sites"), "Sites", site_list,
                 selected = site_list[1],
-                multiple = FALSE)
+                multiple = TRUE)
 
   })
 

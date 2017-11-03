@@ -823,7 +823,7 @@ shinyServer(function(input, output, session) {
   })
 
   intra_limit <- reactive({
-    df <- getdata()
+    df <- get_data()
     df <- df %>%
       filter(location_id %in% input$well_intra,
              param_name %in% input$analyte_intra)
@@ -835,6 +835,9 @@ shinyServer(function(input, output, session) {
     comp_start <- min(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
     comp_end <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
     comp <- c(comp_start, comp_end)
+    
+    df <- df %>%
+      filter(sample_date >= bkgd_start & sample_date <= bkgd_end)
 
     out <- EnvStats::predIntNormSimultaneous(
               df$analysis_result,
