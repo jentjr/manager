@@ -43,8 +43,8 @@ constituents <- function(df, param_name){
 percent_lt <- function(df, lt_measure) {
 
   df %>%
-    mutate(percent_left_censored = sum(lt_measure == "<",
-                                       na.rm = TRUE) / n() * 100)
+    mutate(percent_lt = sum(lt_measure == "<",
+                        na.rm = TRUE) / n() * 100)
 
 }
 

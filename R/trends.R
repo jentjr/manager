@@ -6,7 +6,7 @@
 #' @param ... other arguements passed to \code{\link{kendallTrendTest}}
 #' @export 
 
-get_theilsen <- function(df, x = "ANALYSIS_RESULT", y = "SAMPLE_DATE", ...) {
+get_theilsen <- function(df, x = "analysis_result", y = "sample_date", ...) {
   
   x <- df[, x]
   y <- df[, y]
@@ -26,7 +26,7 @@ get_theilsen <- function(df, x = "ANALYSIS_RESULT", y = "SAMPLE_DATE", ...) {
 
 kendall_trend <- function(df, conf.level = 0.99) {
   
-  EnvStats::kendallTrendTest(ANALYSIS_RESULT ~ SAMPLE_DATE, 
+  EnvStats::kendallTrendTest(analysis_result ~ sample_date, 
                              conf.level = conf.level, 
                              data = df)
 }
@@ -34,10 +34,10 @@ kendall_trend <- function(df, conf.level = 0.99) {
 #' Function to calculate the Theil-Sen confidence band
 #' 
 
-theil_sen_band <- function(ANALYSIS_RESULT, SAMPLE_DATE, conf.level) {
+theil_sen_band <- function(analysis_result, sample_date, conf.level) {
   
-  x= SAMPLE_DATE
-  y= ANALYSIS_RESULT
+  x= sample_date
+  y= analysis_result
   conf = conf.level
   
   elimna <- function(m){

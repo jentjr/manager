@@ -60,6 +60,8 @@ pred_int <- function(df,
                                )
   }
 
+  # int["data.name"] <- paste(df$location_id, df$param_name, sep = " ")
+
   return(int)
 
 }
