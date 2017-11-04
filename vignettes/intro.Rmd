@@ -29,7 +29,7 @@ package
 data("ohio_data")
 data("indiana_data")
 ```
-#Prediction Intervals
+##Prediction Intervals
 ```{r echo=TRUE}
 data("gw_data")
 
@@ -55,7 +55,10 @@ nested_gw <- gw_data %>%
   group_by(location_id, param_name, default_unit) %>%
   nest()
 
-int_table <- pred_int %>%
+pred_int <- nested_gw %>%
+  mutate(pred_int = map(.x = data, ~pred_int(.)))
+
+pred_int_table <- pred_int %>%
   mutate(distribution = map(.x = pred_int, ~ .x$distribution),
          sample_size = map(.x = pred_int, ~ .x$sample.size),
          lpl = map(.x = pred_int, ~ .x$interval$limits["LPL"]),
@@ -64,6 +67,22 @@ int_table <- pred_int %>%
   select(-data, -pred_int) %>%
   unnest()
 
-kable(int_table)
+kable(pred_int_table)
 ```
 
+##Confidence Intervals
+```{r conf_int}
+conf_int <- nested_gw %>%
+  mutate(conf_int = map(.x = data, ~conf_int(.)))
+
+conf_int_table <- conf_int %>%
+  mutate(distribution = map(.x = conf_int, ~ .x$distribution),
+         sample_size = map(.x = conf_int, ~ .x$sample.size),
+         lpl = map(.x = conf_int, ~ .x$interval$limits["LCL"]),
+         upl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
+         conf_level = map(.x = conf_int, ~ .x$interval$conf.level)) %>%
+  select(-data, -conf_int) %>%
+  unnest()
+
+kable(conf_int_table)
+```
