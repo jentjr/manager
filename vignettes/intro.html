@@ -12,7 +12,7 @@
 
 <meta name="author" content="Justin Jent" />
 
-<meta name="date" content="2017-10-21" />
+<meta name="date" content="2017-11-04" />
 
 <title>Introduction to manager</title>
 
@@ -70,41 +70,342 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to manager</h1>
 <h4 class="author"><em>Justin Jent</em></h4>
-<h4 class="date"><em>2017-10-21</em></h4>
+<h4 class="date"><em>2017-11-04</em></h4>
 
 
 
 <p>The <code>manager</code> packages provides functions for reading external data.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(manager)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data &lt;-<span class="st"> </span><span class="kw">read_manages3</span>(<span class="st">&quot;C:/path/to/manages/Site.mdb&quot;</span>)</code></pre></div>
 <p>Example data sets for groundwater in Indiana and Ohio are provided with the package</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;ohio_data&quot;</span>)
 <span class="kw">data</span>(<span class="st">&quot;indiana_data&quot;</span>)</code></pre></div>
-<div id="prediction-intervals" class="section level1">
-<h1>Prediction Intervals</h1>
+<div id="prediction-intervals" class="section level2">
+<h2>Prediction Intervals</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;gw_data&quot;</span>)
 
+wells &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;MW-1&quot;</span>, <span class="st">&quot;MW-2&quot;</span>, <span class="st">&quot;MW-3&quot;</span>, <span class="st">&quot;MW-4&quot;</span>)
+
+params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Sulfate, total&quot;</span>,
+            <span class="st">&quot;Arsenic, dissolved&quot;</span>,
+            <span class="st">&quot;Boron, dissolved&quot;</span>)
+
+background &lt;-<span class="st"> </span>lubridate<span class="op">::</span><span class="kw">ymd</span>(<span class="kw">c</span>(<span class="st">&quot;2007-12-20&quot;</span>, <span class="st">&quot;2012-01-01&quot;</span>))
+
+<span class="co"># first group data by location, param, and background</span>
+<span class="co"># estimate percent less than</span>
+gw_data &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">%in%</span><span class="st"> </span>wells, param_name <span class="op">%in%</span><span class="st"> </span>params,
+         sample_date <span class="op">&gt;=</span><span class="st"> </span>background[<span class="dv">1</span>] <span class="op">&amp;</span><span class="st"> </span>sample_date <span class="op">&lt;=</span><span class="st"> </span>background[<span class="dv">2</span>]) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(location_id, param_name, default_unit) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">percent_lt</span>() <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">est_dist</span>(.) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">arrange</span>(location_id, param_name)
 
 nested_gw &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">group_by</span>(location_id, param_name, default_unit) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">nest</span>()
 
-nested_gw <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">==</span><span class="st"> &quot;MW-2&quot;</span>, 
-         param_name <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Potassium, dissolved&quot;</span>, <span class="st">&quot;Magnesium, dissolved&quot;</span>)) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">trend =</span> <span class="kw">map</span>(data, kendall_trend))
+pred_int &lt;-<span class="st"> </span>nested_gw <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pred_int =</span> <span class="kw">map</span>(<span class="dt">.x =</span> data, <span class="op">~</span><span class="kw">pred_int</span>(.)))
 
+pred_int_table &lt;-<span class="st"> </span>pred_int <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">distribution =</span> <span class="kw">map</span>(<span class="dt">.x =</span> pred_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>distribution),
+         <span class="dt">sample_size =</span> <span class="kw">map</span>(<span class="dt">.x =</span> pred_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>sample.size),
+         <span class="dt">lpl =</span> <span class="kw">map</span>(<span class="dt">.x =</span> pred_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>interval<span class="op">$</span>limits[<span class="st">&quot;LPL&quot;</span>]),
+         <span class="dt">upl =</span> <span class="kw">map</span>(<span class="dt">.x =</span> pred_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>interval<span class="op">$</span>limits[<span class="st">&quot;UPL&quot;</span>]),
+         <span class="dt">conf_level =</span> <span class="kw">map</span>(<span class="dt">.x =</span> pred_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>interval<span class="op">$</span>conf.level)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>data, <span class="op">-</span>pred_int) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">unnest</span>()
 
-mw1_K &lt;-<span class="st"> </span>nested_gw <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">==</span><span class="st"> &quot;MW-1&quot;</span>, param_name <span class="op">==</span><span class="st"> &quot;Potassium, dissolved&quot;</span>)
+<span class="kw">kable</span>(pred_int_table)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">location_id</th>
+<th align="left">param_name</th>
+<th align="left">default_unit</th>
+<th align="left">distribution</th>
+<th align="right">sample_size</th>
+<th align="right">lpl</th>
+<th align="right">upl</th>
+<th align="right">conf_level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">MW-1</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">None</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">10.0000000</td>
+<td align="right">0.9333333</td>
+</tr>
+<tr class="even">
+<td align="left">MW-1</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">None</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">1.3700000</td>
+<td align="right">0.9333333</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-1</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">144.4705116</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="even">
+<td align="left">MW-2</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">None</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">10.0000000</td>
+<td align="right">0.9333333</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-2</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">2.4643097</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="even">
+<td align="left">MW-2</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Lognormal</td>
+<td align="right">14</td>
+<td align="right">0</td>
+<td align="right">188.9593029</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-3</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">None</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">10.0000000</td>
+<td align="right">0.9333333</td>
+</tr>
+<tr class="even">
+<td align="left">MW-3</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">1.7489978</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-3</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">157.7544304</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="even">
+<td align="left">MW-4</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">11.6737350</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-4</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">0.8085698</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="even">
+<td align="left">MW-4</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">135.9913476</td>
+<td align="right">0.9500000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="confidence-intervals" class="section level2">
+<h2>Confidence Intervals</h2>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">conf_int &lt;-<span class="st"> </span>nested_gw <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">conf_int =</span> <span class="kw">map</span>(<span class="dt">.x =</span> data, <span class="op">~</span><span class="kw">conf_int</span>(.)))
 
-test &lt;-<span class="st"> </span>mw1_K <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">start =</span> <span class="kw">map</span>(data, start_date),
-         <span class="dt">end  =</span> <span class="kw">map</span>(data, nth_date, <span class="dt">start =</span> start[[<span class="dv">1</span>]], <span class="dt">n =</span> <span class="dv">7</span>),
-         <span class="dt">background =</span> <span class="kw">map</span>(data, set_background, <span class="dt">start =</span> start, <span class="dt">end =</span> end),
-         <span class="dt">percent_left_censored =</span> <span class="kw">map</span>(background, percent_lt),
-         <span class="dt">distribution =</span> <span class="kw">map</span>(percent_left_censored, est_dist),
-         <span class="dt">pred_int =</span> <span class="kw">map</span>(distribution, pred_int))</code></pre></div>
+conf_int_table &lt;-<span class="st"> </span>conf_int <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">distribution =</span> <span class="kw">map</span>(<span class="dt">.x =</span> conf_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>distribution),
+         <span class="dt">sample_size =</span> <span class="kw">map</span>(<span class="dt">.x =</span> conf_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>sample.size),
+         <span class="dt">lpl =</span> <span class="kw">map</span>(<span class="dt">.x =</span> conf_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>interval<span class="op">$</span>limits[<span class="st">&quot;LCL&quot;</span>]),
+         <span class="dt">upl =</span> <span class="kw">map</span>(<span class="dt">.x =</span> conf_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>interval<span class="op">$</span>limits[<span class="st">&quot;UCL&quot;</span>]),
+         <span class="dt">conf_level =</span> <span class="kw">map</span>(<span class="dt">.x =</span> conf_int, <span class="op">~</span><span class="st"> </span>.x<span class="op">$</span>interval<span class="op">$</span>conf.level)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>data, <span class="op">-</span>conf_int) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">unnest</span>()
+
+<span class="kw">kable</span>(conf_int_table)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">location_id</th>
+<th align="left">param_name</th>
+<th align="left">default_unit</th>
+<th align="left">distribution</th>
+<th align="right">sample_size</th>
+<th align="right">lpl</th>
+<th align="right">upl</th>
+<th align="right">conf_level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">MW-1</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">None</td>
+<td align="right">14</td>
+<td align="right">1.5000000</td>
+<td align="right">11.3434754</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">MW-1</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">None</td>
+<td align="right">14</td>
+<td align="right">0.2787134</td>
+<td align="right">1.3032206</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-1</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">60.8109482</td>
+<td align="right">100.8890518</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">MW-2</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">None</td>
+<td align="right">14</td>
+<td align="right">1.4897069</td>
+<td align="right">11.3268893</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-2</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">2.0077930</td>
+<td align="right">2.2264927</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">MW-2</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Lognormal</td>
+<td align="right">14</td>
+<td align="right">5.1003344</td>
+<td align="right">5.1679766</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-3</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">None</td>
+<td align="right">14</td>
+<td align="right">0.6000000</td>
+<td align="right">11.4927504</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">MW-3</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">1.3032232</td>
+<td align="right">1.5167768</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-3</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">126.8935886</td>
+<td align="right">141.6778399</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">MW-4</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">4.7388903</td>
+<td align="right">8.0611097</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-4</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">0.2931006</td>
+<td align="right">0.5400422</td>
+<td align="right">0.95</td>
+</tr>
+<tr class="even">
+<td align="left">MW-4</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">74.6590087</td>
+<td align="right">104.0409913</td>
+<td align="right">0.95</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 

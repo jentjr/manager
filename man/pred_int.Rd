@@ -13,7 +13,7 @@ pred_int(df, analysis_result = "analysis_result",
 
 \item{analysis_result}{the analysis result column}
 
-\item{distribution}{the distribution colum}
+\item{distribution}{the distribution column}
 
 \item{k}{k positive integer specifying the number of future observations or
 averages the prediction interval should contain with confidence level

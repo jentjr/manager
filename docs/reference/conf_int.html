@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Create a correlation plot — corr_plot • manager</title>
+<title>Function to calculate confidence intervals — conf_int • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -95,49 +95,48 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Create a correlation plot</h1>
+    <h1>Function to calculate confidence intervals</h1>
     </div>
 
     
-    <p>Create a correlation plot</p>
+    <p>Function to calculate confidence intervals</p>
     
 
-    <pre class="usage"><span class='fu'>corr_plot</span>(<span class='no'>df</span>, <span class='kw'>location_id</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>sample_date</span> <span class='kw'>=</span> <span class='st'>"sample_date"</span>,
-  <span class='kw'>param_name</span> <span class='kw'>=</span> <span class='st'>"param_name"</span>, <span class='kw'>analysis_result</span> <span class='kw'>=</span> <span class='st'>"analysis_result"</span>,
-  <span class='kw'>constituents</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>sample_locations</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>conf_int</span>(<span class='no'>df</span>, <span class='kw'>analysis_result</span> <span class='kw'>=</span> <span class='st'>"analysis_result"</span>,
+  <span class='kw'>distribution</span> <span class='kw'>=</span> <span class='st'>"distribution"</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"mvue"</span>, <span class='kw'>ci_type</span> <span class='kw'>=</span> <span class='st'>"two-sided"</span>,
+  <span class='kw'>conf_level</span> <span class='kw'>=</span> <span class='fl'>0.95</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>dataframe</p></td>
-    </tr>
-    <tr>
-      <th>location_id</th>
-      <td><p>column of sample locations</p></td>
-    </tr>
-    <tr>
-      <th>sample_date</th>
-      <td><p>column of sample dates</p></td>
-    </tr>
-    <tr>
-      <th>param_name</th>
-      <td><p>column of constituents</p></td>
+      <td><p>df data frame of groundwater data in tidy format</p></td>
     </tr>
     <tr>
       <th>analysis_result</th>
-      <td><p>column of numerical results</p></td>
+      <td><p>the analysis result column</p></td>
     </tr>
     <tr>
-      <th>constituents</th>
-      <td><p>list of consituents to plot e.g. c("Iron, dissolved",
-"Manganese, dissolved")</p></td>
+      <th>distribution</th>
+      <td><p>the distribution column</p></td>
     </tr>
     <tr>
-      <th>sample_locations</th>
-      <td><p>list of sample locations to plot e.g.
-c("MW-1", "MW-2")</p></td>
+      <th>method</th>
+      <td><p>character string specifying the method of estimation.
+Possible values are "mvue" (minimum variance unbiased; the default),
+and "mle/mme" (maximum likelihood/method of moments).</p></td>
+    </tr>
+    <tr>
+      <th>ci_type</th>
+      <td><p>character string indicating what kind of confidence interval
+to compute. The possible values are ci_type="two-sided" (the default),
+ci_type="lower", and ci_type = "upper</p></td>
+    </tr>
+    <tr>
+      <th>conf_level</th>
+      <td><p>a scalar between 0 and 1 indicating the confidence level
+of the prediction interval. The default value is conf_level = 0.95</p></td>
     </tr>
     </table>
     

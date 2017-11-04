@@ -4,12 +4,12 @@
 \alias{set_background}
 \title{Function to return a column of background data}
 \usage{
-set_background(df, SAMPLE_DATE, start, end, return_all = FALSE)
+set_background(df, sample_date, start, end, return_all = FALSE)
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}
 
-\item{SAMPLE_DATE}{the column for the sampling dates}
+\item{sample_date}{the column for the sampling dates}
 
 \item{start}{the start date for background}
 

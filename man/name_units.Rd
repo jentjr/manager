@@ -4,12 +4,10 @@
 \alias{name_units}
 \title{Function to return a column of parameter name with units}
 \usage{
-name_units(df, col_name, short_name = TRUE)
+name_units(df, short_name = TRUE)
 }
 \arguments{
 \item{df}{groundwater data frame}
-
-\item{col_name}{quoted column name to return}
 
 \item{short_name}{If TRUE will use abbreviated constituent names}
 }

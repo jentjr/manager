@@ -4,7 +4,7 @@
 \alias{get_theilsen}
 \title{Function to get slope and intercept from Theil-Sen slope for plotting}
 \usage{
-get_theilsen(df, x = "ANALYSIS_RESULT", y = "SAMPLE_DATE", ...)
+get_theilsen(df, x = "analysis_result", y = "sample_date", ...)
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}

@@ -4,7 +4,7 @@
 \alias{theil_sen_band}
 \title{Function to calculate the Theil-Sen confidence band}
 \usage{
-theil_sen_band(ANALYSIS_RESULT, SAMPLE_DATE, conf.level)
+theil_sen_band(analysis_result, sample_date, conf.level)
 }
 \description{
 Function to calculate the Theil-Sen confidence band
