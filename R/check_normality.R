@@ -27,7 +27,7 @@ est_dist <- function(df, p_value = 0.01) {
 #' Helper function to check if data has a Lognormal distribution
 
 .is_lognormal <- function(x, p = 0.01) {
-  lgof <- gofTest(x, dist = "lnorm")
+  lgof <- gofTest(x, dist = "lnormAlt")
   p_test <- lgof$p.value
   if (p_test >= p) {
     return(TRUE)

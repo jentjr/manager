@@ -30,7 +30,7 @@ conf_int <- function(df,
     )
     
   } else if (df$distribution[1] == "lnorm") {
-    int <- EnvStats::elnorm(
+    int <- EnvStats::elnormAlt(
       df$analysis_result,
       method = method,
       ci = TRUE,
