@@ -42,7 +42,7 @@ conf_int <- function(df,
       ci = TRUE,
       df$analysis_result,
       ci.type = ci_type,
-      aprrox.conf.level = conf_level
+      approx.conf.level = conf_level
     )
   }
   
