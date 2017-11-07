@@ -5,16 +5,16 @@
 #' @param p_value p-value for gofTest
 #' @export
 
-est_dist <- function(df, p_value = 0.01) {  
+est_dist <- function(df, p_value = 0.05) {
   df %>%
-    group_by(location_id, param_name) %>%
+    group_by(location_id, param_name, default_unit) %>%
     mutate(distribution = .dist(analysis_result, p = p_value)) %>%
     ungroup()
 }
 
 #' Helper function to check if data has a Normal distribution
 
-.is_normal <- function(x, p = 0.01) {
+.is_normal <- function(x, p = 0.05) {
   gof <- gofTest(x, dist = "norm")
   p_test <- gof$p.value
   if (p_test >= p) {
@@ -26,7 +26,7 @@ est_dist <- function(df, p_value = 0.01) {
 
 #' Helper function to check if data has a Lognormal distribution
 
-.is_lognormal <- function(x, p = 0.01) {
+.is_lognormal <- function(x, p = 0.05) {
   lgof <- gofTest(x, dist = "lnormAlt")
   p_test <- lgof$p.value
   if (p_test >= p) {
@@ -38,7 +38,7 @@ est_dist <- function(df, p_value = 0.01) {
 
 #'Helper function to return distribution based on using p-value 
 
-.dist <- function(x, p = 0.01) {
+.dist <- function(x, p = 0.05) {
   n <- .is_normal(x, p = p)
   if (isTRUE(n >= p)) {
     return("norm")

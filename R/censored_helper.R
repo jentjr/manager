@@ -12,10 +12,6 @@ set_censored <- function(df,
                          censor_column = "RL"){
   
   df %>%
-    mutate(
-      analysis_result = if_else(
-        data_qualifier == "J", RL, analysis_result, missing = analysis_result)
-      ) %>% 
     mutate(analysis_result = if_else(
       data_qualifier == "U", RL, analysis_result, missing = analysis_result)
       )

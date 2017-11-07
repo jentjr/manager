@@ -127,16 +127,13 @@ replace_missing <- function(df){
 
 to_censored <- function(df) {
 
-  df <- df %>%
+  df %>%
     group_by(location_id, param_name, default_unit) %>%
     mutate(
-      left_censored = ifelse(lt_measure == "<", TRUE, FALSE),
-      right_censored = ifelse(lt_measure == ">", TRUE, FALSE)
+      left_censored = if_else(lt_measure == "<", TRUE, FALSE, missing = FALSE),
+      right_censored = if_else(lt_measure == ">", TRUE, FALSE, missing = FALSE)
     )
 
-  df <- as.data.frame(df)
-
-  return(df)
 }
 
 #' Function to join columns of lt_measure and sample results

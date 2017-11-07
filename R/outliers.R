@@ -1,6 +1,27 @@
 #' Function to flag outliers from Grubb's test for outliers
 #' 
 #' @param x column of analysis results
+#' @param ... other arguments passed to dixon test
+#' @export
+
+dixon_flag <- function(df, x = "analysis_result", ...) {
+  outliers <- NULL
+  test <- x
+  result <- dixon.test(test, ...)
+  pv <- result$p.value
+  
+  while (pv < 0.05) {
+    outliers <- c(outliers, as.numeric(strsplit(
+      result$alternative," ")[[1]][3]))
+    test <- x[!x %in% outliers]
+    result <- dixon.test(test)
+    pv <- result$p.value
+  }
+  return(data.frame(X = x, Outlier = (x %in% outliers)))
+}
+#' Function to flag outliers from Grubb's test for outliers
+#' 
+#' @param x column of analysis results
 #' @param ... other arguments passed to grubbs test
 #' @export
 
@@ -28,7 +49,7 @@ grubbs_flag <- function(x, ...) {
 #' @param ... other arguments passed to rosner test
 #' @export
 
-rosner_flag <- function(df, x = "ANALYSIS_RESULT", replace = NULL, ...) {
+rosner_flag <- function(df, x = "analysis_result", replace = NULL, ...) {
   
   outliers <- NULL
   test <- df[, x]
@@ -39,11 +60,11 @@ rosner_flag <- function(df, x = "ANALYSIS_RESULT", replace = NULL, ...) {
     filter(Outlier == TRUE) %>%
     select(Value)
  
-  df$outlier <- ifelse(df$ANALYSIS_RESULT %in% outliers$Value, TRUE, FALSE)
+  df$outlier <- ifelse(df$analysis_result %in% outliers$Value, TRUE, FALSE)
   
   if (!missing(replace)) {
     df$replaced_values <- ifelse(df$outlier == TRUE, replace, 
-                                 df$ANALYSIS_RESULT)
+                                 df$analysis_result)
   }
    
   return(df)

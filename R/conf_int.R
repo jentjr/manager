@@ -41,7 +41,8 @@ conf_int <- function(df,
     int <- EnvStats::eqnpar(
       ci = TRUE,
       df$analysis_result,
-      ci.type = ci_type
+      ci.type = ci_type,
+      aprrox.conf.level = conf_level
     )
   }
   
