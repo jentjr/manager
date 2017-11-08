@@ -21,8 +21,7 @@ est_dist_censored <- function(df, left_censored, alpha = 0.05,
 
   if (isTRUE(keep_object)) {
 
-    dist_est %>%
-      select(dist_est)
+    dist_est 
 
   } else {
 

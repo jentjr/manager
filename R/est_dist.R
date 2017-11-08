@@ -22,8 +22,7 @@ est_dist <- function(df, alpha = 0.05, method = "sw", keep_object = FALSE) {
 
   if (isTRUE(keep_object)) {
 
-    dist_est %>%
-      select(dist_est)
+    dist_est
 
   } else {
 
