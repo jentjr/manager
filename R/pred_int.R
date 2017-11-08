@@ -31,7 +31,7 @@ pred_int_sim <- function(df,
                          pi_type = "upper",
                          conf_level = 0.95) {
 
-  if (df$distribution[1] == "norm") {
+  if (df$distribution[1] == "Normal") {
     int <- EnvStats::predIntNormSimultaneous(
                                 df$analysis_result,
                                 n.mean = n_mean,
@@ -43,7 +43,7 @@ pred_int_sim <- function(df,
                                 conf.level = conf_level
                               )
 
-  } else if (df$distribution[1] == "lnorm") {
+  } else if (df$distribution[1] == "Lognormal") {
      int <- EnvStats::predIntLnormSimultaneous(
                                  df$analysis_result,
                                  n.geomean = n_mean,
@@ -96,7 +96,7 @@ pred_int <- function(df,
                      pi_type = "upper",
                      conf_level = 0.95) {
 
-  if (df$distribution[1] == "norm") {
+  if (df$distribution[1] == "Normal") {
     int <- EnvStats::predIntNorm(
       df$analysis_result,
       n.mean = n_mean,
@@ -106,7 +106,7 @@ pred_int <- function(df,
       conf.level = conf_level
     )
 
-  } else if (df$distribution[1] == "lnorm") {
+  } else if (df$distribution[1] == "Lognormal") {
 
     int <- EnvStats::predIntLnorm(
       df$analysis_result,

@@ -5,8 +5,8 @@
 \title{Function to calculate prediction interval}
 \usage{
 pred_int(df, analysis_result = "analysis_result",
-  distribution = "distribution", n_mean = 1, k = 1, m = 1, r = 1,
-  rule = "k.of.m", pi_type = "upper", conf_level = 0.95)
+  distribution = "distribution", method = "Bonferroni", n_mean = 1,
+  k = 1, pi_type = "upper", conf_level = 0.95)
 }
 \arguments{
 \item{df}{df data frame of groundwater data in tidy format}
@@ -15,27 +15,23 @@ pred_int(df, analysis_result = "analysis_result",
 
 \item{distribution}{the distribution column}
 
+\item{method}{default is "Bonferroni"}
+
 \item{k}{k positive integer specifying the number of future observations or
 averages the prediction interval should contain with confidence level
 conf.level. The default value is k=1.}
 
-\item{m}{m if m = 1, then same results as predInt}
+\item{pi_type}{character string indicating what kind of prediction interval
+to compute. The possible values are pi_type="two-sided" (the default),
+pi_type="upper", and pi_type="lower".}
 
-\item{r}{r}
-
-\item{rule}{rule "k.of.m"}
+\item{conf_level}{a scalar between 0 and 1 indicating the confidence level
+of the prediction interval. The default value is conf.level=0.95}
 
 \item{n.mean}{n.mean positive integer specifying the sample size associated
 with the future averages.
 The default value is n.mean=1 (i.e., individual observations).
 Note that all future averages must be based on the same sample size.}
-
-\item{pi.type}{character string indicating what kind of prediction interval
-to compute. The possible values are pi.type="upper" (the default),
-and pi.type="lower".}
-
-\item{conf.level}{a scalar between 0 and 1 indicating the confidence level
-of the prediction interval. The default value is conf.level=0.95}
 }
 \description{
 Function to calculate prediction interval

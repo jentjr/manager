@@ -4,7 +4,7 @@
 \alias{rosner_flag}
 \title{Function to flag outliers from Rosner's test for outliers}
 \usage{
-rosner_flag(df, x = "ANALYSIS_RESULT", replace = NULL, ...)
+rosner_flag(df, x = "analysis_result", replace = NULL, ...)
 }
 \arguments{
 \item{df}{data.frame of groundwater data}
