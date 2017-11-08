@@ -48,18 +48,22 @@ gw_data <- gw_data %>%
          sample_date >= background[1] & sample_date <= background[2]) %>%
   group_by(location_id, param_name, default_unit) %>%
   percent_lt() %>%
-  est_dist(.) %>%
+  est_dist(., keep_data_object = TRUE) %>%
   arrange(location_id, param_name)
 
-nested_gw <- gw_data %>%
-  group_by(location_id, param_name, default_unit) %>%
-  nest()
-
-pred_int <- nested_gw %>%
-  mutate(pred_int = map(.x = data, ~pred_int(.)))
+pred_int <- gw_data %>%
+  mutate(pred_int = case_when(
+    distribution == "Normal" ~ map(.x=data,
+                                   ~predIntNorm(x = .x$analysis_result)),
+    distribution == "Lognormal" ~ map(.x = data,
+                                      ~predIntLnorm(x = .x$analysis_result)),
+    distribution == "Nonparametric" ~ map(.x = data,
+                                          ~predIntNpar(x = .x$analysis_result))
+    )
+  )
 
 pred_int_table <- pred_int %>%
-  mutate(distribution = map(.x = pred_int, ~ .x$distribution),
+  mutate(distribution =distribution,
          sample_size = map(.x = pred_int, ~ .x$sample.size),
          lpl = map(.x = pred_int, ~ .x$interval$limits["LPL"]),
          upl = map(.x = pred_int, ~ .x$interval$limits["UPL"]),

@@ -8,7 +8,8 @@
 #' 
 #' @export
 
-est_dist <- function(df, alpha = 0.05, method = "sw", keep_object = FALSE) {
+est_dist <- function(df, alpha = 0.05, method = "sw",
+                     keep_data_object = FALSE) {
 
   nested_df <- df %>%
     group_by(location_id, param_name, default_unit) %>%
@@ -20,9 +21,12 @@ est_dist <- function(df, alpha = 0.05, method = "sw", keep_object = FALSE) {
       choices = c("norm", "lnorm"), method = method, alpha = alpha))
     )
 
-  if (isTRUE(keep_object)) {
+  if (isTRUE(keep_data_object)) {
 
-    dist_est
+    dist_est %>%
+      mutate(distribution = map(.x = dist_est, ~ .x$decision)) %>%
+      select(-dist_est) %>%
+      unnest(distribution)
 
   } else {
 

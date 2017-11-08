@@ -8,7 +8,7 @@
 #' @export
 
 est_dist_censored <- function(df, left_censored, alpha = 0.05,
-                              method = "sf", keep_object = FALSE) {
+                              method = "sf", keep_data_object = FALSE) {
   nested_df <- df %>%
     group_by(location_id, param_name, default_unit) %>%
     nest() 
@@ -19,9 +19,12 @@ est_dist_censored <- function(df, left_censored, alpha = 0.05,
       choices = c("norm", "lnorm"), method = method, alpha = alpha))
       )
 
-  if (isTRUE(keep_object)) {
+  if (isTRUE(keep_data_object)) {
 
-    dist_est 
+    dist_est %>%
+      mutate(distribution = map(.x = dist_est, ~ .x$decision)) %>%
+      select(-dist_est) %>%
+      unnest(distribution)
 
   } else {
 

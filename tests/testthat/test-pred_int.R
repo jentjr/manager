@@ -8,7 +8,7 @@ df_norm <- data.frame(
   lt_measure = rep("", 20),
   analysis_result = rnorm(20, mean = 5, sd = 1),
   default_unit = rep("mg/L", 20),
-  distribution = "norm"
+  distribution = "Normal"
 )
 
 df_lnorm <- data.frame(
@@ -19,7 +19,7 @@ df_lnorm <- data.frame(
   lt_measure = rep("", 20),
   analysis_result = rlnorm(20, meanlog = 5, sdlog = 1),
   default_unit = rep("mg/L", 20),
-  distribution = "lnorm"
+  distribution = "Lognormal"
 )
 
 df_nonpar <- data.frame(
@@ -30,7 +30,7 @@ df_nonpar <- data.frame(
   lt_measure = rep("", 20),
   analysis_result = rhyper(20, m = 30, n = 1, k = 20),
   default_unit = rep("mg/L", 20),
-  distribution = "none"
+  distribution = "Nonparametric"
 )
 
 test_that("normal prediction limit", {
@@ -49,4 +49,3 @@ test_that("non-parametric prediction limit", {
   expect_equal(pred_int(df_nonpar, distribution)$interval$limits[["UPL"]],
                20)
 })
-
