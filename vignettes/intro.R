@@ -27,18 +27,22 @@ gw_data <- gw_data %>%
          sample_date >= background[1] & sample_date <= background[2]) %>%
   group_by(location_id, param_name, default_unit) %>%
   percent_lt() %>%
-  est_dist(.) %>%
+  est_dist(., keep_data_object = TRUE) %>%
   arrange(location_id, param_name)
 
-nested_gw <- gw_data %>%
-  group_by(location_id, param_name, default_unit) %>%
-  nest()
-
-pred_int <- nested_gw %>%
-  mutate(pred_int = map(.x = data, ~pred_int(.)))
+pred_int <- gw_data %>%
+  mutate(pred_int = case_when(
+    distribution == "Normal" ~ map(.x=data,
+                                   ~predIntNorm(x = .x$analysis_result)),
+    distribution == "Lognormal" ~ map(.x = data,
+                                      ~predIntLnorm(x = .x$analysis_result)),
+    distribution == "Nonparametric" ~ map(.x = data,
+                                          ~predIntNpar(x = .x$analysis_result))
+    )
+  )
 
 pred_int_table <- pred_int %>%
-  mutate(distribution = map(.x = pred_int, ~ .x$distribution),
+  mutate(distribution = distribution,
          sample_size = map(.x = pred_int, ~ .x$sample.size),
          lpl = map(.x = pred_int, ~ .x$interval$limits["LPL"]),
          upl = map(.x = pred_int, ~ .x$interval$limits["UPL"]),
@@ -49,17 +53,35 @@ pred_int_table <- pred_int %>%
 kable(pred_int_table)
 
 ## ----conf_int------------------------------------------------------------
-conf_int <- nested_gw %>%
-  mutate(conf_int = map(.x = data, ~conf_int(.)))
+conf_int <- gw_data %>%
+  mutate(conf_int = case_when(
+    distribution == "Normal" ~ map(.x=data,
+                                   ~enorm(x = .x$analysis_result,
+                                          ci = TRUE, ci.type = "lower",
+                                          conf.level = 0.99,
+                                          ci.param = "mean")),
+    distribution == "Lognormal" ~ map(.x = data,
+                                      ~elnormAlt(x = .x$analysis_result,
+                                                 ci = TRUE, ci.type = "lower",
+                                                 ci.method = "land",
+                                                 conf.level = 0.99)),
+    distribution == "Nonparametric" ~ map(.x = data,
+                                          ~eqnpar(x = .x$analysis_result,
+                                                  ci = TRUE, ci.type = "lower",
+                                                  ci.method = "interpolate",
+                                                  approx.conf.level = 0.99))
+    )
+  )
 
 conf_int_table <- conf_int %>%
-  mutate(distribution = map(.x = conf_int, ~ .x$distribution),
+  mutate(distribution = distribution,
          sample_size = map(.x = conf_int, ~ .x$sample.size),
-         lpl = map(.x = conf_int, ~ .x$interval$limits["LCL"]),
-         upl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
+         lcl = map(.x = conf_int, ~ round(.x$interval$limits["LCL"], 3)),
+         ucl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
          conf_level = map(.x = conf_int, ~ .x$interval$conf.level)) %>%
   select(-data, -conf_int) %>%
   unnest()
+
 
 kable(conf_int_table)
 

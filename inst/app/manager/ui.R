@@ -358,75 +358,113 @@ tabPanel("Trends",
            )
          )
 ),
-navbarMenu("Prediction Intervals",
-  tabPanel("Intra-well",
-    sidebarLayout(
-      sidebarPanel(
-        
-         uiOutput("wells_intra"),
-        
-         uiOutput("analytes_intra"),
-        
-         uiOutput("date_ranges_intra"),
-        
-         numericInput(inputId = "sim_intra_n.mean", label = "Specify
-                      positive integer for the sample size associated
-                      with the future averages. The default value is
-                      n.mean=1 (i.e., individual observations).
-                      Note that all future averages must be based on the
-                      same sample size", value = 1, min = 0),
-        
-        numericInput(inputId = "sim_intra_k", label = "Specify an integer k 
-                     in the k-of-m rule for the minimum number of 
-                     observations (or averages) out of m observations 
-                     (or averages) (all obtained on one future 
-                     sampling “occassion”) the prediction interval 
-                     should contain with the specified confidence level.",
-                     value = 1, min = 0),
-        
-        numericInput(inputId = "sim_intra_m", label = "Specify a positive
-                     integer, m, for the maximum number of future 
-                     observations (or averages) on one future sampling
-                     'occasion'", value = 2, min = 0, max = 4),
-         
-        numericInput(inputId = "sim_intra_r", label = "Sampling frequency
-                     annually = 1, semi-annually = 2, etc.", value = 2, 
-                     min = 1, max = 4),
-        
-        selectInput(inputId = "sim_intra_rule", label = "Character string
-                  specifying which rule to use. The possible values are 
-                  'k.of.m', the default, 'CA' (California rule), and
-                  'Modified.CA' (modified California rule).", 
-                  choices = c("k.of.m" = "k.of.m", 
-                             "CA" = "CA", 
-                             "Modified.CA" = "Modified.CA")),
-         
-        textInput(inputId = "sim_intra_pi.type", label = "Specify what kind 
-                  of prediction interval to compute. The possible values 
-                  are 'upper' (the default), and 'lower'", value = "upper"),
-         
-        numericInput(inputId = "sim_intra_swfpr", label = "Site-Wide False
-                    Positive Rate", value = 0.1, min = 0, max = 1)
-       
-        ),
-       
-       mainPanel(
-        
-         verbatimTextOutput("intra_limit_out")
-       
+tabPanel("Confidence Intervals",
+  fluidPage(
+    fluidRow(
+      column(2, 
+        uiOutput("select_conf_int_wells"),
+        uiOutput("select_conf_int_analytes"),
+        uiOutput("select_conf_int_date_range")
+      ),
+      column(10, 
+        dataTableOutput("conf_int_out")
       )
-    )       
+    )
+  )
+),
+tabPanel("Tolerance Intervals",
+  fluidPage(
+    fluidRow(
+      column(2, 
+        uiOutput("select_tol_int_wells"),
+        uiOutput("select_tol_int_analytes"),
+        uiOutput("select_tol_int_date_range")
+      ),
+      column(10, 
+        dataTableOutput("tol_int_out")
+      )
+    )
+  )
+),
+navbarMenu("Prediction Intervals",
+  tabPanel("Intrawell",
+   fluidPage(
+    fluidRow(
+     column(2, 
+      uiOutput("wells_intra"),
+      uiOutput("analytes_intra"),
+      uiOutput("date_ranges_intra"),
+      numericInput(inputId = "intra_n.mean", label = "Specify a
+                   positive integer for the sample size associated
+                   with the future averages. The default value is
+                   n.mean=1 (i.e., individual observations).
+                   Note that all future averages must be based on the
+                   same sample size", value = 1, min = 0),
+      numericInput(inputId = "intra_k", label = "Specify a positive integer 
+                   for the number of future observations or averages the 
+                   prediction interval should contain with confidence 
+                   level conf.level. The default value is k=1.",
+                   value = 1, min = 0),
+      selectInput(inputId = "intra_method", label = "Specify the method 
+                  to use if the number of future observations (k) is greater
+                  than 1. The possible values are method='Bonferroni'
+                  (approximate method based on Bonferonni inequality;
+                  the default), and method='exact' (exact method due to 
+                  Dunnett, 1955). This argument is ignored if k=1.", 
+                  choices = c("Bonferroni", "exact")),
+       selectInput(inputId = "intra_pi.type", label = "Specify what kind 
+                   of prediction interval to compute. The possible values 
+                   are 'upper' (the default), and 'lower'", 
+                   choices = c("two-sided", "upper", "lower"),
+                   selected = "upper"),
+       numericInput(inputId = "intra_conf", label = "Enter a value
+                    between 0 and 1 indicating the confidence level of the
+                    prediction interval", 
+                    value = 0.95, min = 0, max = 1)
+     ),
+     column(10, 
+       dataTableOutput("intra_limit_out")
+     )
+    )
+  )
   ),
-  tabPanel("Inter-well",
+  tabPanel("Interwell",
     fluidPage(
       fluidRow(
         column(2,
           uiOutput("select_wells_inter"),
           uiOutput("select_analyte_inter"),
-          uiOutput("select_date_ranges_inter")
+          uiOutput("select_date_ranges_inter"),
+          numericInput(inputId = "inter_n.mean", label = "Specify a
+                   positive integer for the sample size associated
+                   with the future averages. The default value is
+                   n.mean=1 (i.e., individual observations).
+                   Note that all future averages must be based on the
+                   same sample size", value = 1, min = 0),
+          numericInput(inputId = "inter_k", label = "Specify a positive integer 
+                   for the number of future observations or averages the 
+                   prediction interval should contain with confidence 
+                   level conf.level. The default value is k=1.",
+                       value = 1, min = 0),
+          selectInput(inputId = "inter_method", label = "Specify the method 
+                  to use if the number of future observations (k) is greater
+                  than 1. The possible values are method='Bonferroni'
+                  (approximate method based on Bonferonni inequality;
+                  the default), and method='exact' (exact method due to 
+                  Dunnett, 1955). This argument is ignored if k=1.", 
+                      choices = c("Bonferroni", "exact")),
+          selectInput(inputId = "inter_pi.type", label = "Specify what kind 
+                   of prediction interval to compute. The possible values 
+                   are 'upper' (the default), and 'lower'", 
+                      choices = c("two-sided", "upper", "lower"),
+                      selected = "upper"),
+          numericInput(inputId = "inter_conf", label = "Enter a value
+                    between 0 and 1 indicating the confidence level of the
+                    prediction interval", 
+                       value = 0.95, min = 0, max = 1)
         ),
         column(10, 
-          verbatimTextOutput("inter_limit_out")
+          dataTableOutput("inter_limit_out")
         )
       )
     )

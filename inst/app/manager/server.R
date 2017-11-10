@@ -792,13 +792,244 @@ shinyServer(function(input, output, session) {
   
   # End trend analysis ---------------------------------------------------------
   
+  # Begin Confidence Intervals -------------------------------------------------
+  output$select_conf_int_wells <- renderUI({
+    
+    data <- get_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("conf_int_wells", "Monitoring Wells", well_names, 
+                multiple = TRUE,
+                selected = well_names[1])
+  })
+  
+  output$select_conf_int_analytes <- renderUI({
+    data <- get_data()
+    analyte_names <- as.character(constituents(data))
+    selectInput("conf_int_analytes", "Constituents", analyte_names, 
+                multiple = TRUE,
+                selected = analyte_names[1])
+  })
+  
+  output$select_conf_int_date_range <- renderUI({
+    data <- get_data()
+    tagList(
+      dateRangeInput("conf_int_dates", "Background Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))
+    )
+  })
+  
+  conf_int <- reactive({
+    
+    df <- get_data()
+    
+    df <- df %>%
+      filter(location_id %in% input$conf_int_wells,
+             param_name %in% input$conf_int_analytes)
+    
+    start <- min(lubridate::ymd(input$conf_int_dates, tz = "UTC"))
+    end <- max(lubridate::ymd(input$conf_int_dates, tz = "UTC"))
+    
+    df <- df %>%
+      filter(sample_date >= start & sample_date <= end)
+    
+    # first group data by location, param, and background
+    # estimate percent less than
+    df <- df %>%
+      group_by(location_id, param_name, default_unit) %>%
+      percent_lt() %>%
+      est_dist(., keep_data_object = TRUE) %>%
+      arrange(location_id, param_name)
+    
+    conf_int <- df %>%
+      mutate(conf_int = case_when(
+        distribution == "Normal" ~ map(.x=data,
+                                       ~enorm(
+                                         x = .x$analysis_result,
+                                         ci = TRUE, 
+                                         ci.type = "lower",
+                                         conf.level = 0.99,
+                                         ci.param = "mean")
+                                       ),
+        distribution == "Lognormal" ~ map(.x = data,
+                                          ~elnormAlt(
+                                            x = .x$analysis_result,
+                                            ci = TRUE,
+                                            ci.type = "lower",
+                                            ci.method = "land",
+                                            conf.level = 0.99)
+                                          ),
+        distribution == "Nonparametric" ~ map(.x = data,
+                                              ~eqnpar(
+                                                x = .x$analysis_result,
+                                                ci = TRUE,
+                                                ci.type = "lower",
+                                                ci.method = "interpolate",
+                                                approx.conf.level = 0.99)
+                                              )
+      )
+      )
+
+    conf_int %>%
+      mutate(distribution = distribution,
+             sample_size = map(.x = conf_int, ~ .x$sample.size),
+             lcl = map(.x = conf_int, ~ round(.x$interval$limits["LCL"], 3)),
+             ucl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
+             conf_level = map(.x = conf_int, ~ .x$interval$conf.level)) %>%
+      select(-data, -conf_int) %>%
+      unnest()
+
+  })
+
+  output$conf_int_out <- renderDataTable({
+    
+    conf_int()
+
+  })
+  # End Confidence Intervals ---------------------------------------------------
+  
+  # Begin Tolerance Intervals --------------------------------------------------
+  output$select_tol_int_wells <- renderUI({
+    
+    data <- get_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("tol_int_wells", "Monitoring Wells", well_names, 
+                multiple = TRUE,
+                selected = well_names[1])
+  })
+  
+  output$select_tol_int_analytes <- renderUI({
+    data <- get_data()
+    analyte_names <- as.character(constituents(data))
+    selectInput("tol_int_analytes", "Constituents", analyte_names, 
+                multiple = TRUE,
+                selected = analyte_names[1])
+  })
+  
+  output$select_tol_int_date_range <- renderUI({
+    data <- get_data()
+    tagList(
+      dateRangeInput("tol_int_dates", "Background Date Range", 
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))
+    )
+  })
+  
+  tol_int <- reactive({
+    
+    df <- get_data()
+    
+    df <- df %>%
+      filter(location_id %in% input$tol_int_wells,
+             param_name %in% input$tol_int_analytes)
+    
+    start <- min(lubridate::ymd(input$tol_int_dates, tz = "UTC"))
+    end <- max(lubridate::ymd(input$tol_int_dates, tz = "UTC"))
+    
+    df <- df %>%
+      filter(sample_date >= start & sample_date <= end)
+    
+    # first group data by location, param, and background
+    # estimate percent less than
+    df <- df %>%
+      group_by(location_id, param_name, default_unit) %>%
+      percent_lt() %>%
+      est_dist(., keep_data_object = TRUE) %>%
+      arrange(location_id, param_name)
+    
+    tol_int <- df %>%
+      filter(param_name != "pH (field)") %>%
+      mutate(tol_int = case_when(
+        distribution == "Normal" ~ map(.x=data,
+                                       ~tolIntNorm(
+                                         x = .x$analysis_result,
+                                         coverage = 0.99,
+                                         cov.type = "content",
+                                         method = "exact",
+                                         ti.type = "upper",
+                                         conf.level = 0.95)
+        ),
+        distribution == "Lognormal"  ~ map(.x = data,
+                                           ~tolIntLnormAlt(
+                                             x = .x$analysis_result,
+                                             coverage = 0.99,
+                                             cov.type = "content",
+                                             ti.type = "upper",
+                                             conf.level = 0.95,
+                                             method = "exact",
+                                             est.method = "mvue"
+                                             )
+        ),
+        distribution == "Nonparametric" ~ map(.x = data,
+                                              ~tolIntNpar(
+                                                x = .x$analysis_result,
+                                                cov.type = "content",
+                                                coverage = 0.99,
+                                                ti.type = "upper")
+        )
+      )
+      )
+    
+    tol_int_pH <- df %>%
+      filter(param_name == "pH (field)") %>%
+      mutate(tol_int = case_when(
+        distribution == "Normal"  ~ map(.x=data,
+                                        ~tolIntNorm(
+                                          x = .x$analysis_result,
+                                          coverage = 0.99,
+                                          cov.type = "content",
+                                          method = "exact",
+                                          ti.type = "two-sided",
+                                          conf.level = 0.95)
+        ),
+        distribution == "Lognormal" ~ map(.x=data,
+                                          ~tolIntLnormAlt(
+                                            x = .x$analysis_result,
+                                            coverage = 0.99,
+                                            ti.type = "two-sided",
+                                            cov.type = "content",
+                                            method = "exact",
+                                            est.method = "mvue")
+        ),
+        distribution == "Nonparametric" ~ map(.x=data,
+                                              ~tolIntNpar(
+                                                x = .x$analysis_result,
+                                                cov.type = "content",
+                                                coverage = 0.99,
+                                                ti.type = "two-sided")
+        )
+      )
+      )
+    
+    tol_int <- rbind(tol_int, tol_int_pH)
+    
+    tol_int %>%
+      mutate(distribution = distribution,
+             sample_size = map(.x = tol_int, ~ .x$sample.size),
+             method = map(.x = tol_int,  ~ .x$interval$method),
+             ltl = map(.x = tol_int, ~ .x$interval$limits["LTL"]),
+             utl = map(.x = tol_int, ~ round(.x$interval$limits["UTL"], 3)),
+             conf_level = map(.x = tol_int, ~ .x$interval$conf.level*100)) %>%
+      select(-data, -tol_int) %>%
+      unnest() %>%
+      arrange(location_id, param_name)
+    
+  })
+  
+  output$tol_int_out <- renderDataTable({
+    
+    tol_int()
+    
+  })
+  # End Tolerance Intervals ----------------------------------------------------
+  
   # Begin Intrawell Prediction Limits-------------------------------------------
   output$wells_intra <- renderUI({
 
       data <- get_data()
       well_names <- as.character(sample_locations(data))
       selectInput("well_intra", "Monitoring Wells", well_names, 
-                  multiple = FALSE,
+                  multiple = TRUE,
                   selected = well_names[1])
   })
 
@@ -806,7 +1037,7 @@ shinyServer(function(input, output, session) {
       data <- get_data()
       analyte_names <- as.character(constituents(data))
       selectInput("analyte_intra", "Constituents", analyte_names, 
-                  multiple = FALSE,
+                  multiple = TRUE,
                   selected = analyte_names[1])
   })
 
@@ -815,52 +1046,118 @@ shinyServer(function(input, output, session) {
       tagList(
         dateRangeInput("back_dates_intra", "Background Date Range", 
                        start = min(data$sample_date, na.rm = TRUE),
-                       end = max(data$sample_date, na.rm = TRUE)),
-        dateRangeInput("comp_dates_intra", "Compliance Date Range", 
-                       start = min(data$sample_date, na.rm = TRUE),
                        end = max(data$sample_date, na.rm = TRUE))
       )
   })
 
   intra_limit <- reactive({
+
     df <- get_data()
+
     df <- df %>%
       filter(location_id %in% input$well_intra,
              param_name %in% input$analyte_intra)
 
-    bkgd_start <- min(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
-    bkgd_end <- max(lubridate::ymd(input$back_dates_intra, tz = Sys.timezone()))
-    bkgd <- c(bkgd_start, bkgd_end)
+    bkgd_start <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    bkgd_end <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
 
-    comp_start <- min(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
-    comp_end <- max(lubridate::ymd(input$comp_dates_intra, tz = Sys.timezone()))
-    comp <- c(comp_start, comp_end)
-    
     df <- df %>%
       filter(sample_date >= bkgd_start & sample_date <= bkgd_end)
 
-    out <- EnvStats::predIntNormSimultaneous(
-              df$analysis_result,
-              k = input$sim_intra_k,
-              m = input$sim_intra_m,
-              r = input$sim_intra_r,
-              rule = input$sim_intra_rule,
-              pi.type = input$sim_intra_pi.type,
-              conf.level = input$sim_intra_swfpr
-          )
-    out
+    # first group data by location, param, and background
+    # estimate percent less than
+    df <- df %>%
+      group_by(location_id, param_name, default_unit) %>%
+      percent_lt() %>%
+      est_dist(., keep_data_object = TRUE) %>%
+      arrange(location_id, param_name)
+    
+    pred_int <- df %>%
+      filter(param_name != "pH (field)") %>%
+      mutate(pred_int = case_when(
+        distribution == "Normal" ~ map(.x=data,
+                                       ~predIntNorm(
+                                         x = .x$analysis_result,
+                                         n.mean = input$intra_n.mean,
+                                         k = input$intra_k,
+                                         method = input$intra_method,
+                                         pi.type = input$intra_pi.type,
+                                         conf.level = input$intra_conf)
+        ),
+        distribution == "Lognormal"  ~ map(.x = data,
+                                           ~predIntLnormAlt(
+                                             x = .x$analysis_result,
+                                             n.geomean = input$intra_n.mean,
+                                             k = input$intra_k,
+                                             method = input$intra_method,
+                                             pi.type = input$intra_pi.type,
+                                             conf.level = input$intra_conf)
+        ),
+        distribution == "Nonparametric" ~ map(.x = data,
+                                              ~predIntNpar(
+                                                x = .x$analysis_result,
+                                                pi.type = input$intra_pi.type)
+        )
+      )
+      )
+    
+    pred_int_pH <- df %>%
+      filter(param_name == "pH (field)") %>%
+      mutate(pred_int = case_when(
+        distribution == "Normal"  ~ map(.x=data,
+                                        ~predIntNorm(
+                                          x = .x$analysis_result,
+                                          n.mean = input$intra_n.mean,
+                                          k = input$inter_k,
+                                          method = input$intra_method,
+                                          pi.type = "two-sided",
+                                          conf.level = input$intra_conf)
+                                        ),
+        distribution == "Lognormal" ~ map(.x=data,
+                                          ~predIntLnorm(
+                                            x = .x$analysis_result,
+                                            n.geomean = input$intra_n.mean,
+                                            k = input$inter_k,
+                                            method = input$intra_method,
+                                            pi.type = "two-sided",
+                                            conf.level = input$intra_conf)
+                                          ),
+        distribution == "Nonparametric" ~ map(.x=data,
+                                              ~predIntNpar(
+                                                x = .x$analysis_result,
+                                                pi.type = "two-sided")
+                                              )
+      )
+      )
+    
+    pred_int <- rbind(pred_int, pred_int_pH)
+
+    pred_int %>%
+      mutate(distribution = distribution,
+             sample_size = map(.x = pred_int, ~ .x$sample.size),
+             method = map(.x = pred_int,  ~ .x$interval$method),
+             lpl = map(.x = pred_int, ~ .x$interval$limits["LPL"]),
+             upl = map(.x = pred_int, ~ round(.x$interval$limits["UPL"], 3)),
+             conf_level = map(.x = pred_int, ~ .x$interval$conf.level*100)) %>%
+      select(-data, -pred_int) %>%
+      unnest() %>%
+      arrange(location_id, param_name)
+
   })
 
-  output$intra_limit_out <- renderPrint({
+  output$intra_limit_out <- renderDataTable({
+
     intra_limit()
-  })
 
-  # Begin Inter-well prediction intervals --------------------------------------
+  })
+  # End Intrawell Prediction Intervals -----------------------------------------
+
+  # Begin Interwell Prediction Intervals ---------------------------------------
   output$select_wells_inter <- renderUI({
     
     data <- get_data()
     well_names <- as.character(sample_locations(data))
-    selectInput("wells_inter", "Monitoring Wells", well_names, 
+    selectInput("well_inter", "Monitoring Wells", well_names, 
                 multiple = TRUE,
                 selected = well_names[1])
   })
@@ -869,7 +1166,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     analyte_names <- as.character(constituents(data))
     selectInput("analyte_inter", "Constituents", analyte_names, 
-                multiple = FALSE,
+                multiple = TRUE,
                 selected = analyte_names[1])
   })
   
@@ -877,9 +1174,6 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     tagList(
       dateRangeInput("background_inter", "Background Date Range",
-                     start = min(data$sample_date, na.rm = TRUE),
-                     end = max(data$sample_date, na.rm = TRUE)),
-      dateRangeInput("compliance_inter", "Compliance Date Range",
                      start = min(data$sample_date, na.rm = TRUE),
                      end = max(data$sample_date, na.rm = TRUE))
     )
@@ -890,30 +1184,97 @@ shinyServer(function(input, output, session) {
     df <- get_data()
 
     df <- df %>%
-      filter(location_id %in% input$wells_inter,
+      filter(location_id %in% input$well_inter,
              param_name %in% input$analyte_inter)
 
-    bkgd_start <- min(lubridate::ymd(input$background_inter,
-                                     tz = Sys.timezone()))
-    bkgd_end <- max(lubridate::ymd(input$background_inter,
-                                   tz = Sys.timezone()))
-    bkgd <- c(bkgd_start, bkgd_end)
+    bkgd_start <- min(lubridate::ymd(input$background_inter, tz = "UTC"))
+    bkgd_end <- max(lubridate::ymd(input$background_inter, tz = "UTC"))
+
+    df <- df %>%
+      filter(sample_date >= bkgd_start, sample_date <= bkgd_end)
     
-    comp_start <- min(lubridate::ymd(input$compliance_inter,
-                                     tz = Sys.timezone()))
-    comp_end <- max(lubridate::ymd(input$compliance_inter,
-                                   tz = Sys.timezone()))
-    comp <- c(comp_start, comp_end)
+    # first group data by location, param, and background
+    # estimate percent less than
+    df <- df %>%
+      group_by(param_name, default_unit) %>%
+      est_dist(., keep_data_object = TRUE, group_by_location = TRUE)
+
     
-    out <- EnvStats::predIntNormSimultaneous(
-      df$analysis_result
+    pred_int <- df %>%
+      filter(param_name != "pH (field)") %>%
+      mutate(pred_int = case_when(
+        distribution == "Normal" ~ map(.x=data,
+                                       ~predIntNorm(
+                                         x = .x$analysis_result,
+                                         n.mean = input$inter_n.mean,
+                                         k = input$inter_k,
+                                         method = input$inter_method,
+                                         pi.type = input$inter_pi.type,
+                                         conf.level = input$inter_conf)
+                                       ),
+        distribution == "Lognormal"  ~ map(.x = data,
+                                           ~predIntLnormAlt(
+                                             x = .x$analysis_result,
+                                             n.geomean = input$inter_n.mean,
+                                             k = input$inter_k,
+                                             method = input$inter_method,
+                                             pi.type = input$inter_pi.type,
+                                             conf.level = input$inter_conf)
+                                           ),
+        distribution == "Nonparametric" ~ map(.x = data,
+                                              ~predIntNpar(
+                                                x = .x$analysis_result,
+                                                pi.type = input$inter_pi.type)
+                                              )
+      )
     )
-    out
+    
+    pred_int_pH <- df %>%
+      filter(param_name == "pH (field)") %>%
+      mutate(pred_int = case_when(
+        distribution == "Normal"  ~ map(.x=data,
+                                        ~predIntNorm(
+                                          x = .x$analysis_result,
+                                          n.mean = input$inter_n.mean,
+                                          k = input$inter_k,
+                                          pi.type = "two-sided",
+                                          conf.level = input$inter_conf)
+                                        ),
+        distribution == "Lognormal" ~ map(.x=data,
+                                          ~predIntLnorm(
+                                            x = .x$analysis_result,
+                                            n.geomean = input$inter_n.mean,
+                                            k = input$inter_k,
+                                            pi.type = "two-sided",
+                                            conf.level = input$inter_conf)
+                                          ),
+        distribution == "Nonparametric" ~ map(.x=data,
+                                              ~predIntNpar(
+                                                x = .x$analysis_result,
+                                                pi.type = "two-sided")
+                                              )
+      )
+    )
+    
+    pred_int <- rbind(pred_int, pred_int_pH)
+    
+    pred_int %>%
+      mutate(distribution = distribution,
+             sample_size = map(.x = pred_int, ~ .x$sample.size),
+             method = map(.x = pred_int,  ~ .x$interval$method),
+             lpl = map(.x = pred_int, ~ .x$interval$limits["LPL"]),
+             upl = map(.x = pred_int, ~ round(.x$interval$limits["UPL"], 3)),
+             conf_level = map(.x = pred_int, ~ .x$interval$conf.level*100)) %>%
+      select(-data, -pred_int) %>%
+      unnest() %>%
+      arrange(param_name)
   })
 
-  output$inter_limit_out <- renderPrint({
+  output$inter_limit_out <- renderDataTable({
+
     inter_limit()
+
   })
-  # End Inter-well Prediction Limits -------------------------------------------
+  # End Interwell Prediction Limits -------------------------------------------
   # End Prediction Limits ------------------------------------------------------
 })

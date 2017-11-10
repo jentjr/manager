@@ -5,7 +5,8 @@
 \title{Function to return either normal, lognormal, or non-parametric 
 distribution.}
 \usage{
-est_dist(df, alpha = 0.05, method = "sw", keep_object = FALSE)
+est_dist(df, alpha = 0.05, method = "sw", group_by_location = FALSE,
+  keep_data_object = FALSE)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
@@ -14,9 +15,33 @@ est_dist(df, alpha = 0.05, method = "sw", keep_object = FALSE)
 
 \item{method}{default is "sw"}
 
+\item{group_by_location}{TRUE/FALSE to estimate distribution by individual
+location, or grouped together. Default is FALSE.}
+
 \item{choices}{default is c("norm, "lnorm")}
 }
 \description{
 Function to return either normal, lognormal, or non-parametric 
 distribution.
+}
+\examples{
+data("gw_data")
+wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
+params <- c("Sulfate, total",
+            "Arsenic, dissolved",
+           "Boron, dissolved")
+
+gw_data <- gw_data \%>\%
+filter(location_id \%in\% wells, param_name \%in\% params) \%>\%
+percent_lt() \%>\%
+filter(percent_lt <=15)
+
+gw_data \%>\%
+group_by(location_id, param_name, default_unit) \%>\%
+est_dist(., alpha = 0.05, keep_data_object = FALSE)
+
+
+gw_data \%>\%
+group_by(param_name, default_unit) \%>\%
+est_dist(., group_by_location = TRUE, keep_data_object = FALSE)
 }

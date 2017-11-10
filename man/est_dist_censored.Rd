@@ -5,8 +5,8 @@
 \title{Function to return either normal, lognormal, gamma, or non-parametric 
 distribution estimate}
 \usage{
-est_dist_censored(df, left_censored, alpha = 0.05, method = "sf",
-  keep_object = FALSE)
+est_dist_censored(df, left_censored, alpha = 0.05,
+  group_by_location = FALSE, method = "sf", keep_data_object = FALSE)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
@@ -15,9 +15,34 @@ est_dist_censored(df, left_censored, alpha = 0.05, method = "sf",
 
 \item{alpha}{alpha}
 
+\item{group_by_location}{TRUE/FALSE to estimate distribution by individual
+location, or grouped together. Default is FALSE.}
+
 \item{method}{default is "sf"}
 }
 \description{
 Function to return either normal, lognormal, gamma, or non-parametric 
 distribution estimate
+}
+\examples{
+data("gw_data")
+wells <- c("MW-1", "MW-2", "MW-3")
+params <- c("Fluoride, total",
+            "Arsenic, dissolved",
+            "Nickel, dissolved")
+
+gw_data <- gw_data \%>\%
+to_censored() \%>\%
+filter(location_id \%in\% wells, param_name \%in\% params) \%>\%
+percent_lt() \%>\%
+filter(percent_lt >=15, percent_lt <= 50)
+
+gw_data \%>\%
+group_by(location_id, param_name, default_unit) \%>\%
+est_dist_censored(., alpha = 0.05, keep_data_object = FALSE)
+
+
+gw_data \%>\%
+group_by(param_name, default_unit) \%>\%
+est_dist_censored(., group_by_location = TRUE, keep_data_object = FALSE)
 }
