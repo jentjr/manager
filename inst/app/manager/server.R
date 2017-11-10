@@ -932,10 +932,8 @@ shinyServer(function(input, output, session) {
     # first group data by location, param, and background
     # estimate percent less than
     df <- df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      percent_lt() %>%
-      est_dist(., keep_data_object = TRUE) %>%
-      arrange(location_id, param_name)
+      group_by(param_name, default_unit) %>%
+      est_dist(., keep_data_object = TRUE, group_by_location = TRUE)
     
     tol_int <- df %>%
       filter(param_name != "pH (field)") %>%
@@ -1006,13 +1004,13 @@ shinyServer(function(input, output, session) {
     tol_int %>%
       mutate(distribution = distribution,
              sample_size = map(.x = tol_int, ~ .x$sample.size),
-             method = map(.x = tol_int,  ~ .x$interval$method),
+             method = map(.x = tol_int,  ~ tolower(.x$interval$method)),
              ltl = map(.x = tol_int, ~ .x$interval$limits["LTL"]),
              utl = map(.x = tol_int, ~ round(.x$interval$limits["UTL"], 3)),
              conf_level = map(.x = tol_int, ~ .x$interval$conf.level*100)) %>%
       select(-data, -tol_int) %>%
       unnest() %>%
-      arrange(location_id, param_name)
+      arrange(param_name)
     
   })
   
@@ -1058,11 +1056,11 @@ shinyServer(function(input, output, session) {
       filter(location_id %in% input$well_intra,
              param_name %in% input$analyte_intra)
 
-    bkgd_start <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
-    bkgd_end <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    start <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    end <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
 
     df <- df %>%
-      filter(sample_date >= bkgd_start & sample_date <= bkgd_end)
+      filter(sample_date >= start & sample_date <= end)
 
     # first group data by location, param, and background
     # estimate percent less than
@@ -1145,16 +1143,21 @@ shinyServer(function(input, output, session) {
     
     pred_int <- rbind(pred_int, pred_int_pH)
 
-    pred_int %>%
+    pred_int <- pred_int %>%
       mutate(distribution = distribution,
              sample_size = map(.x = pred_int, ~ .x$sample.size),
-             method = map(.x = pred_int,  ~ .x$interval$method),
+             method = map(.x = pred_int,  ~ tolower(.x$interval$method)),
              lpl = map(.x = pred_int, ~ .x$interval$limits["LPL"]),
              upl = map(.x = pred_int, ~ round(.x$interval$limits["UPL"], 3)),
              conf_level = map(.x = pred_int, ~ .x$interval$conf.level*100)) %>%
       select(-data, -pred_int) %>%
       unnest() %>%
       arrange(location_id, param_name)
+    
+    pred_int <- pred_int %>%
+      mutate(lpl = if_else(lpl == 0, -Inf, lpl, missing = lpl))
+    
+    return(pred_int)
 
   })
 
@@ -1163,6 +1166,60 @@ shinyServer(function(input, output, session) {
     intra_limit()
 
   })
+  
+  # Begin Intrawell prediction interval time series plots ----------------------
+  ts_intra_plot <- reactive({
+    
+    df <- get_data()
+    
+    ts_data <- df %>%
+      filter(location_id %in% input$well_intra,
+             param_name %in% input$analyte_intra)
+    
+    ts_params <- constituents(ts_data)
+    ts_wells <- sample_locations(ts_data)
+    
+    start <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    end <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    
+    intra_limit_data <- intra_limit()
+    
+    ts_data <- ts_data %>%
+      left_join(intra_limit_data,
+                by = c("location_id", "param_name", "default_unit"))
+    # Need to inlcude group_var option, using param_name for now
+    
+    ts_list <- lapply(seq_along(ts_params), function(i) {
+      ts_name <- paste("ts_plot", i, sep = "")
+      plotOutput(ts_name)
+    })
+    
+    for (i in seq_along(ts_params)) {
+      local({
+        ts_i <- i
+        ts_name <- paste("ts_plot", ts_i, sep = "")
+        output[[ts_name]] <- renderPlot({
+          
+          ts <- manager::ts_plot(
+            ts_data[ts_data$param_name == ts_params[ts_i], ],
+            background = c(start, end),
+            limit1 = "lpl",
+            limit2 = "upl"
+          )
+          ts
+        })
+      })
+    }
+    do.call(tagList, ts_list)
+  })
+
+  output$ts_intra_out <- renderUI({
+
+    ts_intra_plot()
+
+  })
+  # End Intrawell time series plots --------------------------------------------
+  
   # End Intrawell Prediction Intervals -----------------------------------------
 
   # Begin Interwell Prediction Intervals ---------------------------------------
@@ -1200,11 +1257,11 @@ shinyServer(function(input, output, session) {
       filter(location_id %in% input$well_inter,
              param_name %in% input$analyte_inter)
 
-    bkgd_start <- min(lubridate::ymd(input$background_inter, tz = "UTC"))
-    bkgd_end <- max(lubridate::ymd(input$background_inter, tz = "UTC"))
+    start <- min(lubridate::ymd(input$background_inter, tz = "UTC"))
+    end <- max(lubridate::ymd(input$background_inter, tz = "UTC"))
 
     df <- df %>%
-      filter(sample_date >= bkgd_start, sample_date <= bkgd_end)
+      filter(sample_date >= start, sample_date <= end)
     
     # first group data by location, param, and background
     # estimate percent less than
@@ -1290,7 +1347,7 @@ shinyServer(function(input, output, session) {
     pred_int %>%
       mutate(distribution = distribution,
              sample_size = map(.x = pred_int, ~ .x$sample.size),
-             method = map(.x = pred_int,  ~ .x$interval$method),
+             method = map(.x = pred_int,  ~ tolower(.x$interval$method)),
              lpl = map(.x = pred_int, ~ .x$interval$limits["LPL"]),
              upl = map(.x = pred_int, ~ round(.x$interval$limits["UPL"], 3)),
              conf_level = map(.x = pred_int, ~ .x$interval$conf.level*100)) %>%

@@ -434,7 +434,9 @@ navbarMenu("Prediction Intervals",
                    value = 0.95, min = 0, max = 1)
      ),
      column(10, 
-       dataTableOutput("intra_limit_out")
+       dataTableOutput("intra_limit_out"),
+       br(),
+       uiOutput("ts_intra_out")
      )
     )
   )

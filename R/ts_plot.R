@@ -140,8 +140,10 @@ ts_plot <- function(df,
 
     p <- p + geom_rect(data = shaded_dates,
                        aes(xmin = xmin, ymin = ymin, xmax = xmax,
-                           ymax = ymax, fill = years), inherit.aes = FALSE) +
-      scale_fill_viridis(discrete = TRUE, alpha = 0.3) +
+                           ymax = ymax, fill = years),
+                       alpha = 0.3,
+                       inherit.aes = FALSE) +
+      scale_fill_manual(values = c("blue")) +
       guides(fill = guide_legend(override.aes = list(linetype = 0),
                                  title = "Date Ranges"))
 
@@ -153,6 +155,7 @@ ts_plot <- function(df,
     p <- p + geom_hline(data = df,
                         aes_string(yintercept = limit1,
                                    linetype = "limit1_name"),
+                        size = 1,
                         show.legend = TRUE)
 
   }
@@ -163,6 +166,7 @@ ts_plot <- function(df,
     p <- p + geom_hline(data = df,
                         aes_string(yintercept = limit2,
                                    linetype = "limit2_name"),
+                        size = 1,
                         show.legend = TRUE)
 
   }
