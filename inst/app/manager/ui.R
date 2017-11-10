@@ -493,8 +493,34 @@ tabPanel("Interwell",
         )
       )
     )
+  ),
+ tabPanel("Test Power",
+  fluidPage(
+    fluidRow(
+      column(2, 
+             numericInput(inputId = "power_n", 
+                          label = "Number of background samples",
+                          value = 8, min = 1),
+             numericInput(inputId = "power_n_mean", label = "Sample size for 
+                          future averages",
+                          value = 1, min = 1),
+             numericInput(inputId = "power_k", label = "k in k.of.m",
+                          value = 1, min = 1),
+             numericInput(inputId = "power_m", label = "m",
+                          value = 2, min = 1),
+             numericInput(inputId = "power_r", label = "r",
+                          value = 1, min = 1),
+             numericInput(inputId = "conf_power", label = "conf.level",
+                          value = 0.95)
+      ),
+      column(10,
+        plotOutput("power_plot")
+      )
+    )
   )
+)
 ),
+
 navbarMenu("Classification",
     tabPanel("GBM")
 )

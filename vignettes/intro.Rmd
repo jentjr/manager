@@ -16,6 +16,7 @@ The `manager` packages provides functions for reading external data.
 ```{r, echo=FALSE, message=FALSE}
 library(knitr)
 library(manager)
+library(EnvStats)
 ```
 
 ```{r, eval = FALSE}
@@ -74,17 +75,9 @@ pred_int_table <- pred_int %>%
 kable(pred_int_table)
 ```
 
-```{r}
-plot_data <- gw_data %>%
-  filter(location_id %in% wells, param_name %in% params) %>%
-  left_join(pred_int_table, by = c("location_id", "param_name", "default_unit"))
-
-ts_plot(plot_data, background = background, limit1 = "upl")
-```
-
 ##Confidence Intervals
 ```{r conf_int}
-conf_int <- gw_data %>%
+conf_int <- background_data %>%
   mutate(conf_int = case_when(
     distribution == "Normal" ~ map(.x=data,
                                    ~enorm(x = .x$analysis_result,

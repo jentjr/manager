@@ -1220,6 +1220,21 @@ shinyServer(function(input, output, session) {
   })
   # End Intrawell time series plots --------------------------------------------
   
+  # Begin Prediction Interval Power Test ---------------------------------------
+  output$power_plot <- renderPlot({
+    
+    plotPredIntNormSimultaneousTestPowerCurve(n = input$power_n,
+                                         n.mean = input$power_n_mean,
+                                              k = input$power_k,
+                                              m = input$power_m,
+                                              r = input$power_r,
+                                              conf.level = input$conf_power
+                                             )
+
+  })
+  
+  # End Prediction Interval Power Test -----------------------------------------
+  
   # End Intrawell Prediction Intervals -----------------------------------------
 
   # Begin Interwell Prediction Intervals ---------------------------------------
