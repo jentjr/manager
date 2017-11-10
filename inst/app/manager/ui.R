@@ -103,7 +103,11 @@ shinyUI(
     ),
     tabPanel("Time Series",
       fluidRow(
-        column(12, uiOutput("ts_out"))
+        column(2, 
+          uiOutput("select_ts_wells"),
+          uiOutput("select_ts_params")),
+        column(10, 
+          uiOutput("ts_out"))
       )
     ),
     tabPanel("Boxplots",

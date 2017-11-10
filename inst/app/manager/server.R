@@ -232,10 +232,32 @@ shinyServer(function(input, output, session) {
   # End Boxplot Page------------------------------------------------------------
 
   # Time Series Page -----------------------------------------------------------
-
+  output$select_ts_wells <- renderUI({
+    
+    data <- get_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("ts_well", "Monitoring Wells", well_names,
+                multiple = TRUE,
+                selected = well_names[1])
+  })
+  
+  output$select_ts_params <- renderUI({
+    
+    data <- get_data()
+    analyte_names <- as.character(constituents(data))
+    selectInput("ts_param", "Constituents", analyte_names,
+                multiple = TRUE,
+                selected = analyte_names[1])
+  })
+  
   ts_plot <- reactive({
 
     ts_data <- get_data()
+    
+    ts_data <- ts_data %>%
+      filter(location_id %in% input$ts_well,
+             param_name %in% input$ts_param)
+    
     ts_wells <- sample_locations(ts_data)
     ts_params <- constituents(ts_data)
 

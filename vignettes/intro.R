@@ -1,6 +1,7 @@
 ## ---- echo=FALSE, message=FALSE------------------------------------------
 library(knitr)
 library(manager)
+library(EnvStats)
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  data <- read_manages3("C:/path/to/manages/Site.mdb")
@@ -18,11 +19,11 @@ params <- c("Sulfate, total",
             "Arsenic, dissolved",
             "Boron, dissolved")
 
-background <- lubridate::ymd(c("2007-12-20", "2012-01-01"))
+background <- lubridate::ymd(c("2007-12-20", "2012-01-01"), tz = "UTC")
 
 # first group data by location, param, and background
 # estimate percent less than
-gw_data <- gw_data %>%
+background_data <- gw_data %>%
   filter(location_id %in% wells, param_name %in% params,
          sample_date >= background[1] & sample_date <= background[2]) %>%
   group_by(location_id, param_name, default_unit) %>%
@@ -30,7 +31,7 @@ gw_data <- gw_data %>%
   est_dist(., keep_data_object = TRUE) %>%
   arrange(location_id, param_name)
 
-pred_int <- gw_data %>%
+pred_int <- background_data %>%
   mutate(pred_int = case_when(
     distribution == "Normal" ~ map(.x=data,
                                    ~predIntNorm(x = .x$analysis_result)),
@@ -53,7 +54,7 @@ pred_int_table <- pred_int %>%
 kable(pred_int_table)
 
 ## ----conf_int------------------------------------------------------------
-conf_int <- gw_data %>%
+conf_int <- background_data %>%
   mutate(conf_int = case_when(
     distribution == "Normal" ~ map(.x=data,
                                    ~enorm(x = .x$analysis_result,

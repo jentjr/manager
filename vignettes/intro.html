@@ -12,7 +12,7 @@
 
 <meta name="author" content="Justin Jent" />
 
-<meta name="date" content="2017-11-09" />
+<meta name="date" content="2017-11-10" />
 
 <title>Introduction to manager</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to manager</h1>
 <h4 class="author"><em>Justin Jent</em></h4>
-<h4 class="date"><em>2017-11-09</em></h4>
+<h4 class="date"><em>2017-11-10</em></h4>
 
 
 
@@ -89,11 +89,11 @@ params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">
             <span class="st">&quot;Arsenic, dissolved&quot;</span>,
             <span class="st">&quot;Boron, dissolved&quot;</span>)
 
-background &lt;-<span class="st"> </span>lubridate<span class="op">::</span><span class="kw">ymd</span>(<span class="kw">c</span>(<span class="st">&quot;2007-12-20&quot;</span>, <span class="st">&quot;2012-01-01&quot;</span>))
+background &lt;-<span class="st"> </span>lubridate<span class="op">::</span><span class="kw">ymd</span>(<span class="kw">c</span>(<span class="st">&quot;2007-12-20&quot;</span>, <span class="st">&quot;2012-01-01&quot;</span>), <span class="dt">tz =</span> <span class="st">&quot;UTC&quot;</span>)
 
 <span class="co"># first group data by location, param, and background</span>
 <span class="co"># estimate percent less than</span>
-gw_data &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
+background_data &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">%in%</span><span class="st"> </span>wells, param_name <span class="op">%in%</span><span class="st"> </span>params,
          sample_date <span class="op">&gt;=</span><span class="st"> </span>background[<span class="dv">1</span>] <span class="op">&amp;</span><span class="st"> </span>sample_date <span class="op">&lt;=</span><span class="st"> </span>background[<span class="dv">2</span>]) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">group_by</span>(location_id, param_name, default_unit) <span class="op">%&gt;%</span>
@@ -101,7 +101,7 @@ gw_data &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">est_dist</span>(., <span class="dt">keep_data_object =</span> <span class="ot">TRUE</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">arrange</span>(location_id, param_name)
 
-pred_int &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
+pred_int &lt;-<span class="st"> </span>background_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pred_int =</span> <span class="kw">case_when</span>(
     distribution <span class="op">==</span><span class="st"> &quot;Normal&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x=</span>data,
                                    <span class="op">~</span><span class="kw">predIntNorm</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result)),
@@ -261,7 +261,7 @@ pred_int_table &lt;-<span class="st"> </span>pred_int <span class="op">%&gt;%</s
 </div>
 <div id="confidence-intervals" class="section level2">
 <h2>Confidence Intervals</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">conf_int &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">conf_int &lt;-<span class="st"> </span>background_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">conf_int =</span> <span class="kw">case_when</span>(
     distribution <span class="op">==</span><span class="st"> &quot;Normal&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x=</span>data,
                                    <span class="op">~</span><span class="kw">enorm</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result,

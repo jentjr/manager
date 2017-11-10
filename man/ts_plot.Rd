@@ -8,8 +8,8 @@ or constituent.}
 ts_plot(df, x = "sample_date", y = "analysis_result",
   facet_var = "location_id", group_var = "param_name",
   lt_measure = "lt_measure", scale_y_trans = "identity", trend = NULL,
-  back_date = NULL, comp_date = NULL, limit1 = NULL, limit2 = NULL,
-  short_name = FALSE, pnt = 3, ncol = NULL, ...)
+  background = NULL, limit1 = NULL, limit2 = NULL, short_name = FALSE,
+  pnt = 3, ncol = NULL)
 }
 \arguments{
 \item{df}{df groundwater data in tidy format}
@@ -29,9 +29,7 @@ ts_plot(df, x = "sample_date", y = "analysis_result",
 
 \item{trend}{trend add trend line to time series plot}
 
-\item{back_date}{dates for background date range}
-
-\item{comp_date}{dates for compliance date range}
+\item{background}{vector of dates for background start and end dates.}
 
 \item{limit1}{horizontal line 1}
 
