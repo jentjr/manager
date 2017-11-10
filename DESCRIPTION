@@ -12,7 +12,6 @@ BugIssues: https://github.com/jentjr/manager/issues
 Depends:
     R (>= 3.0.2),
     tidyverse,
-    EnvStats,
     GGally,
     ggbeeswarm,
     viridis
@@ -32,6 +31,8 @@ Suggests:
     rmarkdown,
     covr,
     udunits2
+Remotes: 
+    jentjr/EnvStats
 License: MIT + file LICENSE
 LazyData: true
 VignetteBuilder: knitr
