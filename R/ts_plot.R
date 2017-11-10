@@ -11,8 +11,7 @@
 #' "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
 #' "probit", "reciprocal", "reverse" and "sqrt".
 #' @param trend trend add trend line to time series plot
-#' @param back_date dates for background date range
-#' @param comp_date dates for compliance date range
+#' @param background vector of dates for background start and end dates.
 #' @param limit1 horizontal line 1
 #' @param limit2 horizontal line 2
 #' @param short_name If TRUE, the constituent name will be abbreviated
@@ -29,14 +28,14 @@ ts_plot <- function(df,
                     lt_measure = "lt_measure",
                     scale_y_trans = "identity",
                     trend = NULL,
-                    back_date = NULL,
-                    comp_date = NULL,
+                    background = NULL,
                     limit1 = NULL,
                     limit2 = NULL,
                     short_name = FALSE,
                     pnt = 3,
-                    ncol = NULL,
-                    ...) {
+                    ncol = NULL
+                    ) {
+
     df %>%
       group_by_(group_var) %>%
       do(plot = .ts_plot(.,
@@ -47,14 +46,13 @@ ts_plot <- function(df,
                          lt_measure = lt_measure,
                          scale_y_trans = scale_y_trans,
                          trend = trend,
-                         back_date = back_date,
-                         comp_date = comp_date,
+                         background = background,
                          limit1 = limit1,
                          limit2 = limit2,
                          short_name = short_name,
                          pnt = pnt,
-                         ncol = ncol,
-                         ...))
+                         ncol = ncol
+                         ))
 }
 
 #' Helper function for plotting time series of groundwater data
@@ -65,8 +63,7 @@ ts_plot <- function(df,
 #' @param facet_var column to facet wrap plots by, default is by location
 #' @param group_var column to group plots by, default is by constituent
 #' @param trend trend add trend line to time series plot
-#' @param back_date dates for background date range
-#' @param comp_date dates for compliance date range
+#' @param background vecotr of dates for background date range
 #' @param limit1 horizontal line 1
 #' @param limit2 horizontal line 2
 #' @param short_name If TRUE, the constituent name will be abbreviated
@@ -82,30 +79,21 @@ ts_plot <- function(df,
                      group_var = NULL,
                      scale_y_trans = "identity",
                      trend = NULL,
-                     back_date = NULL,
-                     comp_date = NULL,
+                     background = NULL,
                      limit1 = NULL,
                      limit2 = NULL,
                      short_name = FALSE,
                      pnt = 3,
-                     ncol = NULL,
-                     ...) {
+                     ncol = NULL
+                     ) {
 
-  df$non_detect <- if_else(df[, "lt_measure"] == "<",
-                           "non-detect", "detected",
-                            missing = "detected")
+  df <- df %>%
+    mutate(non_detect = if_else(lt_measure == "<", 
+                                "non-detect", "detected",
+                                 missing = "detected"))
 
-  if (isTRUE(short_name)) {
-
-    df$param_name <- paste(df$short_name, " (", df$default_unit, ")",
-                           sep = "")
-
-  } else {
-
-    df$param_name <- paste(df$param_name, " (", df$default_unit, ")",
-                           sep = "")
-
-  }
+  df <- df %>%
+   name_units(short_name = short_name)
 
   # main plot
   p <- ggplot(data = df, aes_string(x = x, y = y)) +
@@ -132,21 +120,7 @@ ts_plot <- function(df,
 
   if (!is.null(trend)) {
 
-    if (trend == "theil-sen") {
-
-      theil_sen <- get_theilsen(df, ...)
-      slope <- theil_sen["slope"][[1]]
-      intercept <- theil_sen["intercept"][[1]]
-
-      p <- p + geom_abline(slope = slope, intercept = intercept)
-
-      } else {
-
       p <- p + geom_smooth(method = trend)
-
-      }
-
-    p
 
   }
 
@@ -158,21 +132,18 @@ ts_plot <- function(df,
 
   }
 
-  if (!is.null(back_date)) {
+  if (!is.null(background)) {
 
-    shaded_dates <- data.frame(xmin = c(back_date[1], comp_date[1]),
-                               xmax = c(back_date[2], comp_date[2]),
-                               ymin = c(-Inf, -Inf),
-                               ymax =  c(Inf, Inf),
-                               years = c("background", "compliance"))
+    shaded_dates <- data.frame(xmin = background[1], xmax = background[2],
+                               ymin = -Inf, ymax = Inf, 
+                               years = "background")
 
     p <- p + geom_rect(data = shaded_dates,
                        aes(xmin = xmin, ymin = ymin, xmax = xmax,
-                           ymax = ymax, fill = years),
-                       alpha = 0.2, inherit.aes = FALSE) +
-      scale_fill_manual(values = c("blue", "green")) +
+                           ymax = ymax, fill = years), inherit.aes = FALSE) +
+      scale_fill_viridis(discrete = TRUE, alpha = 0.3) +
       guides(fill = guide_legend(override.aes = list(linetype = 0),
-                                 title = "Date Range"))
+                                 title = "Date Ranges"))
 
   }
 

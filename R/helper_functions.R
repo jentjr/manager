@@ -163,19 +163,19 @@ join_lt <- function(df, col_name) {
 #' @param short_name If TRUE will use abbreviated constituent names
 #' @export
 
-name_units <- function(df, short_name = TRUE) {
+name_units <- function(df, short_name = FALSE) {
 
   if (short_name == TRUE) {
 
     df <- df %>% 
-      mutate(param_unit = paste0(.$short_name, " (", .$default_unit, ")"))
+      mutate(param_name = paste0(.$short_name, " (", .$default_unit, ")"))
 
   }
 
   else {
 
     df <- df %>%
-      mutate(param_unit  = paste0(.$param_name, " (", .$default_unit, ")"))
+      mutate(param_name  = paste0(.$param_name, " (", .$default_unit, ")"))
 
   }
 
