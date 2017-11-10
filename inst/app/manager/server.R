@@ -102,11 +102,11 @@ shinyServer(function(input, output, session) {
 
     if (isTRUE(input$dist_plot_type == "Censored")) {
 
-      df$censored <- ifelse(df$lt_measure == "<", TRUE, FALSE)
-
+      df <- df %>% to_censored()
+      
       out <- EnvStats::gofTestCensored(
 
-        x = df$analysis_result, censored = df$censored,
+        x = df$analysis_result, censored = df$left_censored,
         censoring.side = input$cen_dist_side,
         test = input$cen_dist_test,
         distribution = input$cen_dist_dist,
@@ -1076,27 +1076,34 @@ shinyServer(function(input, output, session) {
       filter(param_name != "pH (field)") %>%
       mutate(pred_int = case_when(
         distribution == "Normal" ~ map(.x=data,
-                                       ~predIntNorm(
+                                       ~predIntNormSimultaneous(
                                          x = .x$analysis_result,
                                          n.mean = input$intra_n.mean,
                                          k = input$intra_k,
-                                         method = input$intra_method,
+                                         m = input$intra_m,
+                                         r = input$intra_r,
+                                         rule = input$intra_rule,
                                          pi.type = input$intra_pi.type,
-                                         conf.level = input$intra_conf)
+                                         conf.level = input$intra_conf
+                                         )
         ),
         distribution == "Lognormal"  ~ map(.x = data,
-                                           ~predIntLnormAlt(
+                                           ~predIntLnormAltSimultaneous(
                                              x = .x$analysis_result,
                                              n.geomean = input$intra_n.mean,
                                              k = input$intra_k,
-                                             method = input$intra_method,
+                                             m = input$intra_m,
+                                             r = input$intra_r,
+                                             rule = input$intra_rule,
                                              pi.type = input$intra_pi.type,
-                                             conf.level = input$intra_conf)
+                                             conf.level = input$intra_conf
+                                             )
         ),
         distribution == "Nonparametric" ~ map(.x = data,
                                               ~predIntNpar(
                                                 x = .x$analysis_result,
-                                                pi.type = input$intra_pi.type)
+                                                pi.type = input$intra_pi.type
+                                                )
         )
       )
       )
@@ -1105,22 +1112,28 @@ shinyServer(function(input, output, session) {
       filter(param_name == "pH (field)") %>%
       mutate(pred_int = case_when(
         distribution == "Normal"  ~ map(.x=data,
-                                        ~predIntNorm(
+                                        ~predIntNormSimultaneous(
                                           x = .x$analysis_result,
                                           n.mean = input$intra_n.mean,
-                                          k = input$inter_k,
-                                          method = input$intra_method,
+                                          k = input$intra_k,
+                                          m = input$intra_m,
+                                          r = input$intra_r,
+                                          rule = input$intra_rule,
                                           pi.type = "two-sided",
-                                          conf.level = input$intra_conf)
+                                          conf.level = input$intra_conf
+                                          )
                                         ),
         distribution == "Lognormal" ~ map(.x=data,
-                                          ~predIntLnorm(
+                                          ~predIntLnormAltSimultaneous(
                                             x = .x$analysis_result,
                                             n.geomean = input$intra_n.mean,
-                                            k = input$inter_k,
-                                            method = input$intra_method,
+                                            k = input$intra_k,
+                                            m = input$intra_m,
+                                            r = input$intra_r,
+                                            rule = input$intra_rule,
                                             pi.type = "two-sided",
-                                            conf.level = input$intra_conf)
+                                            conf.level = input$intra_conf
+                                            )
                                           ),
         distribution == "Nonparametric" ~ map(.x=data,
                                               ~predIntNpar(
@@ -1204,27 +1217,34 @@ shinyServer(function(input, output, session) {
       filter(param_name != "pH (field)") %>%
       mutate(pred_int = case_when(
         distribution == "Normal" ~ map(.x=data,
-                                       ~predIntNorm(
+                                       ~predIntNormSimultaneous(
                                          x = .x$analysis_result,
                                          n.mean = input$inter_n.mean,
                                          k = input$inter_k,
-                                         method = input$inter_method,
+                                         m = input$inter_m,
+                                         r = input$inter_r,
+                                         rule = input$inter_rule,
                                          pi.type = input$inter_pi.type,
-                                         conf.level = input$inter_conf)
+                                         conf.level = input$inter_conf
+                                         )
                                        ),
         distribution == "Lognormal"  ~ map(.x = data,
-                                           ~predIntLnormAlt(
+                                           ~predIntLnormAltSimultaneous(
                                              x = .x$analysis_result,
                                              n.geomean = input$inter_n.mean,
                                              k = input$inter_k,
-                                             method = input$inter_method,
+                                             m = input$inter_m,
+                                             r = input$inter_r,
+                                             rule = input$inter_rule,
                                              pi.type = input$inter_pi.type,
-                                             conf.level = input$inter_conf)
+                                             conf.level = input$inter_conf
+                                             )
                                            ),
         distribution == "Nonparametric" ~ map(.x = data,
                                               ~predIntNpar(
                                                 x = .x$analysis_result,
-                                                pi.type = input$inter_pi.type)
+                                                pi.type = input$inter_pi.type
+                                                )
                                               )
       )
     )
@@ -1233,25 +1253,34 @@ shinyServer(function(input, output, session) {
       filter(param_name == "pH (field)") %>%
       mutate(pred_int = case_when(
         distribution == "Normal"  ~ map(.x=data,
-                                        ~predIntNorm(
+                                        ~predIntNormSimultaneous(
                                           x = .x$analysis_result,
                                           n.mean = input$inter_n.mean,
                                           k = input$inter_k,
+                                          m = input$inter_m,
+                                          r = input$inter_r,
+                                          rule = input$inter_rule,
                                           pi.type = "two-sided",
-                                          conf.level = input$inter_conf)
+                                          conf.level = input$inter_conf
+                                          )
                                         ),
         distribution == "Lognormal" ~ map(.x=data,
-                                          ~predIntLnorm(
+                                          ~predIntLnormAltSimultaneous(
                                             x = .x$analysis_result,
                                             n.geomean = input$inter_n.mean,
                                             k = input$inter_k,
+                                            m = input$inter_m,
+                                            r = input$inter_r,
+                                            rule = input$inter_rule,
                                             pi.type = "two-sided",
-                                            conf.level = input$inter_conf)
+                                            conf.level = input$inter_conf
+                                            )
                                           ),
         distribution == "Nonparametric" ~ map(.x=data,
                                               ~predIntNpar(
                                                 x = .x$analysis_result,
-                                                pi.type = "two-sided")
+                                                pi.type = "two-sided"
+                                                )
                                               )
       )
     )

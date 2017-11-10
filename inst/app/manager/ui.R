@@ -126,107 +126,106 @@ shinyUI(
   ),
 
 # Geochemical Plots Navigation Bar ---------------------------------------------  
-  
-  navbarMenu("Geochemical Plots",
-    tabPanel("Piper Diagram",
-      fluidPage(
-        fluidRow(
-          column(2,
-            selectInput(inputId = "x_cation", label = "Enter X Cation",
-                        choices = c("Calcium, dissolved",
-                                    "Calcium, total"),
-                        selected = "Calcium, total"),
-            textInput(inputId = "x_cation_label", label = "X Cation Label",
-                      value = "Ca"),
-            selectInput(inputId = "y_cation", label = "Select Y Cation", 
-                        choices = c("Magnesium, dissolved", 
-                                    "Magnesium, total"),
-                        selected = "Magnesium, total"),
-            textInput(inputId = "y_cation_label", label = "Y Cation Label",
-                      value = "Mg"),
-            selectInput(inputId = "z_cation", label = "Select Z Cations", 
-                        choices = c("Potassium, dissolved", "Potassium, total",
-                                    "Sodium, dissolved", "Sodium, total"),
-                        selected = c("Potassium, total",
-                                     "Sodium, total"),
-                        multiple = TRUE),
-            textInput(inputId = "z_cation_label", label = "Z Cation Label",
-                      value = "Na + K"),
-            selectInput(inputId = "x_anion", label = "Select X Anion",
-                        choices = c("Chloride, total", "Chloride, dissolved", 
-                                    "Fluoride, total", "Fluoride, dissolved"),
-                        selected = c("Chloride, total", "Fluoride, total"),
-                        multiple = TRUE),
-            textInput(inputId = "x_anion_label", label = "X Anion Label",
-                      value = "Cl + F"),
-            selectInput(inputId = "y_anion", label = "Select Y Anion", 
-                       choices = c("Alkalinity, total (lab)")),
-            textInput(inputId = "y_anion_label", label = "Y Anion Label",
-                      value = "HCO3 + CO2"),
-            selectInput(inputId = "z_anion", label = "Select Z Anion", 
-                        choices = c("Sulfate, total", "Sulfate, dissolved"),
-                        selected = "Sulfate, total"),
-            textInput(inputId = "z_anion_label", label = "Z Anion Label",
-                      value = "SO4"),
-            textInput(inputId = "x_z_anion_label",label = "X-Z Anion Label", 
-                      value = "SO4 + Cl + F"),
-            textInput(inputId = "x_y_cation_label", label = "X Y Cation Label",
-                      value = "Ca + Mg"),
-            checkboxInput(inputId = "TDS_plot",
-                          label = "Scale by Total Dissolved Solids"),
-            uiOutput("select_piper_tds"),
-            textInput(inputId = "piper_title", label = "Enter Plot Title", 
-                      value = "Piper Diagram"),
-            downloadButton("piper_download", "Download Plot")
-          ),
-          column(10, 
-            plotOutput("piper_plot", height = 700, width = "100%")
-          )
+navbarMenu("Geochemical Plots",
+  tabPanel("Piper Diagram",
+    fluidPage(
+      fluidRow(
+        column(2,
+          selectInput(inputId = "x_cation", label = "Enter X Cation",
+                      choices = c("Calcium, dissolved",
+                                  "Calcium, total"),
+                      selected = "Calcium, total"),
+          textInput(inputId = "x_cation_label", label = "X Cation Label",
+                    value = "Ca"),
+          selectInput(inputId = "y_cation", label = "Select Y Cation", 
+                      choices = c("Magnesium, dissolved", 
+                                  "Magnesium, total"),
+                      selected = "Magnesium, total"),
+          textInput(inputId = "y_cation_label", label = "Y Cation Label",
+                    value = "Mg"),
+          selectInput(inputId = "z_cation", label = "Select Z Cations", 
+                      choices = c("Potassium, dissolved", "Potassium, total",
+                                  "Sodium, dissolved", "Sodium, total"),
+                      selected = c("Potassium, total",
+                                   "Sodium, total"),
+                      multiple = TRUE),
+          textInput(inputId = "z_cation_label", label = "Z Cation Label",
+                    value = "Na + K"),
+          selectInput(inputId = "x_anion", label = "Select X Anion",
+                      choices = c("Chloride, total", "Chloride, dissolved", 
+                                  "Fluoride, total", "Fluoride, dissolved"),
+                      selected = c("Chloride, total", "Fluoride, total"),
+                      multiple = TRUE),
+          textInput(inputId = "x_anion_label", label = "X Anion Label",
+                    value = "Cl + F"),
+          selectInput(inputId = "y_anion", label = "Select Y Anion", 
+                      choices = c("Alkalinity, total (lab)")),
+          textInput(inputId = "y_anion_label", label = "Y Anion Label",
+                    value = "HCO3 + CO2"),
+          selectInput(inputId = "z_anion", label = "Select Z Anion", 
+                      choices = c("Sulfate, total", "Sulfate, dissolved"),
+                      selected = "Sulfate, total"),
+          textInput(inputId = "z_anion_label", label = "Z Anion Label",
+                    value = "SO4"),
+          textInput(inputId = "x_z_anion_label",label = "X-Z Anion Label", 
+                    value = "SO4 + Cl + F"),
+          textInput(inputId = "x_y_cation_label", label = "X Y Cation Label",
+                    value = "Ca + Mg"),
+          checkboxInput(inputId = "TDS_plot",
+                        label = "Scale by Total Dissolved Solids"),
+          uiOutput("select_piper_tds"),
+          textInput(inputId = "piper_title", label = "Enter Plot Title", 
+                    value = "Piper Diagram"),
+          downloadButton("piper_download", "Download Plot")
+        ),
+        column(10, 
+          plotOutput("piper_plot", height = 700, width = "100%")
         )
       )
-    ),
-    tabPanel("Stiff Diagram",
-      fluidPage(
-        fluidRow(
-          column(2, 
-            selectInput(inputId = "Mg_stiff", label = "Magnesium",
-                        choices = c("Magnesium, dissolved",
-                                    "Magnesium, total"),
-                        selected = "Magnesium, total"),
-            selectInput(inputId = "Ca_stiff", label = "Calcium",
-                        choices = c("Calcium, dissolved",
-                                    "Calcium, total"),
-                        selected = "Calcium, total"),
-            selectInput(inputId = "K_stiff", label = "Potassium", 
-                        choices = c("Potassium, dissolved",
-                                    "Potassium, total"),
-                        selected = "Potassium, total"),
-            selectInput(inputId = "Na_stiff", label = "Sodium", 
-                        choices = c("Sodium, dissolved",
-                                    "Sodium, total"),
-                        selected = "Sodium, total"),
-            selectInput(inputId = "Cl_stiff", label = "Chloride", 
-                        choices = c("Chloride, dissolved",
-                                    "Chloride, total"),
-                        selected = "Chloride, total"),
-            selectInput(inputId = "SO4_stiff", label = "Sulfate", 
-                        choices = c("Sulfate, dissolved",
-                                    "Sulfate, total"),
-                        selected = "Sulfate, total"),
-            selectInput(inputId = "Alk_stiff", label = "Alkalinity", 
-                        choices = c("Alkalinity, total (lab)"),
-                        selected = "Alkalinity, total (lab)"),
-            checkboxInput(inputId = "TDS_stiff",
-                          label = "Scale by Total Dissolved Solids"),
-            uiOutput("select_stiff_tds"),
-            checkboxInput(inputId = "stiff_lines", label = "Display lines"),
-            selectInput(inputId = "stiff_group", label = "Grouping Variable",
-                        choices = c("location_id", "sample_date"),
-                        selected = "location_id"),
-            downloadButton("stiff_download", "Download Plots")
-          ),
-          column(10,
-            uiOutput("stiff_diagram") 
+    )
+  ),
+  tabPanel("Stiff Diagram",
+    fluidPage(
+      fluidRow(
+        column(2, 
+          selectInput(inputId = "Mg_stiff", label = "Magnesium",
+                      choices = c("Magnesium, dissolved",
+                                  "Magnesium, total"),
+                      selected = "Magnesium, total"),
+          selectInput(inputId = "Ca_stiff", label = "Calcium",
+                      choices = c("Calcium, dissolved",
+                                  "Calcium, total"),
+                      selected = "Calcium, total"),
+          selectInput(inputId = "K_stiff", label = "Potassium", 
+                      choices = c("Potassium, dissolved",
+                                  "Potassium, total"),
+                      selected = "Potassium, total"),
+          selectInput(inputId = "Na_stiff", label = "Sodium", 
+                      choices = c("Sodium, dissolved",
+                                  "Sodium, total"),
+                      selected = "Sodium, total"),
+          selectInput(inputId = "Cl_stiff", label = "Chloride", 
+                      choices = c("Chloride, dissolved",
+                                  "Chloride, total"),
+                      selected = "Chloride, total"),
+          selectInput(inputId = "SO4_stiff", label = "Sulfate", 
+                      choices = c("Sulfate, dissolved",
+                                  "Sulfate, total"),
+                      selected = "Sulfate, total"),
+          selectInput(inputId = "Alk_stiff", label = "Alkalinity", 
+                      choices = c("Alkalinity, total (lab)"),
+                      selected = "Alkalinity, total (lab)"),
+          checkboxInput(inputId = "TDS_stiff",
+                        label = "Scale by Total Dissolved Solids"),
+          uiOutput("select_stiff_tds"),
+          checkboxInput(inputId = "stiff_lines", label = "Display lines"),
+          selectInput(inputId = "stiff_group", label = "Grouping Variable",
+                      choices = c("location_id", "sample_date"),
+                      selected = "location_id"),
+          downloadButton("stiff_download", "Download Plots")
+        ),
+        column(10,
+          uiOutput("stiff_diagram") 
           )
         )
       )
@@ -400,68 +399,92 @@ navbarMenu("Prediction Intervals",
                    n.mean=1 (i.e., individual observations).
                    Note that all future averages must be based on the
                    same sample size", value = 1, min = 0),
-      numericInput(inputId = "intra_k", label = "Specify a positive integer 
-                   for the number of future observations or averages the 
-                   prediction interval should contain with confidence 
-                   level conf.level. The default value is k=1.",
-                   value = 1, min = 0),
-      selectInput(inputId = "intra_method", label = "Specify the method 
-                  to use if the number of future observations (k) is greater
-                  than 1. The possible values are method='Bonferroni'
-                  (approximate method based on Bonferonni inequality;
-                  the default), and method='exact' (exact method due to 
-                  Dunnett, 1955). This argument is ignored if k=1.", 
-                  choices = c("Bonferroni", "exact")),
-       selectInput(inputId = "intra_pi.type", label = "Specify what kind 
-                   of prediction interval to compute. The possible values 
-                   are 'upper' (the default), and 'lower'", 
-                   choices = c("two-sided", "upper", "lower"),
-                   selected = "upper"),
-       numericInput(inputId = "intra_conf", label = "Enter a value
-                    between 0 and 1 indicating the confidence level of the
-                    prediction interval", 
-                    value = 0.95, min = 0, max = 1)
+      numericInput(inputId = "intra_k", label = "Specify a positive integer
+                   for the k-of-m rule (rule='k.of.m'), a positive integer 
+                   specifying the minimum number of observations (or averages)
+                   out of m observations (or averages)
+                   (all obtained on one future sampling “occassion”)
+                   the prediction interval should contain with confidence
+                   level conf.level. The default value is k=1.
+                   This argument is ignored when the argument rule is not equal
+                   to 'k.of.m'.", value = 1, min = 0),
+      numericInput(inputId = "intra_m", label = "positive integer specifying
+                   the maximum number of future observations (or averages) on
+                   one future sampling “occasion”. The default value is m=2,
+                   except when rule='Modified.CA', in which case this argument
+                   is ignored and m is automatically set equal to 4.",
+                   value = 2, min = 0),
+      numericInput(inputId = "intra_r", label = "positive integer specifying
+                   the number of future sampling “occasions”. The default value
+                   is r=1.", value = 1, min = 0),
+      selectInput(inputId = "intra_rule", label = "character string specifying
+                  which rule to use. The possible values are 'k.of.m'
+                  (k-of-m rule; the default), 'CA' (California rule), and
+                  'Modified.CA' (modified California rule)",
+                  choices = c("k.of.m", "CA", "Modified.CA"),
+                  selected = "k.of.m"),
+      selectInput(inputId = "intra_pi.type", label = "Specify what kind 
+                  of prediction interval to compute. The possible values 
+                  are 'upper' (the default), and 'lower'", 
+                  choices = c("two-sided", "upper", "lower"),
+                  selected = "upper"),
+      numericInput(inputId = "intra_conf", label = "Enter a value
+                   between 0 and 1 indicating the confidence level of the
+                   prediction interval", 
+                   value = 0.95, min = 0, max = 1)
      ),
      column(10, 
        dataTableOutput("intra_limit_out")
      )
     )
   )
-  ),
-  tabPanel("Interwell",
-    fluidPage(
-      fluidRow(
-        column(2,
-          uiOutput("select_wells_inter"),
-          uiOutput("select_analyte_inter"),
-          uiOutput("select_date_ranges_inter"),
-          numericInput(inputId = "inter_n.mean", label = "Specify a
-                   positive integer for the sample size associated
-                   with the future averages. The default value is
-                   n.mean=1 (i.e., individual observations).
-                   Note that all future averages must be based on the
-                   same sample size", value = 1, min = 0),
-          numericInput(inputId = "inter_k", label = "Specify a positive integer 
-                   for the number of future observations or averages the 
-                   prediction interval should contain with confidence 
-                   level conf.level. The default value is k=1.",
-                       value = 1, min = 0),
-          selectInput(inputId = "inter_method", label = "Specify the method 
-                  to use if the number of future observations (k) is greater
-                  than 1. The possible values are method='Bonferroni'
-                  (approximate method based on Bonferonni inequality;
-                  the default), and method='exact' (exact method due to 
-                  Dunnett, 1955). This argument is ignored if k=1.", 
-                      choices = c("Bonferroni", "exact")),
-          selectInput(inputId = "inter_pi.type", label = "Specify what kind 
-                   of prediction interval to compute. The possible values 
-                   are 'upper' (the default), and 'lower'", 
-                      choices = c("two-sided", "upper", "lower"),
-                      selected = "upper"),
-          numericInput(inputId = "inter_conf", label = "Enter a value
-                    between 0 and 1 indicating the confidence level of the
-                    prediction interval", 
-                       value = 0.95, min = 0, max = 1)
+),
+tabPanel("Interwell",
+  fluidPage(
+    fluidRow(
+      column(2,
+        uiOutput("select_wells_inter"),
+        uiOutput("select_analyte_inter"),
+        uiOutput("select_date_ranges_inter"),
+        numericInput(inputId = "inter_n.mean", label = "Specify a
+                     positive integer for the sample size associated
+                     with the future averages. The default value is
+                     n.mean=1 (i.e., individual observations).
+                     Note that all future averages must be based on the
+                     same sample size", value = 1, min = 0),
+        numericInput(inputId = "inter_k", label = "Specify a positive integer
+                     for the k-of-m rule (rule='k.of.m'), a positive integer 
+                     specifying the minimum number of observations (or averages)
+                     out of m observations (or averages)
+                     (all obtained on one future sampling “occassion”)
+                     the prediction interval should contain with confidence
+                     level conf.level. The default value is k=1.
+                     This argument is ignored when the argument rule is not equal
+                     to 'k.of.m'.", value = 1, min = 0),
+        numericInput(inputId = "inter_m", label = "positive integer specifying
+                     the maximum number of future observations (or averages) on
+                     one future sampling “occasion”. The default value is m=2,
+                     except when rule='Modified.CA', in which case this argument
+                     is ignored and m is automatically set equal to 4.",
+                     value = 2, min = 0),
+        numericInput(inputId = "inter_r", label = "positive integer specifying
+                     the number of future sampling “occasions”. The default value
+                     is r=1.", value = 1, min = 0),
+        selectInput(inputId = "inter_rule", label = "character string specifying
+                    which rule to use. The possible values are 'k.of.m'
+                    (k-of-m rule; the default), 'CA' (California rule), and
+                    'Modified.CA' (modified California rule)",
+                     choices = c("k.of.m", "CA", "Modified.CA"),
+                     selected = "k.of.m"),
+        selectInput(inputId = "inter_pi.type", label = "Specify what kind 
+                    of prediction interval to compute. The possible values 
+                    are 'upper' (the default), and 'lower'", 
+                    choices = c("two-sided", "upper", "lower"),
+                    selected = "upper"),
+        numericInput(inputId = "inter_conf", label = "Enter a value
+                     between 0 and 1 indicating the confidence level of the
+                     prediction interval", 
+                     value = 0.95, min = 0, max = 1)
         ),
         column(10, 
           dataTableOutput("inter_limit_out")

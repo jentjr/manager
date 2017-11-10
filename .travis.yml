@@ -18,10 +18,8 @@ addons:
       - unixodbc-dev
       - libudunits2-dev
 
-r_packages:
- - EnvStats
-
 r_github_packages:
+ - jentjr/EnvStats
  - tidyverse/tidyverse
  - eclarke/ggbeeswarm
  - awalker89/openxlsx
