@@ -6,6 +6,7 @@
 #' @param y y column for y variable
 #' @param facet_var column to facet wrap plots by, default is by location
 #' @param group_var column to group plots by, default is by constituent
+#' @param lt_measure column for non-detect symbol
 #' @param scale_y_trans type of transformation to use for y scale. Default is
 #' "identity".  Built-in transformations include "asn", "atanh", "boxcox",
 #' "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
@@ -17,7 +18,6 @@
 #' @param short_name If TRUE, the constituent name will be abbreviated
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
-#' @param ... parameters passed to get_theilsen
 #' @export
 
 ts_plot <- function(df,
@@ -56,20 +56,6 @@ ts_plot <- function(df,
 }
 
 #' Helper function for plotting time series of groundwater data
-#'
-#' @param df df groundwater data in tidy format
-#' @param x x column for x variable
-#' @param y y column for y variable
-#' @param facet_var column to facet wrap plots by, default is by location
-#' @param group_var column to group plots by, default is by constituent
-#' @param trend trend add trend line to time series plot
-#' @param background vecotr of dates for background date range
-#' @param limit1 horizontal line 1
-#' @param limit2 horizontal line 2
-#' @param short_name If TRUE, the constituent name will be abbreviated
-#' @param pnt size of points on time series plots
-#' @param ncol number of columns
-#' @param ... parameters passed to get_theilsen
 
 .ts_plot <- function(df,
                      x = "sample_date",

@@ -20,6 +20,8 @@ summary(df, location_id = "location_id", param_name = "param_name",
 \item{analysis_result}{column for numerical result}
 
 \item{default_unit}{column of units}
+
+\item{na.rm}{TRUE/FALSE for missing values}
 }
 \description{
 Summary function

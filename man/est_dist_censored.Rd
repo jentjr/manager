@@ -5,20 +5,23 @@
 \title{Function to return either normal, lognormal, gamma, or non-parametric 
 distribution estimate}
 \usage{
-est_dist_censored(df, left_censored, alpha = 0.05,
-  group_by_location = FALSE, method = "sf", keep_data_object = FALSE)
+est_dist_censored(df, left_censored, method = "sf", alpha = 0.05,
+  choices = c("norm", "lnorm"), group_by_location = FALSE,
+  keep_data_object = FALSE)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
 
 \item{left_censored}{logical vector.}
 
+\item{method}{default is "sf"}
+
 \item{alpha}{alpha}
 
 \item{group_by_location}{TRUE/FALSE to estimate distribution by individual
 location, or grouped together. Default is FALSE.}
 
-\item{method}{default is "sf"}
+\item{keep_data_object}{Default is FALSE}
 }
 \description{
 Function to return either normal, lognormal, gamma, or non-parametric 

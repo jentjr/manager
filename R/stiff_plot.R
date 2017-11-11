@@ -121,14 +121,15 @@ stiff_plot <- function(df,
 
   if (!is.null(total_dissolved_solids)) {
     # try to fix error message when only 1 location plotted
-    p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS),
-                                   colour = "black") +
-      scale_fill_discrete()
+    p <- ggplot(df) + 
+      geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS), colour = "black") 
     
     if (requireNamespace("viridis", quietly = TRUE)) {
-      p <- p + viridis::scale_colour_viridis(discrete = TRUE)
-    } 
-    
+      p <- p + viridis::scale_fill_viridis()
+    } else{
+      p <- p + scale_fill_continuous()
+    }
+
   } else{
     p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y),
                                    fill = "white", colour = "black")

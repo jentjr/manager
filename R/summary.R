@@ -6,6 +6,7 @@
 #' @param lt_measure column of less than symbols for non-detect data
 #' @param analysis_result column for numerical result
 #' @param default_unit column of units
+#' @param na.rm TRUE/FALSE for missing values
 #' @export
 
 summary <- function(df,

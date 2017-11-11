@@ -1,6 +1,6 @@
 #' manager
 #'
 #' @name manager
-#' @import EnvStats
 #' @docType package
+#' @import EnvStats
 NULL

@@ -5,8 +5,8 @@
 \title{Function to return either normal, lognormal, or non-parametric 
 distribution.}
 \usage{
-est_dist(df, alpha = 0.05, method = "sw", group_by_location = FALSE,
-  keep_data_object = FALSE)
+est_dist(df, alpha = 0.05, method = "sw", choices = c("norm", "lnorm"),
+  group_by_location = FALSE, keep_data_object = FALSE)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
@@ -15,10 +15,12 @@ est_dist(df, alpha = 0.05, method = "sw", group_by_location = FALSE,
 
 \item{method}{default is "sw"}
 
+\item{choices}{vector of distributions to check. Default is c("norm, "lnorm")}
+
 \item{group_by_location}{TRUE/FALSE to estimate distribution by individual
 location, or grouped together. Default is FALSE.}
 
-\item{choices}{default is c("norm, "lnorm")}
+\item{keep_data_object}{Default is FALSE}
 }
 \description{
 Function to return either normal, lognormal, or non-parametric 

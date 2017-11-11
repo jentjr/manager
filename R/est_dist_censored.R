@@ -4,11 +4,10 @@
 #' @param df groundwater data frame in tidy format
 #' @param left_censored logical vector.
 #' @param alpha alpha 
+#' @param method default is "sf"
 #' @param group_by_location TRUE/FALSE to estimate distribution by individual
 #' location, or grouped together. Default is FALSE.
-#' @param method default is "sf"
-#' 
-#' @importFrom EnvStats distChooseCensored
+#' @param keep_data_object Default is FALSE
 #' 
 #' @examples 
 #' data("gw_data")
@@ -33,9 +32,12 @@
 #' est_dist_censored(., group_by_location = TRUE, keep_data_object = FALSE)
 #' @export
 
-est_dist_censored <- function(df, left_censored, alpha = 0.05,
-                              group_by_location = FALSE,
+est_dist_censored <- function(df, 
+                              left_censored,
                               method = "sf",
+                              alpha = 0.05,
+                              choices = c("norm", "lnorm"),
+                              group_by_location = FALSE,
                               keep_data_object = FALSE) {
 
   if (isTRUE(group_by_location)) {
@@ -54,7 +56,7 @@ est_dist_censored <- function(df, left_censored, alpha = 0.05,
   dist_est <- nested_df %>%
     mutate(dist_est = map(.x = data, ~distChooseCensored(
       x = .x$analysis_result, .x$left_censored, censoring.side ='left',
-      choices = c("norm", "lnorm"), method = method, alpha = alpha))
+      choices = choices, method = method, alpha = alpha))
       )
 
   if (isTRUE(keep_data_object)) {

@@ -54,6 +54,7 @@ read_manages3 <- function(manages3_path) {
 
 #' Function to connect to MANAGES 4.0 database
 #' 
+#' @param driver default is "SQL Server" 
 #' @param server server name
 #' @param database database name
 #' @export

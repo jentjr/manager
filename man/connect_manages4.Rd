@@ -7,6 +7,8 @@
 connect_manages4(driver = "SQL Server", server, database)
 }
 \arguments{
+\item{driver}{default is "SQL Server"}
+
 \item{server}{server name}
 
 \item{database}{database name}

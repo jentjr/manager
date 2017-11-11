@@ -4,11 +4,10 @@
 #' @param df groundwater data frame in tidy format
 #' @param alpha alpha
 #' @param method default is "sw"
+#' @param choices vector of distributions to check. Default is c("norm, "lnorm")
 #' @param group_by_location TRUE/FALSE to estimate distribution by individual
 #' location, or grouped together. Default is FALSE.
-#' @param choices default is c("norm, "lnorm")
-#' 
-#' @importFrom EnvStats distChoose
+#' @param keep_data_object Default is FALSE
 #' 
 #' @examples 
 #' data("gw_data")
@@ -35,6 +34,7 @@
 est_dist <- function(df, 
                      alpha = 0.05, 
                      method = "sw", 
+                     choices = c("norm", "lnorm"),
                      group_by_location = FALSE,
                      keep_data_object = FALSE) {
 
@@ -54,7 +54,7 @@ est_dist <- function(df,
   dist_est <- nested_df %>%
     mutate(dist_est = map(.x = data, ~distChoose(
       y = .x$analysis_result,
-      choices = c("norm", "lnorm"), method = method, alpha = alpha))
+      choices = choices, method = method, alpha = alpha))
     )
 
   if (isTRUE(keep_data_object)) {

@@ -4,6 +4,8 @@
 #' @param x column to be used for the x axis, default is location
 #' @param y column to be used for the y axis, default is analysis result
 #' @param lt_measure column for >, or < identifier
+#' @param group_var the name of column used for constituents. Default is
+#' "param_name"
 #' @param coef length of the whiskers as multiple of the IQR. Defualt is 3.
 #' @param scale_y_trans type of transformation to use for y scale. Default is
 #' "identity".  Built-in transformations include "asn", "atanh", "boxcox",
@@ -13,6 +15,7 @@
 #' @param fill column used to fill the variable
 #' @param limit1 column to be used to draw horizontal line
 #' @param limit2 column to be used to draw a second horizontal line
+#' @param pnt size of points
 #' @param short_name If TRUE the constituent name will be abbreviated
 #' @param coord_flip If TRUE the axes are flipped
 #' @param legend_title Legend title for fill variable

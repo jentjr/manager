@@ -13,11 +13,13 @@ Depends:
     R (>= 3.0.2),
     tidyverse
 Imports:
+    EnvStats,
     scales,
     grid,
     outliers
 Suggests: 
     animation,
+    lubridate,
     ggbeeswarm,
     viridis,
     openxlsx,

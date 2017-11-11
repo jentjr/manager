@@ -22,6 +22,8 @@ ts_plot(df, x = "sample_date", y = "analysis_result",
 
 \item{group_var}{column to group plots by, default is by constituent}
 
+\item{lt_measure}{column for non-detect symbol}
+
 \item{scale_y_trans}{type of transformation to use for y scale. Default is
 "identity".  Built-in transformations include "asn", "atanh", "boxcox",
 "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
@@ -40,8 +42,6 @@ ts_plot(df, x = "sample_date", y = "analysis_result",
 \item{pnt}{size of points on time series plots}
 
 \item{ncol}{number of columns}
-
-\item{...}{parameters passed to get_theilsen}
 }
 \description{
 This function plots multiple groundwater data time series by location,

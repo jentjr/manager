@@ -19,6 +19,9 @@ boxplot(df, x = "location_id", y = "analysis_result",
 
 \item{lt_measure}{column for >, or < identifier}
 
+\item{group_var}{the name of column used for constituents. Default is
+"param_name"}
+
 \item{coef}{length of the whiskers as multiple of the IQR. Defualt is 3.}
 
 \item{scale_y_trans}{type of transformation to use for y scale. Default is
@@ -33,6 +36,8 @@ boxplot(df, x = "location_id", y = "analysis_result",
 \item{limit1}{column to be used to draw horizontal line}
 
 \item{limit2}{column to be used to draw a second horizontal line}
+
+\item{pnt}{size of points}
 
 \item{short_name}{If TRUE the constituent name will be abbreviated}
 
