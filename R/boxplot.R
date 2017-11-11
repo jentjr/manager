@@ -84,9 +84,7 @@ boxplot <- function(df,
                      legend_title = NULL) {
 
   if (!is.null(fill) & is.null(legend_title)) {
-
     legend_title <- fill
-
   }
 
   df <- df %>%
@@ -119,19 +117,23 @@ boxplot <- function(df,
     guides(colour = guide_legend(override.aes = list(linetype = 0)),
            shape = guide_legend("Detection", override.aes = list(linetype = 0)),
            size = guide_legend("none")) +
-    viridis::scale_fill_viridis(discrete = TRUE) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) +
     ggtitle(paste("Boxplot for", df$param_name[1], "\n", sep = " "))
 
+  if (requireNamespace("viridis", quietly = TRUE)) {
+    b <- b + viridis::scale_fill_viridis(discrete = TRUE)
+  } 
+
   if (isTRUE(show_points)) {
-    
-    if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
-      stop("ggbeeswarm needed for this function to work. Please install it.", 
-           call. = FALSE)
+    if (requireNamespace("ggbeeswarm", quietly = TRUE)) {
+      b <-  b + ggbeeswarm::geom_beeswarm(aes(shape = factor(non_detect, 
+                                              exclude = NULL),
+                                              size = pnt), groupOnX = TRUE)
+    } else {
+     b <- b + geom_jitter(aes(shape = factor(non_detect, 
+                                             exclude = NULL),
+                              size = pnt)) 
     }
-    
-    b <-  b + ggbeeswarm::geom_beeswarm(aes(shape = factor(non_detect, exclude = NULL),
-                          size = pnt), groupOnX = TRUE)
   }
 
   if (!is.null(limit1)) {
@@ -151,9 +153,7 @@ boxplot <- function(df,
   }
 
   if (isTRUE(coord_flip)) {
-
     b <- b + coord_flip()
-
   }
 
   print(b)

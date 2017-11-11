@@ -33,7 +33,7 @@ df_lnorm1_cen <- data.frame(
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
-  analysis_result = rlnormAlt(20),
+  analysis_result = EnvStats::rlnormAlt(20),
   default_unit = rep("mg/L", 20)
 )
 

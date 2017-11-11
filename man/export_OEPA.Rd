@@ -4,7 +4,7 @@
 \alias{export_OEPA}
 \title{Function to export data from manages to excel format required by OEPA}
 \usage{
-export_OEPA(df, wells, constituents, file)
+export_OEPA(df, wells, constituents, file, short_name = TRUE)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
@@ -14,6 +14,8 @@ export_OEPA(df, wells, constituents, file)
 \item{constituents}{list of constituents to be exported}
 
 \item{file}{full file path name with extension for export}
+
+\item{short_name}{TRUE/FALSE to abbreviate constituent name}
 }
 \description{
 Function to export data from manages to excel format required by OEPA

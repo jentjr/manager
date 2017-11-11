@@ -8,6 +8,8 @@
 #' location, or grouped together. Default is FALSE.
 #' @param method default is "sf"
 #' 
+#' @importFrom EnvStats distChooseCensored
+#' 
 #' @examples 
 #' data("gw_data")
 #' wells <- c("MW-1", "MW-2", "MW-3")
@@ -50,7 +52,7 @@ est_dist_censored <- function(df, left_censored, alpha = 0.05,
   }
 
   dist_est <- nested_df %>%
-    mutate(dist_est = map(.x = data, ~EnvStats::distChooseCensored(
+    mutate(dist_est = map(.x = data, ~distChooseCensored(
       x = .x$analysis_result, .x$left_censored, censoring.side ='left',
       choices = c("norm", "lnorm"), method = method, alpha = alpha))
       )

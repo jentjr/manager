@@ -135,7 +135,11 @@ piper_plot <- function(df,
     guides(color = guide_legend("Location ID"),
            alpha = guide_legend("none")) +
     theme(plot.title = element_text(hjust = 0.5)) +
-    scale_colour_viridis(discrete = TRUE)
+    scale_colour_discrete()
+
+  if (requireNamespace("viridis", quietly = TRUE)) {
+    piper <- piper + viridis::scale_colour_viridis(discrete = TRUE)
+  } 
 
   # Scale by TDS
   if (!is.null(total_dissolved_solids)) {
@@ -175,6 +179,12 @@ piper_plot <- function(df,
 #' @export
 
 piper_time_plot <- function(df, total_dissolved_solids = FALSE, title = NULL) {
+  
+  if (!requireNamespace("animation", quietly = TRUE)) {
+    stop("animation package needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
+  
   iter <- unique(df$sample_date)
   .ggplot_piper()
   dev.hold()
@@ -200,7 +210,12 @@ piper_time_plot <- function(df, total_dissolved_solids = FALSE, title = NULL) {
 #' @export
 
 piper_time_html <- function(df, total_dissolved_solids = FALSE) {
-
+  
+  if (!requireNamespace("animation", quietly = TRUE)) {
+    stop("animation package needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
+  
     animation::saveHTML({
 
       animation::ani.options(nmax = length(unique(df$sample_date)),

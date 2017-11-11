@@ -13,13 +13,13 @@ Depends:
     R (>= 3.0.2),
     tidyverse
 Imports:
-    viridis,
     scales,
     grid,
     outliers
 Suggests: 
     animation,
     ggbeeswarm,
+    viridis,
     openxlsx,
     GGally,
     DBI,

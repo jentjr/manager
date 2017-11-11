@@ -8,6 +8,8 @@
 #' location, or grouped together. Default is FALSE.
 #' @param choices default is c("norm, "lnorm")
 #' 
+#' @importFrom EnvStats distChoose
+#' 
 #' @examples 
 #' data("gw_data")
 #' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
@@ -50,7 +52,7 @@ est_dist <- function(df,
   }
 
   dist_est <- nested_df %>%
-    mutate(dist_est = map(.x = data, ~EnvStats::distChoose(
+    mutate(dist_est = map(.x = data, ~distChoose(
       y = .x$analysis_result,
       choices = c("norm", "lnorm"), method = method, alpha = alpha))
     )

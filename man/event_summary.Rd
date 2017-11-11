@@ -4,7 +4,8 @@
 \alias{event_summary}
 \title{Function to export summary table for a sampling event}
 \usage{
-event_summary(df, wells, params, start, end, gw_elev = TRUE)
+event_summary(df, wells, params, start, end, gw_elev = TRUE,
+  short_name = TRUE)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
@@ -18,6 +19,8 @@ event_summary(df, wells, params, start, end, gw_elev = TRUE)
 \item{end}{end date}
 
 \item{gw_elev}{if TRUE, list date well sampled and annotate date for GW Elev}
+
+\item{short_name}{TRUE/FALSE to abbreviate constituent name}
 }
 \description{
 Function to export summary table for a sampling event
