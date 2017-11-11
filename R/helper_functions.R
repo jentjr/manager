@@ -144,12 +144,11 @@ to_censored <- function(df) {
 
 join_lt <- function(df, col_name) {
 
-  .join_lt <- function() {
-    paste(df$lt_measure, df$analysis_result, sep = " ")
-  }
-
-  df$result <- ifelse(df$lt_measure == "<" | df$lt_measure == ">",
-                        .join_lt(), df$analysis_result)
+  df <- df %>%
+    mutate(result = if_else(lt_measure == "<" | lt_measure == ">",
+                        paste0(lt_measure, analysis_result),
+                        as.character(analysis_result),
+                        missing = as.character(analysis_result)))
 
   names(df)[names(df) == "result"] <- col_name
 

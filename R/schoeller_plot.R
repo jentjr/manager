@@ -77,7 +77,7 @@ schoeller_plot <- function(df,
 
     p <- p + facet_wrap(~sample_date, scale = "free_y") +
       geom_line(aes(colour = location_id, group = location_id), size = lwt) +
-      scale_color_viridis(discrete = TRUE) +
+      viridis::scale_color_viridis(discrete = TRUE) +
       guides(colour = guide_legend("Location ID"))
 
     }
@@ -87,7 +87,7 @@ schoeller_plot <- function(df,
     p <- p + facet_wrap(~location_id, scale = "free_y") +
       geom_line(aes(colour = factor(sample_date), group = sample_date),
                 size = lwt) +
-      scale_colour_viridis(discrete = TRUE) +
+      viridis::scale_colour_viridis(discrete = TRUE) +
       guides(colour = guide_legend("Sample Date"))
 
   }

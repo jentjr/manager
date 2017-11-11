@@ -89,19 +89,13 @@ boxplot <- function(df,
 
   }
 
-  if (isTRUE(short_name)) {
-
-    df$name_units <- paste(df$short_name, " (", df$default_unit, ")", sep = "")
-
-  } else {
-
-    df$name_units <- paste(df$param_name, " (", df$default_unit, ")", sep = "")
-
-  }
-
-  df$non_detect <- if_else(df[, "lt_measure"] == "<",
-                           "non-detect", "detected",
-                           missing = "detected")
+  df <- df %>%
+    mutate(non_detect = if_else(lt_measure == "<", 
+                                "non-detect", "detected",
+                                missing = "detected"))
+  
+  df <- df %>%
+    name_units(short_name = short_name)
 
   b <- ggplot(df, aes_string(x = x, y = y, fill = fill)) +
     theme_bw() +
@@ -125,13 +119,19 @@ boxplot <- function(df,
     guides(colour = guide_legend(override.aes = list(linetype = 0)),
            shape = guide_legend("Detection", override.aes = list(linetype = 0)),
            size = guide_legend("none")) +
+    viridis::scale_fill_viridis(discrete = TRUE) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) +
-    ggtitle(paste("Boxplot for", df$name_units[1], "\n", sep = " "))
+    ggtitle(paste("Boxplot for", df$param_name[1], "\n", sep = " "))
 
   if (isTRUE(show_points)) {
-
-    b <-  b + geom_beeswarm(aes(shape = factor(non_detect, exclude = NULL),
-                               size = pnt), groupOnX = TRUE)
+    
+    if (!requireNamespace("ggbeeswarm", quietly = TRUE)) {
+      stop("ggbeeswarm needed for this function to work. Please install it.", 
+           call. = FALSE)
+    }
+    
+    b <-  b + ggbeeswarm::geom_beeswarm(aes(shape = factor(non_detect, exclude = NULL),
+                          size = pnt), groupOnX = TRUE)
   }
 
   if (!is.null(limit1)) {

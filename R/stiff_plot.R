@@ -123,7 +123,7 @@ stiff_plot <- function(df,
     # try to fix error message when only 1 location plotted
     p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y, fill = TDS),
                                    colour = "black") +
-      scale_fill_viridis()
+      viridis::scale_fill_viridis()
 
   } else{
     p <- ggplot(df) + geom_polygon(aes(x = stiff_x, y = stiff_y),

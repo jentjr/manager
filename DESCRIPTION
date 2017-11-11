@@ -11,18 +11,17 @@ URL: http://github.com/jentjr/manager
 BugIssues: https://github.com/jentjr/manager/issues
 Depends:
     R (>= 3.0.2),
-    tidyverse,
-    GGally,
-    ggbeeswarm,
-    viridis
+    tidyverse
 Imports:
-    openxlsx,
-    animation,
-    reshape2,
+    viridis,
     scales,
     grid,
     outliers
 Suggests: 
+    animation,
+    ggbeeswarm,
+    openxlsx,
+    GGally,
     DBI,
     odbc,
     shiny,

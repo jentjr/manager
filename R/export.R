@@ -4,20 +4,27 @@
 #' @param wells list of wells to be exported
 #' @param constituents list of constituents to be exported
 #' @param file full file path name with extension for export
+#' @param short_name TRUE/FALSE to abbreviate constituent name
 #' @export
 
-export_OEPA <- function(df, wells, constituents, file){
+export_OEPA <- function(df, wells, constituents, file, short_name = TRUE) {
+  
+  if (!requireNamespace("openxlsx", quietly = TRUE)) {
+    stop("openxlsx needed for this function to work. Please install it.", 
+         call. = FALSE)
+  }
   
   df <- df %>% 
     dplyr::filter(param_name %in% constituents, location_id %in% wells)
   
   df <- join_lt(df, "result")
   
-  df <- name_units(df, "param_unit")
+  df <- df %>%
+    name_units(short_name = short_name)
   
   df <- df %>%
-    dplyr::select(lab_id, location_id, sample_date, param_unit, result) %>%
-    tidyr::spread(param_unit, result)
+    dplyr::select(location_id, sample_date, param_name, result) %>%
+    tidyr::spread(param_name, result)
   
   wb <- openxlsx::createWorkbook()
   
@@ -25,6 +32,11 @@ export_OEPA <- function(df, wells, constituents, file){
     openxlsx::addWorksheet(wb, paste(x$location_id[1]))
     openxlsx::writeData(wb, x, sheet = paste(x$location_id[1]),
                         startRow = 1, startCol = 1, rowNames = FALSE)
+  }
+  
+  if (!requireNamespace("plyr", quietly = TRUE)) {
+    stop("plyr needed for this function to work. Please install it.", 
+         call. = FALSE)
   }
   
   plyr::d_ply(df, plyr::.(location_id), oepa_cast)
@@ -42,24 +54,27 @@ export_OEPA <- function(df, wells, constituents, file){
 #' @param start start date
 #' @param end end date 
 #' @param  gw_elev if TRUE, list date well sampled and annotate date for GW Elev
+#' @param short_name TRUE/FALSE to abbreviate constituent name
+#' 
 #' @export
 
-event_summary <- function(df, wells, params, start, end, gw_elev = TRUE){
+event_summary <- function(df, wells, params, start, end, gw_elev = TRUE,
+                          short_name = TRUE) {
   
   df <- df %>% 
     filter(location_id %in% wells, 
            param_name %in% params, 
            sample_date >= start & sample_date <= end)
   
-  df <- name_units(df, "param_units")
+  df <- df %>%
+    name_units()
   
   df <- join_lt(df, "result")
   
-  id <- dplyr::group_by(df, location_id, sample_date, param_units)
+  df <- df %>%
+    select(location_id, sample_date, param_name, result) %>%
+    spread(param_name, result)
   
-  out <- reshape2::dcast(id, value.var = "result", 
-                         location_id + sample_date ~ param_units, 
-                         margins = FALSE)
-  return(out)
+  return(df)
   
 }

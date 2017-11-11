@@ -20,10 +20,15 @@ corr_plot <- function(df,
                       sample_locations = NULL
                       ) {
 
+  if (!requireNamespace("GGally", quietly = TRUE)) {
+    stop("GGally needed for this function to work. Please install it.", 
+         call. = FALSE)
+  }
+
   df %>%
     .get_corr_data(., constituents = constituents,
                    sample_locations = sample_locations) %>%
-    ggpairs(columns = 3:ncol(.), aes(colour = location_id))
+    GGally::ggpairs(columns = 3:ncol(.), aes(colour = location_id))
 
 }
 
