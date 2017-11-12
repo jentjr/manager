@@ -1,0 +1,40 @@
+---
+title: "Geochemical Plots"
+author: "Justin R. Jent"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+The `manager` packages provides functions for geochemical plots.
+
+```{r, echo = FALSE, message=FALSE}
+devtools::load_all("/usr/local/src/manager")
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/geochemical-"
+)
+```
+
+```{r, piper, fig.height=6, fig.width=9, results='hide', warning=FALSE}
+# load example data
+data("gw_data")
+
+gw_data %>%
+  piper_plot()
+```
+
+```{r schoeller, fig.height=6, fig.width=9, results='hide', warning=FALSE}
+gw_data %>%
+  schoeller_plot()
+```
+
+```{r stiff, fig.height=6, fig.width=9, warning=FALSE, results='hide'}
+gw_data %>%
+  filter(location_id %in% c("MW-1", "MW-2")) %>%
+  stiff_plot(., total_dissolved_solids = "Total Dissolved Solids")
+```

@@ -4,6 +4,7 @@
 \name{manager}
 \alias{manager}
 \alias{manager-package}
+\alias{manager-package}
 \alias{manager}
 \title{manager}
 \usage{
@@ -13,4 +14,15 @@ manager()
 manager
 
 Function to launch shiny app for MANAGER
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{http://github.com/jentjr/manager}
+}
+
+}
+\author{
+\strong{Maintainer}: Justin Jent \email{jentjr@gmail.com}
+
 }

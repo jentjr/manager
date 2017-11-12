@@ -7,12 +7,12 @@ editor_options:
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, echo = FALSE, message=FALSE}
-library(manager)
+devtools::load_all("/usr/local/src/manager")
 
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-"
+  fig.path = "man/figures/README-"
 )
 ```
 
@@ -32,7 +32,8 @@ library(manager)
 # reading data from external sources
 data <- read_manages3("C:/path/to/Site.mdb")
 ```
-```{r, fig.height=6, fig.width=9, results='hide', warning=FALSE}
+
+```{r, time-series, fig.height=6, fig.width=9, results='hide', warning=FALSE}
 # load example data and plot time series of selected wells and constituents
 data("gw_data")
 
@@ -47,7 +48,9 @@ params <- c("Magnesium, dissolved",
 gw_data %>%
   filter(location_id %in% wells, param_name %in% params) %>%
   ts_plot(., facet_var = "param_name", group_var = "location_id")
+```
 
+```{r boxplots, fig.height=6, fig.width=9, results='hide'}
 # create boxplots filled by gradient
 gw_data %>%
   filter(param_name == "Chloride, total", 
@@ -56,8 +59,8 @@ gw_data %>%
   boxplot(., fill = "gradient")
 ```
 
-Create Piper plots...
-```{r, fig.height=6, fig.width=9, results='hide', warning=FALSE}
+Piper Diagrams and more...
+```{r, piper-plot, fig.height=6, fig.width=9, results='hide', warning=FALSE}
 gw_data %>%
   piper_plot()
 ```
@@ -88,5 +91,5 @@ A [shiny app](http://shiny.rstudio.com) is included with the package. It can
 be launched locally by running `manager::manager()`, or you can browse to the
 [shinyapps.io](http://shinyapps.io) website for 
 [manager](http://jentjr.shinyapps.io/manager). In order to read a MANAGES, or 
-gINT database you must be running  a local server with `RODBC` installed. 
+gINT database you must be running a local server with `RODBC` installed. 
 `R` must either be in 32-bit, or 64-bit mode depending on which drivers are installed for microsoft access. MANAGER has only been tested in 32-bit mode.

@@ -1,12 +1,12 @@
 ## ---- echo=FALSE, message=FALSE------------------------------------------
 library(knitr)
-library(manager)
-library(EnvStats)
+devtools::load_all("/usr/local/src/manager")
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  data <- read_manages3("C:/path/to/manages/Site.mdb")
 
 ## ---- eval=FALSE---------------------------------------------------------
+#  data("gw_data")
 #  data("ohio_data")
 #  data("indiana_data")
 
@@ -33,12 +33,12 @@ background_data <- gw_data %>%
 
 pred_int <- background_data %>%
   mutate(pred_int = case_when(
-    distribution == "Normal" ~ map(.x=data,
-                                   ~predIntNorm(x = .x$analysis_result)),
+    distribution == "Normal" ~ map(.x = data,
+                                   ~EnvStats::predIntNorm(x = .x$analysis_result)),
     distribution == "Lognormal" ~ map(.x = data,
-                                      ~predIntLnorm(x = .x$analysis_result)),
+                                      ~EnvStats::predIntLnorm(x = .x$analysis_result)),
     distribution == "Nonparametric" ~ map(.x = data,
-                                          ~predIntNpar(x = .x$analysis_result))
+                                          ~EnvStats::predIntNpar(x = .x$analysis_result))
     )
   )
 
@@ -57,17 +57,17 @@ kable(pred_int_table)
 conf_int <- background_data %>%
   mutate(conf_int = case_when(
     distribution == "Normal" ~ map(.x=data,
-                                   ~enorm(x = .x$analysis_result,
+                                   ~EnvStats::enorm(x = .x$analysis_result,
                                           ci = TRUE, ci.type = "lower",
                                           conf.level = 0.99,
                                           ci.param = "mean")),
     distribution == "Lognormal" ~ map(.x = data,
-                                      ~elnormAlt(x = .x$analysis_result,
+                                      ~EnvStats::elnormAlt(x = .x$analysis_result,
                                                  ci = TRUE, ci.type = "lower",
                                                  ci.method = "land",
                                                  conf.level = 0.99)),
     distribution == "Nonparametric" ~ map(.x = data,
-                                          ~eqnpar(x = .x$analysis_result,
+                                          ~EnvStats::eqnpar(x = .x$analysis_result,
                                                   ci = TRUE, ci.type = "lower",
                                                   ci.method = "interpolate",
                                                   approx.conf.level = 0.99))
@@ -85,4 +85,13 @@ conf_int_table <- conf_int %>%
 
 
 kable(conf_int_table)
+
+## ------------------------------------------------------------------------
+manager_pred_int <- background_data %>% pred_int(.)
+kable(manager_pred_int)
+
+manager_conf_int <- background_data %>%
+  conf_int(., ci_type = "lower", conf_level = 0.99)
+
+kable(manager_conf_int)
 

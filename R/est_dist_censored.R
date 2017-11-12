@@ -4,6 +4,7 @@
 #' @param df groundwater data frame in tidy format
 #' @param left_censored logical vector.
 #' @param alpha alpha 
+#' @param choices vector of distributions to check. Default is c("norm, "lnorm")
 #' @param method default is "sf"
 #' @param group_by_location TRUE/FALSE to estimate distribution by individual
 #' location, or grouped together. Default is FALSE.

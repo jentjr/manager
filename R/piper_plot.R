@@ -17,7 +17,7 @@
 #' @param y_anion_label label for y anion
 #' @param z_anion default is Sulfate, total
 #' @param z_anion_label label for z anion
-#' @param z_x_anion_label label for the upper left diamond
+#' @param x_z_anion_label label for the upper left diamond
 #' @param x_y_cation_label label for the upper right diamond
 #' @param total_dissolved_solids Scale plot by Total Dissolved Solids,
 #' default = FALSE
@@ -134,12 +134,13 @@ piper_plot <- function(df,
     ggtitle(paste(title)) +
     guides(color = guide_legend("Location ID"),
            alpha = guide_legend("none")) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    scale_colour_discrete()
+    theme(plot.title = element_text(hjust = 0.5))
 
   if (requireNamespace("viridis", quietly = TRUE)) {
     piper <- piper + viridis::scale_colour_viridis(discrete = TRUE)
-  } 
+  } else {
+    piper <- piper + scale_color_discrete()
+  }
 
   # Scale by TDS
   if (!is.null(total_dissolved_solids)) {
@@ -174,42 +175,33 @@ piper_plot <- function(df,
 #' using the animation package
 #'
 #' @param df data frame of groundwater data transformed using
-#' \code{\link{transform_piper_data}}
-#' @param total_dissolved_solids Scale by Total Dissolved Solids
+#' @inheritDotParams piper_plot
 #' @export
 
-piper_time_plot <- function(df, total_dissolved_solids = FALSE, title = NULL) {
+piper_time_plot <- function(df, ...) {
   
   if (!requireNamespace("animation", quietly = TRUE)) {
     stop("animation package needed for this function to work. Please install it.",
          call. = FALSE)
   }
-  
+
   iter <- unique(df$sample_date)
-  .ggplot_piper()
-  dev.hold()
-  for (i in 1:length(iter)) {
-    if (isTRUE(total_dissolved_solids)) {
-      print(piper_plot(df[df$sample_date == iter[i], ],
-                       total_dissolved_solids = TRUE,
-                       title = paste(title, iter[i], sep = "\n")))
+  
+  for (i in seq_along(iter)) {
+    piper_plot(df[df$sample_date == iter[i], ],
+                       title = paste(iter[i]),
+                       ...)
       animation::ani.pause()
-    }else{
-      print(piper_plot(df[df$sample_date == iter[i], ],
-                       title = paste(title, iter[i], sep = "\n")))
-      animation::ani.pause()
-    }
   }
 }
 
 #' Function to create an aminated Piper plot and save to html
 #'
 #' @param df data frame of groundwater data transformed using
-#' \code{\link{transform_piper_data}}
-#' @param total_dissolved_solids Scale by Total Dissolved Solids
+#' @inheritDotParams piper_plot
 #' @export
 
-piper_time_html <- function(df, total_dissolved_solids = FALSE) {
+piper_time_html <- function(df, ...) {
   
   if (!requireNamespace("animation", quietly = TRUE)) {
     stop("animation package needed for this function to work. Please install it.",

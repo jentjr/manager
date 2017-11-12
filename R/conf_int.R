@@ -11,6 +11,31 @@
 #' @param method character string specifying the method of estimation.
 #' Possible values are "mvue" (minimum variance unbiased; the default),
 #' and "mle/mme" (maximum likelihood/method of moments).
+#' 
+#' @examples 
+#' data("gw_data")
+
+#' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
+
+#' params <- c("Sulfate, total",
+#'             "Arsenic, dissolved",
+#'             "Boron, dissolved")
+#' 
+#' background <- lubridate::ymd(c("2007-12-20", "2012-01-01"), tz = "UTC")
+
+#' # first group data by location, param, and background
+#' # estimate percent less than and distribution
+#' background_data <- gw_data %>%
+#'  filter(location_id %in% wells, param_name %in% params,
+#'          sample_date >= background[1] & sample_date <= background[2]) %>%
+#'   group_by(location_id, param_name, default_unit) %>%
+#'   percent_lt() %>%
+#'   est_dist(., keep_data_object = TRUE) %>%
+#'   arrange(location_id, param_name)
+#' 
+#' background_data %>%
+#' conf_int(., ci_type = "lower", conf_level = 0.99)
+#' 
 #' @export
 
 conf_int <- function(df,
@@ -19,35 +44,44 @@ conf_int <- function(df,
                      method = "mvue",
                      ci_type = "two-sided",
                      conf_level = 0.95) {
-  
-  if (df$distribution[1] == "norm") {
-    int <- EnvStats::enorm(
-      df$analysis_result,
-      method = method,
-      ci = TRUE,
-      ci.type = ci_type,
-      conf.level = conf_level
+
+  conf_int <- df %>%
+    mutate(conf_int = case_when(
+      distribution == "Normal" ~ map(.x=data,
+                                     ~EnvStats::enorm(
+                                       x = .x$analysis_result,
+                                       method = method,
+                                       ci = TRUE,
+                                       ci.type = ci_type,
+                                       conf.level = conf_level,
+                                       ci.param = "mean")
+                                     ),
+      distribution == "Lognormal" ~ map(.x = data,
+                                        ~EnvStats::elnormAlt(
+                                          x = .x$analysis_result,
+                                          ci = TRUE,
+                                          ci.type = ci_type,
+                                          ci.method = "land",
+                                          conf.level = conf_level)
+                                        ),
+      distribution == "Nonparametric" ~ map(.x = data,
+                                            ~EnvStats::eqnpar(
+                                              x = .x$analysis_result,
+                                              ci = TRUE,
+                                              ci.type = ci_type,
+                                              ci.method = "interpolate",
+                                              approx.conf.level = conf_level)
+                                            )
+                       )
     )
-    
-  } else if (df$distribution[1] == "lnorm") {
-    int <- EnvStats::elnormAlt(
-      df$analysis_result,
-      method = method,
-      ci = TRUE,
-      ci.type = ci_type,
-      conf.level = conf_level
-    )
-  } else {
-    int <- EnvStats::eqnpar(
-      ci = TRUE,
-      df$analysis_result,
-      ci.type = ci_type,
-      approx.conf.level = conf_level
-    )
-  }
-  
-  # int["data.name"] <- paste(df$location_id, df$param_name, sep = " ")
-  
-  return(int)
-  
+
+  conf_int %>%
+    mutate(distribution = distribution,
+           sample_size = map(.x = conf_int, ~ .x$sample.size),
+           lcl = map(.x = conf_int, ~ round(.x$interval$limits["LCL"], 3)),
+           ucl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
+           conf_level = map(.x = conf_int, ~ .x$interval$conf.level)) %>%
+    select(-data, -conf_int) %>%
+    unnest()
+
 }

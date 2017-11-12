@@ -5,12 +5,18 @@
 #' @param constituents list of constituents to be exported
 #' @param file full file path name with extension for export
 #' @param short_name TRUE/FALSE to abbreviate constituent name
+#' 
 #' @export
 
 export_OEPA <- function(df, wells, constituents, file, short_name = TRUE) {
   
   if (!requireNamespace("openxlsx", quietly = TRUE)) {
     stop("openxlsx needed for this function to work. Please install it.", 
+         call. = FALSE)
+  }
+  
+  if (!requireNamespace("plyr", quietly = TRUE)) {
+    stop("plyr needed for this function to work. Please install it.", 
          call. = FALSE)
   }
   

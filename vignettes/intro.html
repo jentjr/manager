@@ -12,7 +12,7 @@
 
 <meta name="author" content="Justin Jent" />
 
-<meta name="date" content="2017-11-10" />
+<meta name="date" content="2017-11-11" />
 
 <title>Introduction to manager</title>
 
@@ -70,14 +70,15 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to manager</h1>
 <h4 class="author"><em>Justin Jent</em></h4>
-<h4 class="date"><em>2017-11-10</em></h4>
+<h4 class="date"><em>2017-11-11</em></h4>
 
 
 
 <p>The <code>manager</code> packages provides functions for reading external data.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data &lt;-<span class="st"> </span><span class="kw">read_manages3</span>(<span class="st">&quot;C:/path/to/manages/Site.mdb&quot;</span>)</code></pre></div>
 <p>Example data sets for groundwater in Indiana and Ohio are provided with the package</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;ohio_data&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;gw_data&quot;</span>)
+<span class="kw">data</span>(<span class="st">&quot;ohio_data&quot;</span>)
 <span class="kw">data</span>(<span class="st">&quot;indiana_data&quot;</span>)</code></pre></div>
 <div id="prediction-intervals" class="section level2">
 <h2>Prediction Intervals</h2>
@@ -103,12 +104,12 @@ background_data &lt;-<span class="st"> </span>gw_data <span class="op">%&gt;%</s
 
 pred_int &lt;-<span class="st"> </span>background_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">pred_int =</span> <span class="kw">case_when</span>(
-    distribution <span class="op">==</span><span class="st"> &quot;Normal&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x=</span>data,
-                                   <span class="op">~</span><span class="kw">predIntNorm</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result)),
+    distribution <span class="op">==</span><span class="st"> &quot;Normal&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x =</span> data,
+                                   <span class="op">~</span>EnvStats<span class="op">::</span><span class="kw">predIntNorm</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result)),
     distribution <span class="op">==</span><span class="st"> &quot;Lognormal&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x =</span> data,
-                                      <span class="op">~</span><span class="kw">predIntLnorm</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result)),
+                                      <span class="op">~</span>EnvStats<span class="op">::</span><span class="kw">predIntLnorm</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result)),
     distribution <span class="op">==</span><span class="st"> &quot;Nonparametric&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x =</span> data,
-                                          <span class="op">~</span><span class="kw">predIntNpar</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result))
+                                          <span class="op">~</span>EnvStats<span class="op">::</span><span class="kw">predIntNpar</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result))
     )
   )
 
@@ -264,17 +265,17 @@ pred_int_table &lt;-<span class="st"> </span>pred_int <span class="op">%&gt;%</s
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">conf_int &lt;-<span class="st"> </span>background_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">conf_int =</span> <span class="kw">case_when</span>(
     distribution <span class="op">==</span><span class="st"> &quot;Normal&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x=</span>data,
-                                   <span class="op">~</span><span class="kw">enorm</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result,
+                                   <span class="op">~</span>EnvStats<span class="op">::</span><span class="kw">enorm</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result,
                                           <span class="dt">ci =</span> <span class="ot">TRUE</span>, <span class="dt">ci.type =</span> <span class="st">&quot;lower&quot;</span>,
                                           <span class="dt">conf.level =</span> <span class="fl">0.99</span>,
                                           <span class="dt">ci.param =</span> <span class="st">&quot;mean&quot;</span>)),
     distribution <span class="op">==</span><span class="st"> &quot;Lognormal&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x =</span> data,
-                                      <span class="op">~</span><span class="kw">elnormAlt</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result,
+                                      <span class="op">~</span>EnvStats<span class="op">::</span><span class="kw">elnormAlt</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result,
                                                  <span class="dt">ci =</span> <span class="ot">TRUE</span>, <span class="dt">ci.type =</span> <span class="st">&quot;lower&quot;</span>,
                                                  <span class="dt">ci.method =</span> <span class="st">&quot;land&quot;</span>,
                                                  <span class="dt">conf.level =</span> <span class="fl">0.99</span>)),
     distribution <span class="op">==</span><span class="st"> &quot;Nonparametric&quot;</span> <span class="op">~</span><span class="st"> </span><span class="kw">map</span>(<span class="dt">.x =</span> data,
-                                          <span class="op">~</span><span class="kw">eqnpar</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result,
+                                          <span class="op">~</span>EnvStats<span class="op">::</span><span class="kw">eqnpar</span>(<span class="dt">x =</span> .x<span class="op">$</span>analysis_result,
                                                   <span class="dt">ci =</span> <span class="ot">TRUE</span>, <span class="dt">ci.type =</span> <span class="st">&quot;lower&quot;</span>,
                                                   <span class="dt">ci.method =</span> <span class="st">&quot;interpolate&quot;</span>,
                                                   <span class="dt">approx.conf.level =</span> <span class="fl">0.99</span>))
@@ -292,6 +293,285 @@ conf_int_table &lt;-<span class="st"> </span>conf_int <span class="op">%&gt;%</s
 
 
 <span class="kw">kable</span>(conf_int_table)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">location_id</th>
+<th align="left">param_name</th>
+<th align="left">default_unit</th>
+<th align="left">distribution</th>
+<th align="right">sample_size</th>
+<th align="right">lcl</th>
+<th align="right">ucl</th>
+<th align="right">conf_level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">MW-1</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">1.500</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">MW-1</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">0.265</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-1</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">50.409</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">MW-2</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">1.382</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-2</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Lognormal</td>
+<td align="right">14</td>
+<td align="right">1.993</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">MW-2</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">162.818</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-3</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">0.600</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">MW-3</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Lognormal</td>
+<td align="right">14</td>
+<td align="right">1.292</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-3</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Lognormal</td>
+<td align="right">14</td>
+<td align="right">126.169</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">MW-4</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">4.362</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-4</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">0.265</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+<tr class="even">
+<td align="left">MW-4</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">78.510</td>
+<td align="right">Inf</td>
+<td align="right">0.99</td>
+</tr>
+</tbody>
+</table>
+<p>The manager pacakges simplifies the above steps.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">manager_pred_int &lt;-<span class="st"> </span>background_data <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">pred_int</span>(.)
+<span class="kw">kable</span>(manager_pred_int)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">location_id</th>
+<th align="left">param_name</th>
+<th align="left">default_unit</th>
+<th align="left">distribution</th>
+<th align="right">sample_size</th>
+<th align="right">lpl</th>
+<th align="right">upl</th>
+<th align="right">conf_level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">MW-1</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">1.100000</td>
+<td align="right">10.0000000</td>
+<td align="right">0.8666667</td>
+</tr>
+<tr class="even">
+<td align="left">MW-1</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">0.080000</td>
+<td align="right">1.3700000</td>
+<td align="right">0.8666667</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-1</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">15.000000</td>
+<td align="right">117.0000000</td>
+<td align="right">0.8666667</td>
+</tr>
+<tr class="even">
+<td align="left">MW-2</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">1.000000</td>
+<td align="right">10.0000000</td>
+<td align="right">0.8666667</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-2</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Lognormal</td>
+<td align="right">14</td>
+<td align="right">1.729871</td>
+<td align="right">2.5721482</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="even">
+<td align="left">MW-2</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">158.000000</td>
+<td align="right">200.0000000</td>
+<td align="right">0.8666667</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-3</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">0.400000</td>
+<td align="right">10.0000000</td>
+<td align="right">0.8666667</td>
+</tr>
+<tr class="even">
+<td align="left">MW-3</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Lognormal</td>
+<td align="right">14</td>
+<td align="right">1.045456</td>
+<td align="right">1.8718412</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-3</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Lognormal</td>
+<td align="right">14</td>
+<td align="right">109.091564</td>
+<td align="right">163.9923875</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="even">
+<td align="left">MW-4</td>
+<td align="left">Arsenic, dissolved</td>
+<td align="left">ug/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">11.6737350</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="odd">
+<td align="left">MW-4</td>
+<td align="left">Boron, dissolved</td>
+<td align="left">mg/L</td>
+<td align="left">Normal</td>
+<td align="right">14</td>
+<td align="right">-Inf</td>
+<td align="right">0.8085698</td>
+<td align="right">0.9500000</td>
+</tr>
+<tr class="even">
+<td align="left">MW-4</td>
+<td align="left">Sulfate, total</td>
+<td align="left">mg/L</td>
+<td align="left">Nonparametric</td>
+<td align="right">14</td>
+<td align="right">22.100000</td>
+<td align="right">120.0000000</td>
+<td align="right">0.8666667</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">manager_conf_int &lt;-<span class="st"> </span>background_data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">conf_int</span>(., <span class="dt">ci_type =</span> <span class="st">&quot;lower&quot;</span>, <span class="dt">conf_level =</span> <span class="fl">0.99</span>)
+
+<span class="kw">kable</span>(manager_conf_int)</code></pre></div>
 <table>
 <thead>
 <tr class="header">

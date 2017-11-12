@@ -47,6 +47,8 @@ piper_plot(df, location_id = "location_id", sample_date = "sample_date",
 
 \item{z_anion_label}{label for z anion}
 
+\item{x_z_anion_label}{label for the upper left diamond}
+
 \item{x_y_cation_label}{label for the upper right diamond}
 
 \item{total_dissolved_solids}{Scale plot by Total Dissolved Solids,
@@ -60,8 +62,6 @@ is 0.2}
 \item{label_size}{size of font for labels}
 
 \item{title}{Title for plot, default = NULL}
-
-\item{z_x_anion_label}{label for the upper left diamond}
 }
 \description{
 labels accept plotmath expressions

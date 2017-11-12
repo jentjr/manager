@@ -18,6 +18,8 @@ est_dist_censored(df, left_censored, method = "sf", alpha = 0.05,
 
 \item{alpha}{alpha}
 
+\item{choices}{vector of distributions to check. Default is c("norm, "lnorm")}
+
 \item{group_by_location}{TRUE/FALSE to estimate distribution by individual
 location, or grouped together. Default is FALSE.}
 

@@ -321,41 +321,29 @@ stiff_plot <- function(df,
 }
 
 #' Function to create an animated Stiff Diagram 
-#' 
-#' @param df data frame of groundwater data transformed using 
-#' \code{\link{transform_stiff_data}}
+#' @inheritDotParams stiff_plot
 #' @export
 
-stiff_time_plot <- function(df, TDS = FALSE){
-  for (i in 1:length(unique(df$sample_date))) {
-    if (isTRUE(TDS)) {
-      print(stiff_plot(subset(df, sample_date == df$sample_date[i]), 
-                       TDS = TRUE))
+stiff_time_plot <- function(df, ...) {
+
+  for (i in seq_along(unique(df$sample_date))) {
+      .stiff_plot(df[df$sample_date == df$sample_date[i], ])
       animation::ani.pause()
-    }else{
-      print(stiff_plot(subset(df, sample_date == df$sample_date[i]), 
-                       TDS = FALSE))
-      animation::ani.pause()
-    }
   }
+
 }
 
 #' Function to create an animated Stiff Diagram and save to html
 #' 
-#' @param df data frame of groundwater data transformed using 
-#' @param TDS TRUE/FALSE fills polygon with color gradient of TDS
-#' \code{\link{transform_stiff_data}}
+#' @inheritDotParams stiff_plot
 #' @export
 
-stiff_time_html <- function(df, TDS = FALSE){
+stiff_time_html <- function(df, ...) {
+  
   animation::saveHTML({
     animation::ani.options(nmax = length(unique(df$sample_date)))
-    if (isTRUE(TDS)) {
-      stiff_time_plot(df, TDS = TRUE)
-    }else{
-      stiff_time_plot(df, TDS = FALSE)
-    }
-  }, 
+      stiff_time_plot(df, ...)
+  },
   img.name = "StiffPlot", htmlfile = "Stiff_plot.html",
   autobrowse = TRUE, title = "Stiff Diagram"
   )

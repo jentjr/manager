@@ -34,10 +34,9 @@ gw_data %>%
   ts_plot(., facet_var = "param_name", group_var = "location_id")
 ```
 
-![](README-unnamed-chunk-3-1.png)![](README-unnamed-chunk-3-2.png)
+![](man/figures/README-time-series-1.png)![](man/figures/README-time-series-2.png)
 
 ``` r
-
 # create boxplots filled by gradient
 gw_data %>%
   filter(param_name == "Chloride, total", 
@@ -46,16 +45,16 @@ gw_data %>%
   boxplot(., fill = "gradient")
 ```
 
-![](README-unnamed-chunk-3-3.png)
+![](man/figures/README-boxplots-1.png)
 
-Create Piper plots...
+Piper Diagrams and more...
 
 ``` r
 gw_data %>%
   piper_plot()
 ```
 
-![](README-unnamed-chunk-4-1.png)
+![](man/figures/README-piper-plot-1.png)
 
 Installation
 ------------

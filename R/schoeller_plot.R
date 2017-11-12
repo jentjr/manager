@@ -5,6 +5,7 @@
 #' will convert data from mg/L to meq/L
 #' @param location_id the column for sample locations
 #' @param sample_date column for sample date
+#' @param param_name the column of parameter names
 #' @param analysis_result column containing the numerical analysis result
 #' @param default_unit column containing the units. Assumes mg/L.
 #' @param calcium name of calcium. Default is "Calcium, dissolved"
@@ -77,7 +78,6 @@ schoeller_plot <- function(df,
 
     p <- p + facet_wrap(~sample_date, scale = "free_y") +
       geom_line(aes(colour = location_id, group = location_id), size = lwt) +
-      scale_color_discrete() +
       guides(colour = guide_legend("Location ID"))
 
     }
@@ -87,14 +87,15 @@ schoeller_plot <- function(df,
     p <- p + facet_wrap(~location_id, scale = "free_y") +
       geom_line(aes(colour = factor(sample_date), group = sample_date),
                 size = lwt) +
-      scale_colour_discrete() +
       guides(colour = guide_legend("Sample Date"))
 
   }
 
   if (requireNamespace("viridis", quietly = TRUE)) {
     p <- p + viridis::scale_colour_viridis(discrete = TRUE)
-  } 
+  } else {
+    p <- p + scale_color_discrete()
+  }
 
   return(p)
 

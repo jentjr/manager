@@ -1,6 +1,10 @@
 #' manager
 #'
 #' @name manager
-#' @docType package
 #' @import EnvStats
-NULL
+#' @importFrom graphics lines plot points
+#' @importFrom stats IQR mad median quantile sd var setNames
+#' @importFrom utils data
+#' @importFrom grDevices dev.hold
+#' @docType package
+"_PACKAGE"

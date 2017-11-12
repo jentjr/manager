@@ -9,17 +9,21 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+```{r, echo = FALSE, message=FALSE}
+devtools::load_all("/usr/local/src/manager")
 
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/geochemical-"
+)
+```
 This document describes how to update background data used in 
 detection monitoring. The well, constituent, current background and proposed
 data can be selected and the underlying assumptions are checked and the data
 are analyzed.
 
 ```{r, message=FALSE}
-library(manager)
 data("gw_data")
 
 MW1_Arsenic <- gw_data %>%

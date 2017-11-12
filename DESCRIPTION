@@ -14,6 +14,7 @@ Depends:
     tidyverse
 Imports:
     EnvStats,
+    car,
     scales,
     grid,
     outliers
@@ -24,6 +25,7 @@ Suggests:
     viridis,
     openxlsx,
     GGally,
+    readxl,
     DBI,
     odbc,
     shiny,

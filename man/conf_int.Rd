@@ -29,3 +29,25 @@ of the prediction interval. The default value is conf_level = 0.95}
 \description{
 Function to calculate confidence intervals
 }
+\examples{
+data("gw_data")
+wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
+params <- c("Sulfate, total",
+            "Arsenic, dissolved",
+            "Boron, dissolved")
+
+background <- lubridate::ymd(c("2007-12-20", "2012-01-01"), tz = "UTC")
+# first group data by location, param, and background
+# estimate percent less than and distribution
+background_data <- gw_data \%>\%
+ filter(location_id \%in\% wells, param_name \%in\% params,
+         sample_date >= background[1] & sample_date <= background[2]) \%>\%
+  group_by(location_id, param_name, default_unit) \%>\%
+  percent_lt() \%>\%
+  est_dist(., keep_data_object = TRUE) \%>\%
+  arrange(location_id, param_name)
+
+background_data \%>\%
+conf_int(., ci_type = "lower", conf_level = 0.99)
+
+}
