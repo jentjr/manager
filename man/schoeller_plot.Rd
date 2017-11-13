@@ -21,6 +21,8 @@ will convert data from mg/L to meq/L}
 
 \item{sample_date}{column for sample date}
 
+\item{param_name}{the column of parameter names}
+
 \item{analysis_result}{column containing the numerical analysis result}
 
 \item{default_unit}{column containing the units. Assumes mg/L.}

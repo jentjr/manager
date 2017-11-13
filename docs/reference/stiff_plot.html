@@ -68,6 +68,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="../articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -209,7 +212,7 @@ meq/L and then transformed to coordinates for Stiff diagmram.</p>
 #&gt; 1        MW-1 &lt;list [3]&gt;</div><div class='input'>
 <span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
 <span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"MW-1"</span>, <span class='st'>"MW-2"</span>)) <span class='kw'>%&gt;%</span>
-<span class='fu'>stiff_plot</span>(<span class='no'>.</span>, <span class='kw'>total_dissolved_solids</span> <span class='kw'>=</span> <span class='st'>"Total Dissolved Solids"</span>)</div><div class='output co'>#&gt; <span class='message'>Joining, by = "param_name"</span></div><div class='output co'>#&gt; <span class='message'>Joining, by = "param_name"</span></div><div class='img'><img src='stiff_plot-2.png' alt='' width='700' height='432.632880098887' /></div><div class='img'><img src='stiff_plot-3.png' alt='' width='700' height='432.632880098887' /></div><div class='output co'>#&gt; Source: local data frame [2 x 2]
+<span class='fu'>stiff_plot</span>(<span class='no'>.</span>, <span class='kw'>total_dissolved_solids</span> <span class='kw'>=</span> <span class='st'>"Total Dissolved Solids"</span>)</div><div class='output co'>#&gt; <span class='message'>Joining, by = "param_name"</span></div><div class='output co'>#&gt; |===========================                           | 50% ~4 s remaining     </div><div class='output co'>#&gt; <span class='message'>Joining, by = "param_name"</span></div><div class='img'><img src='stiff_plot-2.png' alt='' width='700' height='432.632880098887' /></div><div class='img'><img src='stiff_plot-3.png' alt='' width='700' height='432.632880098887' /></div><div class='output co'>#&gt; |======================================================|100% ~0 s remaining     </div><div class='output co'>#&gt; Source: local data frame [2 x 2]
 #&gt; Groups: &lt;by row&gt;
 #&gt; 
 #&gt; # A tibble: 2 x 2

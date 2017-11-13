@@ -45,6 +45,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -104,19 +107,18 @@ params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">
 gw_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">filter</span>(location_id <span class="op">%in%</span><span class="st"> </span>wells, param_name <span class="op">%in%</span><span class="st"> </span>params) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="reference/ts_plot.html">ts_plot</a></span>(., <span class="dt">facet_var =</span> <span class="st">"param_name"</span>, <span class="dt">group_var =</span> <span class="st">"location_id"</span>)</code></pre></div>
-<p><img src="README-unnamed-chunk-3-1.png" width="864"><img src="README-unnamed-chunk-3-2.png" width="864"></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-<span class="co"># create boxplots filled by gradient</span>
+<p><img src="reference/figures/README-time-series-1.png" width="864"><img src="reference/figures/README-time-series-2.png" width="864"></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># create boxplots filled by gradient</span>
 gw_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">filter</span>(param_name <span class="op">==</span><span class="st"> "Chloride, total"</span>, 
          location_id <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">"MW-1"</span>, <span class="st">"MW-2"</span>, <span class="st">"MW-3"</span>, <span class="st">"MW-4"</span>, <span class="st">"MW-5"</span>, <span class="st">"MW-6"</span>, <span class="st">"MW-7"</span>, <span class="st">"MW-8"</span>)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">gradient =</span> <span class="kw">if_else</span>(location_id <span class="op">%in%</span><span class="st"> </span>wells, <span class="st">"upgradient"</span>, <span class="st">"downgradient"</span>)) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/boxplot.html">boxplot</a></span>(., <span class="dt">fill =</span> <span class="st">"gradient"</span>)</code></pre></div>
-<p><img src="README-unnamed-chunk-3-3.png" width="864"></p>
-<p>Create Piper plots…</p>
+<p><img src="reference/figures/README-boxplots-1.png" width="864"></p>
+<p>Piper Diagrams and more…</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gw_data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="reference/piper_plot.html">piper_plot</a></span>()</code></pre></div>
-<p><img src="README-unnamed-chunk-4-1.png" width="864"></p>
+<p><img src="reference/figures/README-piper-plot-1.png" width="864"></p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">

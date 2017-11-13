@@ -1,8 +1,13 @@
-## ----setup, include=FALSE------------------------------------------------
-knitr::opts_chunk$set(echo = TRUE)
+## ---- echo = FALSE, message=FALSE----------------------------------------
+library(manager)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/geochemical-"
+)
 
 ## ---- message=FALSE------------------------------------------------------
-library(manager)
 data("gw_data")
 
 MW1_Arsenic <- gw_data %>%

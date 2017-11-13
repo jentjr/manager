@@ -69,6 +69,9 @@ or constituent. — ts_plot • manager</title>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="../articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -108,8 +111,8 @@ or constituent.</p>
     <pre class="usage"><span class='fu'>ts_plot</span>(<span class='no'>df</span>, <span class='kw'>x</span> <span class='kw'>=</span> <span class='st'>"sample_date"</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='st'>"analysis_result"</span>,
   <span class='kw'>facet_var</span> <span class='kw'>=</span> <span class='st'>"location_id"</span>, <span class='kw'>group_var</span> <span class='kw'>=</span> <span class='st'>"param_name"</span>,
   <span class='kw'>lt_measure</span> <span class='kw'>=</span> <span class='st'>"lt_measure"</span>, <span class='kw'>scale_y_trans</span> <span class='kw'>=</span> <span class='st'>"identity"</span>, <span class='kw'>trend</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>back_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>comp_date</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>limit1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>limit2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>short_name</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pnt</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
+  <span class='kw'>background</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>limit1</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>limit2</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>short_name</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>pnt</span> <span class='kw'>=</span> <span class='fl'>3</span>, <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -135,6 +138,10 @@ or constituent.</p>
       <td><p>column to group plots by, default is by constituent</p></td>
     </tr>
     <tr>
+      <th>lt_measure</th>
+      <td><p>column for non-detect symbol</p></td>
+    </tr>
+    <tr>
       <th>scale_y_trans</th>
       <td><p>type of transformation to use for y scale. Default is
 "identity".  Built-in transformations include "asn", "atanh", "boxcox",
@@ -146,12 +153,8 @@ or constituent.</p>
       <td><p>trend add trend line to time series plot</p></td>
     </tr>
     <tr>
-      <th>back_date</th>
-      <td><p>dates for background date range</p></td>
-    </tr>
-    <tr>
-      <th>comp_date</th>
-      <td><p>dates for compliance date range</p></td>
+      <th>background</th>
+      <td><p>vector of dates for background start and end dates.</p></td>
     </tr>
     <tr>
       <th>limit1</th>
@@ -172,10 +175,6 @@ or constituent.</p>
     <tr>
       <th>ncol</th>
       <td><p>number of columns</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>parameters passed to get_theilsen</p></td>
     </tr>
     </table>
     

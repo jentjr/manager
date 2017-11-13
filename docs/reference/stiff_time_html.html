@@ -68,6 +68,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="../articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -102,19 +105,35 @@
     <p>Function to create an animated Stiff Diagram and save to html</p>
     
 
-    <pre class="usage"><span class='fu'>stiff_time_html</span>(<span class='no'>df</span>, <span class='kw'>TDS</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>stiff_time_html</span>(<span class='no'>df</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>df</th>
-      <td><p>data frame of groundwater data transformed using</p></td>
-    </tr>
-    <tr>
-      <th>TDS</th>
-      <td><p>TRUE/FALSE fills polygon with color gradient of TDS
-<code>transform_stiff_data</code></p></td>
+      <th>...</th>
+      <td><p>Arguments passed on to <code>stiff_plot</code></p><dl class='dl-horizontal'>
+  <dt>df</dt><dd><p>data frame of water quality data</p></dd>
+  <dt>location_id</dt><dd><p>column for sample locations</p></dd>
+  <dt>sample_date</dt><dd><p>column for sample date</p></dd>
+  <dt>param_name</dt><dd><p>column for constituent names</p></dd>
+  <dt>analysis_result</dt><dd><p>column for analysis result</p></dd>
+  <dt>default_unit</dt><dd><p>column for units. Assumes all units are in mg/L and
+converts usign <code><a href='conc_to_meq.html'>conc_to_meq</a></code></p></dd>
+  <dt>magnesium</dt><dd><p>name for magnesium</p></dd>
+  <dt>calcium</dt><dd><p>name for calcium</p></dd>
+  <dt>sodium</dt><dd><p>name for sodium</p></dd>
+  <dt>potassium</dt><dd><p>name for potassium</p></dd>
+  <dt>chloride</dt><dd><p>name for chloride</p></dd>
+  <dt>sulfate</dt><dd><p>name for sulfate</p></dd>
+  <dt>alkalinity</dt><dd><p>name for alkalinity</p></dd>
+  <dt>total_dissolved_solids</dt><dd><p>name for TDS to scale color of plot.
+Default is NULL</p></dd>
+  <dt>group_var</dt><dd><p>parameter to separate plots by. Default is sample location</p></dd>
+  <dt>facet_var</dt><dd><p>parameter to facet the plot by. Default is sample date</p></dd>
+  <dt>lines</dt><dd><p>TRUE/FALSE plots lines</p></dd>
+  <dt>cex</dt><dd><p>multiplier to scale plot height</p></dd>
+</dl></td>
     </tr>
     </table>
     

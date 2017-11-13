@@ -68,6 +68,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="../articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -102,7 +105,8 @@
     <p>Function to export summary table for a sampling event</p>
     
 
-    <pre class="usage"><span class='fu'>event_summary</span>(<span class='no'>df</span>, <span class='no'>wells</span>, <span class='no'>params</span>, <span class='no'>start</span>, <span class='no'>end</span>, <span class='kw'>gw_elev</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>event_summary</span>(<span class='no'>df</span>, <span class='no'>wells</span>, <span class='no'>params</span>, <span class='no'>start</span>, <span class='no'>end</span>, <span class='kw'>gw_elev</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>short_name</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -130,6 +134,10 @@
     <tr>
       <th>gw_elev</th>
       <td><p>if TRUE, list date well sampled and annotate date for GW Elev</p></td>
+    </tr>
+    <tr>
+      <th>short_name</th>
+      <td><p>TRUE/FALSE to abbreviate constituent name</p></td>
     </tr>
     </table>
     

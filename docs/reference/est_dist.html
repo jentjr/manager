@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to return either normal, lognormal, or non-parametric multiple 
-groundwater data locations and parameters. — est_dist • manager</title>
+<title>Function to return either normal, lognormal, or non-parametric 
+distribution. — est_dist • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -69,6 +69,9 @@ groundwater data locations and parameters. — est_dist • manager</title>
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="../articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -96,16 +99,17 @@ groundwater data locations and parameters. — est_dist • manager</title>
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to return either normal, lognormal, or non-parametric multiple 
-groundwater data locations and parameters.</h1>
+    <h1>Function to return either normal, lognormal, or non-parametric 
+distribution.</h1>
     </div>
 
     
-    <p>Function to return either normal, lognormal, or non-parametric multiple 
-groundwater data locations and parameters.</p>
+    <p>Function to return either normal, lognormal, or non-parametric 
+distribution.</p>
     
 
-    <pre class="usage"><span class='fu'>est_dist</span>(<span class='no'>df</span>, <span class='kw'>p_value</span> <span class='kw'>=</span> <span class='fl'>0.01</span>)</pre>
+    <pre class="usage"><span class='fu'>est_dist</span>(<span class='no'>df</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"sw"</span>, <span class='kw'>choices</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"norm"</span>, <span class='st'>"lnorm"</span>),
+  <span class='kw'>group_by_location</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -115,18 +119,75 @@ groundwater data locations and parameters.</p>
       <td><p>groundwater data frame in tidy format</p></td>
     </tr>
     <tr>
-      <th>p_value</th>
-      <td><p>p-value for gofTest</p></td>
+      <th>alpha</th>
+      <td><p>alpha</p></td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td><p>default is "sw"</p></td>
+    </tr>
+    <tr>
+      <th>choices</th>
+      <td><p>vector of distributions to check. Default is c("norm, "lnorm")</p></td>
+    </tr>
+    <tr>
+      <th>group_by_location</th>
+      <td><p>TRUE/FALSE to estimate distribution by individual
+location, or grouped together. Default is FALSE.</p></td>
+    </tr>
+    <tr>
+      <th>keep_data_object</th>
+      <td><p>Default is FALSE</p></td>
     </tr>
     </table>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>data</span>(<span class='st'>"gw_data"</span>)
+<span class='no'>wells</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"MW-1"</span>, <span class='st'>"MW-2"</span>, <span class='st'>"MW-3"</span>, <span class='st'>"MW-4"</span>)
+<span class='no'>params</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"Sulfate, total"</span>,
+            <span class='st'>"Arsenic, dissolved"</span>,
+           <span class='st'>"Boron, dissolved"</span>)
+
+<span class='no'>gw_data</span> <span class='kw'>&lt;-</span> <span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
+<span class='fu'>filter</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='no'>wells</span>, <span class='no'>param_name</span> <span class='kw'>%in%</span> <span class='no'>params</span>) <span class='kw'>%&gt;%</span>
+<span class='fu'><a href='percent_lt.html'>percent_lt</a></span>() <span class='kw'>%&gt;%</span>
+<span class='fu'>filter</span>(<span class='no'>percent_lt</span> <span class='kw'>&lt;=</span><span class='fl'>15</span>)
+
+<span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
+<span class='fu'>group_by</span>(<span class='no'>location_id</span>, <span class='no'>param_name</span>, <span class='no'>default_unit</span>) <span class='kw'>%&gt;%</span>
+<span class='fu'>est_dist</span>(<span class='no'>.</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; # A tibble: 12 x 4
+#&gt;    location_id         param_name default_unit  distribution
+#&gt;          &lt;chr&gt;              &lt;chr&gt;        &lt;chr&gt;         &lt;chr&gt;
+#&gt;  1        MW-2     Sulfate, total         mg/L     Lognormal
+#&gt;  2        MW-2 Arsenic, dissolved         ug/L Nonparametric
+#&gt;  3        MW-2   Boron, dissolved         mg/L        Normal
+#&gt;  4        MW-1     Sulfate, total         mg/L        Normal
+#&gt;  5        MW-1 Arsenic, dissolved         ug/L Nonparametric
+#&gt;  6        MW-1   Boron, dissolved         mg/L Nonparametric
+#&gt;  7        MW-3     Sulfate, total         mg/L        Normal
+#&gt;  8        MW-3 Arsenic, dissolved         ug/L Nonparametric
+#&gt;  9        MW-3   Boron, dissolved         mg/L        Normal
+#&gt; 10        MW-4     Sulfate, total         mg/L Nonparametric
+#&gt; 11        MW-4 Arsenic, dissolved         ug/L        Normal
+#&gt; 12        MW-4   Boron, dissolved         mg/L        Normal</div><div class='input'>
+
+<span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
+<span class='fu'>group_by</span>(<span class='no'>param_name</span>, <span class='no'>default_unit</span>) <span class='kw'>%&gt;%</span>
+<span class='fu'>est_dist</span>(<span class='no'>.</span>, <span class='kw'>group_by_location</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 3
+#&gt;           param_name default_unit  distribution
+#&gt;                &lt;chr&gt;        &lt;chr&gt;         &lt;chr&gt;
+#&gt; 1     Sulfate, total         mg/L        Normal
+#&gt; 2 Arsenic, dissolved         ug/L Nonparametric
+#&gt; 3   Boron, dissolved         mg/L Nonparametric</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+            
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

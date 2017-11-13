@@ -68,6 +68,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="../articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -128,6 +131,11 @@
       <td><p>column for &gt;, or &lt; identifier</p></td>
     </tr>
     <tr>
+      <th>group_var</th>
+      <td><p>the name of column used for constituents. Default is
+"param_name"</p></td>
+    </tr>
+    <tr>
       <th>coef</th>
       <td><p>length of the whiskers as multiple of the IQR. Defualt is 3.</p></td>
     </tr>
@@ -155,6 +163,10 @@
       <td><p>column to be used to draw a second horizontal line</p></td>
     </tr>
     <tr>
+      <th>pnt</th>
+      <td><p>size of points</p></td>
+    </tr>
+    <tr>
       <th>short_name</th>
       <td><p>If TRUE the constituent name will be abbreviated</p></td>
     </tr>
@@ -177,7 +189,7 @@
       <span class='st'>"MW-5"</span>, <span class='st'>"MW-6"</span>, <span class='st'>"MW-7"</span>, <span class='st'>"MW-8"</span>)) <span class='kw'>%&gt;%</span>
  <span class='fu'>mutate</span>(<span class='kw'>gradient</span> <span class='kw'>=</span> <span class='fu'>if_else</span>(<span class='no'>location_id</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"MW-1"</span>, <span class='st'>"MW-2"</span>, <span class='st'>"MW-3"</span>, <span class='st'>"MW-5"</span>),
  <span class='st'>"upgradient"</span>, <span class='st'>"downgradient"</span>)) <span class='kw'>%&gt;%</span>
- <span class='fu'>boxplot</span>(<span class='no'>.</span>, <span class='kw'>fill</span> <span class='kw'>=</span> <span class='st'>"gradient"</span>)</div><div class='img'><img src='boxplot-1.png' alt='' width='700' height='432.632880098887' /></div><div class='img'><img src='boxplot-2.png' alt='' width='700' height='432.632880098887' /></div><div class='output co'>#&gt; Source: local data frame [2 x 2]
+ <span class='fu'>boxplot</span>(<span class='no'>.</span>, <span class='kw'>fill</span> <span class='kw'>=</span> <span class='st'>"gradient"</span>)</div><div class='img'><img src='boxplot-1.png' alt='' width='700' height='432.632880098887' /></div><div class='output co'>#&gt; |===========================                           | 50% ~3 s remaining     </div><div class='img'><img src='boxplot-2.png' alt='' width='700' height='432.632880098887' /></div><div class='output co'>#&gt; |======================================================|100% ~0 s remaining     </div><div class='output co'>#&gt; Source: local data frame [2 x 2]
 #&gt; Groups: &lt;by row&gt;
 #&gt; 
 #&gt; # A tibble: 2 x 2

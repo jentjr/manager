@@ -68,6 +68,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="../articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -102,19 +105,43 @@
     <p>Function to create an aminated Piper plot and save to html</p>
     
 
-    <pre class="usage"><span class='fu'>piper_time_html</span>(<span class='no'>df</span>, <span class='kw'>total_dissolved_solids</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>piper_time_html</span>(<span class='no'>df</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>data frame of groundwater data transformed using
-<code>transform_piper_data</code></p></td>
+      <td><p>data frame of groundwater data transformed using</p></td>
     </tr>
     <tr>
-      <th>total_dissolved_solids</th>
-      <td><p>Scale by Total Dissolved Solids</p></td>
+      <th>...</th>
+      <td><p>Arguments passed on to <code>piper_plot</code></p><dl class='dl-horizontal'>
+  <dt>df</dt><dd><p>data frame of water quality data in tidy format</p></dd>
+  <dt>location_id</dt><dd><p>column for sample location</p></dd>
+  <dt>sample_date</dt><dd><p>column for sample date</p></dd>
+  <dt>x_cation</dt><dd><p>default is Calcium, dissolved</p></dd>
+  <dt>x_cation_label</dt><dd><p>label for x cation</p></dd>
+  <dt>y_cation</dt><dd><p>default is Magnesium, dissolved</p></dd>
+  <dt>y_cation_label</dt><dd><p>label for y cation</p></dd>
+  <dt>z_cation</dt><dd><p>default is Sodium, dissolved + Potassium, dissolved</p></dd>
+  <dt>z_cation_label</dt><dd><p>label for z cation</p></dd>
+  <dt>x_anion</dt><dd><p>default is Chloride, total + Fluoride, total</p></dd>
+  <dt>x_anion_label</dt><dd><p>label for x anion</p></dd>
+  <dt>y_anion</dt><dd><p>default is Alkalinity, total (lab)</p></dd>
+  <dt>y_anion_label</dt><dd><p>label for y anion</p></dd>
+  <dt>z_anion</dt><dd><p>default is Sulfate, total</p></dd>
+  <dt>z_anion_label</dt><dd><p>label for z anion</p></dd>
+  <dt>x_z_anion_label</dt><dd><p>label for the upper left diamond</p></dd>
+  <dt>x_y_cation_label</dt><dd><p>label for the upper right diamond</p></dd>
+  <dt>total_dissolved_solids</dt><dd><p>Scale plot by Total Dissolved Solids,
+default = FALSE</p></dd>
+  <dt>transparency</dt><dd><p>the setting for transparency value for points. Default
+is 0.2</p></dd>
+  <dt>pnt_size</dt><dd><p>the size of the points. Default is 3</p></dd>
+  <dt>label_size</dt><dd><p>size of font for labels</p></dd>
+  <dt>title</dt><dd><p>Title for plot, default = NULL</p></dd>
+</dl></td>
     </tr>
     </table>
     

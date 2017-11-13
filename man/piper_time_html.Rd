@@ -4,13 +4,38 @@
 \alias{piper_time_html}
 \title{Function to create an aminated Piper plot and save to html}
 \usage{
-piper_time_html(df, total_dissolved_solids = FALSE)
+piper_time_html(df, ...)
 }
 \arguments{
-\item{df}{data frame of groundwater data transformed using
-\code{\link{transform_piper_data}}}
+\item{df}{data frame of groundwater data transformed using}
 
-\item{total_dissolved_solids}{Scale by Total Dissolved Solids}
+\item{...}{Arguments passed on to \code{piper_plot}
+\describe{
+  \item{df}{data frame of water quality data in tidy format}
+  \item{location_id}{column for sample location}
+  \item{sample_date}{column for sample date}
+  \item{x_cation}{default is Calcium, dissolved}
+  \item{x_cation_label}{label for x cation}
+  \item{y_cation}{default is Magnesium, dissolved}
+  \item{y_cation_label}{label for y cation}
+  \item{z_cation}{default is Sodium, dissolved + Potassium, dissolved}
+  \item{z_cation_label}{label for z cation}
+  \item{x_anion}{default is Chloride, total + Fluoride, total}
+  \item{x_anion_label}{label for x anion}
+  \item{y_anion}{default is Alkalinity, total (lab)}
+  \item{y_anion_label}{label for y anion}
+  \item{z_anion}{default is Sulfate, total}
+  \item{z_anion_label}{label for z anion}
+  \item{x_z_anion_label}{label for the upper left diamond}
+  \item{x_y_cation_label}{label for the upper right diamond}
+  \item{total_dissolved_solids}{Scale plot by Total Dissolved Solids,
+default = FALSE}
+  \item{transparency}{the setting for transparency value for points. Default
+is 0.2}
+  \item{pnt_size}{the size of the points. Default is 3}
+  \item{label_size}{size of font for labels}
+  \item{title}{Title for plot, default = NULL}
+}}
 }
 \description{
 Function to create an aminated Piper plot and save to html

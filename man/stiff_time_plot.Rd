@@ -4,11 +4,32 @@
 \alias{stiff_time_plot}
 \title{Function to create an animated Stiff Diagram}
 \usage{
-stiff_time_plot(df, TDS = FALSE)
+stiff_time_plot(df, ...)
 }
 \arguments{
-\item{df}{data frame of groundwater data transformed using 
-\code{\link{transform_stiff_data}}}
+\item{...}{Arguments passed on to \code{stiff_plot}
+\describe{
+  \item{df}{data frame of water quality data}
+  \item{location_id}{column for sample locations}
+  \item{sample_date}{column for sample date}
+  \item{param_name}{column for constituent names}
+  \item{analysis_result}{column for analysis result}
+  \item{default_unit}{column for units. Assumes all units are in mg/L and
+converts usign \code{\link{conc_to_meq}}}
+  \item{magnesium}{name for magnesium}
+  \item{calcium}{name for calcium}
+  \item{sodium}{name for sodium}
+  \item{potassium}{name for potassium}
+  \item{chloride}{name for chloride}
+  \item{sulfate}{name for sulfate}
+  \item{alkalinity}{name for alkalinity}
+  \item{total_dissolved_solids}{name for TDS to scale color of plot.
+Default is NULL}
+  \item{group_var}{parameter to separate plots by. Default is sample location}
+  \item{facet_var}{parameter to facet the plot by. Default is sample date}
+  \item{lines}{TRUE/FALSE plots lines}
+  \item{cex}{multiplier to scale plot height}
+}}
 }
 \description{
 Function to create an animated Stiff Diagram

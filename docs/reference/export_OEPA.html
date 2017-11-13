@@ -68,6 +68,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/geochemical_plots.html">Geochemical Plots</a>
+    </li>
+    <li>
       <a href="../articles/intro.html">Introduction to manager</a>
     </li>
     <li>
@@ -102,7 +105,7 @@
     <p>Function to export data from manages to excel format required by OEPA</p>
     
 
-    <pre class="usage"><span class='fu'>export_OEPA</span>(<span class='no'>df</span>, <span class='no'>wells</span>, <span class='no'>constituents</span>, <span class='no'>file</span>)</pre>
+    <pre class="usage"><span class='fu'>export_OEPA</span>(<span class='no'>df</span>, <span class='no'>wells</span>, <span class='no'>constituents</span>, <span class='no'>file</span>, <span class='kw'>short_name</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -122,6 +125,10 @@
     <tr>
       <th>file</th>
       <td><p>full file path name with extension for export</p></td>
+    </tr>
+    <tr>
+      <th>short_name</th>
+      <td><p>TRUE/FALSE to abbreviate constituent name</p></td>
     </tr>
     </table>
     

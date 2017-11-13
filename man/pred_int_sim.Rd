@@ -34,7 +34,7 @@ conf.level. The default value is k=1.}
 to compute. The possible values are pi_type="upper" (the default),
 and pi_type="lower".}
 
-\item{conf.level}{a scalar between 0 and 1 indicating the confidence level
+\item{conf_level}{a scalar between 0 and 1 indicating the confidence level
 of the prediction interval. The default value is conf.level=0.95}
 }
 \description{

@@ -1,6 +1,6 @@
 ## ---- echo=FALSE, message=FALSE------------------------------------------
 library(knitr)
-devtools::load_all("/usr/local/src/manager")
+library(manager)
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  data <- read_manages3("C:/path/to/manages/Site.mdb")
