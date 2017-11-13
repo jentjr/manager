@@ -11,7 +11,7 @@ vignette: >
 The `manager` packages provides functions for geochemical plots.
 
 ```{r, echo = FALSE, message=FALSE}
-devtools::load_all("/usr/local/src/manager")
+library(manager)
 
 knitr::opts_chunk$set(
   collapse = TRUE,

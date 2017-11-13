@@ -15,7 +15,7 @@ The `manager` packages provides functions for reading external data.
 
 ```{r, echo=FALSE, message=FALSE}
 library(knitr)
-devtools::load_all("/usr/local/src/manager")
+library(manager)
 ```
 
 ```{r, eval = FALSE}
