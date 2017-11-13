@@ -20,7 +20,13 @@ shinyUI(
   tabPanel("Summary",
     fluidPage(
       fluidRow(
-        column(12, dataTableOutput("summary_table"))
+        column(2,
+          downloadButton(outputId = "summary_table_download",
+                         label = "Download Data")
+          ),
+        column(10, 
+          dataTableOutput("summary_table")
+          )
       )
     )
   ),
@@ -105,7 +111,10 @@ shinyUI(
       fluidRow(
         column(2, 
           uiOutput("select_ts_wells"),
-          uiOutput("select_ts_params")),
+          uiOutput("select_ts_params"),
+          downloadButton(outputId = "ts_download",
+                         label = "Download Plots")
+          ),
         column(10, 
           uiOutput("ts_out"))
       )
@@ -113,6 +122,11 @@ shinyUI(
     tabPanel("Boxplots",
       fluidRow(
         column(2, 
+          uiOutput("select_boxplot_wells"),
+          uiOutput("select_boxplot_params"),
+          selectInput(inputId = "boxplot_fill", label = "Fill Variable",
+                      choices = c("location_id", "location_class", "water_class"),
+                      selected = "location_class"),
           selectInput(inputId = "box_y_transform", label = "Transform y scale",
                       c("identity", "log", "log10", "sqrt", "boxcox")),
           numericInput(inputId = "box_iqr_mult", label = "IQR Multiplier",
@@ -135,6 +149,7 @@ navbarMenu("Geochemical Plots",
     fluidPage(
       fluidRow(
         column(2,
+          uiOutput("select_piper_wells"),
           selectInput(inputId = "x_cation", label = "Enter X Cation",
                       choices = c("Calcium, dissolved",
                                   "Calcium, total"),
@@ -192,6 +207,8 @@ navbarMenu("Geochemical Plots",
     fluidPage(
       fluidRow(
         column(2, 
+          uiOutput("select_stiff_wells"),
+          uiOutput("select_stiff_dates"),
           selectInput(inputId = "Mg_stiff", label = "Magnesium",
                       choices = c("Magnesium, dissolved",
                                   "Magnesium, total"),

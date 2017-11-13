@@ -21,46 +21,28 @@ shinyServer(function(input, output, session) {
   )
 
   output$data_table_download <- downloadHandler(
-
     filename = function() {
-
-      paste("manager_export_", Sys.Date(), ".csv", sep = "")
-
+      paste0("manager_export_", Sys.Date(), ".csv")
     },
-
     content = function(file) {
-
-      write.csv(file, get_data(), row.names = FALSE)
-
+      write.csv(get_data(), file, row.names = FALSE)
     }
-
   )
   # End Data Table -------------------------------------------------------------
 
   # Summary table --------------------------------------------------------------
   output$summary_table <- renderDataTable({
-
     manager::summary(get_data())
-
   }, options = list(scrollY = "100%", scrollX = "100%",
                     lengthMenu = c(5, 10, 15, 25, 50, 100),
                     pageLength = 10)
   )
 
   output$summary_table_download <- downloadHandler(
-
-    filename = function() {
-
-      paste("MANAGER_EXPORT_", Sys.Date(), "_.csv", sep = "")
-
-    },
-
+    filename =  paste0("manager_export_", Sys.Date(), ".csv"),
     content = function(file) {
-
       write.csv(summary(get_data()), file, row.names = FALSE)
-
     }
-
   )
   # End Summary table ----------------------------------------------------------
 
@@ -70,7 +52,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("dist_well", "Monitoring Wells", well_names,
-                multiple = FALSE,
+                multiple = TRUE,
                 selected = well_names[1])
   })
 
@@ -88,11 +70,9 @@ shinyServer(function(input, output, session) {
     
     df <- get_data()
 
-    df <- df %>%
+    df %>%
       filter(location_id %in% input$dist_well,
              param_name %in% input$dist_param)
-
-    df
 
   })
 
@@ -135,7 +115,6 @@ shinyServer(function(input, output, session) {
     data <- get_data()
 
     well_names <- as.character(sample_locations(data))
-
     selectInput("corr_wells", "Monitoring Wells", well_names,
                 multiple = TRUE, selected = well_names[1])
   })
@@ -145,7 +124,6 @@ shinyServer(function(input, output, session) {
     data <- get_data()
 
     param_names <- as.character(constituents(data))
-
     selectInput("corr_params", "Constituents", param_names,
                 multiple = TRUE, selected = param_names[1])
   })
@@ -163,10 +141,32 @@ shinyServer(function(input, output, session) {
   # End Correlation Plots ------------------------------------------------------
 
   # Begin Boxplot Page----------------------------------------------------------
-
-  boxplot <- reactive({
+  output$select_boxplot_wells <- renderUI({
+    
+    data <- get_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("boxplot_well", "Monitoring Wells", well_names,
+                multiple = TRUE,
+                selected = well_names[1])
+  })
+  
+  output$select_boxplot_params <- renderUI({
+    
+    data <- get_data()
+    analyte_names <- as.character(constituents(data))
+    selectInput("boxplot_param", "Constituents", analyte_names,
+                multiple = TRUE,
+                selected = analyte_names[1])
+  })
+  
+  boxplot_react <- reactive({
 
       box_data <- get_data()
+      
+      box_data <- box_data %>%
+        filter(location_id %in% input$boxplot_well,
+               param_name %in% input$boxplot_param)
+      
       box_wells <- sample_locations(box_data)
       box_params <- constituents(box_data)
 
@@ -185,7 +185,7 @@ shinyServer(function(input, output, session) {
                          box_params[box_i], ],
               x = "location_id",
               y = "analysis_result",
-              fill = "location_class",
+              fill = input$boxplot_fill,
               scale_y_trans = input$box_y_transform,
               coef = input$box_iqr_mult,
               show_points = input$box_points,
@@ -199,36 +199,38 @@ shinyServer(function(input, output, session) {
   })
 
   output$boxplot_out <- renderUI({
-      boxplot()
+      boxplot_react()
   })
 
   # Begin Boxplot Download Page-------------------------------------------------
-  get_box_data <- reactive({
+  download_boxplot <- reactive({
 
     box_data <- get_data()
-    box_wells <- sample_locations(box_data)
-    box_params <- constituents(box_data)
+    
+    box_data <- box_data %>%
+      filter(location_id %in% input$boxplot_well,
+             param_name %in% input$boxplot_param)
+
+    boxplot(box_data, x = "location_id",
+            y = "analysis_result",
+            fill = input$boxplot_fill,
+            scale_y_trans = input$box_y_transform,
+            coef = input$box_iqr_mult,
+            show_points = input$box_points,
+            pnt = input$box_pnt_size)
 
   })
 
   output$box_download <- downloadHandler(
     filename = function() {
-      paste("boxplot_", Sys.Date(), ".pdf", sep = "")
+      paste0("boxplot_", Sys.Date(), ".pdf")
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      df <- get_box_data() %>%
-        boxplot(., x = "location_id",
-                y = "analysis_result",
-                fill = "location_class",
-                scale_y_trans = input$box_y_transform,
-                coef = input$box_iqr_mult,
-                show_points = input$box_points,
-                pnt = input$box_pnt_size)
+      download_boxplot()
       dev.off()
     }
   )
-
   # End Boxplot Page------------------------------------------------------------
 
   # Time Series Page -----------------------------------------------------------
@@ -250,7 +252,7 @@ shinyServer(function(input, output, session) {
                 selected = analyte_names[1])
   })
   
-  ts_plot <- reactive({
+  ts_plot_react <- reactive({
 
     ts_data <- get_data()
     
@@ -273,24 +275,9 @@ shinyServer(function(input, output, session) {
         ts_i <- i
         ts_name <- paste("ts_plot", ts_i, sep = "")
         output[[ts_name]] <- renderPlot({
-
           ts <- manager::ts_plot(
             ts_data[ts_data$param_name == ts_params[ts_i], ]
             )
-
-            # if (input$ts_date_lines) {
-            #   b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-            #   c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-            #   b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-            #   c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-            # 
-            #   ts <- manager::ts_plot(
-            #     ts_data[ts_data$location_id ==
-            #                    ts_well[ts_i], ],
-            #     back_date = c(b1, b2),
-            #     comp_date = c(c1, c2)
-            #   )
-            # }
             ts
           })
         })
@@ -299,69 +286,59 @@ shinyServer(function(input, output, session) {
   })
 
   output$ts_out <- renderUI({
-      ts_plot()
+      ts_plot_react()
   })
   # Begin Time Series Download Page --------------------------------------------
   get_ts_data <- reactive({
-    validate(
-      need(input$data_path != "", "Please upload a data set")
-    )
-    data <- get_data()
-    ts_well <- input$ts_well
-    ts_analyte <- input$ts_analyte
-    ts_data <- data[data$location_id %in% ts_well &
-                           data$param_name %in% ts_analyte, ]
-    ts_data
+
+    ts_data <- get_data()
+    
+    ts_data <- ts_data %>%
+      filter(location_id %in% input$ts_well,
+             param_name %in% input$ts_param)
+
   })
 
   output$ts_download <- downloadHandler(
     filename = function() {
-      paste("ts_plot_", Sys.Date(), ".pdf", sep = "")
-    },
+      paste0("ts_plot_", Sys.Date(), ".pdf")
+      },
     content = function(file) {
-      if (input$ts_date_lines) {
-        b1 <- min(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-        c1 <- min(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
-        b2 <- max(lubridate::ymd(input$ts_back_dates, tz = Sys.timezone()))
-        c2 <- max(lubridate::ymd(input$ts_comp_dates, tz = Sys.timezone()))
+        pdf(file = file, width = 17, height = 11)
+        ts_plot(get_ts_data())
+        dev.off()
 
-        pdf(file = file, width = 17, height = 11)
-        manager::ts_plot(get_ts_data(), back_date = c(b1, b2),
-                         facet_by = input$ts_facet_by,
-                         trend = input$ts_trend,
-                         short_name = input$ts_short_name,
-                         comp_date = c(c1, c2), ncol = input$ts_ncol)
-        dev.off()
-      } else {
-        pdf(file = file, width = 17, height = 11)
-        manager::ts_plot(get_ts_data(), facet_by = input$ts_facet_by,
-                         short_name = input$ts_short_name,
-                         trend = input$ts_trend,
-                         ncol = input$ts_ncol)
-        dev.off()
-      }
     }
   )
   # End Time Series Download Page ----------------------------------------------
   # End Time Series Page--------------------------------------------------------
   
   # Begin Piper Diagram Page----------------------------------------------------
-
+  output$select_piper_wells <- renderUI({
+    
+    data <- get_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("piper_well", "Monitoring Wells", well_names,
+                multiple = TRUE,
+                selected = well_names[1])
+  })
+  
   output$select_piper_tds <- renderUI({
 
     if (isTRUE(input$TDS_plot)) {
-
       selectInput(inputId = "piper_tds",
                   label = "Total Dissolved Solids", 
                   choices = c("Total Dissolved Solids"))
-
     }
 
   })
 
-  plot_piper <- reactive({
+  piper_plot_react <- reactive({
 
     data <- get_data()
+    
+    data <- data %>%
+      filter(location_id %in% input$piper_well)
 
     if (isTRUE(input$TDS_plot)) {
      
@@ -407,9 +384,7 @@ shinyServer(function(input, output, session) {
   })
 
   output$piper_plot <- renderPlot({
-
-    plot_piper()
-
+    piper_plot_react()
   })
 
   output$piper_download <- downloadHandler(
@@ -418,14 +393,28 @@ shinyServer(function(input, output, session) {
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      print(piper_plot(df = get_piper_data(), TDS = input$TDS_plot,
-                       title = input$piper_title))
+      print(piper_plot_react())
       dev.off()
     }
   )
   # End Piper Diagram Page------------------------------------------------------
 
   # Begin Stiff Diagram Page ---------------------------------------------------
+  output$select_stiff_wells <- renderUI({
+    
+    data <- get_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("well_stiff", "Monitoring Wells", well_names, 
+                multiple = TRUE, selected = well_names[1])
+  })
+  
+  output$select_stiff_dates <- renderUI({
+    
+    data <- get_data()
+    dateRangeInput("date_range_stiff", "Date Range", 
+                   start = min(data$sample_date, na.rm = TRUE), 
+                   end = max(data$sample_date, na.rm = TRUE))
+  })
 
   get_stiff_data <- reactive({
     
@@ -435,9 +424,17 @@ shinyServer(function(input, output, session) {
               input$Na_stiff, input$K_stiff,
               input$Cl_stiff, input$SO4_stiff,
               input$Alk_stiff, input$stiff_tds)
-
+    
+    start <- min(lubridate::ymd(input$date_range_stiff, tz = "UTC"),
+                 na.rm = TRUE)
+    
+    end <- max(lubridate::ymd(input$date_range_stiff, tz = "UTC"),
+               na.rm = TRUE)
+    
     stiff_data <- stiff_data %>%
-      filter(param_name %in% ions)
+      filter(param_name %in% ions, location_id %in% input$well_stiff,
+             sample_date >= start &
+               sample_date <= end)
 
   })
   
@@ -566,9 +563,7 @@ shinyServer(function(input, output, session) {
   })
 
   output$stiff_diagram <- renderUI({
-
     stiff_diagram()
-
   })
 
   output$stiff_download <- downloadHandler(
