@@ -312,23 +312,78 @@ shinyServer(function(input, output, session) {
   )
   # End Time Series Download Page ----------------------------------------------
   # End Time Series Page--------------------------------------------------------
-  
+
   # Begin Piper Diagram Page----------------------------------------------------
   output$select_piper_wells <- renderUI({
-    
+
     data <- get_data()
     well_names <- as.character(sample_locations(data))
-    selectInput("piper_well", "Monitoring Wells", well_names,
-                multiple = TRUE,
-                selected = well_names[1])
+    selectInput("piper_well", "Monitoring Wells", choices = well_names,
+                selected = well_names[1], multiple = TRUE)
   })
-  
-  output$select_piper_tds <- renderUI({
 
+  output$select_piper_x_cation <- renderUI({
+    data <- get_data()
+    x_cation_list <- data %>%
+      slice(grep("Calcium", param_name)) %>%
+      constituents()
+    selectInput("x_cation", "Select X Cation", choices = x_cation_list,
+                selected = x_cation_list, multiple = TRUE)
+  })
+
+  output$select_piper_y_cation <- renderUI({
+    data <- get_data()
+    y_cation_list <- data %>%
+      slice(grep("Magnesium", param_name)) %>%
+      constituents()
+    selectInput("y_cation", "Select Y Cation", choices = y_cation_list,
+                selected = y_cation_list, multiple = TRUE)
+  })
+
+  output$select_piper_z_cation <- renderUI({
+    data <- get_data()
+    z_cation_list <- data %>%
+      slice(grep("Potassium|Sodium", param_name)) %>%
+      constituents()
+    selectInput("z_cation", "Select Z Cations", choices = z_cation_list,
+                selected = z_cation_list, multiple = TRUE)
+  })
+
+  output$select_piper_x_anion <- renderUI({
+    data <- get_data()
+    x_anion_list <- data %>%
+      slice(grep("Chloride|Fluoride", param_name)) %>%
+      constituents()
+    selectInput("x_anion", "Select X Anions", choices = x_anion_list,
+                selected = x_anion_list, multiple = TRUE)
+  })
+
+  output$select_piper_y_anion <- renderUI({
+    data <- get_data()
+    y_anion_list <- data %>%
+      slice(grep("Alkalinity|Carbonate|Bicarbonate", param_name)) %>%
+      constituents()
+    selectInput("y_anion", "Select Y Anion", choices = y_anion_list,
+                selected = y_anion_list, multiple = TRUE)
+  })
+
+  output$select_piper_z_anion <- renderUI({
+    data <- get_data()
+    z_anion_list <- data %>%
+      slice(grep("Sulfate", param_name)) %>%
+      constituents()
+    selectInput("z_anion", "Select Z Anion", choices = z_anion_list,
+                selected = z_anion_list, multiple = TRUE)
+  })
+
+  output$select_piper_tds <- renderUI({
+    data <- get_data()
+    tds_list <- data %>%
+      slice(grep("TDS|Total Dissolved Solids", param_name)) %>%
+      constituents()
     if (isTRUE(input$TDS_plot)) {
-      selectInput(inputId = "piper_tds",
-                  label = "Total Dissolved Solids", 
-                  choices = c("Total Dissolved Solids"))
+      selectInput("piper_tds", "Total Dissolved Solids", choices = tds_list,
+                  multiple = TRUE)
     }
 
   })
