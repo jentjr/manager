@@ -15,7 +15,7 @@
 #' @param chloride name for chloride. Default is "Chloride, total"
 #' @param alkalinity name for alkalinity. Default is "Alkalinity, total (lab)"
 #' @param sulfate name of sulfate. Default is "Sulfate, total"
-#' @param facet_by parameter to facet plots by. Default is location
+#' @param facet_var parameter to facet plots by. Default is location
 #' @param title title of plot
 #' @param lwt lineweight
 #'
@@ -23,11 +23,11 @@
 #' data(gw_data)
 #' gw_data %>%
 #' filter(location_id %in% c("MW-1", "MW-2")) %>%
-#' schoeller_plot(., facet_by = "location_id", title = "Example Scholler Plot")
+#' schoeller_plot(., facet_var = "location_id", title = "Example Scholler Plot")
 #'  
 #' gw_data %>%
 #' filter(location_id %in% c("MW-1", "MW-2")) %>%
-#' schoeller_plot(., facet_by = "sample_date", lwt = 2)
+#' schoeller_plot(., facet_var = "sample_date", lwt = 2)
 #'
 #' @export
 
@@ -44,7 +44,7 @@ schoeller_plot <- function(df,
                            chloride =  "Chloride, total",
                            alkalinity = "Alkalinity, total (lab)",
                            sulfate = "Sulfate, total",
-                           facet_by = "location_id",
+                           facet_var = "location_id",
                            title = NULL,
                            lwt = 1) {
 
@@ -74,7 +74,7 @@ schoeller_plot <- function(df,
     ggtitle(paste(title)) +
     theme(plot.title = element_text(hjust = 0.5))
 
-  if (facet_by == "sample_date") {
+  if (facet_var == "sample_date") {
 
     p <- p + facet_wrap(~sample_date, scale = "free_y") +
       geom_line(aes(colour = location_id, group = location_id), size = lwt) +
@@ -82,7 +82,7 @@ schoeller_plot <- function(df,
 
     }
 
-  if (facet_by == "location_id") {
+  if (facet_var == "location_id") {
 
     p <- p + facet_wrap(~location_id, scale = "free_y") +
       geom_line(aes(colour = factor(sample_date), group = sample_date),

@@ -612,7 +612,7 @@ shinyServer(function(input, output, session) {
 
   })
   
-  schoeller_diagram <- reactive({
+  schoeller_plot_react <- reactive({
     
     data <- get_schoeller_data()
     
@@ -624,7 +624,7 @@ shinyServer(function(input, output, session) {
                      chloride = paste(input$Cl_schoeller),
                      sulfate = paste(input$SO4_schoeller),
                      alkalinity = paste(input$Alk_schoeller), 
-                     facet_by = input$facet_schoeller,
+                     facet_var = input$facet_schoeller,
                      title = input$schoeller_title)
   })
   
@@ -638,7 +638,7 @@ shinyServer(function(input, output, session) {
     },
     content = function(file) {
       pdf(file = file, width = 17, height = 11)
-      schoeller_diagram()
+      schoeller_plot_react()
       dev.off()
     }
   )
