@@ -11,7 +11,7 @@ schoeller_plot(df, location_id = "location_id", sample_date = "sample_date",
   magnesium = "Magnesium, dissolved", sodium = "Sodium, dissolved",
   potassium = "Potassium, dissolved", chloride = "Chloride, total",
   alkalinity = "Alkalinity, total (lab)", sulfate = "Sulfate, total",
-  facet_by = "location_id", title = NULL, lwt = 1)
+  facet_var = "location_id", title = NULL, lwt = 1)
 }
 \arguments{
 \item{df}{dataframe of environmental data in tidy format. The function
@@ -41,7 +41,7 @@ will convert data from mg/L to meq/L}
 
 \item{sulfate}{name of sulfate. Default is "Sulfate, total"}
 
-\item{facet_by}{parameter to facet plots by. Default is location}
+\item{facet_var}{parameter to facet plots by. Default is location}
 
 \item{title}{title of plot}
 
@@ -55,10 +55,10 @@ Function to plot data transformed to schoeller coordinates using
 data(gw_data)
 gw_data \%>\%
 filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
-schoeller_plot(., facet_by = "location_id", title = "Example Scholler Plot")
+schoeller_plot(., facet_var = "location_id", title = "Example Scholler Plot")
  
 gw_data \%>\%
 filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
-schoeller_plot(., facet_by = "sample_date", lwt = 2)
+schoeller_plot(., facet_var = "sample_date", lwt = 2)
 
 }
