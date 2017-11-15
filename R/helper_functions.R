@@ -139,20 +139,15 @@ to_censored <- function(df) {
 #' Function to join columns of lt_measure and sample results
 #'
 #' @param df groundwater data frame
-#' @param col_name qouted column name for the result
+#' @param lt_measure column name for non-detect symbol
+#' @param analysis_result column name for analysis results
 #' @export
 
-join_lt <- function(df, col_name) {
+join_lt <- function(df, lt_measure, analysis_result) {
 
-  df <- df %>%
-    mutate(result = if_else(lt_measure == "<" | lt_measure == ">",
-                        paste0(lt_measure, analysis_result),
-                        as.character(analysis_result),
-                        missing = as.character(analysis_result)))
-
-  names(df)[names(df) == "result"] <- col_name
-
-  return(df)
+  df %>% 
+    replace_na(list(lt_measure = "")) %>% 
+    unite(analysis_result, lt_measure, analysis_result, sep = " ")
 
 }
 
@@ -179,5 +174,45 @@ name_units <- function(df, short_name = FALSE) {
   }
 
   return(df)
+
+}
+
+#' Helper function to cast data frame to wide format
+#'
+#' @param df data frame in long format
+#' @param lab_id logical to include lab_id. Default is FALSE.
+#' 
+#' @export
+#'
+#' @examples 
+#' data(gw_data)
+#'
+#' gw_data %>%
+#'   fitler(param_name %in% c("Arsenic, dissolved", "Boron, dissolved")) %>%
+#'   to_wide(., lab_id = TRUE)
+
+to_wide <- function(df, lab_id = FALSE) {
+
+  if (isTRUE(lab_id)) {
+
+    df <- df %>%
+      join_lt() %>%
+      name_units() %>%
+      group_by(location_id, lab_id, sample_date, param_name) %>%
+      summarise(analysis_result) %>%
+      spread(param_name, analysis_result)
+
+  } else {
+
+    df <- df %>%
+      join_lt() %>%
+      name_units() %>%
+      group_by(location_id, sample_date, param_name) %>%
+      summarise(analysis_result) %>%
+      spread(param_name, analysis_result)
+
+  }
+
+  df
 
 }

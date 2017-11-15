@@ -1,62 +1,59 @@
 shinyUI(
-  navbarPage("MANAGER",
-  tabPanel("Data",
-    fluidPage(
-      fluidRow(
-        column(2, 
-          selectDataUI("select_data"),
-          actionButton("run_query", "Run Query"),
-          br(),
-          br(),
-          downloadButton(outputId = "data_table_download", 
-                         label = "Download Data")
-        ),
-        column(10, 
-          dataTableOutput("data_table")
+navbarPage("MANAGER",
+ tabPanel("Data", 
+  fluidPage(
+    fluidRow(
+      column(2, 
+        selectDataUI("select_data"),
+        actionButton("run_query", "Submit Query")
+      ),
+      column(10, 
+        tabsetPanel(
+          tabPanel("Data", 
+            dataTableOutput("data_table"),
+            downloadButton(outputId = "data_table_download", 
+                           label = "Download Data")
+          ),
+          tabPanel("Summary",
+            dataTableOutput("summary_table"),
+            downloadButton(outputId = "summary_table_download",
+                           label = "Download Data")
+          ),
+          tabPanel("Wide Table", 
+            dataTableOutput("wide_table")
+          )
         )
       )
-    )
-  ),
-  tabPanel("Summary",
+   )
+  )
+),
+navbarMenu("Plots",
+  tabPanel("Distribution Plots",
     fluidPage(
       fluidRow(
         column(2,
-          downloadButton(outputId = "summary_table_download",
-                         label = "Download Data")
+          uiOutput("select_distribution_wells"),
+          uiOutput("select_distribution_params"),
+          radioButtons(
+            inputId = "dist_plot_type", 
+            label = "Type of Distribution Plot",
+            choices = c("Regular", "Censored"),
+            selected = "Regular"
           ),
-        column(10, 
-          dataTableOutput("summary_table")
-          )
-      )
-    )
-  ),
-  navbarMenu("Plots",
-    tabPanel("Distribution Plots",
-      fluidPage(
-        fluidRow(
-          column(2,
-            uiOutput("select_distribution_wells"),
-            uiOutput("select_distribution_params"),
-            radioButtons(
-               inputId = "dist_plot_type", 
-               label = "Type of Distribution Plot",
-               choices = c("Regular", "Censored"),
-               selected = "Regular"
+          conditionalPanel(
+            condition = "input.dist_plot_type == 'Censored'",
+            selectInput(
+              inputId = "cen_dist_side",
+              label = "Censoring Side",
+              choices = c("left", "right")
             ),
-            conditionalPanel(
-               condition = "input.dist_plot_type == 'Censored'",
-               selectInput(
-                 inputId = "cen_dist_side",
-                 label = "Censoring Side",
-                 choices = c("left", "right")
-               ),
-               selectInput(
-                 inputId = "cen_dist_test",
-                 label = "Select test",
-                 choices = c("Shapiro-Francia" = "sf",
-                           "Shapiro-Wilk" = "sw",
-                           "Prob-Plot-Corr-Coeff" = "ppcc")
-               ),
+            selectInput(
+              inputId = "cen_dist_test",
+              label = "Select test",
+              choices = c("Shapiro-Francia" = "sf",
+                          "Shapiro-Wilk" = "sw",
+                          "Prob-Plot-Corr-Coeff" = "ppcc")
+            ),
                selectInput(
                  inputId = "cen_dist_dist",
                  label = "Distribution",
@@ -349,147 +346,150 @@ tabPanel("Outliers",
   )
 ),
 tabPanel("Trends",
-         sidebarLayout(
-           sidebarPanel(
-             uiOutput("trend_wells"),
-             uiOutput("trend_analytes"),
-             uiOutput("trend_date_ranges")
-           ),
-           mainPanel(
-             verbatimTextOutput("trend_test")
-           )
-         )
+  sidebarLayout(
+    sidebarPanel(
+      uiOutput("trend_wells"),
+      uiOutput("trend_analytes"),
+      uiOutput("trend_date_ranges")
+    ),
+    mainPanel(
+      verbatimTextOutput("trend_test")
+    )
+  )
 ),
-tabPanel("Confidence Intervals",
-  fluidPage(
-    fluidRow(
-      column(2, 
-        uiOutput("select_conf_int_wells"),
-        uiOutput("select_conf_int_analytes"),
-        uiOutput("select_conf_int_date_range")
-      ),
-      column(10, 
-        dataTableOutput("conf_int_out")
+navbarMenu("Statistical Intervals", 
+  tabPanel("Confidence Intervals",
+    fluidPage(
+      fluidRow(
+        column(2, 
+          uiOutput("select_conf_int_wells"),
+          uiOutput("select_conf_int_analytes"),
+          uiOutput("select_conf_int_date_range")
+        ),
+        column(10, 
+          dataTableOutput("conf_int_out")
+        )
       )
     )
-  )
-),
-tabPanel("Tolerance Intervals",
-  fluidPage(
-    fluidRow(
-      column(2, 
-        uiOutput("select_tol_int_wells"),
-        uiOutput("select_tol_int_analytes"),
-        uiOutput("select_tol_int_date_range")
-      ),
-      column(10, 
-        dataTableOutput("tol_int_out")
+  ),
+  tabPanel("Tolerance Intervals",
+    fluidPage(
+      fluidRow(
+        column(2, 
+          uiOutput("select_tol_int_wells"),
+          uiOutput("select_tol_int_analytes"),
+          uiOutput("select_tol_int_date_range")
+        ),
+        column(10, 
+          dataTableOutput("tol_int_out")
+        )
       )
     )
-  )
-),
-navbarMenu("Prediction Intervals",
-  tabPanel("Intrawell",
-   fluidPage(
-    fluidRow(
-     column(2, 
-      uiOutput("wells_intra"),
-      uiOutput("analytes_intra"),
-      uiOutput("date_ranges_intra"),
-      numericInput(inputId = "intra_n.mean", label = "Specify a
-                   positive integer for the sample size associated
-                   with the future averages. The default value is
-                   n.mean=1 (i.e., individual observations).
-                   Note that all future averages must be based on the
-                   same sample size", value = 1, min = 0),
-      numericInput(inputId = "intra_k", label = "Specify a positive integer
-                   for the k-of-m rule (rule='k.of.m'), a positive integer 
-                   specifying the minimum number of observations (or averages)
-                   out of m observations (or averages)
-                   (all obtained on one future sampling “occassion”)
-                   the prediction interval should contain with confidence
-                   level conf.level. The default value is k=1.
-                   This argument is ignored when the argument rule is not equal
-                   to 'k.of.m'.", value = 1, min = 0),
-      numericInput(inputId = "intra_m", label = "positive integer specifying
-                   the maximum number of future observations (or averages) on
-                   one future sampling “occasion”. The default value is m=2,
-                   except when rule='Modified.CA', in which case this argument
-                   is ignored and m is automatically set equal to 4.",
-                   value = 2, min = 0),
-      numericInput(inputId = "intra_r", label = "positive integer specifying
-                   the number of future sampling “occasions”. The default value
-                   is r=1.", value = 1, min = 0),
-      selectInput(inputId = "intra_rule", label = "character string specifying
-                  which rule to use. The possible values are 'k.of.m'
-                  (k-of-m rule; the default), 'CA' (California rule), and
-                  'Modified.CA' (modified California rule)",
-                  choices = c("k.of.m", "CA", "Modified.CA"),
-                  selected = "k.of.m"),
-      selectInput(inputId = "intra_pi.type", label = "Specify what kind 
-                  of prediction interval to compute. The possible values 
-                  are 'upper' (the default), and 'lower'", 
-                  choices = c("two-sided", "upper", "lower"),
-                  selected = "upper"),
-      numericInput(inputId = "intra_conf", label = "Enter a value
-                   between 0 and 1 indicating the confidence level of the
-                   prediction interval", 
-                   value = 0.95, min = 0, max = 1)
-     ),
-     column(10, 
-       dataTableOutput("intra_limit_out"),
-       br(),
-       uiOutput("ts_intra_out")
-     )
-    )
-  )
-),
-tabPanel("Interwell",
-  fluidPage(
-    fluidRow(
-      column(2,
-        uiOutput("select_wells_inter"),
-        uiOutput("select_analyte_inter"),
-        uiOutput("select_date_ranges_inter"),
-        numericInput(inputId = "inter_n.mean", label = "Specify a
-                     positive integer for the sample size associated
-                     with the future averages. The default value is
-                     n.mean=1 (i.e., individual observations).
-                     Note that all future averages must be based on the
-                     same sample size", value = 1, min = 0),
-        numericInput(inputId = "inter_k", label = "Specify a positive integer
-                     for the k-of-m rule (rule='k.of.m'), a positive integer 
-                     specifying the minimum number of observations (or averages)
-                     out of m observations (or averages)
-                     (all obtained on one future sampling “occassion”)
-                     the prediction interval should contain with confidence
-                     level conf.level. The default value is k=1.
-                     This argument is ignored when the argument rule is not equal
-                     to 'k.of.m'.", value = 1, min = 0),
-        numericInput(inputId = "inter_m", label = "positive integer specifying
-                     the maximum number of future observations (or averages) on
-                     one future sampling “occasion”. The default value is m=2,
-                     except when rule='Modified.CA', in which case this argument
-                     is ignored and m is automatically set equal to 4.",
-                     value = 2, min = 0),
-        numericInput(inputId = "inter_r", label = "positive integer specifying
-                     the number of future sampling “occasions”. The default value
-                     is r=1.", value = 1, min = 0),
-        selectInput(inputId = "inter_rule", label = "character string specifying
-                    which rule to use. The possible values are 'k.of.m'
-                    (k-of-m rule; the default), 'CA' (California rule), and
-                    'Modified.CA' (modified California rule)",
-                     choices = c("k.of.m", "CA", "Modified.CA"),
-                     selected = "k.of.m"),
-        selectInput(inputId = "inter_pi.type", label = "Specify what kind 
-                    of prediction interval to compute. The possible values 
-                    are 'upper' (the default), and 'lower'", 
-                    choices = c("two-sided", "upper", "lower"),
-                    selected = "upper"),
-        numericInput(inputId = "inter_conf", label = "Enter a value
-                     between 0 and 1 indicating the confidence level of the
-                     prediction interval", 
-                     value = 0.95, min = 0, max = 1)
+  ),
+  tabPanel("Prediction Intervals",
+    tabsetPanel(
+      tabPanel("Intrawell",
+        fluidPage(
+          fluidRow(
+            column(2,
+              uiOutput("wells_intra"),
+              uiOutput("analytes_intra"),
+              uiOutput("date_ranges_intra"),
+              numericInput(inputId = "intra_n.mean", label = "Specify a
+                           positive integer for the sample size associated
+                           with the future averages. The default value is
+                           n.mean=1 (i.e., individual observations).
+                           Note that all future averages must be based on the
+                           same sample size", value = 1, min = 0),
+              numericInput(inputId = "intra_k", label = "Specify a positive
+                           integer for the k-of-m rule (rule='k.of.m'), a
+                           positive integer specifying the minimum number of
+                           observations (or averages) out of m observations
+                           (or averages) (all obtained on one future sampling
+                           “occassion”) the prediction interval should contain
+                           with confidence level conf.level. The default value
+                           is k=1. This argument is ignored when the argument
+                           rule is not equal to 'k.of.m'.", value = 1, min = 0),
+              numericInput(inputId = "intra_m", label = "positive integer
+                           specifying the maximum number of future observations
+                           (or averages) on one future sampling “occasion”. The
+                           default value is m=2, except when rule='Modified.CA',
+                           in which case this argument is ignored and m is
+                           automatically set equal to 4.",
+                           value = 2, min = 0),
+              numericInput(inputId = "intra_r", label = "positive integer
+                           specifying the number of future sampling “occasions”.
+                           The default value is r=1.", value = 1, min = 0),
+              selectInput(inputId = "intra_rule", label = "character string
+                          specifying which rule to use. The possible values are
+                          'k.of.m' (k-of-m rule; the default), 'CA' (California
+                          rule), and 'Modified.CA' (modified California rule)",
+                          choices = c("k.of.m", "CA", "Modified.CA"),
+                          selected = "k.of.m"),
+              selectInput(inputId = "intra_pi.type", label = "Specify what kind 
+                          of prediction interval to compute. The possible values 
+                          are 'upper' (the default), and 'lower'", 
+                          choices = c("two-sided", "upper", "lower"),
+                          selected = "upper"),
+              numericInput(inputId = "intra_conf", label = "Enter a value
+                           between 0 and 1 indicating the confidence level of the
+                           prediction interval", 
+                           value = 0.95, min = 0, max = 1)
+              ),
+              column(10, 
+                dataTableOutput("intra_limit_out"),
+                br(),
+                uiOutput("ts_intra_out")
+              )
+            )
+          )
+        ),
+  tabPanel("Interwell",
+    fluidPage(
+      fluidRow(
+        column(2,
+          uiOutput("select_wells_inter"),
+          uiOutput("select_analyte_inter"),
+          uiOutput("select_date_ranges_inter"),
+          numericInput(inputId = "inter_n.mean", label = "Specify a positive
+                       integer for the sample size associated with the future
+                       averages. The default value is n.mean=1 (i.e.,
+                       individual observations). Note that all future averages
+                       must be based on the same sample size",
+                       value = 1, min = 0),
+          numericInput(inputId = "inter_k", label = "Specify a positive integer
+                       for the k-of-m rule (rule='k.of.m'), a positive integer 
+                       specifying the minimum number of observations (or averages)
+                       out of m observations (or averages)
+                       (all obtained on one future sampling “occassion”)
+                       the prediction interval should contain with confidence
+                       level conf.level. The default value is k=1.
+                       This argument is ignored when the argument rule is not
+                       equal to 'k.of.m'.", value = 1, min = 0),
+          numericInput(inputId = "inter_m", label = "positive integer specifying
+                       the maximum number of future observations (or averages) on
+                       one future sampling “occasion”. The default value is m=2,
+                       except when rule='Modified.CA', in which case this argument
+                       is ignored and m is automatically set equal to 4.",
+                       value = 2, min = 0),
+          numericInput(inputId = "inter_r", label = "positive integer specifying
+                       the number of future sampling “occasions”. The default
+                       value is r=1.", value = 1, min = 0),
+          selectInput(inputId = "inter_rule", label = "character string specifying
+                      which rule to use. The possible values are 'k.of.m'
+                      (k-of-m rule; the default), 'CA' (California rule), and
+                      'Modified.CA' (modified California rule)",
+                      choices = c("k.of.m", "CA", "Modified.CA"),
+                      selected = "k.of.m"),
+          selectInput(inputId = "inter_pi.type", label = "Specify what kind 
+                      of prediction interval to compute. The possible values 
+                      are 'upper' (the default), and 'lower'", 
+                      choices = c("two-sided", "upper", "lower"),
+                      selected = "upper"),
+          numericInput(inputId = "inter_conf", label = "Enter a value
+                       between 0 and 1 indicating the confidence level of the
+                       prediction interval", 
+                       value = 0.95, min = 0, max = 1)
         ),
         column(10, 
           dataTableOutput("inter_limit_out")
@@ -497,24 +497,24 @@ tabPanel("Interwell",
       )
     )
   ),
- tabPanel("Test Power",
-  fluidPage(
-    fluidRow(
-      column(2, 
-             numericInput(inputId = "power_n", 
-                          label = "Number of background samples",
-                          value = 8, min = 1),
-             numericInput(inputId = "power_n_mean", label = "Sample size for 
-                          future averages",
-                          value = 1, min = 1),
-             numericInput(inputId = "power_k", label = "k in k.of.m",
-                          value = 1, min = 1),
-             numericInput(inputId = "power_m", label = "m",
-                          value = 2, min = 1),
-             numericInput(inputId = "power_r", label = "r",
-                          value = 1, min = 1),
-             numericInput(inputId = "conf_power", label = "conf.level",
-                          value = 0.95)
+  tabPanel("Test Power",
+   fluidPage(
+     fluidRow(
+       column(2, 
+         numericInput(inputId = "power_n", 
+                      label = "Number of background samples",
+                      value = 8, min = 1),
+         numericInput(inputId = "power_n_mean", label = "Sample size for 
+                      future averages",
+                      value = 1, min = 1),
+         numericInput(inputId = "power_k", label = "k in k.of.m",
+                      value = 1, min = 1),
+         numericInput(inputId = "power_m", label = "m",
+                      value = 2, min = 1),
+         numericInput(inputId = "power_r", label = "r",
+                      value = 1, min = 1),
+         numericInput(inputId = "conf_power", label = "conf.level",
+                      value = 0.95)
       ),
       column(10,
         plotOutput("power_plot"),
@@ -527,8 +527,10 @@ tabPanel("Interwell",
       )
     )
   )
-)
-),
+ ) # End Test Power tabPanel
+) # End tabsetPanel for Inter and Intra Intervals
+) # End Prediction Intervals
+), # End of Statisitcal Intervals
 
 navbarMenu("Classification",
     tabPanel("GBM")

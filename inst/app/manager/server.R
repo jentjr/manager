@@ -46,6 +46,11 @@ shinyServer(function(input, output, session) {
   )
   # End Summary table ----------------------------------------------------------
 
+  # Cast to wide data table ----------------------------------------------------
+  output$wide_table <- renderDataTable({
+    to_wide(get_data())
+  })
+  
   # Begin Distribution Plots ---------------------------------------------------
   output$select_distribution_wells <- renderUI({
 
