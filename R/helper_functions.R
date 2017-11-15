@@ -181,6 +181,7 @@ name_units <- function(df, short_name = FALSE) {
 #'
 #' @param df data frame in long format
 #' @param lab_id logical to include lab_id. Default is FALSE.
+#' @param join_lt logical to join the non-detect colum with analysis result.
 #' 
 #' @export
 #'
@@ -191,25 +192,42 @@ name_units <- function(df, short_name = FALSE) {
 #'   fitler(param_name %in% c("Arsenic, dissolved", "Boron, dissolved")) %>%
 #'   to_wide(., lab_id = TRUE)
 
-to_wide <- function(df, lab_id = FALSE) {
+to_wide <- function(df, lab_id = FALSE, join_lt = TRUE) {
 
-  if (isTRUE(lab_id)) {
-
-    df <- df %>%
-      join_lt() %>%
-      name_units() %>%
-      group_by(location_id, lab_id, sample_date, param_name) %>%
-      summarise(analysis_result) %>%
-      spread(param_name, analysis_result)
+  if (isTRUE(join_lt)) {
+ 
+    if (isTRUE(lab_id)) {
+      df <- df %>%
+        join_lt() %>%
+        name_units() %>%
+        group_by(location_id, lab_id, sample_date, param_name) %>%
+        summarise(analysis_result) %>%
+        spread(param_name, analysis_result)
+      
+    } else {
+      df <- df %>%
+        join_lt() %>%
+        name_units() %>%
+        group_by(location_id, sample_date, param_name) %>%
+        summarise(analysis_result) %>%
+        spread(param_name, analysis_result)
+    }
 
   } else {
 
-    df <- df %>%
-      join_lt() %>%
-      name_units() %>%
-      group_by(location_id, sample_date, param_name) %>%
-      summarise(analysis_result) %>%
-      spread(param_name, analysis_result)
+    if (isTRUE(lab_id)) {
+      df <- df %>%
+        name_units() %>%
+        group_by(location_id, lab_id, sample_date, param_name) %>%
+        summarise(analysis_result) %>%
+        spread(param_name, analysis_result)
+    } else {
+      df <- df %>%
+        name_units() %>%
+        group_by(location_id, sample_date, param_name) %>%
+        summarise(analysis_result) %>%
+        spread(param_name, analysis_result)
+    }
 
   }
 
