@@ -28,6 +28,8 @@ summary <- function(df,
               min = min(analysis_result, na.rm = na.rm),
               max = max(analysis_result, na.rm = na.rm),
               cv = cv(analysis_result, na.rm = na.rm),
+              `25%` = quantile(analysis_result, na.rm = na.rm)[2][[1]],
+              `75%` = quantile(analysis_result, na.rm = na.rm)[4][[1]],
               IQR = IQR(analysis_result, na.rm = na.rm),
               mad = mad(analysis_result, na.rm = na.rm)
               )

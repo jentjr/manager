@@ -485,11 +485,11 @@ shinyServer(function(input, output, session) {
               input$Cl_stiff, input$SO4_stiff,
               input$Alk_stiff, input$stiff_tds)
     
-    start <- min(lubridate::ymd(input$date_range_stiff, tz = "UTC"),
-                 na.rm = TRUE)
+    start <- min(as.Date(input$date_range_stiff, format = "%Y/%m/%d",
+                         tz = "UTC"), na.rm = TRUE)
     
-    end <- max(lubridate::ymd(input$date_range_stiff, tz = "UTC"),
-               na.rm = TRUE)
+    end <- max(as.Date(input$date_range_stiff, format = "%Y/%m/%d",
+                       tz = "UTC"), na.rm = TRUE)
     
     stiff_data <- stiff_data %>%
       filter(param_name %in% ions, location_id %in% input$well_stiff,
@@ -660,8 +660,10 @@ shinyServer(function(input, output, session) {
     
     data <- get_data()
     
-    start <- min(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
-    end <- max(lubridate::ymd(input$date_range_schoeller, tz = Sys.timezone()))
+    start <- min(as.Date(input$date_range_schoeller, format = "%Y/%m/%d",
+                         tz = "UTC"))
+    end <- max(as.Date(input$date_range_schoeller, format = "%Y/%m/%d",
+                       tz = "UTC"))
     
     data_selected <- data %>%
       filter(location_id %in% input$well_schoeller &
@@ -747,11 +749,11 @@ shinyServer(function(input, output, session) {
     
     df <- get_data()
     
-    start <- min(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()),
-                 na.rm = TRUE)
+    start <- min(as.Date(input$outlier_date_range, format = "%Y/%m/%d",
+                         tz = "UTC"), na.rm = TRUE)
     
-    end <- max(lubridate::ymd(input$outlier_date_range, tz = Sys.timezone()), 
-               na.rm = TRUE)
+    end <- max(as.Date(input$outlier_date_range, format = "%Y/%m/%d",
+                       tz = "UTC"), na.rm = TRUE)
     
     data_selected <- df %>%
       filter(location_id %in% input$outlier_well,
@@ -837,11 +839,11 @@ shinyServer(function(input, output, session) {
 
     df <- get_data()
     
-    start <- min(lubridate::ymd(input$trend_date_range, tz = Sys.timezone()), 
-                 na.rm = TRUE)
+    start <- min(as.Date(input$trend_date_range, format = "%Y/%m/%d",
+                         tz = "UTC"), na.rm = TRUE)
     
-    end <- max(lubridate::ymd(input$trend_date_range, tz = Sys.timezone()), 
-               na.rm = TRUE)
+    end <- max(as.Date(input$trend_date_range,format = "%Y/%m/%d",
+                       tz = "UTC"), na.rm = TRUE)
     
     data_selected <- df %>%
       filter(location_id %in% input$trend_well,
@@ -904,8 +906,8 @@ shinyServer(function(input, output, session) {
       filter(location_id %in% input$conf_int_wells,
              param_name %in% input$conf_int_analytes)
     
-    start <- min(lubridate::ymd(input$conf_int_dates, tz = "UTC"))
-    end <- max(lubridate::ymd(input$conf_int_dates, tz = "UTC"))
+    start <- min(as.Date(input$conf_int_dates, format = "%Y/%m/%d", tz = "UTC"))
+    end <- max(as.Date(input$conf_int_dates, format = "%Y/%m/%d",tz = "UTC"))
     
     df <- df %>%
       filter(sample_date >= start & sample_date <= end)
@@ -1000,8 +1002,8 @@ shinyServer(function(input, output, session) {
       filter(location_id %in% input$tol_int_wells,
              param_name %in% input$tol_int_analytes)
     
-    start <- min(lubridate::ymd(input$tol_int_dates, tz = "UTC"))
-    end <- max(lubridate::ymd(input$tol_int_dates, tz = "UTC"))
+    start <- min(as.Data(input$tol_int_dates, format = "%Y/%m/%d", tz = "UTC"))
+    end <- max(as.Date(input$tol_int_dates, format = "%Y/%m/%d", tz = "UTC"))
     
     df <- df %>%
       filter(sample_date >= start & sample_date <= end)
@@ -1133,8 +1135,8 @@ shinyServer(function(input, output, session) {
       filter(location_id %in% input$well_intra,
              param_name %in% input$analyte_intra)
 
-    start <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
-    end <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    start <- min(as.Date(input$back_dates_intra, format = "%Y/%m/%d", tz = "UTC"))
+    end <- max(as.Date(input$back_dates_intra, format = "%Y/%m/%d", tz = "UTC"))
 
     df <- df %>%
       filter(sample_date >= start & sample_date <= end)
@@ -1256,8 +1258,8 @@ shinyServer(function(input, output, session) {
     ts_params <- constituents(ts_data)
     ts_wells <- sample_locations(ts_data)
     
-    start <- min(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
-    end <- max(lubridate::ymd(input$back_dates_intra, tz = "UTC"))
+    start <- min(as.Date(input$back_dates_intra, format = "%Y/%m/%d", tz = "UTC"))
+    end <- max(as.Date(input$back_dates_intra, format = "%Y/%m/%d", tz = "UTC"))
     
     intra_limit_data <- intra_limit()
     
@@ -1349,8 +1351,8 @@ shinyServer(function(input, output, session) {
       filter(location_id %in% input$well_inter,
              param_name %in% input$analyte_inter)
 
-    start <- min(lubridate::ymd(input$background_inter, tz = "UTC"))
-    end <- max(lubridate::ymd(input$background_inter, tz = "UTC"))
+    start <- min(as.Date(input$background_inter, format = "%Y/%m/%d", tz = "UTC"))
+    end <- max(as.Date(input$background_inter, format = "%Y/%m/%d", tz = "UTC"))
 
     df <- df %>%
       filter(sample_date >= start, sample_date <= end)
