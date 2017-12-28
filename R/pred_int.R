@@ -78,7 +78,8 @@ pred_int_sim <- function(df,
       ),
       distribution == "Nonparametric" ~ map(.x = data,
                                             ~EnvStats::predIntNparSimultaneous(
-                                              x = .x$analysis_result
+                                              x = .x$analysis_result,
+                                              pi.type = pi_type
                                               )
       )
     )
@@ -172,7 +173,8 @@ pred_int <- function(df,
                                         ),
       distribution == "Nonparametric" ~ map(.x = data,
                                             ~EnvStats::predIntNpar(
-                                              x = .x$analysis_result)
+                                              x = .x$analysis_result,
+                                              pi.type = pi_type)
                                             )
                       )
     )

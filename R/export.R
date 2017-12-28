@@ -23,14 +23,14 @@ export_OEPA <- function(df, wells, constituents, file, short_name = TRUE) {
   df <- df %>% 
     dplyr::filter(param_name %in% constituents, location_id %in% wells)
   
-  df <- join_lt(df, "result")
+  df <- join_lt(df)
   
   df <- df %>%
     name_units(short_name = short_name)
   
   df <- df %>%
-    dplyr::select(location_id, sample_date, param_name, result) %>%
-    tidyr::spread(param_name, result)
+    dplyr::select(location_id, sample_date, param_name, analysis_result) %>%
+    tidyr::spread(param_name, analysis_result)
   
   wb <- openxlsx::createWorkbook()
   
@@ -75,11 +75,11 @@ event_summary <- function(df, wells, params, start, end, gw_elev = TRUE,
   df <- df %>%
     name_units()
   
-  df <- join_lt(df, "result")
+  df <- join_lt(df)
   
   df <- df %>%
-    select(location_id, sample_date, param_name, result) %>%
-    spread(param_name, result)
+    select(location_id, sample_date, param_name, analysis_result) %>%
+    spread(param_name, analysis_result)
   
   return(df)
   

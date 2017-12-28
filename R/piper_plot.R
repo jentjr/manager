@@ -67,12 +67,13 @@ piper_plot <- function(df,
                        x_z_anion_label = "SO4 + Cl + F",
                        x_y_cation_label = "Ca + Mg",
                        total_dissolved_solids = NULL,
-                       transparency = 0.2,
+                       group_col = NULL,
+                       transparency = 0.7,
                        pnt_size = 3,
                        label_size = 3,
                        title = NULL) {
 
-  df <- df %>%
+  piper_df <- df %>%
     .get_piper_ions(x_cation = x_cation,
                     y_cation = y_cation,
                     z_cation = z_cation,
@@ -87,16 +88,43 @@ piper_plot <- function(df,
                           y_anion = y_anion,
                           z_anion = z_anion,
                           total_dissolved_solids = total_dissolved_solids)
-
-  piper <- .ggplot_piper() +
-    geom_point(data = df, aes(x = cation_x,
-                              y = cation_y,
-                              colour = location_id),
-               alpha = transparency, size = pnt_size) +
-    geom_point(data = df, aes(x = anion_x,
-                              y = anion_y,
-                              colour = location_id),
-               alpha = transparency, size = pnt_size) +
+  
+  if (!is.null(group_col)) {
+    
+    group_table <- df %>%
+      select(location_id, gradient = group_col) %>%
+      distinct()
+    
+    piper_df <- group_table %>%
+      right_join(piper_df, by = c("location_id"))
+    
+    piper <- .ggplot_piper() +
+      geom_point(data = piper_df, aes(x = cation_x,
+                                      y = cation_y,
+                                      shape = factor(gradient, exclude = NULL),
+                                      colour = location_id),
+                 alpha = transparency, size = pnt_size) +
+      geom_point(data = piper_df, aes(x = anion_x,
+                                      y = anion_y,
+                                      shape = factor(gradient, exclude = NULL),
+                                      colour = location_id),
+                 alpha = transparency, size = pnt_size)
+      
+    
+  } else {
+    
+    piper <- .ggplot_piper() +
+      geom_point(data = piper_df, aes(x = cation_x,
+                                      y = cation_y,
+                                      colour = location_id),
+                 alpha = transparency, size = pnt_size) +
+      geom_point(data = piper_df, aes(x = anion_x,
+                                      y = anion_y,
+                                      colour = location_id),
+                 alpha = transparency, size = pnt_size)
+  }
+  
+  piper <- piper +
 
     # Labels for cations
     geom_text(aes_(x = 17, y = 50, 
@@ -142,31 +170,60 @@ piper_plot <- function(df,
     piper <- piper + scale_color_discrete()
   }
 
-  # Scale by TDS
-  if (!is.null(total_dissolved_solids)) {
-
-    piper <-  piper +
-      geom_point(data = df, aes(x = diamond_x,
-                                y = diamond_y,
-                                colour = location_id,
-                                size = total_dissolved_solids),
-                                alpha = transparency) +
-      scale_size("total_dissolved_solids", range = c(0, 10)) +
-      guides(size = guide_legend("Total Dissolved Solids"),
-             colour = guide_legend("Location ID"),
-             alpha = guide_legend("none"))
-
+  if (!is.null(group_col)) {
+    # Scale by TDS
+    if (!is.null(total_dissolved_solids)) {
+      piper <-  piper +
+        geom_point(data = piper_df, aes(x = diamond_x,
+                                        y = diamond_y,
+                                        shape = factor(gradient, exclude = NULL),
+                                        colour = location_id,
+                                        size = total_dissolved_solids),
+                   alpha = transparency) +
+        scale_size("total_dissolved_solids", range = c(0, 10)) +
+        guides(size = guide_legend("Total Dissolved Solids"),
+               colour = guide_legend("Location ID"),
+               shape = guide_legend(paste0(group_col)),
+               alpha = guide_legend("none"))
+      
+    } else {
+      
+      piper <- piper +
+        geom_point(data = piper_df, aes(x = diamond_x,
+                                        y = diamond_y,
+                                        shape = factor(gradient, exclude = NULL),
+                                        colour = location_id),
+                   alpha = transparency,
+                   size = pnt_size) + 
+        guides(shape = guide_legend(paste0(group_col)))
+      
+    }
   } else {
-
-   piper <- piper +
-     geom_point(data = df, aes(x = diamond_x,
-                               y = diamond_y,
-                               colour = location_id),
-                               alpha = transparency,
-                size = pnt_size)
-    
+    # Scale by TDS
+    if (!is.null(total_dissolved_solids)) {
+      piper <-  piper +
+        geom_point(data = piper_df, aes(x = diamond_x,
+                                        y = diamond_y,
+                                        colour = location_id,
+                                        size = total_dissolved_solids),
+                   alpha = transparency) +
+        scale_size("total_dissolved_solids", range = c(0, 10)) +
+        guides(size = guide_legend("Total Dissolved Solids"),
+               colour = guide_legend("Location ID"),
+               alpha = guide_legend("none"))
+      
+    } else {
+      
+      piper <- piper +
+        geom_point(data = piper_df, aes(x = diamond_x,
+                                        y = diamond_y,
+                                        colour = location_id),
+                   alpha = transparency,
+                   size = pnt_size)
+      
+    }
   }
-
+ 
     return(piper)
 
 }
