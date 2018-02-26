@@ -111,9 +111,9 @@ include_dup <- function(df, wells) {
 #' @param df groundwater data frame
 #' @export
 
-replace_missing <- function(df){
+replace_missing <- function(df, value){
 
-  df$analysis_result <- ifelse(df$analysis_result == -999.9, NA,
+  df$analysis_result <- ifelse(df$analysis_result == value, NA,
                                  df$analysis_result)
   return(df)
 
