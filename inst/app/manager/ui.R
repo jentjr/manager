@@ -544,13 +544,67 @@ navbarMenu("Clustering",
         column(2,
                uiOutput("select_wells_hca"),
                uiOutput("select_analyte_hca"),
-               uiOutput("select_date_ranges_hca")
+               uiOutput("select_date_ranges_hca"),
+               selectInput("clust_dist_method", 
+                           label = "Select Distance Method",
+                           choices = c("euclidean",
+                                       "maximum",
+                                       "manhattan",
+                                       "canberra",
+                                       "binary",
+                                       "minkowski"),
+                           selected = "euclidean"),
+               selectInput("clust_agg_method",
+                           label = "Cluster Agglomeration Method",
+                           choices = c("ward.D",
+                                       "ward.D2",
+                                       "single",
+                                       "complete",
+                                       "average",
+                                       "mcquitty",
+                                       "median",
+                                       "centroid"),
+                           selected = "average")
         ),
         column(10, 
           plotOutput("hca_out")
         )
       )
     )
+  ),
+  tabPanel("k-means",
+    fluidPage(
+      fluidRow(
+        column(2,
+               uiOutput("select_wells_kmeans"),
+               uiOutput("select_analyte_kmeans"),
+               uiOutput("select_date_ranges_kmeans"),
+               selectInput("kmeans_dist_method", 
+                           label = "Select Distance Method",
+                           choices = c("euclidean",
+                                       "maximum",
+                                       "manhattan",
+                                       "canberra",
+                                       "binary",
+                                       "minkowski"),
+                           selected = "euclidean"),
+               numericInput("kmeans_centers",
+                            label = "Number of clusters",
+                            value = 1,
+                            min = 1),
+               selectInput("kmeans_algorithm",
+                           label = "K-Means Algorithm",
+                           choices = c("Hartigan-Wong",
+                                       "Lloyd",
+                                       "Forgy",
+                                       "MacQueen"),
+                           selected = "Hartigan-Wong")
+               ),
+        column(10, 
+               plotOutput("kmeans_out")
+        )
+    )
   )
  )
+)
 ))

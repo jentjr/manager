@@ -331,7 +331,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("piper_well", "Monitoring Wells", choices = well_names,
-                selected = well_names[1], multiple = TRUE)
+                selected = well_names, multiple = TRUE)
   })
 
   output$select_piper_x_cation <- renderUI({
@@ -1512,7 +1512,7 @@ shinyServer(function(input, output, session) {
       spread(param_name, analysis_mean) %>%
       na.omit()
 
-    d <- dist(scale(df[, -1]), method = "euclidean")
+    d <- dist(scale(df[, -1]), method = input$clust_dist_method)
 
         hc_result <- hclust(d, method = "complete")
 
@@ -1526,8 +1526,73 @@ shinyServer(function(input, output, session) {
 
   output$hca_out <- renderPlot({
 
-    ggdendro::ggdendrogram(hc_plot(), rotate = TRUE)
+    ggdendro::ggdendrogram(hc_plot(), rotate = TRUE) + 
+      labs(title = "Dendrogram")
 
   })
+  
+  # Begin K-means --------------------------------------------------------------
+  output$select_wells_kmeans <- renderUI({
+    
+    data <- get_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("well_kmeans", "Monitoring Wells", well_names, 
+                multiple = TRUE,
+                selected = well_names)
+  })
+  
+  output$select_analyte_kmeans <- renderUI({
+    data <- get_data()
+    analyte_names <- as.character(constituents(data))
+    selectInput("analyte_kmeans", "Constituents", analyte_names, 
+                multiple = TRUE,
+                selected = analyte_names)
+  })
+  
+  output$select_date_ranges_kmeans <- renderUI({
+    data <- get_data()
+    tagList(
+      dateRangeInput("dates_kmeans", "Background Date Range",
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))
+    )
+  })
+  
+  kmeans_plot <- reactive({
+    
+    df <- get_data()
+    df <- df %>%
+      filter(location_id %in% input$well_kmeans,
+             param_name %in% input$analyte_kmeans)
+
+    start <- min(as.Date(input$dates_kmeans, format = "%Y/%m/%d", tz = "UTC"))
+    end <- max(as.Date(input$dates_kmeans, format = "%Y/%m/%d", tz = "UTC"))
+
+    df <- df %>%
+      filter(sample_date >= start, sample_date <= end)
+
+    df <- df %>%
+      name_units() %>%
+      group_by(location_id, param_name) %>%
+      summarise(analysis_mean = mean(analysis_result, na.rm = TRUE)) %>%
+      spread(param_name, analysis_mean) %>%
+      na.omit()
+
+    d <- dist(scale(df[, -1]), method = input$kmeans_dist_method)
+
+    kmeans_result <- kmeans(d, centers = input$kmeans_centers,
+                            algorithm = input$kmeans_algorithm)
+
+    fviz_cluster(kmeans_result, geom = "point", data = df[, -1],
+                 ellipse.type = "norm", ggtheme = theme_bw())
+
+  })
+  
+  output$kmeans_out <- renderPlot({
+
+    kmeans_plot()
+
+  })
+  # End K-means ----------------------------------------------------------------
   # End Clustering -------------------------------------------------------------
 })

@@ -9,6 +9,7 @@ library(pool)
 library(sf)
 library(mapview)
 library(ggdendro)
+library(factoextra)
 library(dendextend)
 
 # change options to handle large file size
