@@ -27,6 +27,11 @@ navbarPage("MANAGER",
    )
   )
 ),
+tabPanel("Map",
+  fluidPage(
+    mapviewOutput("mapplot", height = 725)
+  )
+),
 navbarMenu("Plots",
   tabPanel("Distribution Plots",
     fluidPage(
@@ -532,7 +537,20 @@ navbarMenu("Statistical Intervals",
 ) # End Prediction Intervals
 ), # End of Statisitcal Intervals
 
-navbarMenu("Classification",
-    tabPanel("GBM")
-)
+navbarMenu("Clustering",
+    tabPanel("Hierarchical",
+    fluidPage(
+      fluidRow(
+        column(2,
+               uiOutput("select_wells_hca"),
+               uiOutput("select_analyte_hca"),
+               uiOutput("select_date_ranges_hca")
+        ),
+        column(10, 
+          plotOutput("hca_out")
+        )
+      )
+    )
+  )
+ )
 ))

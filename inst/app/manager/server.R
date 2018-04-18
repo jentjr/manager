@@ -51,6 +51,13 @@ shinyServer(function(input, output, session) {
     to_wide(get_data())
   })
   
+  # Map ------------------------------------------------------------------------
+  m <- mapview(wells) 
+  
+  output$mapplot <- renderMapview(m)
+
+  # End Map --------------------------------------------------------------------
+  
   # Begin Distribution Plots ---------------------------------------------------
   output$select_distribution_wells <- renderUI({
 
@@ -152,7 +159,7 @@ shinyServer(function(input, output, session) {
     well_names <- as.character(sample_locations(data))
     selectInput("boxplot_well", "Monitoring Wells", well_names,
                 multiple = TRUE,
-                selected = well_names[1])
+                selected = well_names)
   })
   
   output$select_boxplot_params <- renderUI({
@@ -161,7 +168,7 @@ shinyServer(function(input, output, session) {
     analyte_names <- as.character(constituents(data))
     selectInput("boxplot_param", "Constituents", analyte_names,
                 multiple = TRUE,
-                selected = analyte_names[1])
+                selected = analyte_names)
   })
   
   boxplot_react <- reactive({
@@ -245,7 +252,7 @@ shinyServer(function(input, output, session) {
     well_names <- as.character(sample_locations(data))
     selectInput("ts_well", "Monitoring Wells", well_names,
                 multiple = TRUE,
-                selected = well_names[1])
+                selected = well_names)
   })
   
   output$select_ts_params <- renderUI({
@@ -254,7 +261,7 @@ shinyServer(function(input, output, session) {
     analyte_names <- as.character(constituents(data))
     selectInput("ts_param", "Constituents", analyte_names,
                 multiple = TRUE,
-                selected = analyte_names[1])
+                selected = analyte_names)
   })
   
   ts_plot_react <- reactive({
@@ -1002,7 +1009,7 @@ shinyServer(function(input, output, session) {
       filter(location_id %in% input$tol_int_wells,
              param_name %in% input$tol_int_analytes)
     
-    start <- min(as.Data(input$tol_int_dates, format = "%Y/%m/%d", tz = "UTC"))
+    start <- min(as.Date(input$tol_int_dates, format = "%Y/%m/%d", tz = "UTC"))
     end <- max(as.Date(input$tol_int_dates, format = "%Y/%m/%d", tz = "UTC"))
     
     df <- df %>%
@@ -1235,7 +1242,7 @@ shinyServer(function(input, output, session) {
     
     pred_int <- pred_int %>%
       mutate(lpl = if_else(lpl == 0, -Inf, lpl, missing = lpl))
-    
+
     return(pred_int)
 
   })
@@ -1245,40 +1252,40 @@ shinyServer(function(input, output, session) {
     intra_limit()
 
   })
-  
+
   # Begin Intrawell prediction interval time series plots ----------------------
   ts_intra_plot <- reactive({
-    
+
     df <- get_data()
-    
+
     ts_data <- df %>%
       filter(location_id %in% input$well_intra,
              param_name %in% input$analyte_intra)
-    
+
     ts_params <- constituents(ts_data)
     ts_wells <- sample_locations(ts_data)
     
     start <- min(as.Date(input$back_dates_intra, format = "%Y/%m/%d", tz = "UTC"))
     end <- max(as.Date(input$back_dates_intra, format = "%Y/%m/%d", tz = "UTC"))
-    
+
     intra_limit_data <- intra_limit()
-    
+
     ts_data <- ts_data %>%
       left_join(intra_limit_data,
                 by = c("location_id", "param_name", "default_unit"))
     # Need to inlcude group_var option, using param_name for now
-    
+
     ts_list <- lapply(seq_along(ts_params), function(i) {
       ts_name <- paste("ts_plot", i, sep = "")
       plotOutput(ts_name)
     })
-    
+
     for (i in seq_along(ts_params)) {
       local({
         ts_i <- i
         ts_name <- paste("ts_plot", ts_i, sep = "")
         output[[ts_name]] <- renderPlot({
-          
+
           ts <- manager::ts_plot(
             ts_data[ts_data$param_name == ts_params[ts_i], ],
             background = c(start, end),
@@ -1298,7 +1305,7 @@ shinyServer(function(input, output, session) {
 
   })
   # End Intrawell time series plots --------------------------------------------
-  
+
   # Begin Prediction Interval Power Test ---------------------------------------
   output$power_plot <- renderPlot({
     
@@ -1311,21 +1318,21 @@ shinyServer(function(input, output, session) {
                                              )
 
   })
-  
-  # End Prediction Interval Power Test -----------------------------------------
-  
+
+    # End Prediction Interval Power Test -----------------------------------------
+
   # End Intrawell Prediction Intervals -----------------------------------------
 
   # Begin Interwell Prediction Intervals ---------------------------------------
   output$select_wells_inter <- renderUI({
-    
+
     data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("well_inter", "Monitoring Wells", well_names, 
                 multiple = TRUE,
                 selected = well_names[1])
   })
-  
+
   output$select_analyte_inter <- renderUI({
     data <- get_data()
     analyte_names <- as.character(constituents(data))
@@ -1333,7 +1340,7 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE,
                 selected = analyte_names[1])
   })
-  
+
   output$select_date_ranges_inter <- renderUI({
     data <- get_data()
     tagList(
@@ -1399,7 +1406,7 @@ shinyServer(function(input, output, session) {
                                               )
       )
     )
-    
+
     pred_int_pH <- df %>%
       filter(param_name == "pH (field)") %>%
       mutate(pred_int = case_when(
@@ -1435,9 +1442,9 @@ shinyServer(function(input, output, session) {
                                               )
       )
     )
-    
+
     pred_int <- rbind(pred_int, pred_int_pH)
-    
+
     pred_int %>%
       mutate(distribution = distribution,
              sample_size = map(.x = pred_int, ~ .x$sample.size),
@@ -1455,6 +1462,72 @@ shinyServer(function(input, output, session) {
     inter_limit()
 
   })
-  # End Interwell Prediction Limits -------------------------------------------
+  # End Interwell Prediction Limits --------------------------------------------
   # End Prediction Limits ------------------------------------------------------
+
+  # Begin Clustering -----------------------------------------------------------
+  output$select_wells_hca <- renderUI({
+
+    data <- get_data()
+    well_names <- as.character(sample_locations(data))
+    selectInput("well_hca", "Monitoring Wells", well_names, 
+                multiple = TRUE,
+                selected = well_names)
+  })
+
+  output$select_analyte_hca <- renderUI({
+    data <- get_data()
+    analyte_names <- as.character(constituents(data))
+    selectInput("analyte_hca", "Constituents", analyte_names, 
+                multiple = TRUE,
+                selected = analyte_names)
+  })
+
+  output$select_date_ranges_hca <- renderUI({
+    data <- get_data()
+    tagList(
+      dateRangeInput("dates_hca", "Background Date Range",
+                     start = min(data$sample_date, na.rm = TRUE),
+                     end = max(data$sample_date, na.rm = TRUE))
+    )
+  })
+
+  hc_plot <- reactive({
+
+    df <- get_data()
+    df <- df %>%
+      filter(location_id %in% input$well_hca,
+             param_name %in% input$analyte_hca)
+
+    start <- min(as.Date(input$dates_hca, format = "%Y/%m/%d", tz = "UTC"))
+    end <- max(as.Date(input$dates_hca, format = "%Y/%m/%d", tz = "UTC"))
+
+    df <- df %>%
+      filter(sample_date >= start, sample_date <= end)
+
+    df <- df %>%
+      name_units() %>%
+      group_by(location_id, param_name) %>%
+      summarise(analysis_mean = mean(analysis_result, na.rm = TRUE)) %>%
+      spread(param_name, analysis_mean) %>%
+      na.omit()
+
+    d <- dist(scale(df[, -1]), method = "euclidean")
+
+        hc_result <- hclust(d, method = "complete")
+
+    dend <- as.dendrogram(hc_result)
+
+    labels(dend) <- df[order.dendrogram(dend), 1][[1]]
+
+    return(dend)
+
+  })
+
+  output$hca_out <- renderPlot({
+
+    ggdendro::ggdendrogram(hc_plot(), rotate = TRUE)
+
+  })
+  # End Clustering -------------------------------------------------------------
 })

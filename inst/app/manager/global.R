@@ -6,6 +6,10 @@ library(manager)
 library(shiny)
 library(DBI)
 library(pool)
+library(sf)
+library(mapview)
+library(ggdendro)
+library(dendextend)
 
 # change options to handle large file size
 options(shiny.maxRequestSize = -1)
@@ -66,10 +70,14 @@ query <- sample_results %>%
          EAST_COORDINATE,
          COORDINATE_REFERENCE,
          WATER_CLASS,
-         LOCATION_CLASS
+         LOCATION_CLASS,
+         WELL_TYPE
   ) %>%
   select_all(., tolower)
 
 onStop(function() {
   poolClose(pool)
 })
+
+# Map data
+wells <- st_read("H:/INTERNAL/JRJ/GIS/AEP/aep_monitoring_wells/aep_monitoring_wells.shp")
