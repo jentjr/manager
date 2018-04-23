@@ -8,7 +8,6 @@ library(DBI)
 library(pool)
 library(sf)
 library(mapview)
-library(ggdendro)
 library(factoextra)
 library(dendextend)
 

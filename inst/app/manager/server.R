@@ -1514,7 +1514,7 @@ shinyServer(function(input, output, session) {
 
     d <- dist(scale(df[, -1]), method = input$clust_dist_method)
 
-        hc_result <- hclust(d, method = "complete")
+    hc_result <- hclust(d, method = "complete")
 
     dend <- as.dendrogram(hc_result)
 
@@ -1526,8 +1526,8 @@ shinyServer(function(input, output, session) {
 
   output$hca_out <- renderPlot({
 
-    ggdendro::ggdendrogram(hc_plot(), rotate = TRUE) + 
-      labs(title = "Dendrogram")
+    fviz_dend(hc_plot(), k = input$hca_colors, horiz = input$hca_horiz) +
+      theme(plot.title = element_text(hjust = 0.5))
 
   })
   
@@ -1578,13 +1578,18 @@ shinyServer(function(input, output, session) {
       spread(param_name, analysis_mean) %>%
       na.omit()
 
-    d <- dist(scale(df[, -1]), method = input$kmeans_dist_method)
+    df <- as.data.frame(df)
+    rownames(df) <- df[, 1]
+    df <- df[, -1]
+
+    d <- dist(scale(df), method = input$kmeans_dist_method)
 
     kmeans_result <- kmeans(d, centers = input$kmeans_centers,
                             algorithm = input$kmeans_algorithm)
 
-    fviz_cluster(kmeans_result, geom = "point", data = df[, -1],
-                 ellipse.type = "norm", ggtheme = theme_bw())
+    fviz_cluster(kmeans_result, data = df,
+                 ellipse.type = "norm", ggtheme = theme_bw()) + 
+      theme(plot.title = element_text(hjust = 0.5))
 
   })
   
