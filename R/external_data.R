@@ -68,32 +68,61 @@ connect_manages4 <- function(driver = "SQL Server", server, database) {
   
 }
 
-read_manages4 <- function() { 
+#' Function to read MANAGES 4.0 database
+#' 
+#' @param driver default is "SQL Server" 
+#' @param server server name
+#' @param database database name
+#' @param site list of sites
+#' @export
+
+read_manages4 <- function(driver = "SQL Server", server, database, site) { 
   
-  sites <- pool %>% tbl("SITE")
-  locations <- pool %>% tbl("LOCATIONS")
-  site_parameters <- pool %>% tbl("SITE_PARAMETERS")
-  sample_results <- pool %>% tbl("SAMPLE_RESULTS")
+  manages_conn <- connect_manages4(driver, server, database)
+
+  sites <- manages_conn %>% 
+    tbl("SITE")
+
+  locations <- manages_conn %>%
+    tbl("LOCATIONS")
   
+  site_parameters <- manages_conn %>%
+    tbl("SITE_PARAMETERS")
+  
+  sample_results <- manages_conn %>%
+    tbl("SAMPLE_RESULTS")
+
   query <- sample_results %>% 
     left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) %>% 
     left_join(locations, by = c("SITE_ID", "LOCATION_ID")) %>% 
     left_join(sites, by = "SITE_ID") %>% 
-    select(SITE_ID, 
-           NAME, 
-           LOCATION_ID,
+    select(SITE_ID,
+           NAME,
            LAB_ID,
+           LOCATION_ID,
            PARAM_NAME,
-           SHORT_NAME,
            SAMPLE_DATE,
            LT_MEASURE,
            FLAGS,
            ANALYSIS_RESULT,
            DETECTION_LIMIT,
            RL,
-           DEFAULT_UNIT
-    )
-  
+           DEFAULT_UNIT,
+           SHORT_NAME,
+           NORTH_COORDINATE,
+           EAST_COORDINATE,
+           COORDINATE_REFERENCE,
+           WATER_CLASS,
+           LOCATION_CLASS,
+           WELL_TYPE
+    ) %>%
+    select_all(., tolower) %>%
+    filter(NAME %in% site) %>%
+    collect()
+
+  DBI::dbDisconnect(manages_conn)
+
+  return(query)
 }
 
 #' function to read data in csv format and convert date to POSIXct with lubridate
@@ -105,7 +134,7 @@ read_manages4 <- function() {
 #' @export
 
 from_csv <- function(path, date_format = "mdy"){
-  
+
   if (date_format == "ymd") {
     csv_data <- readr::read_csv(path, 
                                 col_types = readr::cols(

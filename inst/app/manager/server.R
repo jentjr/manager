@@ -698,7 +698,7 @@ shinyServer(function(input, output, session) {
   })
   
   output$schoeller_diagram_out <- renderPlot({
-    schoeller_diagram()
+    schoeller_plot_react()
   })
   
   output$schoeller_download <- downloadHandler(

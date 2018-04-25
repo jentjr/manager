@@ -13,8 +13,8 @@ piper_plot(df, location_id = "location_id", sample_date = "sample_date",
   y_anion = "Alkalinity, total (lab)", y_anion_label = "HCO3 + CO2",
   z_anion = "Sulfate, total", z_anion_label = "SO4",
   x_z_anion_label = "SO4 + Cl + F", x_y_cation_label = "Ca + Mg",
-  total_dissolved_solids = NULL, transparency = 0.2, pnt_size = 3,
-  label_size = 3, title = NULL)
+  total_dissolved_solids = NULL, group_col = NULL, transparency = 0.7,
+  pnt_size = 3, label_size = 3, title = NULL)
 }
 \arguments{
 \item{df}{data frame of water quality data in tidy format}

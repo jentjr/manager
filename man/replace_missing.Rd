@@ -4,7 +4,7 @@
 \alias{replace_missing}
 \title{Function to replace missing values}
 \usage{
-replace_missing(df)
+replace_missing(df, value)
 }
 \arguments{
 \item{df}{groundwater data frame}

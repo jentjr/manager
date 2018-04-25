@@ -4,12 +4,14 @@
 \alias{join_lt}
 \title{Function to join columns of lt_measure and sample results}
 \usage{
-join_lt(df, col_name)
+join_lt(df, lt_measure, analysis_result)
 }
 \arguments{
 \item{df}{groundwater data frame}
 
-\item{col_name}{qouted column name for the result}
+\item{lt_measure}{column name for non-detect symbol}
+
+\item{analysis_result}{column name for analysis results}
 }
 \description{
 Function to join columns of lt_measure and sample results
