@@ -2,7 +2,7 @@ shinyServer(function(input, output, session) {
 
   # Data Table -----------------------------------------------------------------
   select_data <- callModule(selectData, "select_data", multiple = TRUE)
-  
+
   get_data <- reactive({
     input$run_query
     data <- isolate(select_data())
@@ -50,14 +50,14 @@ shinyServer(function(input, output, session) {
   output$wide_table <- renderDataTable({
     to_wide(get_data())
   })
-  
+
   # Map ------------------------------------------------------------------------
   m <- mapview(wells) 
-  
+
   output$mapplot <- renderMapview(m)
 
   # End Map --------------------------------------------------------------------
-  
+
   # Begin Distribution Plots ---------------------------------------------------
   output$select_distribution_wells <- renderUI({
 
@@ -77,9 +77,8 @@ shinyServer(function(input, output, session) {
                 selected = analyte_names[1])
   })
 
-
   get_distribution_data <- reactive({
-    
+
     df <- get_data()
 
     df %>%
@@ -161,7 +160,7 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE,
                 selected = well_names)
   })
-  
+
   output$select_boxplot_params <- renderUI({
     
     data <- get_data()
@@ -170,7 +169,7 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE,
                 selected = analyte_names)
   })
-  
+
   boxplot_react <- reactive({
 
       box_data <- get_data()
@@ -254,24 +253,24 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE,
                 selected = well_names)
   })
-  
+
   output$select_ts_params <- renderUI({
-    
+
     data <- get_data()
     analyte_names <- as.character(constituents(data))
     selectInput("ts_param", "Constituents", analyte_names,
                 multiple = TRUE,
                 selected = analyte_names)
   })
-  
+
   ts_plot_react <- reactive({
 
     ts_data <- get_data()
-    
+
     ts_data <- ts_data %>%
       filter(location_id %in% input$ts_well,
              param_name %in% input$ts_param)
-    
+
     ts_wells <- sample_locations(ts_data)
     ts_params <- constituents(ts_data)
 
@@ -429,7 +428,7 @@ shinyServer(function(input, output, session) {
                 )
 
      } else { 
-     
+
      piper_plot(data,
                 x_cation = paste(input$x_cation),
                 x_cation_label = input$x_cation_label,
@@ -468,13 +467,13 @@ shinyServer(function(input, output, session) {
 
   # Begin Stiff Diagram Page ---------------------------------------------------
   output$select_stiff_wells <- renderUI({
-    
+
     data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("well_stiff", "Monitoring Wells", well_names, 
                 multiple = TRUE, selected = well_names[1])
   })
-  
+
   output$select_stiff_dates <- renderUI({
     
     data <- get_data()
@@ -484,35 +483,35 @@ shinyServer(function(input, output, session) {
   })
 
   get_stiff_data <- reactive({
-    
+
     stiff_data <- get_data()
 
     ions <- c(input$Mg_stiff, input$Ca_stiff,
               input$Na_stiff, input$K_stiff,
               input$Cl_stiff, input$SO4_stiff,
               input$Alk_stiff, input$stiff_tds)
-    
+
     start <- min(as.Date(input$date_range_stiff, format = "%Y/%m/%d",
                          tz = "UTC"), na.rm = TRUE)
-    
+
     end <- max(as.Date(input$date_range_stiff, format = "%Y/%m/%d",
                        tz = "UTC"), na.rm = TRUE)
-    
+
     stiff_data <- stiff_data %>%
       filter(param_name %in% ions, location_id %in% input$well_stiff,
              sample_date >= start &
                sample_date <= end)
 
   })
-  
+
   output$select_stiff_tds <- renderUI({
-    
+
     if (isTRUE(input$TDS_stiff)) {
-      
+
       selectInput(inputId = "stiff_tds",
                   label = "Total Dissolved Solids", 
                   choices = c("Total Dissolved Solids"))
-      
+
     }
     
   })
@@ -530,15 +529,15 @@ shinyServer(function(input, output, session) {
         stiff_name <- paste("stiff_plot", i, sep = "")
         plotOutput(stiff_name)
       })
-      
+
       for (i in seq_along(stiff_locations)) {
         local({
           stiff_i <- i
           stiff_name <- paste("stiff_plot", stiff_i, sep = "")
           output[[stiff_name]] <- renderPlot({
-            
+
             if (isTRUE(input$TDS_stiff)) {
-              
+
               stiff <- stiff_plot(
                 stiff_data[stiff_data$location_id == 
                              stiff_locations[stiff_i], ],
@@ -575,21 +574,21 @@ shinyServer(function(input, output, session) {
         })
       }
     }
-    
+
     if (input$stiff_group == 'sample_date') {
       stiff_list <- lapply(seq_along(stiff_dates), function(i) {
         stiff_name <- paste("stiff_plot", i, sep = "")
         plotOutput(stiff_name)
       })
-      
+
       for (i in seq_along(stiff_dates)) {
         local({
           stiff_i <- i
           stiff_name <- paste("stiff_plot", stiff_i, sep = "")
           output[[stiff_name]] <- renderPlot({
-            
+
             if (isTRUE(input$TDS_stiff)) {
-              
+
               stiff <- stiff_plot(
                 stiff_data[stiff_data$sample_date == 
                              stiff_dates[stiff_i], ],
@@ -645,16 +644,16 @@ shinyServer(function(input, output, session) {
     }
   )
   # End Stiff Diagram Page------------------------------------------------------
-  
+
   # Begin Schoeller Diagram Page------------------------------------------------
   output$select_schoeller_wells <- renderUI({
-    
+
     data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("well_schoeller", "Monitoring Wells", well_names, 
                 multiple = TRUE, selected = well_names[1])
   })
-  
+
   output$select_schoeller_dates <- renderUI({
     
     data <- get_data()
@@ -662,29 +661,29 @@ shinyServer(function(input, output, session) {
                    start = min(data$sample_date, na.rm = TRUE), 
                    end = max(data$sample_date, na.rm = TRUE))
   })
-  
+
   get_schoeller_data <- reactive({
-    
+
     data <- get_data()
-    
+
     start <- min(as.Date(input$date_range_schoeller, format = "%Y/%m/%d",
                          tz = "UTC"))
     end <- max(as.Date(input$date_range_schoeller, format = "%Y/%m/%d",
                        tz = "UTC"))
-    
+
     data_selected <- data %>%
       filter(location_id %in% input$well_schoeller &
              sample_date >= start & 
              sample_date <= end)
-    
+
     data_selected
 
   })
-  
+
   schoeller_plot_react <- reactive({
-    
+
     data <- get_schoeller_data()
-    
+
     data %>%
       schoeller_plot(magnesium = paste(input$Mg_schoeller),
                      calcium = paste(input$Ca_schoeller),
@@ -696,11 +695,11 @@ shinyServer(function(input, output, session) {
                      facet_var = input$facet_schoeller,
                      title = input$schoeller_title)
   })
-  
+
   output$schoeller_diagram_out <- renderPlot({
     schoeller_plot_react()
   })
-  
+
   output$schoeller_download <- downloadHandler(
     filename = function() {
       paste("schoeller_plot_", Sys.Date(), ".pdf", sep = "")
@@ -712,105 +711,105 @@ shinyServer(function(input, output, session) {
     }
   )
   # End Schoeller Diagram Page--------------------------------------------------
-  
+
   # Begin outlier detecion -----------------------------------------------------
   output$outlier_wells <- renderUI({
-    
+
     data <- get_data()
-    
+
     well_names <- as.character(sample_locations(data))
-    
+
     selectInput("outlier_well", "Monitoring Well", well_names,
                 multiple = FALSE,
                 selected = well_names[1])
-    
+
   })
-  
+
   output$outlier_analytes <- renderUI({
-    
+
     data <- get_data()
-    
+
     analyte_names <- as.character(constituents(data))
-    
+
     selectInput("outlier_analyte", "Constituent", analyte_names, 
                 multiple = FALSE,
                 selected = analyte_names[1])
-    
+
   })
   
   output$outlier_date_ranges <- renderUI({
-    
+
     data <- get_data()
-    
+
     tagList(
-      
+
       dateRangeInput("outlier_date_range", "Date Range", 
                      start = min(data$sample_date, na.rm = TRUE),
                      end = max(data$sample_date, na.rm = TRUE))
-      
+
     )
-    
+
   })
-  
+
   get_outlier_data <- reactive({
-    
+
     df <- get_data()
-    
+
     start <- min(as.Date(input$outlier_date_range, format = "%Y/%m/%d",
                          tz = "UTC"), na.rm = TRUE)
-    
+
     end <- max(as.Date(input$outlier_date_range, format = "%Y/%m/%d",
                        tz = "UTC"), na.rm = TRUE)
-    
+
     data_selected <- df %>%
       filter(location_id %in% input$outlier_well,
              param_name %in% input$outlier_analyte,
              sample_date >= start & 
                sample_date <= end)
-    
+
     data_selected
-    
+
   })
-  
+
   output$outlier_test <- renderPrint({
-    
+
     df <- get_outlier_data()
-    
+
     validate(
       need(length(unique(df$analysis_result)) > 2, "")
     )
-    
+
     if (input$outlier_test_name == "Rosner") {
-      
+
       out <- EnvStats::rosnerTest(df$analysis_result, 
                 k = input$rosnerN, 
                 alpha = input$rosnerAlpha
              )
     } 
-    
+
     if (input$outlier_test_name == "Grubb") {
-      
+
       out <- outliers::grubbs.test(df$analysis_result, 
                 type = input$grubbType,
                 opposite = as.integer(input$grubbOpposite),
                 two.sided = as.integer(input$grubbSide)
              )
     } 
-    
+
     if (input$outlier_test_name == "Dixon") {
-      
+
       out <- outliers::dixon.test(df$analysis_result, 
                 type = input$dixonType, 
                 opposite = as.integer(input$dixonOpposite),
                 two.sided = as.integer(input$dixonSide)
              )
     }
-    
+
     out
-    
+
   })
   # End outlier detection ------------------------------------------------------
-  
+
   # Begin trend analysis -------------------------------------------------------
   output$trend_wells <- renderUI({
 
@@ -845,49 +844,49 @@ shinyServer(function(input, output, session) {
   get_trend_data <- reactive({
 
     df <- get_data()
-    
+
     start <- min(as.Date(input$trend_date_range, format = "%Y/%m/%d",
                          tz = "UTC"), na.rm = TRUE)
-    
+
     end <- max(as.Date(input$trend_date_range,format = "%Y/%m/%d",
                        tz = "UTC"), na.rm = TRUE)
-    
+
     data_selected <- df %>%
       filter(location_id %in% input$trend_well,
              param_name %in% input$trend_analyte,
              sample_date >= start & 
                sample_date <= end)
-    
+
     data_selected
-    
+
   })
-  
+
   output$trend_test <- renderPrint({
-    
+
     df <- get_trend_data()
     
     validate(
       need(length(unique(df$analysis_result)) > 2, "")
     )
-    
+
     out <- EnvStats::kendallTrendTest(analysis_result ~ sample_date, data  = df)
-    
+
     out
-    
+
   })
-  
+
   # End trend analysis ---------------------------------------------------------
-  
+
   # Begin Confidence Intervals -------------------------------------------------
   output$select_conf_int_wells <- renderUI({
-    
+
     data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("conf_int_wells", "Monitoring Wells", well_names, 
                 multiple = TRUE,
                 selected = well_names[1])
   })
-  
+
   output$select_conf_int_analytes <- renderUI({
     data <- get_data()
     analyte_names <- as.character(constituents(data))
@@ -895,7 +894,7 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE,
                 selected = analyte_names[1])
   })
-  
+
   output$select_conf_int_date_range <- renderUI({
     data <- get_data()
     tagList(
@@ -904,21 +903,21 @@ shinyServer(function(input, output, session) {
                      end = max(data$sample_date, na.rm = TRUE))
     )
   })
-  
+
   conf_int <- reactive({
-    
+
     df <- get_data()
     
     df <- df %>%
       filter(location_id %in% input$conf_int_wells,
              param_name %in% input$conf_int_analytes)
-    
+
     start <- min(as.Date(input$conf_int_dates, format = "%Y/%m/%d", tz = "UTC"))
     end <- max(as.Date(input$conf_int_dates, format = "%Y/%m/%d",tz = "UTC"))
-    
+
     df <- df %>%
       filter(sample_date >= start & sample_date <= end)
-    
+
     # first group data by location, param, and background
     # estimate percent less than
     df <- df %>%
@@ -926,32 +925,32 @@ shinyServer(function(input, output, session) {
       percent_lt() %>%
       est_dist(., keep_data_object = TRUE) %>%
       arrange(location_id, param_name)
-    
+
     conf_int <- df %>%
       mutate(conf_int = case_when(
         distribution == "Normal" ~ map(.x=data,
                                        ~enorm(
                                          x = .x$analysis_result,
                                          ci = TRUE, 
-                                         ci.type = "lower",
-                                         conf.level = 0.99,
+                                         ci.type = input$conf_int_type,
+                                         conf.level = input$conf_int_conf,
                                          ci.param = "mean")
                                        ),
         distribution == "Lognormal" ~ map(.x = data,
                                           ~elnormAlt(
                                             x = .x$analysis_result,
                                             ci = TRUE,
-                                            ci.type = "lower",
+                                            ci.type = input$conf_int_type,
                                             ci.method = "land",
-                                            conf.level = 0.99)
+                                            conf.level = input$conf_int_conf)
                                           ),
         distribution == "Nonparametric" ~ map(.x = data,
                                               ~eqnpar(
                                                 x = .x$analysis_result,
                                                 ci = TRUE,
-                                                ci.type = "lower",
+                                                ci.type = input$conf_int_type,
                                                 ci.method = "interpolate",
-                                                approx.conf.level = 0.99)
+                                                approx.conf.level = input$conf_int_conf)
                                               )
       )
       )
@@ -976,14 +975,14 @@ shinyServer(function(input, output, session) {
   
   # Begin Tolerance Intervals --------------------------------------------------
   output$select_tol_int_wells <- renderUI({
-    
+
     data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("tol_int_wells", "Monitoring Wells", well_names, 
                 multiple = TRUE,
                 selected = well_names[1])
   })
-  
+
   output$select_tol_int_analytes <- renderUI({
     data <- get_data()
     analyte_names <- as.character(constituents(data))
@@ -991,7 +990,7 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE,
                 selected = analyte_names[1])
   })
-  
+
   output$select_tol_int_date_range <- renderUI({
     data <- get_data()
     tagList(
@@ -1000,27 +999,27 @@ shinyServer(function(input, output, session) {
                      end = max(data$sample_date, na.rm = TRUE))
     )
   })
-  
+
   tol_int <- reactive({
-    
+
     df <- get_data()
-    
+
     df <- df %>%
       filter(location_id %in% input$tol_int_wells,
              param_name %in% input$tol_int_analytes)
-    
+
     start <- min(as.Date(input$tol_int_dates, format = "%Y/%m/%d", tz = "UTC"))
     end <- max(as.Date(input$tol_int_dates, format = "%Y/%m/%d", tz = "UTC"))
-    
+
     df <- df %>%
       filter(sample_date >= start & sample_date <= end)
-    
+
     # first group data by location, param, and background
     # estimate percent less than
     df <- df %>%
       group_by(param_name, default_unit) %>%
       est_dist(., keep_data_object = TRUE, group_by_location = TRUE)
-    
+
     tol_int <- df %>%
       filter(param_name != "pH (field)") %>%
       mutate(tol_int = case_when(
@@ -1053,7 +1052,7 @@ shinyServer(function(input, output, session) {
         )
       )
       )
-    
+
     tol_int_pH <- df %>%
       filter(param_name == "pH (field)") %>%
       mutate(tol_int = case_when(
@@ -1084,9 +1083,9 @@ shinyServer(function(input, output, session) {
         )
       )
       )
-    
+
     tol_int <- rbind(tol_int, tol_int_pH)
-    
+
     tol_int %>%
       mutate(distribution = distribution,
              sample_size = map(.x = tol_int, ~ .x$sample.size),
@@ -1097,16 +1096,16 @@ shinyServer(function(input, output, session) {
       select(-data, -tol_int) %>%
       unnest() %>%
       arrange(param_name)
-    
+
   })
-  
+
   output$tol_int_out <- renderDataTable({
-    
+
     tol_int()
-    
+
   })
   # End Tolerance Intervals ----------------------------------------------------
-  
+
   # Begin Intrawell Prediction Limits-------------------------------------------
   output$wells_intra <- renderUI({
 
@@ -1155,7 +1154,7 @@ shinyServer(function(input, output, session) {
       percent_lt() %>%
       est_dist(., keep_data_object = TRUE) %>%
       arrange(location_id, param_name)
-    
+
     pred_int <- df %>%
       filter(param_name != "pH (field)") %>%
       mutate(pred_int = case_when(
@@ -1191,7 +1190,7 @@ shinyServer(function(input, output, session) {
         )
       )
       )
-    
+
     pred_int_pH <- df %>%
       filter(param_name == "pH (field)") %>%
       mutate(pred_int = case_when(
@@ -1226,7 +1225,7 @@ shinyServer(function(input, output, session) {
                                               )
       )
       )
-    
+
     pred_int <- rbind(pred_int, pred_int_pH)
 
     pred_int <- pred_int %>%
@@ -1239,7 +1238,7 @@ shinyServer(function(input, output, session) {
       select(-data, -pred_int) %>%
       unnest() %>%
       arrange(location_id, param_name)
-    
+
     pred_int <- pred_int %>%
       mutate(lpl = if_else(lpl == 0, -Inf, lpl, missing = lpl))
 
@@ -1264,7 +1263,7 @@ shinyServer(function(input, output, session) {
 
     ts_params <- constituents(ts_data)
     ts_wells <- sample_locations(ts_data)
-    
+
     start <- min(as.Date(input$back_dates_intra, format = "%Y/%m/%d", tz = "UTC"))
     end <- max(as.Date(input$back_dates_intra, format = "%Y/%m/%d", tz = "UTC"))
 
@@ -1319,7 +1318,7 @@ shinyServer(function(input, output, session) {
 
   })
 
-    # End Prediction Interval Power Test -----------------------------------------
+  # End Prediction Interval Power Test -----------------------------------------
 
   # End Intrawell Prediction Intervals -----------------------------------------
 
@@ -1363,14 +1362,14 @@ shinyServer(function(input, output, session) {
 
     df <- df %>%
       filter(sample_date >= start, sample_date <= end)
-    
+
     # first group data by location, param, and background
     # estimate percent less than
     df <- df %>%
       group_by(param_name, default_unit) %>%
       est_dist(., keep_data_object = TRUE, group_by_location = TRUE)
 
-    
+
     pred_int <- df %>%
       filter(param_name != "pH (field)") %>%
       mutate(pred_int = case_when(
@@ -1530,17 +1529,17 @@ shinyServer(function(input, output, session) {
       theme(plot.title = element_text(hjust = 0.5))
 
   })
-  
+
   # Begin K-means --------------------------------------------------------------
   output$select_wells_kmeans <- renderUI({
-    
+
     data <- get_data()
     well_names <- as.character(sample_locations(data))
     selectInput("well_kmeans", "Monitoring Wells", well_names, 
                 multiple = TRUE,
                 selected = well_names)
   })
-  
+
   output$select_analyte_kmeans <- renderUI({
     data <- get_data()
     analyte_names <- as.character(constituents(data))
@@ -1548,7 +1547,7 @@ shinyServer(function(input, output, session) {
                 multiple = TRUE,
                 selected = analyte_names)
   })
-  
+
   output$select_date_ranges_kmeans <- renderUI({
     data <- get_data()
     tagList(
@@ -1557,7 +1556,7 @@ shinyServer(function(input, output, session) {
                      end = max(data$sample_date, na.rm = TRUE))
     )
   })
-  
+
   kmeans_plot <- reactive({
     
     df <- get_data()
@@ -1592,7 +1591,7 @@ shinyServer(function(input, output, session) {
       theme(plot.title = element_text(hjust = 0.5))
 
   })
-  
+
   output$kmeans_out <- renderPlot({
 
     kmeans_plot()

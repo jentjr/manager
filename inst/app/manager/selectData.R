@@ -56,11 +56,11 @@ selectData <- function(input, output, session, multiple) {
   })
 
   return(reactive({
-    
+
     validate(
       need(input$sites != "", "Please submit a query")
     )
-     
+
     query %>%
       filter(name %in% input$sites,
              location_id %in% input$locations,

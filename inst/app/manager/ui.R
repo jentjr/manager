@@ -369,7 +369,17 @@ navbarMenu("Statistical Intervals",
         column(2, 
           uiOutput("select_conf_int_wells"),
           uiOutput("select_conf_int_analytes"),
-          uiOutput("select_conf_int_date_range")
+          uiOutput("select_conf_int_date_range"),
+          radioButtons("conf_int_type",
+                       label = "Select tail type",
+                       choices = c("lower", "upper", "two-sided"),
+                       selected = "two-sided"),
+          numericInput("conf_int_conf",
+                       label = "Confidence Level",
+                       value = 0.99,
+                       min = 0,
+                       max = 1,
+                       step = 0.01)
         ),
         column(10, 
           dataTableOutput("conf_int_out")
