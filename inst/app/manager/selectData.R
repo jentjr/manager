@@ -65,7 +65,8 @@ selectData <- function(input, output, session, multiple) {
       filter(name %in% input$sites,
              location_id %in% input$locations,
              param_name %in% input$constituents) %>%
-      collect()
+      collect() %>%
+      replace_missing(value = 0.0)
 
   }))
 
