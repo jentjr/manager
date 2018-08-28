@@ -5,8 +5,8 @@
 \title{Function to calculate confidence intervals}
 \usage{
 conf_int(df, analysis_result = "analysis_result",
-  distribution = "distribution", method = "mvue", ci_type = "two-sided",
-  conf_level = 0.95)
+  distribution = "distribution", method = "mvue",
+  ci_type = "two-sided", conf_level = 0.95)
 }
 \arguments{
 \item{df}{df data frame of groundwater data in tidy format}

@@ -5,8 +5,8 @@
 \title{Function to return either normal, lognormal, or non-parametric 
 distribution.}
 \usage{
-est_dist(df, alpha = 0.05, method = "sw", choices = c("norm", "lnorm"),
-  group_by_location = FALSE, keep_data_object = FALSE)
+est_dist(df, alpha = 0.05, method = "sw", choices = c("norm",
+  "lnorm"), group_by_location = FALSE, keep_data_object = FALSE)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}

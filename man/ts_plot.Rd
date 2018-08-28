@@ -7,9 +7,9 @@ or constituent.}
 \usage{
 ts_plot(df, x = "sample_date", y = "analysis_result",
   facet_var = "location_id", group_var = "param_name",
-  lt_measure = "lt_measure", scale_y_trans = "identity", trend = NULL,
-  background = NULL, limit1 = NULL, limit2 = NULL, short_name = FALSE,
-  pnt = 3, ncol = NULL)
+  lt_measure = "lt_measure", scale_y_trans = "identity",
+  trend = NULL, background = NULL, limit1 = NULL, limit2 = NULL,
+  short_name = FALSE, pnt = 3, ncol = NULL)
 }
 \arguments{
 \item{df}{df groundwater data in tidy format}

@@ -4,8 +4,8 @@
 \alias{rosner_test}
 \title{Rosner's test for outliers}
 \usage{
-rosner_test(df, x = "analysis_result", k = 3, alpha = 0.05, warn = TRUE,
-  group_by_location = FALSE, keep_data_object = FALSE)
+rosner_test(df, x = "analysis_result", k = 3, alpha = 0.05,
+  warn = TRUE, group_by_location = FALSE, keep_data_object = FALSE)
 }
 \arguments{
 \item{df}{data.frame of groundwater data}

@@ -4,7 +4,8 @@
 \alias{update_background}
 \title{Function to update background data}
 \usage{
-update_background(df, well, param, start = NULL, n_end = 8, n_prop = 4)
+update_background(df, well, param, start = NULL, n_end = 8,
+  n_prop = 4)
 }
 \arguments{
 \item{df}{data frame of groundwater data in tidy format}

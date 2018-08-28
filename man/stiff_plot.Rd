@@ -4,12 +4,13 @@
 \alias{stiff_plot}
 \title{Stiff Diagram.}
 \usage{
-stiff_plot(df, location_id = "location_id", sample_date = "sample_date",
-  param_name = "param_name", analysis_result = "analysis_result",
-  default_unit = "default_unit", magnesium = "Magnesium, dissolved",
-  calcium = "Calcium, dissolved", sodium = "Sodium, dissolved",
-  potassium = "Potassium, dissolved", chloride = "Chloride, total",
-  sulfate = "Sulfate, total", alkalinity = "Alkalinity, total (lab)",
+stiff_plot(df, location_id = "location_id",
+  sample_date = "sample_date", param_name = "param_name",
+  analysis_result = "analysis_result", default_unit = "default_unit",
+  magnesium = "Magnesium, dissolved", calcium = "Calcium, dissolved",
+  sodium = "Sodium, dissolved", potassium = "Potassium, dissolved",
+  chloride = "Chloride, total", sulfate = "Sulfate, total",
+  alkalinity = "Alkalinity, total (lab)",
   total_dissolved_solids = NULL, group_var = "location_id",
   facet_var = "sample_date", lines = FALSE, cex = 1)
 }

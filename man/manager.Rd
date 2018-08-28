@@ -4,16 +4,14 @@
 \name{manager}
 \alias{manager}
 \alias{manager-package}
-\alias{manager-package}
-\alias{manager}
 \title{manager}
 \usage{
 manager()
 }
 \description{
-manager
-
-Function to launch shiny app for MANAGER
+Tools for plotting and analyzing environmental
+    data as well as for reading data from external sources such as 
+    MANAGES and gINT.
 }
 \seealso{
 Useful links:

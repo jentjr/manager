@@ -5,13 +5,14 @@
 \title{Function to plot data transformed to schoeller coordinates using
 \code{\link{.transform_schoeller_data}}}
 \usage{
-schoeller_plot(df, location_id = "location_id", sample_date = "sample_date",
-  param_name = "param_name", analysis_result = "analysis_result",
-  default_unit = "default_unit", calcium = "Calcium, dissolved",
-  magnesium = "Magnesium, dissolved", sodium = "Sodium, dissolved",
-  potassium = "Potassium, dissolved", chloride = "Chloride, total",
-  alkalinity = "Alkalinity, total (lab)", sulfate = "Sulfate, total",
-  facet_var = "location_id", title = NULL, lwt = 1)
+schoeller_plot(df, location_id = "location_id",
+  sample_date = "sample_date", param_name = "param_name",
+  analysis_result = "analysis_result", default_unit = "default_unit",
+  calcium = "Calcium, dissolved", magnesium = "Magnesium, dissolved",
+  sodium = "Sodium, dissolved", potassium = "Potassium, dissolved",
+  chloride = "Chloride, total", alkalinity = "Alkalinity, total (lab)",
+  sulfate = "Sulfate, total", facet_var = "location_id",
+  title = NULL, lwt = 1)
 }
 \arguments{
 \item{df}{dataframe of environmental data in tidy format. The function
