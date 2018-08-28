@@ -6,8 +6,6 @@ shinyServer(function(input, output, session) {
   get_data <- reactive({
     input$run_query
     data <- isolate(select_data())
-    data <- select_data()
-    
     return(data)
   })
 
