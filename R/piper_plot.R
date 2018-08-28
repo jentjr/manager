@@ -108,7 +108,8 @@ piper_plot <- function(df,
                                       y = anion_y,
                                       shape = factor(gradient, exclude = NULL),
                                       colour = location_id),
-                 alpha = transparency, size = pnt_size)
+                 alpha = transparency, size = pnt_size) + 
+      scale_shape_manual(values = 1:nlevels(factor(piper_df$gradient, exclude = NULL)))
       
     
   } else {
@@ -116,12 +117,17 @@ piper_plot <- function(df,
     piper <- .ggplot_piper() +
       geom_point(data = piper_df, aes(x = cation_x,
                                       y = cation_y,
+                                      shape = factor(location_id, exclude = NULL),
                                       colour = location_id),
                  alpha = transparency, size = pnt_size) +
       geom_point(data = piper_df, aes(x = anion_x,
                                       y = anion_y,
+                                      shape = factor(location_id, exclude = NULL),
                                       colour = location_id),
-                 alpha = transparency, size = pnt_size)
+                 alpha = transparency, size = pnt_size) +
+      scale_shape_manual(name = "Location ID",
+                         values = 1:nlevels(factor(piper_df$location_id, 
+                                                   exclude = NULL)))
   }
   
   piper <- piper +
@@ -217,6 +223,7 @@ piper_plot <- function(df,
       piper <- piper +
         geom_point(data = piper_df, aes(x = diamond_x,
                                         y = diamond_y,
+                                        shape = factor(location_id, exclude = NULL),
                                         colour = location_id),
                    alpha = transparency,
                    size = pnt_size)
