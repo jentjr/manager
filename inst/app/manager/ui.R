@@ -29,7 +29,7 @@ navbarPage("MANAGER",
 ),
 tabPanel("Map",
   fluidPage(
-    mapviewOutput("mapplot", height = 725)
+    leafletOutput("mapplot", height = 725)
   )
 ),
 navbarMenu("Plots",

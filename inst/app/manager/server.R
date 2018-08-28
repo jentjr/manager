@@ -6,6 +6,8 @@ shinyServer(function(input, output, session) {
   get_data <- reactive({
     input$run_query
     data <- isolate(select_data())
+    data <- select_data()
+    
     return(data)
   })
 
@@ -52,9 +54,15 @@ shinyServer(function(input, output, session) {
   })
 
   # Map ------------------------------------------------------------------------
-  m <- mapview(wells) 
-
-  output$mapplot <- renderMapview(m)
+  output$mapplot <- renderLeaflet({
+    
+    map_data <- to_spatial(get_data(), crs = 4326)
+    
+    m <- mapview(map_data)
+    
+    m@map
+    
+  })
 
   # End Map --------------------------------------------------------------------
 

@@ -8,6 +8,7 @@ library(DBI)
 library(pool)
 library(sf)
 library(mapview)
+library(leaflet)
 library(factoextra)
 library(dendextend)
 
@@ -80,4 +81,4 @@ onStop(function() {
 })
 
 # Map data
-wells <- st_read("H:/INTERNAL/JRJ/GIS/AEP/aep_monitoring_wells/aep_monitoring_wells.shp")
+# wells <- st_read("H:/INTERNAL/JRJ/GIS/AEP/aep_monitoring_wells/aep_monitoring_wells.shp")
