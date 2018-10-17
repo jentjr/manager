@@ -181,3 +181,47 @@ rosner_test <- function(df,
   return(outliers)
 
 }
+
+#' Tukey's test for outliers
+#' 
+#' @param df data.frame of groundwater data 
+#' @param x column of analysis results
+#' @param k multiplier for IQR k = 1.5 indicates "outlier", k = 3 indicates "far out"
+#' @param group_by_location TRUE/FALSE
+#' @export
+
+tukey_outlier <- function(df, x = "analysis_result", k = 3, 
+                          group_by_location = FALSE) {
+  
+  if (isTRUE(group_by_location)) {
+    df <- df %>%
+      group_by(param_name, default_unit) %>%
+      nest()
+  } else {
+    df <- df %>%
+      group_by(location_id, param_name, default_unit) %>%
+      nest()
+  }
+  
+  df <- df %>%
+    mutate(outlier = map(.x = data, ~case_when(
+      .x$analysis_result > .tukey_high_cutoff(.x$analysis_result, k = k) ~ TRUE,
+      .x$analysis_result < .tukey_low_cutoff(.x$analysis_result, k = k) ~ TRUE,
+      TRUE ~ FALSE
+      )
+     )
+    ) %>%
+    unnest()
+  
+  return(df)
+}
+
+.tukey_low_cutoff <- function(x, k = 3) {
+  low <- quantile(x)[["25%"]] - k*IQR(x)
+  return(low)
+}
+
+.tukey_high_cutoff <- function(x, k = 3) {
+  high <- quantile(x)[["75%"]] + k*IQR(x)
+  return(high)
+}
