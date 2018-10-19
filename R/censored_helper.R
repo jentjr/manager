@@ -7,10 +7,10 @@
 #' @export
 
 set_censored <- function(df, 
-                         data_qualifer = "data_qualifier",
+                         data_qualifier = "data_qualifier",
                          analysis_result = "analysis_result",
                          censor_column = "RL"){
-  
+
   df %>%
     mutate(analysis_result = if_else(
       data_qualifier == "U", RL, analysis_result, missing = analysis_result)

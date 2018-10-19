@@ -2,15 +2,20 @@
 % Please edit documentation in R/assign_limits.R
 \name{assign_limits}
 \alias{assign_limits}
-\title{Function to assign EPA primary and seconday Maximum Contaminant Levels}
+\title{Function to assign default Groundwater Protection Standards}
 \usage{
-assign_limits(df, column = "param_name")
+assign_limits(df, column = "param_name", method = c("default",
+  "tolerance"), locations = NULL)
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}
 
 \item{column}{column to search for constituents}
+
+\item{method}{used to assign GWPS. Options c("default", "tolerance")}
+
+\item{locations}{locations to be used}
 }
 \description{
-Function to assign EPA primary and seconday Maximum Contaminant Levels
+Function to assign default Groundwater Protection Standards
 }

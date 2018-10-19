@@ -46,4 +46,5 @@ est_dist(., alpha = 0.05, keep_data_object = FALSE)
 gw_data \%>\%
 group_by(param_name, default_unit) \%>\%
 est_dist(., group_by_location = TRUE, keep_data_object = FALSE)
+
 }

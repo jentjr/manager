@@ -9,6 +9,7 @@
 #' "Manganese, dissolved")
 #' @param sample_locations list of sample locations to plot e.g.
 #' c("MW-1", "MW-2")
+#' 
 #' @export
 
 corr_plot <- function(df,
@@ -33,6 +34,8 @@ corr_plot <- function(df,
 }
 
 #' Function to create a correlation matrix plot
+#' 
+#' @noRd
 
 .get_corr_data <- function(df,
                            location_id = "location_id",

@@ -2,6 +2,7 @@
 #'
 #' @param df data frame of groundwater data in the format with column names
 #' @param location_id column for the sample location id
+#' 
 #' @export
 
 sample_locations <- function(df, location_id){
@@ -20,6 +21,7 @@ sample_locations <- function(df, location_id){
 #'
 #' @param df data frame of groundwater data in the format with column names
 #' @param param_name the column for the constituents
+#' 
 #' @export
 
 constituents <- function(df, param_name){
@@ -38,6 +40,7 @@ constituents <- function(df, param_name){
 #'
 #' @param df df data frame of groundwater monitoring data in long format
 #' @param lt_measure lt_measure column of less than detection limit symbol.
+#' 
 #' @export
 
 percent_lt <- function(df, lt_measure) {
@@ -53,6 +56,7 @@ percent_lt <- function(df, lt_measure) {
 #' @param df df data frame of groundwater monitoring data in long format
 #' @param lt_measure lt_measure column of greater than detection limit symbol.
 #' @param percent_gt percent_gt new column name
+#' 
 #' @export
 
 percent_gt <- function(df,
@@ -85,6 +89,7 @@ remove_dup <- function(df){
 #'
 #' @param df groundwater data frame
 #' @param wells list of wells to included duplicates for
+#' 
 #' @export
 
 include_dup <- function(df, wells) {
@@ -109,6 +114,8 @@ include_dup <- function(df, wells) {
 #' Function to replace missing values
 #'
 #' @param df groundwater data frame
+#' @param value value to replace missing value with
+#' 
 #' @export
 
 replace_missing <- function(df, value){
@@ -141,6 +148,7 @@ to_censored <- function(df) {
 #' @param df groundwater data frame
 #' @param lt_measure column name for non-detect symbol
 #' @param analysis_result column name for analysis results
+#' 
 #' @export
 
 join_lt <- function(df, lt_measure, analysis_result) {
@@ -155,6 +163,7 @@ join_lt <- function(df, lt_measure, analysis_result) {
 #'
 #' @param df groundwater data frame
 #' @param short_name If TRUE will use abbreviated constituent names
+#' 
 #' @export
 
 name_units <- function(df, short_name = FALSE) {
@@ -189,8 +198,8 @@ name_units <- function(df, short_name = FALSE) {
 #' data(gw_data)
 #'
 #' gw_data %>%
-#'   fitler(param_name %in% c("Arsenic, dissolved", "Boron, dissolved")) %>%
-#'   to_wide(., lab_id = TRUE)
+#'   filter(param_name %in% c("Arsenic, dissolved", "Boron, dissolved")) %>%
+#'   to_wide()
 
 to_wide <- function(df, lab_id = FALSE, join_lt = TRUE) {
 

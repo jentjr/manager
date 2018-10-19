@@ -4,17 +4,17 @@
 \alias{set_censored}
 \title{Function to ensure non-detect data are set to either the PQL, or RL}
 \usage{
-set_censored(df, data_qualifer = "data_qualifier",
+set_censored(df, data_qualifier = "data_qualifier",
   analysis_result = "analysis_result", censor_column = "RL")
 }
 \arguments{
 \item{df}{data frame of groundwater data in tidy format}
 
+\item{data_qualifier}{column for data validation qualifier(i.e. U, or J Flag)}
+
 \item{analysis_result}{column for analysis results}
 
 \item{censor_column}{column of the censoring limit}
-
-\item{data_qualifier}{column for data validation qualifier(i.e. U, or J Flag)}
 }
 \description{
 Function to ensure non-detect data are set to either the PQL, or RL

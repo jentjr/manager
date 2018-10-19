@@ -1,5 +1,4 @@
-#' Function to plot data transformed to schoeller coordinates using
-#' \code{\link{.transform_schoeller_data}}
+#' Schoeller Diagram
 #'
 #' @param df dataframe of environmental data in tidy format. The function
 #' will convert data from mg/L to meq/L
@@ -102,6 +101,8 @@ schoeller_plot <- function(df,
 }
 
 #' Help function to transform data to schoeller coordinates
+#' 
+#' @noRd
 
 .transform_schoeller_data <- function(df,
                                  location_id = "location_id",
@@ -154,6 +155,8 @@ schoeller_plot <- function(df,
 }
 
 #' Function to gather major ions for scholler diagram.
+#' 
+#' @noRd
 
 .get_schoeller_ions <- function(df,
                                 location_id = "location_id",

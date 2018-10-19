@@ -8,6 +8,8 @@ replace_missing(df, value)
 }
 \arguments{
 \item{df}{groundwater data frame}
+
+\item{value}{value to replace missing value with}
 }
 \description{
 Function to replace missing values

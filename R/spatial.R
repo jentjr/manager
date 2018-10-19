@@ -2,6 +2,7 @@
 #' 
 #' @param df data frame
 #' @param crs coordinate reference system to convert the sf object to
+#' 
 #' @export
 
 to_spatial <- function(df, crs) {
@@ -40,6 +41,8 @@ sp_plot <- function(df,
 }
 
 #' Helper function for sp_plot
+#' 
+#' @noRd
 
 .sp_plot <- function(df, 
                      x = "analysis_result",
@@ -47,19 +50,19 @@ sp_plot <- function(df,
                      sample_interval = "semi-annually",
                      group_var = NULL,
                      facet_var = NULL) {
-  
+
   if (sample_interval == "semi-annually") { 
     
       df$sample_date <- lubridate::semester(df$sample_date, with_year = TRUE)
     
     }
-  
+
   if (sample_interval == "quarterly") { 
-    
+
     df$sample_date <- lubridate::quarter(df$sample_date, with_year = TRUE)
-    
+
   }
-  
+
   p <- ggplot(data = df, aes_string(size = x, color = color)) + 
     geom_sf() + 
     theme_bw() + 
@@ -74,7 +77,7 @@ sp_plot <- function(df,
                     df[[paste(group_var)]][1], "\n", sep = " "))
     
   }
-  
+
   print(p)
-  
+
 }

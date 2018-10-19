@@ -2,8 +2,7 @@
 % Please edit documentation in R/schoeller_plot.R
 \name{schoeller_plot}
 \alias{schoeller_plot}
-\title{Function to plot data transformed to schoeller coordinates using
-\code{\link{.transform_schoeller_data}}}
+\title{Schoeller Diagram}
 \usage{
 schoeller_plot(df, location_id = "location_id",
   sample_date = "sample_date", param_name = "param_name",
@@ -49,8 +48,7 @@ will convert data from mg/L to meq/L}
 \item{lwt}{lineweight}
 }
 \description{
-Function to plot data transformed to schoeller coordinates using
-\code{\link{.transform_schoeller_data}}
+Schoeller Diagram
 }
 \examples{
 data(gw_data)

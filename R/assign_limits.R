@@ -1,55 +1,75 @@
-#' Function to assign EPA primary and seconday Maximum Contaminant Levels
+#' Function to assign default Groundwater Protection Standards
 #' 
 #' @param df dataframe of groundwater data in tidy format
 #' @param column column to search for constituents
+#' @param method used to assign GWPS. Options c("default", "tolerance")
+#' @param locations locations to be used
+#' 
 #' @export
 
-assign_limits <- function(df, column = "param_name"){
+assign_limits <- function(df, 
+                          column = "param_name", 
+                          method = c("default", "tolerance"),
+                          locations = NULL)
+  {
   
-  for (i in 1:nrow(ccr_mcl)) {
-    element <- ccr_mcl$param_name[i]
-    rws <- grepl(paste(element), df[[paste(column)]])
-    df[rws, "mcl_unit"] <- ccr_mcl$default_unit[i]
-    df[rws, "mcl"] <- ccr_mcl$mcl[i]
+  method <- match.arg(method)
+  
+  if (method == "default") {
+    for (i in 1:nrow(default_gwps)) {
+      element <- default_gwps$param_name[i]
+      rws <- grepl(paste(element), df[[paste(column)]])
+      df[rws, "gwps_unit"] <- default_gwps$gwps_unit[i]
+      df[rws, "gwps"] <- default_gwps$gwps[i]
+    }
+    
+    df<- df %>%
+      .convert_gwps_units() %>%
+      select(-gwps_unit)
+  }
+  
+  if (method == "tolerance") {
+    
   }
 
-  df <- .convert_mcl_units(df)
-  
-  return(df)
-  
+ df
+
 }
 
-#' Function to compare groundwater parameter units to EPA MCL data
+#' Function to compare groundwater parameter units to GWPS data
 #' 
 #' @param df dataframe of groundwater data
+#' 
+#' @noRd
 
-.convert_mcl_units <- function(df){
-  
+.convert_gwps_units <- function(df){
+
   if (!requireNamespace("udunits2", quietly = TRUE)) {
     stop("udunits2 needed for this function to work. Please install it.", 
          call. = FALSE)
   }
-  
+
   for (i in 1:nrow(df)) {
-    
-    if (df[i, "default_unit"] != df[i, "mcl_unit"] &
-        !is.na(df[i, "mcl_unit"])) {
-      
-      df[i, "mcl"] <- udunits2::ud.convert(
-        df[i, "mcl"], 
-        paste(df[[i, "mcl_unit"]]), 
+
+    if (df[i, "default_unit"] != df[i, "gwps_unit"] &
+        !is.na(df[i, "gwps_unit"])) {
+
+      df[i, "gwps"] <- udunits2::ud.convert(
+        df[i, "gwps"], 
+        paste(df[[i, "gwps_unit"]]), 
         paste(df[[i, "default_unit"]])
       )
-      
-      df[i, "mcl_unit"] <- paste(df[i, "default_unit"])
-      
+
+      df[i, "gwps_unit"] <- paste(df[i, "default_unit"])
+
     } else{
-       
+
       next
-      
+
     }
-    
+
   }
-  
-  return(df)
+
+  df
+
 }

@@ -13,7 +13,7 @@ get_theilsen(df, x = "analysis_result", y = "sample_date", ...)
 
 \item{y}{column for sample date}
 
-\item{...}{other arguements passed to \code{\link{kendallTrendTest}}}
+\item{...}{other arguements passed to @seealso [kendallTrendTest()]}
 }
 \description{
 Function to get slope and intercept from Theil-Sen slope for plotting

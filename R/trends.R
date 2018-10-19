@@ -3,7 +3,8 @@
 #' @param df dataframe of groundwater data in tidy format
 #' @param x column for analysis result
 #' @param y column for sample date
-#' @param ... other arguements passed to \code{\link{kendallTrendTest}}
+#' @param ... other arguements passed to @seealso [kendallTrendTest()]
+#' 
 #' @export 
 
 get_theilsen <- function(df, x = "analysis_result", y = "sample_date", ...) {
@@ -22,6 +23,7 @@ get_theilsen <- function(df, x = "analysis_result", y = "sample_date", ...) {
 #' 
 #' @param df dataframe of groundwater data
 #' @param conf.level confidence level between 0 and 1
+#' 
 #' @export
 
 kendall_trend <- function(df, conf.level = 0.99) {
@@ -33,6 +35,7 @@ kendall_trend <- function(df, conf.level = 0.99) {
 
 #' Function to calculate the Theil-Sen confidence band
 #' 
+#' @noRd
 
 theil_sen_band <- function(analysis_result, sample_date, conf.level) {
   

@@ -30,6 +30,7 @@ piper_time_html(df, ...)
   \item{x_y_cation_label}{label for the upper right diamond}
   \item{total_dissolved_solids}{Scale plot by Total Dissolved Solids,
 default = FALSE}
+  \item{group_col}{grouping column for symbols}
   \item{transparency}{the setting for transparency value for points. Default
 is 0.2}
   \item{pnt_size}{the size of the points. Default is 3}

@@ -7,6 +7,8 @@
 stiff_time_html(df, ...)
 }
 \arguments{
+\item{df}{data frame of water quality data}
+
 \item{...}{Arguments passed on to \code{stiff_plot}
 \describe{
   \item{df}{data frame of water quality data}

@@ -6,9 +6,17 @@
 \title{Groundwater quality data for the state of Indiana}
 \format{A data frame with 162923 rows and 11 variables:
 \describe{
-  \item{SiteId}{Site Identifier}
+  \item{SiteID}{Site Identifier}
   \item{Result}{analytical result}
-  ...
+  \item{Analyte}{}
+  \item{DetectionLimit}{}
+  \item{Method}{}
+  \item{SampleDate}{}
+  \item{SampleID}{}
+  \item{UTM_X}{}
+  \item{UTM_Y}{}
+  \item{Unit}{}
+  \item{WellDepth}{}
 }}
 \source{
 \url{http://in.gov/idem/cleanwater/2453.html}

@@ -31,6 +31,7 @@
 #' gw_data %>%
 #' group_by(param_name, default_unit) %>%
 #' est_dist_censored(., group_by_location = TRUE, keep_data_object = FALSE)
+#' 
 #' @export
 
 est_dist_censored <- function(df, 
@@ -77,4 +78,3 @@ est_dist_censored <- function(df,
   }
 
 }
-

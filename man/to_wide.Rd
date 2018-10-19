@@ -20,6 +20,6 @@ Helper function to cast data frame to wide format
 data(gw_data)
 
 gw_data \%>\%
-  fitler(param_name \%in\% c("Arsenic, dissolved", "Boron, dissolved")) \%>\%
-  to_wide(., lab_id = TRUE)
+  filter(param_name \%in\% c("Arsenic, dissolved", "Boron, dissolved")) \%>\%
+  to_wide()
 }

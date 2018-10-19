@@ -8,6 +8,7 @@
 #' @param chloride chloride
 #' @param sulfate sulfate
 #' @param alkalinity Total Alkalinity
+#' 
 #' @export
 
 conc_to_meq <- function(df,

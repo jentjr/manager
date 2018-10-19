@@ -4,10 +4,12 @@
 #' @param well the location to update
 #' @param param the constituent to update
 #' @param start the start date of the background data. IF not provide the
-#' start of the data will be found using \code{\link{start_date()}}
+#' start of the data will be found using @seealso [start_date()]
 #' @param n_end the number of samples in current background. The date will be
 #' found from this sample.
 #' @param n_prop the number of samples to include in the proposed background
+#' 
+#' @export
 
 update_background <- function(df, well, param, start = NULL,
                               n_end = 8, n_prop = 4) {
@@ -54,5 +56,6 @@ update_background <- function(df, well, param, start = NULL,
                  kendall_trend = trend,
                  two_sample = two_sample)
 
-  return(output)
+  output
+
 }

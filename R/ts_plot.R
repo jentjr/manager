@@ -1,5 +1,5 @@
 #' This function plots multiple groundwater data time series by location,
-#' or constituent.
+#' or constituent
 #'
 #' @param df df groundwater data in tidy format
 #' @param x x column for x variable
@@ -18,6 +18,7 @@
 #' @param short_name If TRUE, the constituent name will be abbreviated
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
+#' 
 #' @export
 
 ts_plot <- function(df,
@@ -56,6 +57,8 @@ ts_plot <- function(df,
 }
 
 #' Helper function for plotting time series of groundwater data
+#' 
+#' @noRd
 
 .ts_plot <- function(df,
                      x = "sample_date",

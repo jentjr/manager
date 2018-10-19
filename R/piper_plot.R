@@ -21,6 +21,7 @@
 #' @param x_y_cation_label label for the upper right diamond
 #' @param total_dissolved_solids Scale plot by Total Dissolved Solids,
 #' default = FALSE
+#' @param group_col grouping column for symbols
 #' @param transparency the setting for transparency value for points. Default
 #' is 0.2
 #' @param pnt_size the size of the points. Default is 3
@@ -288,7 +289,9 @@ piper_time_html <- function(df, ...) {
 
 }
 
-#' Function to gather major ions for piper plot.
+#' Function to gather major ions for piper plot
+#' 
+#' @noRd
 
 .get_piper_ions <- function(df,
                             location_id = "location_id",
@@ -323,6 +326,8 @@ piper_time_html <- function(df, ...) {
 }
 
 #' Function to transform data for piper plot
+#' 
+#' @noRd
 
 .transform_piper_data <- function(df,
                                   location_id = "location_id",
@@ -423,6 +428,8 @@ piper_time_html <- function(df, ...) {
 }
 
 #' Function to create base Piper plot
+#' 
+#' @noRd
 
 .ggplot_piper <- function() {
 

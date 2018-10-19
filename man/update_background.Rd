@@ -15,7 +15,7 @@ update_background(df, well, param, start = NULL, n_end = 8,
 \item{param}{the constituent to update}
 
 \item{start}{the start date of the background data. IF not provide the
-start of the data will be found using \code{\link{start_date()}}}
+start of the data will be found using @seealso [start_date()]}
 
 \item{n_end}{the number of samples in current background. The date will be
 found from this sample.}

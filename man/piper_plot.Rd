@@ -55,6 +55,8 @@ piper_plot(df, location_id = "location_id",
 \item{total_dissolved_solids}{Scale plot by Total Dissolved Solids,
 default = FALSE}
 
+\item{group_col}{grouping column for symbols}
+
 \item{transparency}{the setting for transparency value for points. Default
 is 0.2}
 

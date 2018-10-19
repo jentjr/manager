@@ -50,4 +50,5 @@ est_dist_censored(., alpha = 0.05, keep_data_object = FALSE)
 gw_data \%>\%
 group_by(param_name, default_unit) \%>\%
 est_dist_censored(., group_by_location = TRUE, keep_data_object = FALSE)
+
 }

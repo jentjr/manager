@@ -4,6 +4,7 @@
 #' R must be in 32-bit mode. 
 #' 
 #' @param manages3_path manages_path Path to MANAGES Site.mdb file
+#' 
 #' @export
 
 connect_manages3 <- function(manages3_path) {
@@ -21,12 +22,13 @@ connect_manages3 <- function(manages3_path) {
 #' returns data in memory. R must be in 32-bit mode. 
 #' 
 #' @param manages3_path manages_path Path to MANAGES Site.mdb file
+#' 
 #' @export
 
 read_manages3 <- function(manages3_path) {
-  
+
   con <- connect_manages3(manages3_path)
-  
+
   query <- paste0(
     "SELECT sample_results.location_id, ",
     "sample_results.lab_id, ", 
@@ -42,13 +44,13 @@ read_manages3 <- function(manages3_path) {
     "sample_results LEFT JOIN site_parameters ON ", 
     "sample_results.storet_code = site_parameters.storet_code"
   )
-  
+
   data <- DBI::dbGetQuery(con, query)
-  
+
   DBI::dbDisconnect(con)
-  
+
   return(data)
-  
+
 }
 
 
@@ -57,6 +59,7 @@ read_manages3 <- function(manages3_path) {
 #' @param driver default is "SQL Server" 
 #' @param server server name
 #' @param database database name
+#' 
 #' @export
 
 connect_manages4 <- function(driver = "SQL Server", server, database) {
@@ -74,6 +77,7 @@ connect_manages4 <- function(driver = "SQL Server", server, database) {
 #' @param server server name
 #' @param database database name
 #' @param site list of sites
+#' 
 #' @export
 
 read_manages4 <- function(driver = "SQL Server", server, database, site) { 
@@ -123,6 +127,7 @@ read_manages4 <- function(driver = "SQL Server", server, database, site) {
   DBI::dbDisconnect(manages_conn)
 
   return(query)
+
 }
 
 #' function to read data in csv format and convert date to POSIXct with lubridate
@@ -131,6 +136,7 @@ read_manages4 <- function(driver = "SQL Server", server, database, site) {
 #' with column names
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @param date_format date format as either mdy, or ymd passed to lubridate
+#'
 #' @export
 
 from_csv <- function(path, date_format = "mdy"){
@@ -142,6 +148,7 @@ from_csv <- function(path, date_format = "mdy"){
                                   sample_date = readr::col_datetime(format = "%Y/%m/%d")
                                 ))
   }
+
   if (date_format == "mdy") {
     csv_data <- readr::read_csv(path,
                                 col_types = readr::cols(
@@ -149,7 +156,9 @@ from_csv <- function(path, date_format = "mdy"){
                                   sample_date = readr::col_datetime(format = "%m/%d/%Y")
                                 ))
   }
+
   return(csv_data)
+
 }
 
 #' function to read data in excel format 
@@ -158,16 +167,18 @@ from_csv <- function(path, date_format = "mdy"){
 #'  with column names
 #' location_id, param_name, default_unit, lt_measure, analysis_result
 #' @param sheet sheet name in spreadsheet
+#' 
 #' @export
 
 from_excel <- function(path, sheet = "Sheet1"){
-  
+
   excel_data <- readxl::read_excel(path, sheet = sheet)
-  
+
   excel_data$analysis_result <- as.numeric(excel_data$analysis_result)
   excel_data$lt_measure <- factor(excel_data$lt_measure, exclude = NULL)
   excel_data$param_name <- as.character(excel_data$param_name)
   excel_data$default_unit <- as.character(excel_data$default_unit)
-  
+
   return(excel_data)
+
 }

@@ -1,0 +1,8 @@
+pandoc: 1.19.2.1
+pkgdown: 1.1.0.9000
+pkgdown_sha: 930a4d65b59266ffcf1c74ee0141d188b22f150a
+articles:
+  geochemical_plots: ../../../../../../../H:/INTERNAL/JRJ/GitHub/manager/vignettes/geochemical_plots.html
+  intro: ../../../../../../../H:/INTERNAL/JRJ/GitHub/manager/vignettes/intro.html
+  updating_background: ../../../../../../../H:/INTERNAL/JRJ/GitHub/manager/vignettes/updating_background.html
+

@@ -70,6 +70,8 @@ boxplot <- function(df,
 }
 
 #' Helper function to plot boxplots for groundwater data
+#' 
+#' @noRd
 
 .boxplot <- function(df,
                      x = "location_id",

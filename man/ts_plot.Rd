@@ -3,7 +3,7 @@
 \name{ts_plot}
 \alias{ts_plot}
 \title{This function plots multiple groundwater data time series by location,
-or constituent.}
+or constituent}
 \usage{
 ts_plot(df, x = "sample_date", y = "analysis_result",
   facet_var = "location_id", group_var = "param_name",
@@ -45,5 +45,5 @@ ts_plot(df, x = "sample_date", y = "analysis_result",
 }
 \description{
 This function plots multiple groundwater data time series by location,
-or constituent.
+or constituent
 }

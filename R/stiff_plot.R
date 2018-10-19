@@ -80,10 +80,11 @@ stiff_plot <- function(df,
                        cex = cex
                        )
     )
-
 }
 
-#' Helper function for Stiff Diagrams. 
+#' Helper function for Stiff Diagrams
+#' 
+#' @noRd
 
 .stiff_plot <- function(df, 
                         location_id = "location_id", 
@@ -183,6 +184,8 @@ stiff_plot <- function(df,
 
 
 #' Function to transform data to Stiff diagram coordinates
+#' 
+#' @noRd
 
 .transform_stiff_data <- function(df, 
                                   location_id = "location_id", 
@@ -283,11 +286,13 @@ stiff_plot <- function(df,
   stiff <- df %>%
     left_join(poly_order)
 
-  return(stiff)
+  stiff
 
 }
 
 #' Function to gather major ions for stiff diagram.
+#' 
+#' @noRd
 
 .get_stiff_ions <- function(df,
                             location_id = "location_id",
@@ -316,12 +321,15 @@ stiff_plot <- function(df,
     summarise_at(vars(ions), mean, na.rm = TRUE) %>%
     ungroup()
   
-  return(df)
+  df
   
 }
 
 #' Function to create an animated Stiff Diagram 
+#' 
+#' @param df data frame of water quality data
 #' @inheritDotParams stiff_plot
+#' 
 #' @export
 
 stiff_time_plot <- function(df, ...) {
@@ -335,7 +343,9 @@ stiff_time_plot <- function(df, ...) {
 
 #' Function to create an animated Stiff Diagram and save to html
 #' 
+#' @param df data frame of water quality data
 #' @inheritDotParams stiff_plot
+#' 
 #' @export
 
 stiff_time_html <- function(df, ...) {
