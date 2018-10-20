@@ -2,7 +2,7 @@
 set.seed(14)
 df_norm1 <- data.frame(
   location_id = rep(1, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01"),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -10,14 +10,14 @@ df_norm1 <- data.frame(
   default_unit = rep("mg/L", 20)
 )
 
-test_that("data are normal", { 
+test_that("data are normal", {
   expect_match(est_dist(df_norm1)$distribution, "Normal")
 })
 
 # Lognormal case ---------------------------------------------------------------
 df_lnorm1 <- data.frame(
   location_id = rep(2, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01"),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -32,7 +32,7 @@ test_that("data are lognormal", {
 # Nonparametric case -----------------------------------------------------------
 df_nonpar1 <- data.frame(
   location_id = rep(3, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01"),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -61,7 +61,7 @@ npar_result <- df1_est_dist %>%
   filter(location_id == 3) %>%
   select(distribution)
 
-test_that("normality check works on gw data.frame",{
+test_that("normality check works on gw data.frame", {
   expect_match(norm_result$distribution, "Normal")
   expect_match(lnorm_result$distribution, "Lognormal")
   expect_match(npar_result$distribution, "Nonparametric")

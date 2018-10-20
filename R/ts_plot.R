@@ -18,7 +18,7 @@
 #' @param short_name If TRUE, the constituent name will be abbreviated
 #' @param pnt size of points on time series plots
 #' @param ncol number of columns
-#' 
+#'
 #' @export
 
 ts_plot <- function(df,
@@ -57,7 +57,7 @@ ts_plot <- function(df,
 }
 
 #' Helper function for plotting time series of groundwater data
-#' 
+#'
 #' @noRd
 
 .ts_plot <- function(df,
@@ -77,7 +77,7 @@ ts_plot <- function(df,
                      ) {
 
   df <- df %>%
-    mutate(non_detect = if_else(lt_measure == "<", 
+    mutate(non_detect = if_else(lt_measure == "<",
                                 "non-detect", "detected",
                                  missing = "detected"))
 
@@ -124,7 +124,7 @@ ts_plot <- function(df,
   if (!is.null(background)) {
 
     shaded_dates <- data.frame(xmin = background[1], xmax = background[2],
-                               ymin = -Inf, ymax = Inf, 
+                               ymin = -Inf, ymax = Inf,
                                years = "background")
 
     p <- p + geom_rect(data = shaded_dates,

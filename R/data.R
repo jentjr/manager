@@ -73,12 +73,12 @@
 #'   \item{Unit}{}
 #'   \item{WellDepth}{}
 #' }
-#' 
+#'
 #' @source \url{http://in.gov/idem/cleanwater/2453.html}
 "indiana_data"
 
-#' Example groundwater quality data 
-#' 
+#' Example groundwater quality data
+#'
 "gw_data"
 
 #' U.S. EPA Maximum Contaminant Level and RSL Lookup Table

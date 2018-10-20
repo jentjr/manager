@@ -2,7 +2,7 @@
 #'
 #' @param df data frame of groundwater data in the format with column names
 #' @param location_id column for the sample location id
-#' 
+#'
 #' @export
 
 sample_locations <- function(df, location_id){
@@ -21,7 +21,7 @@ sample_locations <- function(df, location_id){
 #'
 #' @param df data frame of groundwater data in the format with column names
 #' @param param_name the column for the constituents
-#' 
+#'
 #' @export
 
 constituents <- function(df, param_name){
@@ -40,7 +40,7 @@ constituents <- function(df, param_name){
 #'
 #' @param df df data frame of groundwater monitoring data in long format
 #' @param lt_measure lt_measure column of less than detection limit symbol.
-#' 
+#'
 #' @export
 
 percent_lt <- function(df, lt_measure) {
@@ -56,7 +56,7 @@ percent_lt <- function(df, lt_measure) {
 #' @param df df data frame of groundwater monitoring data in long format
 #' @param lt_measure lt_measure column of greater than detection limit symbol.
 #' @param percent_gt percent_gt new column name
-#' 
+#'
 #' @export
 
 percent_gt <- function(df,
@@ -89,7 +89,7 @@ remove_dup <- function(df){
 #'
 #' @param df groundwater data frame
 #' @param wells list of wells to included duplicates for
-#' 
+#'
 #' @export
 
 include_dup <- function(df, wells) {
@@ -115,7 +115,7 @@ include_dup <- function(df, wells) {
 #'
 #' @param df groundwater data frame
 #' @param value value to replace missing value with
-#' 
+#'
 #' @export
 
 replace_missing <- function(df, value){
@@ -148,13 +148,13 @@ to_censored <- function(df) {
 #' @param df groundwater data frame
 #' @param lt_measure column name for non-detect symbol
 #' @param analysis_result column name for analysis results
-#' 
+#'
 #' @export
 
 join_lt <- function(df, lt_measure, analysis_result) {
 
-  df %>% 
-    replace_na(list(lt_measure = "")) %>% 
+  df %>%
+    replace_na(list(lt_measure = "")) %>%
     unite(analysis_result, lt_measure, analysis_result, sep = " ")
 
 }
@@ -163,14 +163,14 @@ join_lt <- function(df, lt_measure, analysis_result) {
 #'
 #' @param df groundwater data frame
 #' @param short_name If TRUE will use abbreviated constituent names
-#' 
+#'
 #' @export
 
 name_units <- function(df, short_name = FALSE) {
 
   if (short_name == TRUE) {
 
-    df <- df %>% 
+    df <- df %>%
       mutate(param_name = paste0(.$short_name, " (", .$default_unit, ")"))
 
   }
@@ -191,10 +191,10 @@ name_units <- function(df, short_name = FALSE) {
 #' @param df data frame in long format
 #' @param lab_id logical to include lab_id. Default is FALSE.
 #' @param join_lt logical to join the non-detect colum with analysis result.
-#' 
+#'
 #' @export
 #'
-#' @examples 
+#' @examples
 #' data(gw_data)
 #'
 #' gw_data %>%
@@ -204,7 +204,7 @@ name_units <- function(df, short_name = FALSE) {
 to_wide <- function(df, lab_id = FALSE, join_lt = TRUE) {
 
   if (isTRUE(join_lt)) {
- 
+
     if (isTRUE(lab_id)) {
       df <- df %>%
         join_lt() %>%
@@ -212,7 +212,7 @@ to_wide <- function(df, lab_id = FALSE, join_lt = TRUE) {
         group_by(location_id, lab_id, sample_date, param_name) %>%
         summarise(analysis_result) %>%
         spread(param_name, analysis_result)
-      
+
     } else {
       df <- df %>%
         join_lt() %>%

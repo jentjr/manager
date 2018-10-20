@@ -8,7 +8,7 @@
 #' @param n_end the number of samples in current background. The date will be
 #' found from this sample.
 #' @param n_prop the number of samples to include in the proposed background
-#' 
+#'
 #' @export
 
 update_background <- function(df, well, param, start = NULL,

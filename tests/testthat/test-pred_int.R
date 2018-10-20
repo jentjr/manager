@@ -3,7 +3,7 @@ set.seed(14)
 
 df_norm <- data.frame(
   location_id = rep(1, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
+  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -18,13 +18,13 @@ df_norm <-  df_norm %>%
 
 test_that("normal prediction limit", {
   expect_equal(pred_int(df_norm, distribution)$upl,
-               7.1847, 
+               7.1847,
                tolerance = 0.001)
 })
 
 test_that("normal simultanous prediction limit", {
   expect_equal(pred_int_sim(df_norm, distribution)$upl,
-               6.401955, 
+               6.401955,
                tolerance = 0.001)
 })
 
@@ -33,7 +33,7 @@ set.seed(14)
 
 df_lnorm <- data.frame(
   location_id = rep(2, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
+  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -48,20 +48,20 @@ df_lnorm <-  df_lnorm %>%
 
 test_that("lognormal prediction limit", {
   expect_equal(pred_int(df_lnorm, distribution, pi_type = "upper")$upl,
-               1319.104, 
+               1319.104,
                tolerance = 0.001)
 })
 
 test_that("lognormal simultaneous prediction limit", {
   expect_equal(pred_int_sim(df_lnorm, distribution, pi_type = "upper")$upl,
-               603.0231, 
+               603.0231,
                tolerance = 0.001)
 })
 
 # Nonparametric ---------------------------------------------------------------
 df_nonpar <- data.frame(
   location_id = rep(3, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()), 
+  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),

@@ -11,8 +11,8 @@
 #' @param method character string specifying the method of estimation.
 #' Possible values are "mvue" (minimum variance unbiased; the default),
 #' and "mle/mme" (maximum likelihood/method of moments).
-#' 
-#' @examples 
+#'
+#' @examples
 #' data("gw_data")
 
 #' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
@@ -20,7 +20,7 @@
 #' params <- c("Sulfate, total",
 #'             "Arsenic, dissolved",
 #'             "Boron, dissolved")
-#' 
+#'
 #' background <- lubridate::ymd(c("2007-12-20", "2012-01-01"), tz = "UTC")
 
 #' # first group data by location, param, and background
@@ -32,10 +32,10 @@
 #'   percent_lt() %>%
 #'   est_dist(., keep_data_object = TRUE) %>%
 #'   arrange(location_id, param_name)
-#' 
+#'
 #' background_data %>%
 #' conf_int(., ci_type = "lower", conf_level = 0.99)
-#' 
+#'
 #' @export
 
 conf_int <- function(df,
@@ -47,7 +47,7 @@ conf_int <- function(df,
 
   conf_int <- df %>%
     mutate(conf_int = case_when(
-      distribution == "Normal" ~ map(.x=data,
+      distribution == "Normal" ~ map(.x = data,
                                      ~EnvStats::enorm(
                                        x = .x$analysis_result,
                                        method = method,

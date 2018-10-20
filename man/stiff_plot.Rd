@@ -2,7 +2,7 @@
 % Please edit documentation in R/stiff_plot.R
 \name{stiff_plot}
 \alias{stiff_plot}
-\title{Stiff Diagram.}
+\title{Stiff Diagram}
 \usage{
 stiff_plot(df, location_id = "location_id",
   sample_date = "sample_date", param_name = "param_name",

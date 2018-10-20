@@ -21,9 +21,9 @@ of the test is chosen according to sample size
 The lowest or highest value is selected automatically, and can be reversed
 used opposite parameter.}
 
-\item{opposite}{logical indicating whether you want to check not the value with
-largest difference from the mean, but opposite (lowest, if most suspicious
-is highest etc.)}
+\item{opposite}{logical indicating whether you want to check not the value
+with largest difference from the mean, but opposite
+(lowest, if most suspicious is highest etc.)}
 
 \item{two_sided}{treat test as two-sided. Default is TRUE.}
 

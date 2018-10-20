@@ -15,7 +15,7 @@ set_proposed_background(df, sample_date, start, end, return_all = FALSE)
 
 \item{end}{the end date for background}
 
-\item{return_all}{TRUE/FALSE to return all values, 
+\item{return_all}{TRUE/FALSE to return all values,
 or only proposed background}
 }
 \description{

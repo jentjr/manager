@@ -1,8 +1,8 @@
 #' Function to find the start of sampling for a well constituent pair
-#' 
+#'
 #' @param df dataframe of groundwater data in tidy format
 #' @param sample_date the column for the sampling dates
-#' 
+#'
 #' @export
 
 start_date <- function(df, sample_date) {
@@ -12,25 +12,25 @@ start_date <- function(df, sample_date) {
     select_(~sample_date) %>%
     first() %>%
     first()
-  
+
   return(start)
 
 }
 
 #' Function to find the date for next n samples
-#' 
+#'
 #' @param df dataframe of groundwater data in tidy format
 #' @param start the date to start from
 #' @param n the next n samples to get the date for
 #' @param sample_date the column for the sampling dates
-#' 
+#'
 #' @export
 
 nth_date <- function(df,
                      start,
                      n = 4,
                      sample_date) {
-  
+
   nth_date <- df %>%
     arrange_(~sample_date) %>%
     filter_(~sample_date > start) %>%
@@ -43,25 +43,25 @@ nth_date <- function(df,
 }
 
 #' Function to return a column of background data 
-#' 
+#'
 #' @param df dataframe of groundwater data in tidy format
 #' @param sample_date the column for the sampling dates
 #' @param start the start date for background
 #' @param end the end date for background
 #' @param return_all logical condition to return all values, or only background
-#' 
+#'
 #' @export
 
-set_background <- function(df, 
+set_background <- function(df,
                            sample_date,
-                           start, 
-                           end, 
+                           start,
+                           end,
                            return_all = FALSE) {
 
   df <- df %>%
     arrange_(~sample_date) %>%
     mutate(background = if_else(sample_date >= start &
-                                 sample_date <= end, 
+                                 sample_date <= end,
                                  TRUE, FALSE))
   if (!return_all) {
     df <- df %>%
@@ -73,14 +73,14 @@ set_background <- function(df,
 }
 
 #' Function to return a column of the proposed background data 
-#' 
+#'
 #' @param df dataframe of groundwater data in tidy format
 #' @param sample_date the column for the sampling dates
 #' @param start the start date for background
 #' @param end the end date for background
-#' @param return_all TRUE/FALSE to return all values, 
+#' @param return_all TRUE/FALSE to return all values,
 #'    or only proposed background
-#'    
+#'
 #' @export
 
 set_proposed_background <- function(df, 
@@ -92,7 +92,7 @@ set_proposed_background <- function(df,
   df <- df %>%
     arrange_(~sample_date) %>%
     mutate(proposed_background = if_else(sample_date > start &
-                                         sample_date <= end, 
+                                         sample_date <= end,
                                          TRUE, FALSE))
 
   if (!return_all) {

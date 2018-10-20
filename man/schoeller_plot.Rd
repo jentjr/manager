@@ -55,7 +55,7 @@ data(gw_data)
 gw_data \%>\%
 filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
 schoeller_plot(., facet_var = "location_id", title = "Example Scholler Plot")
- 
+
 gw_data \%>\%
 filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
 schoeller_plot(., facet_var = "sample_date", lwt = 2)

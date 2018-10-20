@@ -2,7 +2,7 @@
 set.seed(14)
 df_norm1_cen <- data.frame(
   location_id = rep(1, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01"),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   analysis_result = rnorm(20, mean = 7, sd = 2.5),
@@ -20,7 +20,7 @@ df_norm1_cen <- df_norm1_cen %>%
   to_censored() %>%
   percent_lt()
 
-test_that("censored data are normal", { 
+test_that("censored data are normal", {
   expect_match(est_dist_censored(df_norm1_cen, left_censored)$distribution,
                "Normal")
 })
@@ -29,7 +29,7 @@ test_that("censored data are normal", {
 set.seed(1444)
 df_lnorm1_cen <- data.frame(
   location_id = rep(2, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01"),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -57,7 +57,7 @@ test_that("censored data are lognormal", {
 set.seed(155)
 df_nonpar1_cen <- data.frame(
   location_id = rep(3, 20),
-  sample_date = seq(lubridate::ymd("2010-01-01"), 
+  sample_date = seq(lubridate::ymd("2010-01-01"),
                     by = "quarter", length.out = 20),
   param_name = rep("test", 20),
   lt_measure = rep("", 20),
@@ -94,9 +94,8 @@ npar_result <- df1 %>%
   filter(location_id == 3) %>%
   select(distribution)
 
-test_that("normality check works on data.frame",{
+test_that("normality check works on data.frame", {
   expect_match(norm_result$distribution, "Normal")
   expect_match(lnorm_result$distribution, "Lognormal")
   expect_match(npar_result$distribution, "Nonparametric")
 })
-

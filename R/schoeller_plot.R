@@ -18,12 +18,12 @@
 #' @param title title of plot
 #' @param lwt lineweight
 #'
-#' @examples 
+#' @examples
 #' data(gw_data)
 #' gw_data %>%
 #' filter(location_id %in% c("MW-1", "MW-2")) %>%
 #' schoeller_plot(., facet_var = "location_id", title = "Example Scholler Plot")
-#'  
+#'
 #' gw_data %>%
 #' filter(location_id %in% c("MW-1", "MW-2")) %>%
 #' schoeller_plot(., facet_var = "sample_date", lwt = 2)
@@ -66,7 +66,7 @@ schoeller_plot <- function(df,
     scale_y_continuous(trans = scales::log10_trans(),
                        breaks = scales::pretty_breaks(),
                        labels = prettyNum) +
-    scale_x_discrete() + 
+    scale_x_discrete() +
     theme_bw() +
     theme(axis.title.y = element_blank(),
           axis.title.x = element_blank()) +
@@ -101,7 +101,7 @@ schoeller_plot <- function(df,
 }
 
 #' Help function to transform data to schoeller coordinates
-#' 
+#'
 #' @noRd
 
 .transform_schoeller_data <- function(df,
@@ -155,7 +155,7 @@ schoeller_plot <- function(df,
 }
 
 #' Function to gather major ions for scholler diagram.
-#' 
+#'
 #' @noRd
 
 .get_schoeller_ions <- function(df,

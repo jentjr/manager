@@ -12,7 +12,8 @@ tukey_outlier(df, x = "analysis_result", k = 3,
 
 \item{x}{column of analysis results}
 
-\item{k}{multiplier for IQR k = 1.5 indicates "outlier", k = 3 indicates "far out"}
+\item{k}{multiplier for IQR k = 1.5 indicates "outlier", k = 3 indicates
+"far out"}
 
 \item{group_by_location}{TRUE/FALSE}
 }

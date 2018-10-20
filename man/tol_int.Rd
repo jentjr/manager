@@ -16,12 +16,12 @@ tol_int(df, analysis_result = "analysis_result",
 
 \item{distribution}{the distribution column}
 
-\item{coverage}{a scalar between 0 and 1 indicating the desired coverage of 
-the tolerance interval. The default value is coverage=0.95. 
+\item{coverage}{a scalar between 0 and 1 indicating the desired coverage of
+the tolerance interval. The default value is coverage=0.95.
 If cov.type="expectation", this argument is ignored}
 
-\item{cov_type}{character string specifying the coverage type for the 
-tolerance interval. The possible values are "content" 
+\item{cov_type}{character string specifying the coverage type for the
+tolerance interval. The possible values are "content"
 (β-content; the default), and "expectation" (β-expectation).}
 
 \item{ti_type}{character string indicating what kind of tolerance interval
@@ -31,18 +31,18 @@ ti_type="upper", and ti_type="lower" (the default).}
 \item{conf_level}{a scalar between 0 and 1 indicating the confidence level
 of the tolerance interval. The default value is conf.level=0.95}
 
-\item{method}{for the case of a two-sided tolerance interval, a character 
-string specifying the method for constructing the tolerance interval. 
-This argument is ignored if ti.type="lower" or ti.type="upper". 
-The possible values are "exact" (the default) and 
+\item{method}{for the case of a two-sided tolerance interval, a character
+string specifying the method for constructing the tolerance interval.
+This argument is ignored if ti.type="lower" or ti.type="upper".
+The possible values are "exact" (the default) and
 "wald.wolfowitz" (the Wald-Wolfowitz approximation).}
 
-\item{est_method}{for tolIntLnormAlt, a character string specifying the 
-method of estimating the mean and coefficient of variation. 
-This argument has no effect on the method of constructing the 
-tolerance interval. Possible values are "mvue" (minimum variance unbiased; 
+\item{est_method}{for tolIntLnormAlt, a character string specifying the
+method of estimating the mean and coefficient of variation.
+This argument has no effect on the method of constructing the
+tolerance interval. Possible values are "mvue" (minimum variance unbiased;
 the default), "qmle" (quasi maximum likelihood), "mle" (maximum likelihood),
- "mme" (method of moments), and "mmue" (method of moments based on the 
+ "mme" (method of moments), and "mmue" (method of moments based on the
  unbiased estimate of variance).}
 }
 \description{

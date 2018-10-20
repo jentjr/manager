@@ -1,9 +1,9 @@
 #' Analysis of Variance
-#' 
+#'
 #' @param df data frame
 #' @param keep_data_object logical to keep objects from aov and TukeyHSD
-#' 
-#' @examples 
+#'
+#' @examples
 #' data(gw_data)
 #'
 #' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
@@ -23,10 +23,10 @@
 #' @export
 
 anova <- function(df, keep_data_object = FALSE) {
-  
+
   df <- df %>%
     mutate(location_id = fct_recode(location_id))
-  
+
   aov_result <- df %>%
     group_by(param_name, default_unit) %>%
     nest() %>%
@@ -37,16 +37,16 @@ anova <- function(df, keep_data_object = FALSE) {
     ) %>%
     ungroup() %>%
     select(-data)
-  
+
   if (isTRUE(keep_data_object)) {
     aov_result %>%
-      mutate(pairwise = map(.x = tukey, 
-                            ~rownames_to_column(data.frame(.x$location_id)))) %>%
-      select(-default_unit) 
+      mutate(pairwise = map(.x = tukey,
+                          ~rownames_to_column(data.frame(.x$location_id)))) %>%
+      select(-default_unit)
   } else {
     aov_result %>%
-      mutate(pairwise = map(.x = tukey, 
-                            ~rownames_to_column(data.frame(.x$location_id)))) %>%
+      mutate(pairwise = map(.x = tukey,
+                          ~rownames_to_column(data.frame(.x$location_id)))) %>%
       select(-anova, -tukey, -default_unit) %>%
       unnest()
   }

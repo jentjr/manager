@@ -2,8 +2,8 @@
 % Please edit documentation in R/est_dist.R
 \name{est_dist}
 \alias{est_dist}
-\title{Function to return either normal, lognormal, or non-parametric 
-distribution.}
+\title{Function to return either normal, lognormal, or non-parametric
+distribution}
 \usage{
 est_dist(df, alpha = 0.05, method = "sw", choices = c("norm",
   "lnorm"), group_by_location = FALSE, keep_data_object = FALSE)
@@ -23,8 +23,8 @@ location, or grouped together. Default is FALSE.}
 \item{keep_data_object}{Default is FALSE}
 }
 \description{
-Function to return either normal, lognormal, or non-parametric 
-distribution.
+Function to return either normal, lognormal, or non-parametric
+distribution
 }
 \examples{
 data("gw_data")
