@@ -21,11 +21,7 @@ addons:
 r_github_packages:
  - jentjr/EnvStats
  - tidyverse/tidyverse
- - eclarke/ggbeeswarm
- - awalker89/openxlsx
- - yihui/animation
  - rstats-db/odbc
- - edzer/units
  - jimhester/covr
  
 after_success:
