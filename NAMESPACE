@@ -2,6 +2,7 @@
 
 export(anova)
 export(assign_limits)
+export(boxcox_transform)
 export(boxplot)
 export(conc_to_meq)
 export(conf_int)
