@@ -188,13 +188,17 @@ rosner_test <- function(df,
 #' @param x column of analysis results
 #' @param k multiplier for IQR k = 1.5 indicates "outlier", k = 3 indicates
 #' "far out"
-#' @param group_by_location TRUE/FALSE
+#' @param na.rm logical. Should missing values be removed?
+#' @param type an integer selecting one of the many quantile algorithms.
+#' Default is 6 to match Sanitas
+#' @param combine_locations TRUE/FALSE
+#'
 #' @export
 
-tukey_outlier <- function(df, x = "analysis_result", k = 3,
-                          group_by_location = FALSE) {
+tukey_outlier <- function(df, x = "analysis_result", k = 3, na.rm = FALSE,
+                          type = 6, combine_locations = FALSE) {
 
-  if (isTRUE(group_by_location)) {
+  if (isTRUE(combine_locations)) {
     df <- df %>%
       group_by(param_name, default_unit) %>%
       nest()
@@ -206,8 +210,12 @@ tukey_outlier <- function(df, x = "analysis_result", k = 3,
 
   df <- df %>%
     mutate(outlier = map(.x = data, ~case_when(
-      .x$analysis_result > .tukey_high_cutoff(.x$analysis_result, k = k) ~ TRUE,
-      .x$analysis_result < .tukey_low_cutoff(.x$analysis_result, k = k) ~ TRUE,
+      .x$analysis_result > .tukey_high_cutoff(
+        .x$analysis_result, k = k,
+        na.rm = na.rm, type = type) ~ TRUE,
+      .x$analysis_result < .tukey_low_cutoff(
+        .x$analysis_result, k = k,
+        na.rm = na.rm, type = type) ~ TRUE,
       TRUE ~ FALSE
       )
      )
@@ -217,12 +225,12 @@ tukey_outlier <- function(df, x = "analysis_result", k = 3,
   return(df)
 }
 
-.tukey_low_cutoff <- function(x, k = 3) {
-  low <- quantile(x)[["25%"]] - k*IQR(x)
+.tukey_low_cutoff <- function(x, k = 3, na.rm = FALSE, type = 6) {
+  low <- quantile(x, na.rm = na.rm, type = type)[["25%"]] - k*IQR(x, na.rm = na.rm, type = type)
   return(low)
 }
 
-.tukey_high_cutoff <- function(x, k = 3) {
-  high <- quantile(x)[["75%"]] + k*IQR(x)
+.tukey_high_cutoff <- function(x, k = 3, na.rm = FALSE, type = 6, ...) {
+  high <- quantile(x, na.rm = na.rm, type = type)[["75%"]] + k*IQR(x, na.rm = na.rm, type = type)
   return(high)
 }

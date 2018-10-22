@@ -6,6 +6,8 @@
 #' @param lt_measure column of less than symbols for non-detect data
 #' @param analysis_result column for numerical result
 #' @param default_unit column of units
+#' @param combine_locations logical. Summarize by individual sample location
+#' or by grouping all sample locations. Default is FALSE.
 #' @param na.rm TRUE/FALSE for missing values
 #'
 #' @export
@@ -16,22 +18,43 @@ summary <- function(df,
                     lt_measure = "lt_measure",
                     analysis_result = "analysis_result",
                     default_unit = "default_unit",
+                    combine_locations = FALSE,
                     na.rm = TRUE) {
 
-  df %>%
-    group_by_(~location_id, ~param_name, ~default_unit) %>%
-    summarise(n = n(),
-              percent_lt = sum(lt_measure == "<", na.rm = na.rm) / n() * 100,
-              mean = mean(analysis_result, na.rm = na.rm),
-              median = median(analysis_result, na.rm = na.rm),
-              sd = sd(analysis_result, na.rm = na.rm),
-              var = var(analysis_result, na.rm = na.rm),
-              min = min(analysis_result, na.rm = na.rm),
-              max = max(analysis_result, na.rm = na.rm),
-              cv = cv(analysis_result, na.rm = na.rm),
-              `25%` = quantile(analysis_result, na.rm = na.rm)[2][[1]],
-              `75%` = quantile(analysis_result, na.rm = na.rm)[4][[1]],
-              IQR = IQR(analysis_result, na.rm = na.rm),
-              mad = mad(analysis_result, na.rm = na.rm)
-              )
+  if (!combine_locations) {
+    df %>%
+      group_by_(~location_id, ~param_name, ~default_unit) %>%
+      summarise(n = n(),
+                percent_lt = sum(lt_measure == "<", na.rm = na.rm) / n() * 100,
+                mean = mean(analysis_result, na.rm = na.rm),
+                median = median(analysis_result, na.rm = na.rm),
+                sd = sd(analysis_result, na.rm = na.rm),
+                var = var(analysis_result, na.rm = na.rm),
+                min = min(analysis_result, na.rm = na.rm),
+                max = max(analysis_result, na.rm = na.rm),
+                cv = cv(analysis_result, na.rm = na.rm),
+                `25%` = quantile(analysis_result, na.rm = na.rm)[2][[1]],
+                `75%` = quantile(analysis_result, na.rm = na.rm)[4][[1]],
+                IQR = IQR(analysis_result, na.rm = na.rm),
+                mad = mad(analysis_result, na.rm = na.rm)
+      )
+  } else {
+    df %>%
+      group_by_(~param_name, ~default_unit) %>%
+      summarise(n = n(),
+                percent_lt = sum(lt_measure == "<", na.rm = na.rm) / n() * 100,
+                mean = mean(analysis_result, na.rm = na.rm),
+                median = median(analysis_result, na.rm = na.rm),
+                sd = sd(analysis_result, na.rm = na.rm),
+                var = var(analysis_result, na.rm = na.rm),
+                min = min(analysis_result, na.rm = na.rm),
+                max = max(analysis_result, na.rm = na.rm),
+                cv = cv(analysis_result, na.rm = na.rm),
+                `25%` = quantile(analysis_result, na.rm = na.rm)[2][[1]],
+                `75%` = quantile(analysis_result, na.rm = na.rm)[4][[1]],
+                IQR = IQR(analysis_result, na.rm = na.rm),
+                mad = mad(analysis_result, na.rm = na.rm)
+      )
+  }
+
 }

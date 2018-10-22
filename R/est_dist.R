@@ -5,7 +5,7 @@
 #' @param alpha alpha
 #' @param method default is "sw"
 #' @param choices vector of distributions to check. Default is c("norm, "lnorm")
-#' @param group_by_location TRUE/FALSE to estimate distribution by individual
+#' @param combine_locations TRUE/FALSE to estimate distribution by individual
 #' location, or grouped together. Default is FALSE.
 #' @param keep_data_object Default is FALSE
 #'
@@ -28,7 +28,7 @@
 #'
 #' gw_data %>%
 #' group_by(param_name, default_unit) %>%
-#' est_dist(., group_by_location = TRUE, keep_data_object = FALSE)
+#' est_dist(., combine_locations = TRUE, keep_data_object = FALSE)
 #'
 #' @export
 
@@ -36,10 +36,10 @@ est_dist <- function(df,
                      alpha = 0.05,
                      method = "sw",
                      choices = c("norm", "lnorm"),
-                     group_by_location = FALSE,
+                     combine_locations = FALSE,
                      keep_data_object = FALSE) {
 
-  if (isTRUE(group_by_location)) {
+  if (isTRUE(combine_locations)) {
     nested_df <- df %>%
       group_by(param_name, default_unit) %>%
       nest()

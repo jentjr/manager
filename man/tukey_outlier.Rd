@@ -4,8 +4,8 @@
 \alias{tukey_outlier}
 \title{Tukey's test for outliers}
 \usage{
-tukey_outlier(df, x = "analysis_result", k = 3,
-  group_by_location = FALSE)
+tukey_outlier(df, x = "analysis_result", k = 3, na.rm = FALSE,
+  type = 6, combine_locations = FALSE)
 }
 \arguments{
 \item{df}{data.frame of groundwater data}
@@ -15,7 +15,12 @@ tukey_outlier(df, x = "analysis_result", k = 3,
 \item{k}{multiplier for IQR k = 1.5 indicates "outlier", k = 3 indicates
 "far out"}
 
-\item{group_by_location}{TRUE/FALSE}
+\item{na.rm}{logical. Should missing values be removed?}
+
+\item{type}{an integer selecting one of the many quantile algorithms.
+Default is 6 to match Sanitas}
+
+\item{combine_locations}{TRUE/FALSE}
 }
 \description{
 Tukey's test for outliers

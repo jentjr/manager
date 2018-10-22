@@ -135,7 +135,7 @@ distribution estimate</p>
     </div>
 
     <pre class="usage"><span class='fu'>est_dist_censored</span>(<span class='no'>df</span>, <span class='no'>left_censored</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"sf"</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>,
-  <span class='kw'>choices</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"norm"</span>, <span class='st'>"lnorm"</span>), <span class='kw'>group_by_location</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>choices</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"norm"</span>, <span class='st'>"lnorm"</span>), <span class='kw'>combine_locations</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -162,7 +162,7 @@ distribution estimate</p>
       <td><p>vector of distributions to check. Default is c("norm, "lnorm")</p></td>
     </tr>
     <tr>
-      <th>group_by_location</th>
+      <th>combine_locations</th>
       <td><p>TRUE/FALSE to estimate distribution by individual
 location, or grouped together. Default is FALSE.</p></td>
     </tr>
@@ -200,7 +200,7 @@ location, or grouped together. Default is FALSE.</p></td>
 
 <span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
 <span class='fu'>group_by</span>(<span class='no'>param_name</span>, <span class='no'>default_unit</span>) <span class='kw'>%&gt;%</span>
-<span class='fu'>est_dist_censored</span>(<span class='no'>.</span>, <span class='kw'>group_by_location</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [90m# A tibble: 3 x 3[39m
+<span class='fu'>est_dist_censored</span>(<span class='no'>.</span>, <span class='kw'>combine_locations</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [90m# A tibble: 3 x 3[39m
 #&gt;   param_name         default_unit distribution
 #&gt;   [3m[90m&lt;chr&gt;[39m[23m              [3m[90m&lt;chr&gt;[39m[23m        [3m[90m&lt;chr&gt;[39m[23m       
 #&gt; [90m1[39m Fluoride, total    mg/L         Lognormal   

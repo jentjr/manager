@@ -6,7 +6,8 @@
 \usage{
 summary(df, location_id = "location_id", param_name = "param_name",
   lt_measure = "lt_measure", analysis_result = "analysis_result",
-  default_unit = "default_unit", na.rm = TRUE)
+  default_unit = "default_unit", combine_locations = FALSE,
+  na.rm = TRUE)
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}
@@ -20,6 +21,9 @@ summary(df, location_id = "location_id", param_name = "param_name",
 \item{analysis_result}{column for numerical result}
 
 \item{default_unit}{column of units}
+
+\item{combine_locations}{logical. Summarize by individual sample location
+or by grouping all sample locations. Default is FALSE.}
 
 \item{na.rm}{TRUE/FALSE for missing values}
 }

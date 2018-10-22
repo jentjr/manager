@@ -6,8 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function to return either normal, lognormal, or non-parametric 
-distribution. — est_dist • manager</title>
+<title>Function to return either normal, lognormal, or non-parametric
+distribution — est_dist • manager</title>
 
 <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
 
@@ -33,11 +33,11 @@ distribution. — est_dist • manager</title>
 
 
 
-<meta property="og:title" content="Function to return either normal, lognormal, or non-parametric 
-distribution. — est_dist" />
+<meta property="og:title" content="Function to return either normal, lognormal, or non-parametric
+distribution — est_dist" />
 
-<meta property="og:description" content="Function to return either normal, lognormal, or non-parametric 
-distribution." />
+<meta property="og:description" content="Function to return either normal, lognormal, or non-parametric
+distribution" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -121,21 +121,21 @@ distribution." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Function to return either normal, lognormal, or non-parametric 
-distribution.</h1>
+    <h1>Function to return either normal, lognormal, or non-parametric
+distribution</h1>
     <small class="dont-index">Source: <a href='https://github.com/jentjr/manager/blob/master/R/est_dist.R'><code>R/est_dist.R</code></a></small>
     <div class="hidden name"><code>est_dist.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Function to return either normal, lognormal, or non-parametric 
-distribution.</p>
+    <p>Function to return either normal, lognormal, or non-parametric
+distribution</p>
     
     </div>
 
     <pre class="usage"><span class='fu'>est_dist</span>(<span class='no'>df</span>, <span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.05</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"sw"</span>, <span class='kw'>choices</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"norm"</span>,
-  <span class='st'>"lnorm"</span>), <span class='kw'>group_by_location</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='st'>"lnorm"</span>), <span class='kw'>combine_locations</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -157,7 +157,7 @@ distribution.</p>
       <td><p>vector of distributions to check. Default is c("norm, "lnorm")</p></td>
     </tr>
     <tr>
-      <th>group_by_location</th>
+      <th>combine_locations</th>
       <td><p>TRUE/FALSE to estimate distribution by individual
 location, or grouped together. Default is FALSE.</p></td>
     </tr>
@@ -200,7 +200,7 @@ location, or grouped together. Default is FALSE.</p></td>
 
 <span class='no'>gw_data</span> <span class='kw'>%&gt;%</span>
 <span class='fu'>group_by</span>(<span class='no'>param_name</span>, <span class='no'>default_unit</span>) <span class='kw'>%&gt;%</span>
-<span class='fu'>est_dist</span>(<span class='no'>.</span>, <span class='kw'>group_by_location</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [90m# A tibble: 3 x 3[39m
+<span class='fu'>est_dist</span>(<span class='no'>.</span>, <span class='kw'>combine_locations</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [90m# A tibble: 3 x 3[39m
 #&gt;   param_name         default_unit distribution 
 #&gt;   [3m[90m&lt;chr&gt;[39m[23m              [3m[90m&lt;chr&gt;[39m[23m        [3m[90m&lt;chr&gt;[39m[23m        
 #&gt; [90m1[39m Sulfate, total     mg/L         Normal       

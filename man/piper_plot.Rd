@@ -72,7 +72,7 @@ labels accept plotmath expressions
 \examples{
 data(gw_data)
 wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")
-gw_data \%>\% 
+gw_data \%>\%
 filter(location_id \%in\% wells) \%>\%
 piper_plot(., title = "Example Piper Diagram")
 

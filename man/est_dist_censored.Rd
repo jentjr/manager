@@ -6,7 +6,7 @@
 distribution estimate}
 \usage{
 est_dist_censored(df, left_censored, method = "sf", alpha = 0.05,
-  choices = c("norm", "lnorm"), group_by_location = FALSE,
+  choices = c("norm", "lnorm"), combine_locations = FALSE,
   keep_data_object = FALSE)
 }
 \arguments{
@@ -20,7 +20,7 @@ est_dist_censored(df, left_censored, method = "sf", alpha = 0.05,
 
 \item{choices}{vector of distributions to check. Default is c("norm, "lnorm")}
 
-\item{group_by_location}{TRUE/FALSE to estimate distribution by individual
+\item{combine_locations}{TRUE/FALSE to estimate distribution by individual
 location, or grouped together. Default is FALSE.}
 
 \item{keep_data_object}{Default is FALSE}
@@ -49,6 +49,6 @@ est_dist_censored(., alpha = 0.05, keep_data_object = FALSE)
 
 gw_data \%>\%
 group_by(param_name, default_unit) \%>\%
-est_dist_censored(., group_by_location = TRUE, keep_data_object = FALSE)
+est_dist_censored(., combine_locations = TRUE, keep_data_object = FALSE)
 
 }
