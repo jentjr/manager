@@ -55,8 +55,9 @@ create_database <- function(con) {
 
   DBI::dbSendQuery(con,
               "CREATE TABLE IF NOT EXISTS site_parameters(
-                site_id INT
-                parm_cd INT,
+                site_id INT,
+                parm_cd CHAR(5),
+                CONSTRAINT site_parm_cd_check CHECK(parm_cd SIMILAR TO '[[:digit:]]{5}')
               )"
             )
 
@@ -81,17 +82,6 @@ delete_datebase <- function(con) {
   DBI::dbSendQuery(con, "DROP TABLE IF EXISTS site_parameters CASCADE")
 
   DBI::dbDisconnect(con)
-
-}
-
-enter_data <- function(db) {
-
-  db <- dbConnect(RSQLite::SQLite(), db)
-
-  dbSendQuery(db, "INSERT INTO wellConstruction VALUES('MW-1', 'MW-1', '45.23',
-             '80.45', 128.76, 100.56, 56.10)")
-
-  dbDisconnect(db)
 
 }
 
