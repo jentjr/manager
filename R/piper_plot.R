@@ -110,24 +110,21 @@ piper_plot <- function(df,
                                       shape = factor(gradient, exclude = NULL),
                                       colour = location_id),
                  alpha = transparency, size = pnt_size) +
-      scale_shape_manual(values = 1:nlevels(factor(piper_df$gradient, exclude = NULL)))
+      scale_shape_manual(values = 1:nlevels(
+        factor(piper_df$gradient, exclude = NULL))
+        )
 
   } else {
 
     piper <- .ggplot_piper() +
       geom_point(data = piper_df, aes(x = cation_x,
                                       y = cation_y,
-                                      shape = factor(location_id, exclude = NULL),
                                       colour = location_id),
                  alpha = transparency, size = pnt_size) +
       geom_point(data = piper_df, aes(x = anion_x,
                                       y = anion_y,
-                                      shape = factor(location_id, exclude = NULL),
                                       colour = location_id),
-                 alpha = transparency, size = pnt_size) +
-      scale_shape_manual(name = "Location ID",
-                         values = 1:nlevels(factor(piper_df$location_id, 
-                                                   exclude = NULL)))
+                 alpha = transparency, size = pnt_size)
   }
 
   piper <- piper +
@@ -177,7 +174,6 @@ piper_plot <- function(df,
   }
 
   if (!is.null(group_col)) {
-    # Scale by TDS
     if (!is.null(total_dissolved_solids)) {
       piper <-  piper +
         geom_point(data = piper_df, aes(x = diamond_x,
@@ -205,7 +201,6 @@ piper_plot <- function(df,
       
     }
   } else {
-    # Scale by TDS
     if (!is.null(total_dissolved_solids)) {
       piper <-  piper +
         geom_point(data = piper_df, aes(x = diamond_x,
@@ -219,11 +214,9 @@ piper_plot <- function(df,
                alpha = guide_legend("none"))
 
     } else {
-
       piper <- piper +
         geom_point(data = piper_df, aes(x = diamond_x,
                                         y = diamond_y,
-                                        shape = factor(location_id, exclude = NULL),
                                         colour = location_id),
                    alpha = transparency,
                    size = pnt_size)
