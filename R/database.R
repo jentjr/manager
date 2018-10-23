@@ -1,34 +1,44 @@
 #' Function to create a new database for water quality data
 #'
-#' @param path path to sqlite database
+#' @param con connection to Postgresql database
 #'
 #' @export
  
-create_database <- function(path) {
+create_database <- function(con) {
 
-  db <- dbConnect(RSQLite::SQLite(), path)
-
-  dbSendQuery(db, "CREATE TABLE IF NOT EXISTS site (
+  DBI::dbSendQuery(con, 
+              "CREATE TABLE IF NOT EXISTS site (
                 site_id INT PRIMARY KEY,
                 site_name VARCHAR,
-                site_location GEOGRAPHY(POINT, 4326))"
-              )
+                site_location GEOGRAPHY(POINT, 4326)
+              )"
+            )
 
-  dbSendQuery(db, "CREATE TABLE IF NOT EXISTS sample_results (
+  DBI::dbSendQuery(con,
+              "CREATE TABLE IF NOT EXISTS sample_results (
                 lab_id VARCHAR,
-                location_id VARCHAR,
-                sample_date DATE,
-                parm_cd INT PRIMARY KEY,
+                location_id VARCHAR NOT NULL,
+                sample_date DATE NOT NULL,
+                analysis_method VARCHAR,
+                parm_cd INT PRIMARY KEY NOT NULL,
+                analysis_flag CHAR,
                 analysis_result FLOAT,
+                reporting_unit CHAR,
                 detecion_limit FLOAT,
-                reporting_limit FLOAT,
                 prac_quant_limit FLOAT,
-                qualifier CHAR,
-                measure_unit CHAR)"
-              )
+                min_det_activity FLOAT,
+                comb_stand_unc FLOAT,
+                analysis_qualifier CHAR,
+                disclaimer VARCHAR,
+                analysis_date DATE,
+                order_comment VARCHAR,
+                results_comment VARCHAR
+              )"
+            )
 
-  dbSendQuery(db, "CREATE TABLE IF NOT EXISTS global_parameters(
-                parm_cd INT PRIMARY KEY,
+  DBI::dbSendQuery(con,
+              "CREATE TABLE IF NOT EXISTS global_parameters(
+                parm_cd CHAR(5) PRIMARY KEY,
                 description VARCHAR,
                 epa_equivalence VARCHAR,
                 characteristicname VARCHAR,
@@ -38,38 +48,39 @@ create_database <- function(path) {
                 resultstatisticalbasis VARCHAR,
                 resulttimebasis VARCHAR,
                 resultweightbasis VARCHAR,
-                resultparticlesizebasis VARCHAR)"
-              )
+                resultparticlesizebasis VARCHAR,
+                CONSTRAINT parm_cd_check CHECK (parm_cd SIMILAR TO '[[:digit:]]{5}')
+              )"
+            )
 
-  dbSendQuery(db, "CREATE TABLE IF NOT EXISTS site_parameters(
+  DBI::dbSendQuery(con,
+              "CREATE TABLE IF NOT EXISTS site_parameters(
                 site_id INT
                 parm_cd INT,
               )"
-  )
+            )
 
-  dbDisconnect(db)
+  DBI::dbDisconnect(con)
 
 }
 
 #' Function to delete an existing water quality database
 #'
-#' @param path path to sqlite database
+#' @param con connetcion to Postgresql database
 #'
 #' @export
 
-delete_datebase <- function(path) {
+delete_datebase <- function(con) {
 
-  db <- dbConnect(RSQLite::SQLite(), path)
+  DBI::dbSendQuery(con, "DROP TABLE IF EXISTS site CASCADE")
 
-  dbSendQuery(db, "DROP TABLE IF EXISTS site CASCADE")
+  DBI::dbSendQuery(con, "DROP TABLE IF EXISTS sample_results CASCADE")
 
-  dbSendQuery(db, "DROP TABLE IF EXISTS sample_results CASCADE")
+  DBI::dbSendQuery(con, "DROP TABLE IF EXISTS global_parameters CASCADE")
 
-  dbSendQuery(db, "DROP TABLE IF EXISTS global_parameters CASCADE")
+  DBI::dbSendQuery(con, "DROP TABLE IF EXISTS site_parameters CASCADE")
 
-  dbSendQuery(db, "DROP TABLE IF EXISTS site_parameters CASCADE")
-
-  dbDisconnect(db)
+  DBI::dbDisconnect(con)
 
 }
 
