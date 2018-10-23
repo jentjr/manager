@@ -1,46 +1,74 @@
 #' Boxcox transformation 
-#' 
+#'
 #' @param df data frame
-#' @param combine_locations
-#' @param keep_data_object
-#' 
+#' @param combine_locations logical
+#' @param objective_name character string indicating what objective to use.
+#' The possible values are "PPCC" (probability plot correlation coefficient;
+#' the default), "Shapiro-Wilk" (the Shapiro-Wilk goodness-of-fit statistic),
+#' and "Log-Likelihood" (the log-likelihood function).
+#'
 #' @export
 
 boxcox_transform <- function(df,
                              combine_locations = FALSE,
-                             keep_data_object = FALSE) {
-  
+                             objective_name = "PPCC") {
+
   if (combine_locations) {
+    
     df <- df %>%
       group_by(param_name, default_unit) %>%
-      nest()
-  } else {
-    df <- df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      nest()
-  }
-
-  if (keep_data_object) {
-    df <- df %>%  
+      nest()%>%
       mutate(
         boxcox = map(.x = data,
-                     ~EnvStats::boxcox(.x$analysis_result, optimize = TRUE)
-        )
-      )
-  } else {
-    df <- df %>%  
-      mutate(
-        boxcox = map(.x = data,
-                     ~EnvStats::boxcox(.x$analysis_result, optimize = TRUE)
+                     ~EnvStats::boxcox(.x$analysis_result,
+                                       optimize = TRUE,
+                                       objective.name = objective_name)
         )
       ) %>%
       mutate(
         lambda = map(.x = boxcox,
-                     ~ .x$lambda),
-        objective = map(.x = boxcox,
-                        ~ .x$objective)
+                     ~.x$lambda)
       ) %>%
-      select(-data, -boxcox) %>%
+      select(-boxcox) %>%
+      unnest(lambda)%>%
+      unnest(data) %>%
+      group_by(param_name, default_unit) %>%
+      nest() %>%
+      mutate(
+        analysis_result = map(.x = data,
+                              ~boxcoxTransform(.x$analysis_result,
+                                               lambda = .x$lambda[1])
+        )
+      ) %>%
+      unnest()
+
+  } else {
+
+    df <- df %>%
+      group_by(location_id, param_name, default_unit) %>%
+      nest()%>%
+      mutate(
+        boxcox = map(.x = data,
+                     ~EnvStats::boxcox(.x$analysis_result,
+                                       optimize = TRUE,
+                                       objective.name = objective_name)
+        )
+      ) %>%
+      mutate(
+        lambda = map(.x = boxcox,
+                     ~.x$lambda)
+      ) %>%
+      select(-boxcox) %>%
+      unnest(lambda)%>%
+      unnest(data) %>%
+      group_by(location_id, param_name, default_unit) %>%
+      nest() %>%
+      mutate(
+        analysis_result = map(.x = data,
+                              ~boxcoxTransform(.x$analysis_result,
+                                               lambda = .x$lambda[1])
+        )
+      ) %>%
       unnest()
   }
 
