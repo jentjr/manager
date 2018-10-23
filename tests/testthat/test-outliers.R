@@ -2,7 +2,7 @@ data(gw_data)
 
 high_low <- gw_data %>%
   filter(location_id == "MW-1", param_name == "Chloride, total") %>%
-  tukey_outlier()
+  tukey_outlier(., type = 7)
 
 test_that("Tukey outlier test for high and low", {
   expect_true(high_low[which(high_low$analysis_result == 30), ]$outlier)
