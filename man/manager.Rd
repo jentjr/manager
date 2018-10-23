@@ -17,6 +17,7 @@ Tools for plotting and analyzing environmental
 Useful links:
 \itemize{
   \item \url{http://github.com/jentjr/manager}
+  \item Report bugs at \url{https://github.com/jentjr/manager/issues}
 }
 
 }

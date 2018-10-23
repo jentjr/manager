@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Kendall Trend — kendall_trend • manager</title>
+<title>Function to export data from manages to excel format required by OEPA — export_oepa • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Kendall Trend — kendall_trend" />
+<meta property="og:title" content="Function to export data from manages to excel format required by OEPA — export_oepa" />
 
-<meta property="og:description" content="Kendall Trend" />
+<meta property="og:description" content="Function to export data from manages to excel format required by OEPA" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -115,29 +115,41 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Kendall Trend</h1>
-    <small class="dont-index">Source: <a href='http://github.com/jentjr/manager/blob/master/R/trends.R'><code>R/trends.R</code></a></small>
-    <div class="hidden name"><code>kendall_trend.Rd</code></div>
+    <h1>Function to export data from manages to excel format required by OEPA</h1>
+    <small class="dont-index">Source: <a href='http://github.com/jentjr/manager/blob/master/R/export.R'><code>R/export.R</code></a></small>
+    <div class="hidden name"><code>export_oepa.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Kendall Trend</p>
+    <p>Function to export data from manages to excel format required by OEPA</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>kendall_trend</span>(<span class='no'>df</span>, <span class='kw'>conf.level</span> <span class='kw'>=</span> <span class='fl'>0.99</span>)</pre>
+    <pre class="usage"><span class='fu'>export_oepa</span>(<span class='no'>df</span>, <span class='no'>wells</span>, <span class='no'>constituents</span>, <span class='no'>file</span>, <span class='kw'>short_name</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>dataframe of groundwater data</p></td>
+      <td><p>groundwater data frame in tidy format</p></td>
     </tr>
     <tr>
-      <th>conf.level</th>
-      <td><p>confidence level between 0 and 1</p></td>
+      <th>wells</th>
+      <td><p>list of wells to be exported</p></td>
+    </tr>
+    <tr>
+      <th>constituents</th>
+      <td><p>list of constituents to be exported</p></td>
+    </tr>
+    <tr>
+      <th>file</th>
+      <td><p>full file path name with extension for export</p></td>
+    </tr>
+    <tr>
+      <th>short_name</th>
+      <td><p>TRUE/FALSE to abbreviate constituent name</p></td>
     </tr>
     </table>
     

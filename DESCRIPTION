@@ -8,7 +8,7 @@ Authors@R: person(given = "Justin", family = "Jent", email = "jentjr@gmail.com",
                   role = c("aut", "cre"))
 Maintainer: Justin Jent <jentjr@gmail.com>
 URL: http://github.com/jentjr/manager
-BugIssues: https://github.com/jentjr/manager/issues
+BugReports: https://github.com/jentjr/manager/issues
 Depends:
     R (>= 3.0.2),
     tidyverse

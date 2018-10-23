@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Kendall Trend — kendall_trend • manager</title>
+<title>Boxcox transformation — boxcox_transform • manager</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="Kendall Trend — kendall_trend" />
+<meta property="og:title" content="Boxcox transformation — boxcox_transform" />
 
-<meta property="og:description" content="Kendall Trend" />
+<meta property="og:description" content="Boxcox transformation" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -115,29 +115,30 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Kendall Trend</h1>
-    <small class="dont-index">Source: <a href='http://github.com/jentjr/manager/blob/master/R/trends.R'><code>R/trends.R</code></a></small>
-    <div class="hidden name"><code>kendall_trend.Rd</code></div>
+    <h1>Boxcox transformation</h1>
+    <small class="dont-index">Source: <a href='http://github.com/jentjr/manager/blob/master/R/boxcox_transform.R'><code>R/boxcox_transform.R</code></a></small>
+    <div class="hidden name"><code>boxcox_transform.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Kendall Trend</p>
+    <p>Boxcox transformation</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>kendall_trend</span>(<span class='no'>df</span>, <span class='kw'>conf.level</span> <span class='kw'>=</span> <span class='fl'>0.99</span>)</pre>
+    <pre class="usage"><span class='fu'>boxcox_transform</span>(<span class='no'>df</span>, <span class='kw'>combine_locations</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>keep_data_object</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>dataframe of groundwater data</p></td>
+      <td><p>data frame</p></td>
     </tr>
     <tr>
-      <th>conf.level</th>
-      <td><p>confidence level between 0 and 1</p></td>
+      <th>keep_data_object</th>
+      <td></td>
     </tr>
     </table>
     
