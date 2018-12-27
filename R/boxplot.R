@@ -13,6 +13,9 @@
 #' "probit", "reciprocal", "reverse" and "sqrt".
 #' @param show_points plot the individual points using ggbeeswarm.
 #' @param fill column used to fill the variable
+#' @param notch TRUE/FALSE plot a notched boxplot. 
+#' The notches (if requested) extend to +/-1.58 IQR/sqrt(n)
+#' @param plot_ci add boostrapped 95% confidence interval for mean
 #' @param limit1 column to be used to draw horizontal line
 #' @param limit2 column to be used to draw a second horizontal line
 #' @param pnt size of points
@@ -39,8 +42,10 @@ boxplot <- function(df,
                     group_var = "param_name",
                     coef = 3,
                     scale_y_trans = "identity",
-                    show_points = TRUE,
+                    show_points = FALSE,
                     fill = NULL,
+                    notch = FALSE,
+                    plot_ci = FALSE,
                     limit1 = NULL,
                     limit2 = NULL,
                     pnt = 2,
@@ -58,6 +63,8 @@ boxplot <- function(df,
                   scale_y_trans = scale_y_trans,
                   show_points = show_points,
                   fill = fill,
+                  notch = notch,
+                  plot_ci = plot_ci,
                   limit1 = limit1,
                   limit2 = limit2,
                   pnt = pnt,
@@ -81,6 +88,8 @@ boxplot <- function(df,
                      scale_y_trans = "identity",
                      show_points = TRUE,
                      fill = NULL,
+                     notch = TRUE,
+                     plot_ci = FALSE,
                      limit1 = NULL,
                      limit2 = NULL,
                      pnt = 2,
@@ -115,7 +124,7 @@ boxplot <- function(df,
     theme(axis.text.y = element_text(size = 10)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     geom_boxplot(coef = coef, outlier.colour = "red", outlier.shape = 4,
-                 outlier.size = pnt) +
+                 outlier.size = pnt, notch = notch) +
     scale_y_continuous(trans = scale_y_trans,
                        breaks = scales::pretty_breaks(),
                        labels = prettyNum) +
@@ -124,6 +133,12 @@ boxplot <- function(df,
            size = guide_legend("none")) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16)) +
     ggtitle(paste("Boxplot for", df$param_name[1], "\n", sep = " "))
+  
+  if (isTRUE(plot_ci)) {
+      b <- b + stat_summary(fun.data = mean_cl_boot,
+                            geom = "errorbar", colour = "red") + 
+      stat_summary(fun.y = mean, geom = "point", colour = "red")
+  }
 
   if (requireNamespace("viridis", quietly = TRUE)) {
     b <- b + viridis::scale_fill_viridis(discrete = TRUE)
