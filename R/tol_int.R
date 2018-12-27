@@ -34,10 +34,8 @@ tol_int <- function(df,
                     distribution = "distribution",
                     coverage = 0.95,
                     cov_type = "content",
-                    ti_type = "lower",
-                    conf_level = 0.95,
-                    method = "exact",
-                    est_method = "mvue") {
+                    ti_type = "two-sided",
+                    method = "exact") {
 
   tol_int <- df %>%
     mutate(tol_int = case_when(
@@ -47,24 +45,20 @@ tol_int <- function(df,
                                        coverage = coverage,
                                        cov.type = cov_type,
                                        ti.type = ti_type,
-                                       conf.level = conf_level,
                                        method = method)
       ),
       distribution == "Lognormal" ~ map(.x = data,
-                                        ~EnvStats::tolIntLnormAlt(
+                                        ~EnvStats::tolIntLnorm(
                                           x = .x$analysis_result,
                                           coverage = coverage,
                                           cov.type = cov_type,
                                           ti.type = ti_type,
-                                          conf.level = conf_level,
-                                          method = method,
-                                          est.method = est_method)
+                                          method = method)
       ),
       distribution == "Nonparametric" ~ map(.x = data,
                                             ~EnvStats::tolIntNpar(
                                               x = .x$analysis_result,
                                               coverage = coverage,
-                                              conf.level = conf_level,
                                               cov.type = cov_type,
                                               ti.type = ti_type)
       )
@@ -74,8 +68,8 @@ tol_int <- function(df,
   tol_int %>%
     mutate(distribution = distribution,
            sample_size = map(.x = tol_int, ~ .x$sample.size),
-           lpl = map(.x = tol_int, ~ .x$interval$limits["LPL"]),
-           upl = map(.x = tol_int, ~ .x$interval$limits["UPL"]),
+           ltl = map(.x = tol_int, ~ .x$interval$limits["LTL"]),
+           utl = map(.x = tol_int, ~ .x$interval$limits["UTL"]),
            conf_level = map(.x = tol_int, ~ .x$interval$conf.level)) %>%
     select(-data, -tol_int) %>%
     unnest()

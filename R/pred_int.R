@@ -68,7 +68,7 @@ pred_int_sim <- function(df,
                                        )
       ),
       distribution == "Lognormal" ~ map(.x = data,
-                                        ~EnvStats::predIntLnormAltSimultaneous(
+                                        ~EnvStats::predIntLnormSimultaneous(
                                           x = .x$analysis_result,
                                           n.geomean = n_mean,
                                           k = k,
@@ -163,7 +163,7 @@ pred_int <- function(df,
                                        conf.level = conf_level)
                                      ),
       distribution == "Lognormal" ~ map(.x = data,
-                                        ~EnvStats::predIntLnormAlt(
+                                        ~EnvStats::predIntLnorm(
                                           x = .x$analysis_result,
                                           method = method,
                                           n.geomean = n_mean,
