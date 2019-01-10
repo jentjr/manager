@@ -5,12 +5,17 @@
 \title{Boxcox transformation}
 \usage{
 boxcox_transform(df, combine_locations = FALSE,
-  keep_data_object = FALSE)
+  objective_name = "PPCC")
 }
 \arguments{
 \item{df}{data frame}
 
-\item{keep_data_object}{}
+\item{combine_locations}{logical}
+
+\item{objective_name}{character string indicating what objective to use.
+The possible values are "PPCC" (probability plot correlation coefficient;
+the default), "Shapiro-Wilk" (the Shapiro-Wilk goodness-of-fit statistic),
+and "Log-Likelihood" (the log-likelihood function).}
 }
 \description{
 Boxcox transformation

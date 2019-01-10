@@ -6,8 +6,7 @@
 \usage{
 tol_int(df, analysis_result = "analysis_result",
   distribution = "distribution", coverage = 0.95,
-  cov_type = "content", ti_type = "lower", conf_level = 0.95,
-  method = "exact", est_method = "mvue")
+  cov_type = "content", ti_type = "two-sided", method = "exact")
 }
 \arguments{
 \item{df}{df data frame of groundwater data in tidy format}
@@ -28,14 +27,14 @@ tolerance interval. The possible values are "content"
 to compute. The possible values are ti_type="two-sided",
 ti_type="upper", and ti_type="lower" (the default).}
 
-\item{conf_level}{a scalar between 0 and 1 indicating the confidence level
-of the tolerance interval. The default value is conf.level=0.95}
-
 \item{method}{for the case of a two-sided tolerance interval, a character
 string specifying the method for constructing the tolerance interval.
 This argument is ignored if ti.type="lower" or ti.type="upper".
 The possible values are "exact" (the default) and
 "wald.wolfowitz" (the Wald-Wolfowitz approximation).}
+
+\item{conf_level}{a scalar between 0 and 1 indicating the confidence level
+of the tolerance interval. The default value is conf.level=0.95}
 
 \item{est_method}{for tolIntLnormAlt, a character string specifying the
 method of estimating the mean and coefficient of variation.

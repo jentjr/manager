@@ -6,9 +6,10 @@
 \usage{
 boxplot(df, x = "location_id", y = "analysis_result",
   lt_measure = "lt_measure", group_var = "param_name", coef = 3,
-  scale_y_trans = "identity", show_points = TRUE, fill = NULL,
-  limit1 = NULL, limit2 = NULL, pnt = 2, short_name = FALSE,
-  coord_flip = FALSE, legend_title = NULL)
+  scale_y_trans = "identity", show_points = FALSE, fill = NULL,
+  notch = FALSE, plot_ci = FALSE, limit1 = NULL, limit2 = NULL,
+  pnt = 2, short_name = FALSE, coord_flip = FALSE,
+  legend_title = NULL)
 }
 \arguments{
 \item{df}{groundwater data in tidy format}
@@ -32,6 +33,11 @@ boxplot(df, x = "location_id", y = "analysis_result",
 \item{show_points}{plot the individual points using ggbeeswarm.}
 
 \item{fill}{column used to fill the variable}
+
+\item{notch}{TRUE/FALSE plot a notched boxplot. 
+The notches (if requested) extend to +/-1.58 IQR/sqrt(n)}
+
+\item{plot_ci}{add boostrapped 95% confidence interval for mean}
 
 \item{limit1}{column to be used to draw horizontal line}
 

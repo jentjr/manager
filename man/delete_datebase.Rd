@@ -4,10 +4,10 @@
 \alias{delete_datebase}
 \title{Function to delete an existing water quality database}
 \usage{
-delete_datebase(path)
+delete_datebase(con)
 }
 \arguments{
-\item{path}{path to sqlite database}
+\item{con}{connetcion to Postgresql database}
 }
 \description{
 Function to delete an existing water quality database

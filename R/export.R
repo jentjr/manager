@@ -1,4 +1,5 @@
-#' Function to export data from manages to excel format required by OEPA
+#' Function to export data from manages to excel. Each sampling location 
+#' is saved to a tab.
 #'
 #' @param df groundwater data frame in tidy format
 #' @param wells list of wells to be exported
@@ -8,7 +9,7 @@
 #'
 #' @export
 
-export_oepa <- function(df, wells, constituents, file, short_name = TRUE) {
+write_excel <- function(df, wells, constituents, file, short_name = TRUE) {
 
   if (!requireNamespace("openxlsx", quietly = TRUE)) {
     stop("openxlsx needed for this function to work. Please install it.",
@@ -30,11 +31,12 @@ export_oepa <- function(df, wells, constituents, file, short_name = TRUE) {
 
   df <- df %>%
     dplyr::select(location_id, sample_date, param_name, analysis_result) %>%
+    mutate(grouped_id = row_number()) %>%
     tidyr::spread(param_name, analysis_result)
 
   wb <- openxlsx::createWorkbook()
 
-  oepa_cast <- function(x){
+  data_cast <- function(x){
     openxlsx::addWorksheet(wb, paste(x$location_id[1]))
     openxlsx::writeData(wb, x, sheet = paste(x$location_id[1]),
                         startRow = 1, startCol = 1, rowNames = FALSE)
@@ -45,7 +47,7 @@ export_oepa <- function(df, wells, constituents, file, short_name = TRUE) {
          call. = FALSE)
   }
 
-  plyr::d_ply(df, plyr::.(location_id), oepa_cast)
+  plyr::d_ply(df, plyr::.(location_id), data_cast)
 
   openxlsx::saveWorkbook(wb, file = file)
 
@@ -64,8 +66,8 @@ export_oepa <- function(df, wells, constituents, file, short_name = TRUE) {
 #'
 #' @export
 
-event_summary <- function(df, wells, params, start, end, gw_elev = TRUE,
-                          short_name = TRUE) {
+write_event_summary <- function(df, wells, params, start, end, gw_elev = TRUE,
+                          short_name = TRUE, file) {
 
   df <- df %>%
     filter(location_id %in% wells,
@@ -81,6 +83,6 @@ event_summary <- function(df, wells, params, start, end, gw_elev = TRUE,
     select(location_id, sample_date, param_name, analysis_result) %>%
     spread(param_name, analysis_result)
 
-  return(df)
+  readr::write_csv(df, path=file)
 
 }

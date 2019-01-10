@@ -4,10 +4,10 @@
 \alias{create_database}
 \title{Function to create a new database for water quality data}
 \usage{
-create_database(path)
+create_database(con)
 }
 \arguments{
-\item{path}{path to sqlite database}
+\item{con}{connection to Postgresql database}
 }
 \description{
 Function to create a new database for water quality data
