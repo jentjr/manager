@@ -243,3 +243,15 @@ to_wide <- function(df, lab_id = FALSE, join_lt = TRUE) {
   df
 
 }
+
+#' Helper function to split parameter names
+#'
+#' @param df data frame in long format
+#' @param param_name parameter name column
+#'
+#' @export
+# TODO: make sure units are the same
+simplify_param_name <- function(df, param_name) {
+  df %>% 
+    mutate(param_name = str_split(.$param_name, pattern = ",", simplify = TRUE)[, 1])
+}

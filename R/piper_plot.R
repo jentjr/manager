@@ -109,10 +109,7 @@ piper_plot <- function(df,
                                       y = anion_y,
                                       shape = factor(gradient, exclude = NULL),
                                       colour = location_id),
-                 alpha = transparency, size = pnt_size) +
-      scale_shape_manual(values = 1:nlevels(
-        factor(piper_df$gradient, exclude = NULL))
-        )
+                 alpha = transparency, size = pnt_size)
 
   } else {
 

@@ -57,8 +57,6 @@ write_excel <- function(df, wells, constituents, file, short_name = TRUE) {
 #' Function to export summary table for a sampling event
 #'
 #' @param df groundwater data frame in tidy format
-#' @param wells list of wells to include
-#' @param params list of parameters to include
 #' @param start start date
 #' @param end end date
 #' @param  gw_elev if TRUE, list date well sampled and annotate date for GW Elev
@@ -66,13 +64,11 @@ write_excel <- function(df, wells, constituents, file, short_name = TRUE) {
 #'
 #' @export
 
-write_event_summary <- function(df, wells, params, start, end, gw_elev = TRUE,
+write_event_summary <- function(df, start, end, gw_elev = TRUE,
                           short_name = TRUE, file) {
 
   df <- df %>%
-    filter(location_id %in% wells,
-           param_name %in% params,
-           sample_date >= start & sample_date <= end)
+    filter(sample_date >= start & sample_date <= end)
 
   df <- df %>%
     name_units()
@@ -80,8 +76,8 @@ write_event_summary <- function(df, wells, params, start, end, gw_elev = TRUE,
   df <- join_lt(df)
 
   df <- df %>%
-    select(location_id, sample_date, param_name, analysis_result) %>%
-    spread(param_name, analysis_result)
+    select(location_id, param_name, analysis_result) %>%
+    spread(location_id, analysis_result)
 
   readr::write_csv(df, path=file)
 
