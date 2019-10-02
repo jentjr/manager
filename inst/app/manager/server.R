@@ -48,7 +48,7 @@ shinyServer(function(input, output, session) {
 
   # Cast to wide data table ----------------------------------------------------
   output$wide_table <- renderDataTable({
-    to_wide(get_data())
+    to_wide(get_data(), lab_id = TRUE)
   })
 
   # Map ------------------------------------------------------------------------
@@ -56,7 +56,8 @@ shinyServer(function(input, output, session) {
     
     map_data <- to_spatial(get_data(), crs = 4326)
     
-    m <- mapview(map_data)
+    m <- mapview(map_data, map.types = c("Esri.WorldImagery", "OpenTopoMap",
+                                         "OpenStreetMap"))
     
     m@map
     
@@ -413,7 +414,7 @@ shinyServer(function(input, output, session) {
       filter(location_id %in% input$piper_well)
 
     if (isTRUE(input$TDS_plot)) {
-     
+
      piper_plot(data,
                 x_cation = paste(input$x_cation),
                 x_cation_label = input$x_cation_label,
@@ -487,15 +488,78 @@ shinyServer(function(input, output, session) {
                    start = min(data$sample_date, na.rm = TRUE), 
                    end = max(data$sample_date, na.rm = TRUE))
   })
-
+  
+  output$select_stiff_calcium <- renderUI({
+    data <- get_data()
+    stiff_calcium_list <- data %>%
+      slice(grep("Calcium", param_name)) %>%
+      constituents()
+    selectInput("calcium_stiff", "Select Calcium", choices = stiff_calcium_list,
+                selected = stiff_calcium_list, multiple = TRUE)
+  })
+  
+  output$select_stiff_magnesium <- renderUI({
+    data <- get_data()
+    stiff_magnesium_list <- data %>%
+      slice(grep("Magnesium", param_name)) %>%
+      constituents()
+    selectInput("magnesium_stiff", "Select Magnesium", choices = stiff_magnesium_list,
+                selected = stiff_magnesium_list, multiple = TRUE)
+  })
+  
+  output$select_stiff_potassium <- renderUI({
+    data <- get_data()
+    stiff_potassium_list <- data %>%
+      slice(grep("Potassium", param_name)) %>%
+      constituents()
+    selectInput("potassium_stiff", "Select Potassium", choices = stiff_potassium_list,
+                selected = stiff_potassium_list, multiple = TRUE)
+  })
+  
+  output$select_stiff_sodium <- renderUI({
+    data <- get_data()
+    stiff_sodium_list <- data %>%
+      slice(grep("Sodium", param_name)) %>%
+      constituents()
+    selectInput("sodium_stiff", "Select Sodium", choices = stiff_sodium_list,
+                selected = stiff_sodium_list, multiple = TRUE)
+  })
+  
+  output$select_stiff_chloride <- renderUI({
+    data <- get_data()
+    stiff_chloride_list <- data %>%
+      slice(grep("Chloride", param_name)) %>%
+      constituents()
+    selectInput("chloride_stiff", "Select Chloride", choices = stiff_chloride_list,
+                selected = stiff_chloride_list, multiple = TRUE)
+  })
+  
+  output$select_stiff_sulfate <- renderUI({
+    data <- get_data()
+    stiff_sulfate_list <- data %>%
+      slice(grep("Sulfate", param_name)) %>%
+      constituents()
+    selectInput("sulfate_stiff", "Select Sulfate", choices = stiff_sulfate_list,
+                selected = stiff_sulfate_list, multiple = TRUE)
+  })
+  
+  output$select_stiff_alkalinity <- renderUI({
+    data <- get_data()
+    stiff_alkalinity_list <- data %>%
+      slice(grep("Alkalinity", param_name)) %>%
+      constituents()
+    selectInput("alkalinity_stiff", "Select Alkalinity", choices = stiff_alkalinity_list,
+                selected = stiff_alkalinity_list, multiple = TRUE)
+  })
+  
   get_stiff_data <- reactive({
 
     stiff_data <- get_data()
 
-    ions <- c(input$Mg_stiff, input$Ca_stiff,
-              input$Na_stiff, input$K_stiff,
-              input$Cl_stiff, input$SO4_stiff,
-              input$Alk_stiff, input$stiff_tds)
+    ions <- c(input$magnesium_stiff, input$calcium_stiff,
+              input$sodium_stiff, input$potassium_stiff,
+              input$chloride_stiff, input$sulfate_stiff,
+              input$alkalinity_stiff, input$tds_stiff)
 
     start <- min(as.Date(input$date_range_stiff, format = "%Y/%m/%d",
                          tz = "UTC"), na.rm = TRUE)
@@ -512,9 +576,9 @@ shinyServer(function(input, output, session) {
 
   output$select_stiff_tds <- renderUI({
 
-    if (isTRUE(input$TDS_stiff)) {
+    if (isTRUE(input$tds_stiff)) {
 
-      selectInput(inputId = "stiff_tds",
+      selectInput(inputId = "tds_stiff",
                   label = "Total Dissolved Solids", 
                   choices = c("Total Dissolved Solids"))
 
@@ -547,14 +611,14 @@ shinyServer(function(input, output, session) {
               stiff <- stiff_plot(
                 stiff_data[stiff_data$location_id == 
                              stiff_locations[stiff_i], ],
-                magnesium = paste(input$Mg_stiff),
-                calcium = paste(input$Ca_stiff),
-                sodium = paste(input$Na_stiff),
-                potassium = paste(input$K_stiff),
-                chloride = paste(input$Cl_stiff),
-                sulfate = paste(input$SO4_stiff),
-                alkalinity = paste(input$Alk_stiff),
-                total_dissolved_solids = paste(input$stiff_tds),
+                magnesium = paste(input$magnesium_stiff),
+                calcium = paste(input$calcium_stiff),
+                sodium = paste(input$sodium_stiff),
+                potassium = paste(input$potassium_stiff),
+                chloride = paste(input$chloride_stiff),
+                sulfate = paste(input$sulfate_stiff),
+                alkalinity = paste(input$alkalinity_stiff),
+                total_dissolved_solids = paste(input$tds_stiff),
                 group_var = "location_id",
                 facet_var = "sample_date",
                 lines = input$stiff_lines
@@ -563,13 +627,13 @@ shinyServer(function(input, output, session) {
               stiff <- stiff_plot(
                 stiff_data[stiff_data$location_id ==
                              stiff_locations[stiff_i], ],
-                magnesium = paste(input$Mg_stiff),
-                calcium = paste(input$Ca_stiff),
-                sodium = paste(input$Na_stiff),
-                potassium = paste(input$K_stiff),
-                chloride = paste(input$Cl_stiff),
-                sulfate = paste(input$SO4_stiff),
-                alkalinity = paste(input$Alk_stiff),
+                magnesium = paste(input$magnesium_stiff),
+                calcium = paste(input$calcium_stiff),
+                sodium = paste(input$sodium_stiff),
+                potassium = paste(input$potassium_stiff),
+                chloride = paste(input$chloride_stiff),
+                sulfate = paste(input$sulfate_stiff),
+                alkalinity = paste(input$alkalinity_stiff),
                 group_var = "location_id",
                 facet_var = "sample_date",
                 lines = input$stiff_lines
@@ -593,19 +657,19 @@ shinyServer(function(input, output, session) {
           stiff_name <- paste("stiff_plot", stiff_i, sep = "")
           output[[stiff_name]] <- renderPlot({
 
-            if (isTRUE(input$TDS_stiff)) {
+            if (isTRUE(input$tds_stiff)) {
 
               stiff <- stiff_plot(
                 stiff_data[stiff_data$sample_date == 
                              stiff_dates[stiff_i], ],
-                magnesium = paste(input$Mg_stiff),
-                calcium = paste(input$Ca_stiff),
-                sodium = paste(input$Na_stiff),
-                potassium = paste(input$K_stiff),
-                chloride = paste(input$Cl_stiff),
-                sulfate = paste(input$SO4_stiff),
-                alkalinity = paste(input$Alk_stiff),
-                total_dissolved_solids = paste(input$stiff_tds),
+                magnesium = paste(input$magnesium_stiff),
+                calcium = paste(input$calcium_stiff),
+                sodium = paste(input$sodium_stiff),
+                potassium = paste(input$potassium_stiff),
+                chloride = paste(input$chloride_stiff),
+                sulfate = paste(input$sulfate_stiff),
+                alkalinity = paste(input$alkalinity_stiff),
+                total_dissolved_solids = paste(input$tds_stiff),
                 group_var = "sample_date",
                 facet_var = "location_id",
                 lines = input$stiff_lines
@@ -614,13 +678,13 @@ shinyServer(function(input, output, session) {
               stiff <- stiff_plot(
                 stiff_data[stiff_data$sample_date ==
                              stiff_dates[stiff_i], ],
-                magnesium = paste(input$Mg_stiff),
-                calcium = paste(input$Ca_stiff),
-                sodium = paste(input$Na_stiff),
-                potassium = paste(input$K_stiff),
-                chloride = paste(input$Cl_stiff),
-                sulfate = paste(input$SO4_stiff),
-                alkalinity = paste(input$Alk_stiff),
+                magnesium = paste(input$magnesium_stiff),
+                calcium = paste(input$calcium_stiff),
+                sodium = paste(input$sodium_stiff),
+                potassium = paste(input$potassium_stiff),
+                chloride = paste(input$chloride_stiff),
+                sulfate = paste(input$sulfate_stiff),
+                alkalinity = paste(input$alkalinity_stiff),
                 group_var = "sample_date",
                 facet_var = "location_id",
                 lines = input$stiff_lines
@@ -668,6 +732,69 @@ shinyServer(function(input, output, session) {
                    end = max(data$sample_date, na.rm = TRUE))
   })
 
+  output$select_schoeller_calcium <- renderUI({
+    data <- get_data()
+    calcium_list <- data %>%
+      slice(grep("Calcium", param_name)) %>%
+      constituents()
+    selectInput("schoeller_calcium", "Select Calcium", choices = calcium_list,
+                selected = calcium_list, multiple = TRUE)
+  })
+  
+  output$select_schoeller_magnesium <- renderUI({
+    data <- get_data()
+    magnesium_list <- data %>%
+      slice(grep("Magnesium", param_name)) %>%
+      constituents()
+    selectInput("schoeller_magnesium", "Select Magnesium", choices = magnesium_list,
+                selected = magnesium_list, multiple = TRUE)
+  })
+  
+  output$select_schoeller_potassium <- renderUI({
+    data <- get_data()
+    potassium_list <- data %>%
+      slice(grep("Potassium", param_name)) %>%
+      constituents()
+    selectInput("schoeller_potassium", "Select Potassium", choices = potassium_list,
+                selected = potassium_list, multiple = TRUE)
+  })
+  
+  output$select_schoeller_sodium <- renderUI({
+    data <- get_data()
+    sodium_list <- data %>%
+      slice(grep("Sodium", param_name)) %>%
+      constituents()
+    selectInput("schoeller_sodium", "Select Sodium", choices = sodium_list,
+                selected = sodium_list, multiple = TRUE)
+  })
+  
+  output$select_schoeller_chloride <- renderUI({
+    data <- get_data()
+    chloride_list <- data %>%
+      slice(grep("Chloride", param_name)) %>%
+      constituents()
+    selectInput("schoeller_chloride", "Select Chloride", choices = chloride_list,
+                selected = chloride_list, multiple = TRUE)
+  })
+  
+  output$select_schoeller_sulfate <- renderUI({
+    data <- get_data()
+    sulfate_list <- data %>%
+      slice(grep("Sulfate", param_name)) %>%
+      constituents()
+    selectInput("schoeller_sulfate", "Select Sulfate", choices = sulfate_list,
+                selected = sulfate_list, multiple = TRUE)
+  })
+  
+  output$select_schoeller_alkalinity <- renderUI({
+    data <- get_data()
+    alkalinity_list <- data %>%
+      slice(grep("Alkalinity", param_name)) %>%
+      constituents()
+    selectInput("schoeller_alkalinity", "Select Alkalinity", choices = alkalinity_list,
+                selected = alkalinity_list, multiple = TRUE)
+  })
+  
   get_schoeller_data <- reactive({
 
     data <- get_data()
@@ -691,13 +818,13 @@ shinyServer(function(input, output, session) {
     data <- get_schoeller_data()
 
     data %>%
-      schoeller_plot(magnesium = paste(input$Mg_schoeller),
-                     calcium = paste(input$Ca_schoeller),
-                     sodium = paste(input$Na_schoeller),
-                     potassium = paste(input$K_schoeller),
-                     chloride = paste(input$Cl_schoeller),
-                     sulfate = paste(input$SO4_schoeller),
-                     alkalinity = paste(input$Alk_schoeller), 
+      schoeller_plot(magnesium = paste(input$magnesium_schoeller),
+                     calcium = paste(input$schoeller_calcium),
+                     sodium = paste(input$sodium_schoeller),
+                     potassium = paste(input$potassium_schoeller),
+                     chloride = paste(input$chloride_schoeller),
+                     sulfate = paste(input$sulfate_schoeller),
+                     alkalinity = paste(input$alkalinity_schoeller), 
                      facet_var = input$facet_schoeller,
                      title = input$schoeller_title)
   })
