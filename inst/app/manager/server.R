@@ -1500,7 +1500,7 @@ shinyServer(function(input, output, session) {
     # estimate percent less than
     df <- df %>%
       group_by(param_name, default_unit) %>%
-      est_dist(., keep_data_object = TRUE, group_by_location = TRUE)
+      est_dist(., keep_data_object = TRUE, combine_locations = TRUE)
 
 
     pred_int <- df %>%
