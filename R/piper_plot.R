@@ -180,10 +180,12 @@ piper_plot <- function(df,
                                         size = total_dissolved_solids),
                    alpha = transparency) +
         scale_size("total_dissolved_solids", range = c(0, 10)) +
-        guides(size = guide_legend("Total Dissolved Solids"),
-               colour = guide_legend("Location ID"),
-               shape = guide_legend(paste0(group_col)),
-               alpha = guide_legend("none"))
+        guides(
+          size = guide_legend("Total Dissolved Solids"),
+          colour = guide_legend("Location ID"),
+          shape = guide_legend("Group"),
+          alpha = guide_legend("none")
+        )
 
     } else {
 
@@ -194,7 +196,10 @@ piper_plot <- function(df,
                                         colour = location_id),
                    alpha = transparency,
                    size = pnt_size) + 
-        guides(shape = guide_legend(paste0(group_col)))
+        guides(
+          colour = guide_legend("Location ID"),
+          shape = guide_legend("Group")
+        )
       
     }
   } else {
