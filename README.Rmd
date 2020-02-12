@@ -47,7 +47,7 @@ params <- c("Magnesium, dissolved",
 
 gw_data %>%
   filter(location_id %in% wells, param_name %in% params) %>%
-  ts_plot(., facet_var = "param_name", group_var = "location_id")
+  series_plot(., facet_var = "param_name", group_var = "location_id")
 ```
 
 ```{r boxplots, fig.height=6, fig.width=9, results='hide'}

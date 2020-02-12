@@ -10,11 +10,7 @@ shinyServer(function(input, output, session) {
   })
 
   output$data_table <- renderDataTable({
-
-    data <- get_data()
-
-    data
-
+    get_data()
   }, options = list(scrollY = "100%", scrollX = "100%",
                     lengthMenu = c(5, 10, 15, 25, 50, 100),
                     pageLength = 10)
@@ -270,7 +266,7 @@ shinyServer(function(input, output, session) {
                 selected = analyte_names)
   })
 
-  ts_plot_react <- reactive({
+  series_plot_react <- reactive({
 
     ts_data <- get_data()
 
@@ -284,16 +280,16 @@ shinyServer(function(input, output, session) {
     # Need to inlcude group_var option, using param_name for now
 
     ts_list <- lapply(seq_along(ts_params), function(i) {
-      ts_name <- paste("ts_plot", i, sep = "")
+      ts_name <- paste("series_plot", i, sep = "")
       plotOutput(ts_name)
     })
 
     for (i in seq_along(ts_params)) {
       local({
         ts_i <- i
-        ts_name <- paste("ts_plot", ts_i, sep = "")
+        ts_name <- paste("series_plot", ts_i, sep = "")
         output[[ts_name]] <- renderPlot({
-          ts <- manager::ts_plot(
+          ts <- manager::series_plot(
             ts_data[ts_data$param_name == ts_params[ts_i], ]
             )
             ts
@@ -304,7 +300,7 @@ shinyServer(function(input, output, session) {
   })
 
   output$ts_out <- renderUI({
-      ts_plot_react()
+      series_plot_react()
   })
   # Begin Time Series Download Page --------------------------------------------
   get_ts_data <- reactive({
@@ -319,11 +315,11 @@ shinyServer(function(input, output, session) {
 
   output$ts_download <- downloadHandler(
     filename = function() {
-      paste0("ts_plot_", Sys.Date(), ".pdf")
+      paste0("series_plot_", Sys.Date(), ".pdf")
       },
     content = function(file) {
         pdf(file = file, width = 17, height = 11)
-        ts_plot(get_ts_data())
+        series_plot(get_ts_data())
         dev.off()
 
     }
@@ -1408,17 +1404,17 @@ shinyServer(function(input, output, session) {
     # Need to inlcude group_var option, using param_name for now
 
     ts_list <- lapply(seq_along(ts_params), function(i) {
-      ts_name <- paste("ts_plot", i, sep = "")
+      ts_name <- paste("series_plot", i, sep = "")
       plotOutput(ts_name)
     })
 
     for (i in seq_along(ts_params)) {
       local({
         ts_i <- i
-        ts_name <- paste("ts_plot", ts_i, sep = "")
+        ts_name <- paste("series_plot", ts_i, sep = "")
         output[[ts_name]] <- renderPlot({
 
-          ts <- manager::ts_plot(
+          ts <- manager::series_plot(
             ts_data[ts_data$param_name == ts_params[ts_i], ],
             background = c(start, end),
             limit1 = "lpl",

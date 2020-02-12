@@ -6,10 +6,12 @@
 #' @param constituents list of constituents to be exported
 #' @param file full file path name with extension for export
 #' @param short_name TRUE/FALSE to abbreviate constituent name
+#' @param overwrite TRUE/FALSE overwrite existing spreadsheet if it exists
 #'
 #' @export
 
-write_excel <- function(df, wells, constituents, file, short_name = TRUE) {
+write_excel <- function(df, wells, constituents, file, short_name = TRUE,
+                        overwrite = FALSE) {
 
   if (!requireNamespace("openxlsx", quietly = TRUE)) {
     stop("openxlsx needed for this function to work. Please install it.",
@@ -30,9 +32,9 @@ write_excel <- function(df, wells, constituents, file, short_name = TRUE) {
     name_units(short_name = short_name)
 
   df <- df %>%
-    dplyr::select(location_id, sample_date, param_name, analysis_result) %>%
-    mutate(grouped_id = row_number()) %>%
-    tidyr::spread(param_name, analysis_result)
+    dplyr::select(location_id, lab_id, sample_date, param_name, analysis_result) %>%
+    tidyr::spread(param_name, analysis_result) %>%
+    arrange(location_id, sample_date)
 
   wb <- openxlsx::createWorkbook()
 
@@ -49,7 +51,7 @@ write_excel <- function(df, wells, constituents, file, short_name = TRUE) {
 
   plyr::d_ply(df, plyr::.(location_id), data_cast)
 
-  openxlsx::saveWorkbook(wb, file = file)
+  openxlsx::saveWorkbook(wb, file = file, overwrite = overwrite)
 
 }
 
