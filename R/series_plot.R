@@ -7,6 +7,7 @@
 #' @param facet_var column to facet wrap plots by, default is by location
 #' @param group_var column to group plots by, default is by constituent
 #' @param lt_measure column for non-detect symbol
+#' @param scale "fixed" or "free", or in one dimension "free_x", "free_y"
 #' @param scale_y_trans type of transformation to use for y scale. Default is
 #' "identity".  Built-in transformations include "asn", "atanh", "boxcox",
 #' "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
@@ -27,6 +28,7 @@ series_plot <- function(df,
                     facet_var = "location_id",
                     group_var = "param_name",
                     lt_measure = "lt_measure",
+                    scale = "free",
                     scale_y_trans = "identity",
                     trend = NULL,
                     background = NULL,
@@ -45,6 +47,7 @@ series_plot <- function(df,
                          group_var = group_var,
                          facet_var = facet_var,
                          lt_measure = lt_measure,
+                         scale = scale,
                          scale_y_trans = scale_y_trans,
                          trend = trend,
                          background = background,
@@ -66,6 +69,7 @@ series_plot <- function(df,
                      lt_measure = "lt_measure",
                      facet_var = NULL,
                      group_var = NULL,
+                     scale = "free",
                      scale_y_trans = "identity",
                      trend = NULL,
                      background = NULL,
@@ -89,7 +93,7 @@ series_plot <- function(df,
     geom_line(data = df) +
     geom_point(data = df, aes(shape = factor(non_detect, exclude = NULL)),
                size = pnt) +
-    ylab(paste("Analysis Result", "\nScale: ",
+    ylab(paste("Analysis Result"," (", df$default_unit[1], ")", "\nScale: ",
                scale_y_trans, sep = "")) +
     xlab("Sample Date") +
     scale_x_datetime(labels = scales::date_format("%Y")) +
@@ -115,7 +119,7 @@ series_plot <- function(df,
 
   if (!is.null(facet_var)) {
 
-    p <- p + facet_wrap(paste(facet_var), scale = "free", ncol = ncol) +
+    p <- p + facet_wrap(paste(facet_var), scale = scale, ncol = ncol) +
       ggtitle(paste("Time Series Plots for",
                     df[[paste(group_var)]][1], "\n", sep = " "))
 
