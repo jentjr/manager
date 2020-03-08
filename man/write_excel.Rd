@@ -5,7 +5,8 @@
 \title{Function to export data from manages to excel. Each sampling location 
 is saved to a tab.}
 \usage{
-write_excel(df, wells, constituents, file, short_name = TRUE)
+write_excel(df, wells, constituents, file, short_name = TRUE,
+  overwrite = FALSE)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
@@ -17,6 +18,8 @@ write_excel(df, wells, constituents, file, short_name = TRUE)
 \item{file}{full file path name with extension for export}
 
 \item{short_name}{TRUE/FALSE to abbreviate constituent name}
+
+\item{overwrite}{TRUE/FALSE overwrite existing spreadsheet if it exists}
 }
 \description{
 Function to export data from manages to excel. Each sampling location 
