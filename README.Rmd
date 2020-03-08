@@ -74,16 +74,16 @@ development environment.
 * **Mac**: Install Xcode from the Mac App Store.  
 * **Linux**: Install a compiler and various development libraries (details vary across differnet flavors of Linux).  
 
-Then, install the `devtools` package from CRAN with 
+Then, install the `remotes` package from CRAN with 
 ```R
-install.packages("devtools")
+install.packages("remotes")
 ```
-After you have `devtools` installed you can install `manager` using the command 
+After you have `remotes` installed you can install `manager` using the command 
 ```R
-devtools::install_github("jentjr/manager")
+remotes::install_github("jentjr/manager")
 ```
 Eventually, the package might be submitted to CRAN, but until then you'll have
-to install with `devtools`.
+to install with `remotes`.
 
 ## Shiny App
 
