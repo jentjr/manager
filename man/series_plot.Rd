@@ -5,11 +5,23 @@
 \title{This function plots multiple groundwater data time series by location,
 or constituent}
 \usage{
-series_plot(df, x = "sample_date", y = "analysis_result",
-  facet_var = "location_id", group_var = "param_name",
-  lt_measure = "lt_measure", scale_y_trans = "identity",
-  trend = NULL, background = NULL, limit1 = NULL, limit2 = NULL,
-  short_name = FALSE, pnt = 3, ncol = NULL)
+series_plot(
+  df,
+  x = "sample_date",
+  y = "analysis_result",
+  facet_var = "location_id",
+  group_var = "param_name",
+  lt_measure = "lt_measure",
+  scale = "free",
+  scale_y_trans = "identity",
+  trend = NULL,
+  background = NULL,
+  limit1 = NULL,
+  limit2 = NULL,
+  short_name = FALSE,
+  pnt = 3,
+  ncol = NULL
+)
 }
 \arguments{
 \item{df}{df groundwater data in tidy format}
@@ -23,6 +35,8 @@ series_plot(df, x = "sample_date", y = "analysis_result",
 \item{group_var}{column to group plots by, default is by constituent}
 
 \item{lt_measure}{column for non-detect symbol}
+
+\item{scale}{"fixed" or "free", or in one dimension "free_x", "free_y"}
 
 \item{scale_y_trans}{type of transformation to use for y scale. Default is
 "identity".  Built-in transformations include "asn", "atanh", "boxcox",

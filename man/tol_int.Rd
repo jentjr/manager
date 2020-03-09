@@ -4,9 +4,15 @@
 \alias{tol_int}
 \title{Function to calculate tolernace intervals}
 \usage{
-tol_int(df, analysis_result = "analysis_result",
-  distribution = "distribution", coverage = 0.95,
-  cov_type = "content", ti_type = "two-sided", method = "exact")
+tol_int(
+  df,
+  analysis_result = "analysis_result",
+  distribution = "distribution",
+  coverage = 0.95,
+  cov_type = "content",
+  ti_type = "two-sided",
+  method = "exact"
+)
 }
 \arguments{
 \item{df}{df data frame of groundwater data in tidy format}

@@ -4,9 +4,15 @@
 \alias{dixon_test}
 \title{Dixon test for outliers}
 \usage{
-dixon_test(df, x = "analysis_result", type = 0, opposite = FALSE,
-  two_sided = TRUE, group_by_location = FALSE,
-  keep_data_object = FALSE)
+dixon_test(
+  df,
+  x = "analysis_result",
+  type = 0,
+  opposite = FALSE,
+  two_sided = TRUE,
+  group_by_location = FALSE,
+  keep_data_object = FALSE
+)
 }
 \arguments{
 \item{df}{data frame}

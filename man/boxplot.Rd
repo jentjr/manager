@@ -4,12 +4,25 @@
 \alias{boxplot}
 \title{Boxplot function}
 \usage{
-boxplot(df, x = "location_id", y = "analysis_result",
-  lt_measure = "lt_measure", group_var = "param_name", coef = 1.5,
-  scale_y_trans = "identity", show_points = FALSE, fill = NULL,
-  notch = FALSE, plot_ci = FALSE, limit1 = NULL, limit2 = NULL,
-  pnt = 2, short_name = FALSE, coord_flip = FALSE,
-  legend_title = NULL)
+boxplot(
+  df,
+  x = "location_id",
+  y = "analysis_result",
+  lt_measure = "lt_measure",
+  group_var = "param_name",
+  coef = 1.5,
+  scale_y_trans = "identity",
+  show_points = FALSE,
+  fill = NULL,
+  notch = FALSE,
+  plot_ci = FALSE,
+  limit1 = NULL,
+  limit2 = NULL,
+  pnt = 2,
+  short_name = FALSE,
+  coord_flip = FALSE,
+  legend_title = NULL
+)
 }
 \arguments{
 \item{df}{groundwater data in tidy format}

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Connect to a MANAGES 3.x Site.mdb database — connect_manages3 • manager</title>
+<title>Function to export summary table for a sampling event — write_event_summary • manager</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,8 @@
 
 
 
-<meta property="og:title" content="Connect to a MANAGES 3.x Site.mdb database — connect_manages3" />
-<meta property="og:description" content="This function connects to the MANAGES database for the path supplied.
-R must be in 32-bit mode." />
+<meta property="og:title" content="Function to export summary table for a sampling event — write_event_summary" />
+<meta property="og:description" content="Function to export summary table for a sampling event" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -124,24 +123,40 @@ R must be in 32-bit mode." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Connect to a MANAGES 3.x Site.mdb database</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jentjr/manager/blob/master/R/external_data.R'><code>R/external_data.R</code></a></small>
-    <div class="hidden name"><code>connect_manages3.Rd</code></div>
+    <h1>Function to export summary table for a sampling event</h1>
+    <small class="dont-index">Source: <a href='https://github.com/jentjr/manager/blob/master/R/export.R'><code>R/export.R</code></a></small>
+    <div class="hidden name"><code>write_event_summary.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function connects to the MANAGES database for the path supplied.
-R must be in 32-bit mode.</p>
+    <p>Function to export summary table for a sampling event</p>
     </div>
 
-    <pre class="usage"><span class='fu'>connect_manages3</span>(<span class='no'>manages3_path</span>)</pre>
+    <pre class="usage"><span class='fu'>write_event_summary</span>(<span class='no'>df</span>, <span class='no'>start</span>, <span class='no'>end</span>, <span class='kw'>gw_elev</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>short_name</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='no'>file</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>manages3_path</th>
-      <td><p>manages_path Path to MANAGES Site.mdb file</p></td>
+      <th>df</th>
+      <td><p>groundwater data frame in tidy format</p></td>
+    </tr>
+    <tr>
+      <th>start</th>
+      <td><p>start date</p></td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td><p>end date</p></td>
+    </tr>
+    <tr>
+      <th>gw_elev</th>
+      <td><p>if TRUE, list date well sampled and annotate date for GW Elev</p></td>
+    </tr>
+    <tr>
+      <th>short_name</th>
+      <td><p>TRUE/FALSE to abbreviate constituent name</p></td>
     </tr>
     </table>
 

@@ -4,8 +4,14 @@
 \alias{tukey_outlier}
 \title{Tukey's test for outliers}
 \usage{
-tukey_outlier(df, x = "analysis_result", k = 3, na.rm = FALSE,
-  type = 6, combine_locations = FALSE)
+tukey_outlier(
+  df,
+  x = "analysis_result",
+  k = 3,
+  na.rm = FALSE,
+  type = 6,
+  combine_locations = FALSE
+)
 }
 \arguments{
 \item{df}{data.frame of groundwater data}

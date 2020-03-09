@@ -4,9 +4,16 @@
 \alias{pred_int}
 \title{Function to calculate prediction interval}
 \usage{
-pred_int(df, analysis_result = "analysis_result",
-  distribution = "distribution", method = "Bonferroni", n_mean = 1,
-  k = 1, pi_type = "upper", conf_level = 0.95)
+pred_int(
+  df,
+  analysis_result = "analysis_result",
+  distribution = "distribution",
+  method = "Bonferroni",
+  n_mean = 1,
+  k = 1,
+  pi_type = "upper",
+  conf_level = 0.95
+)
 }
 \arguments{
 \item{df}{df data frame of groundwater data in tidy format}

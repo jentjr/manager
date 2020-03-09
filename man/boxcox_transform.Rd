@@ -4,8 +4,7 @@
 \alias{boxcox_transform}
 \title{Boxcox transformation}
 \usage{
-boxcox_transform(df, combine_locations = FALSE,
-  objective_name = "PPCC")
+boxcox_transform(df, combine_locations = FALSE, objective_name = "PPCC")
 }
 \arguments{
 \item{df}{data frame}

@@ -4,8 +4,12 @@
 \alias{set_censored}
 \title{Function to ensure non-detect data are set to either the PQL, or RL}
 \usage{
-set_censored(df, data_qualifier = "data_qualifier",
-  analysis_result = "analysis_result", censor_column = "RL")
+set_censored(
+  df,
+  data_qualifier = "data_qualifier",
+  analysis_result = "analysis_result",
+  censor_column = "RL"
+)
 }
 \arguments{
 \item{df}{data frame of groundwater data in tidy format}

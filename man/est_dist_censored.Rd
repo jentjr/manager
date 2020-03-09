@@ -5,9 +5,15 @@
 \title{Function to return either normal, lognormal, gamma, or non-parametric 
 distribution estimate}
 \usage{
-est_dist_censored(df, left_censored, method = "sf", alpha = 0.05,
-  choices = c("norm", "lnorm"), combine_locations = FALSE,
-  keep_data_object = FALSE)
+est_dist_censored(
+  df,
+  left_censored,
+  method = "sf",
+  alpha = 0.05,
+  choices = c("norm", "lnorm"),
+  combine_locations = FALSE,
+  keep_data_object = FALSE
+)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}

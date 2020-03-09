@@ -9,34 +9,34 @@ piper_time_html(df, ...)
 \arguments{
 \item{df}{data frame of groundwater data transformed using}
 
-\item{...}{Arguments passed on to \code{piper_plot}
-\describe{
-  \item{df}{data frame of water quality data in tidy format}
-  \item{location_id}{column for sample location}
-  \item{sample_date}{column for sample date}
-  \item{x_cation}{default is Calcium, dissolved}
-  \item{x_cation_label}{label for x cation}
-  \item{y_cation}{default is Magnesium, dissolved}
-  \item{y_cation_label}{label for y cation}
-  \item{z_cation}{default is Sodium, dissolved + Potassium, dissolved}
-  \item{z_cation_label}{label for z cation}
-  \item{x_anion}{default is Chloride, total + Fluoride, total}
-  \item{x_anion_label}{label for x anion}
-  \item{y_anion}{default is Alkalinity, total (lab)}
-  \item{y_anion_label}{label for y anion}
-  \item{z_anion}{default is Sulfate, total}
-  \item{z_anion_label}{label for z anion}
-  \item{x_z_anion_label}{label for the upper left diamond}
-  \item{x_y_cation_label}{label for the upper right diamond}
-  \item{total_dissolved_solids}{Scale plot by Total Dissolved Solids,
+\item{...}{
+  Arguments passed on to \code{\link[=piper_plot]{piper_plot}}
+  \describe{
+    \item{\code{location_id}}{column for sample location}
+    \item{\code{sample_date}}{column for sample date}
+    \item{\code{x_cation}}{default is Calcium, dissolved}
+    \item{\code{x_cation_label}}{label for x cation}
+    \item{\code{y_cation}}{default is Magnesium, dissolved}
+    \item{\code{y_cation_label}}{label for y cation}
+    \item{\code{z_cation}}{default is Sodium, dissolved + Potassium, dissolved}
+    \item{\code{z_cation_label}}{label for z cation}
+    \item{\code{x_anion}}{default is Chloride, total + Fluoride, total}
+    \item{\code{x_anion_label}}{label for x anion}
+    \item{\code{y_anion}}{default is Alkalinity, total (lab)}
+    \item{\code{y_anion_label}}{label for y anion}
+    \item{\code{z_anion}}{default is Sulfate, total}
+    \item{\code{z_anion_label}}{label for z anion}
+    \item{\code{x_z_anion_label}}{label for the upper left diamond}
+    \item{\code{x_y_cation_label}}{label for the upper right diamond}
+    \item{\code{total_dissolved_solids}}{Scale plot by Total Dissolved Solids,
 default = FALSE}
-  \item{group_col}{grouping column for symbols}
-  \item{transparency}{the setting for transparency value for points. Default
+    \item{\code{group_col}}{grouping column for symbols}
+    \item{\code{transparency}}{the setting for transparency value for points. Default
 is 0.2}
-  \item{pnt_size}{the size of the points. Default is 3}
-  \item{label_size}{size of font for labels}
-  \item{title}{Title for plot, default = NULL}
-}}
+    \item{\code{pnt_size}}{the size of the points. Default is 3}
+    \item{\code{label_size}}{size of font for labels}
+    \item{\code{title}}{Title for plot, default = NULL}
+  }}
 }
 \description{
 Function to create an aminated Piper plot and save to html

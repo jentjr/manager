@@ -4,18 +4,31 @@
 \alias{piper_plot}
 \title{Create a piper diagram}
 \usage{
-piper_plot(df, location_id = "location_id",
-  sample_date = "sample_date", x_cation = "Calcium, dissolved",
-  x_cation_label = "Ca", y_cation = "Magnesium, dissolved",
-  y_cation_label = "Mg", z_cation = c("Sodium, dissolved",
-  "Potassium, dissolved"), z_cation_label = "Na + K",
+piper_plot(
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  x_cation = "Calcium, dissolved",
+  x_cation_label = "Ca",
+  y_cation = "Magnesium, dissolved",
+  y_cation_label = "Mg",
+  z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
+  z_cation_label = "Na + K",
   x_anion = c("Chloride, total", "Fluoride, total"),
-  x_anion_label = "Cl + F", y_anion = "Alkalinity, total (lab)",
-  y_anion_label = "HCO3 + CO2", z_anion = "Sulfate, total",
-  z_anion_label = "SO4", x_z_anion_label = "SO4 + Cl + F",
-  x_y_cation_label = "Ca + Mg", total_dissolved_solids = NULL,
-  group_col = NULL, transparency = 0.7, pnt_size = 3,
-  label_size = 3, title = NULL)
+  x_anion_label = "Cl + F",
+  y_anion = "Alkalinity, total (lab)",
+  y_anion_label = "HCO3 + CO2",
+  z_anion = "Sulfate, total",
+  z_anion_label = "SO4",
+  x_z_anion_label = "SO4 + Cl + F",
+  x_y_cation_label = "Ca + Mg",
+  total_dissolved_solids = NULL,
+  group_col = NULL,
+  transparency = 0.7,
+  pnt_size = 3,
+  label_size = 3,
+  title = NULL
+)
 }
 \arguments{
 \item{df}{data frame of water quality data in tidy format}

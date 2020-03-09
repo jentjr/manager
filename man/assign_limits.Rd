@@ -4,8 +4,12 @@
 \alias{assign_limits}
 \title{Function to assign default Groundwater Protection Standards}
 \usage{
-assign_limits(df, column = "param_name", method = c("default",
-  "tolerance"), locations = NULL)
+assign_limits(
+  df,
+  column = "param_name",
+  method = c("default", "tolerance"),
+  locations = NULL
+)
 }
 \arguments{
 \item{df}{dataframe of groundwater data in tidy format}

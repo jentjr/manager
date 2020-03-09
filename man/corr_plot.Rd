@@ -4,9 +4,15 @@
 \alias{corr_plot}
 \title{Create a correlation plot}
 \usage{
-corr_plot(df, location_id = "location_id", sample_date = "sample_date",
-  param_name = "param_name", analysis_result = "analysis_result",
-  constituents = NULL, sample_locations = NULL)
+corr_plot(
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  constituents = NULL,
+  sample_locations = NULL
+)
 }
 \arguments{
 \item{df}{dataframe}

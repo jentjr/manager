@@ -4,9 +4,15 @@
 \alias{grubbs_test}
 \title{Grubb's test for outliers}
 \usage{
-grubbs_test(df, x = "analysis_result", type = 10, opposite = FALSE,
-  two_sided = FALSE, group_by_location = FALSE,
-  keep_data_object = FALSE)
+grubbs_test(
+  df,
+  x = "analysis_result",
+  type = 10,
+  opposite = FALSE,
+  two_sided = FALSE,
+  group_by_location = FALSE,
+  keep_data_object = FALSE
+)
 }
 \arguments{
 \item{df}{data frame}

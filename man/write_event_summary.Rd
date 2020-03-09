@@ -4,8 +4,7 @@
 \alias{write_event_summary}
 \title{Function to export summary table for a sampling event}
 \usage{
-write_event_summary(df, start, end, gw_elev = TRUE, short_name = TRUE,
-  file)
+write_event_summary(df, start, end, gw_elev = TRUE, short_name = TRUE, file)
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}

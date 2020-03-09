@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Connect to a MANAGES 3.x Site.mdb database — connect_manages3 • manager</title>
+<title>Helper function to split parameter names — simplify_param_name • manager</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,8 @@
 
 
 
-<meta property="og:title" content="Connect to a MANAGES 3.x Site.mdb database — connect_manages3" />
-<meta property="og:description" content="This function connects to the MANAGES database for the path supplied.
-R must be in 32-bit mode." />
+<meta property="og:title" content="Helper function to split parameter names — simplify_param_name" />
+<meta property="og:description" content="Helper function to split parameter names" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -124,24 +123,27 @@ R must be in 32-bit mode." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Connect to a MANAGES 3.x Site.mdb database</h1>
-    <small class="dont-index">Source: <a href='https://github.com/jentjr/manager/blob/master/R/external_data.R'><code>R/external_data.R</code></a></small>
-    <div class="hidden name"><code>connect_manages3.Rd</code></div>
+    <h1>Helper function to split parameter names</h1>
+    <small class="dont-index">Source: <a href='https://github.com/jentjr/manager/blob/master/R/helper_functions.R'><code>R/helper_functions.R</code></a></small>
+    <div class="hidden name"><code>simplify_param_name.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This function connects to the MANAGES database for the path supplied.
-R must be in 32-bit mode.</p>
+    <p>Helper function to split parameter names</p>
     </div>
 
-    <pre class="usage"><span class='fu'>connect_manages3</span>(<span class='no'>manages3_path</span>)</pre>
+    <pre class="usage"><span class='fu'>simplify_param_name</span>(<span class='no'>df</span>, <span class='no'>param_name</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>manages3_path</th>
-      <td><p>manages_path Path to MANAGES Site.mdb file</p></td>
+      <th>df</th>
+      <td><p>data frame in long format</p></td>
+    </tr>
+    <tr>
+      <th>param_name</th>
+      <td><p>parameter name column</p></td>
     </tr>
     </table>
 

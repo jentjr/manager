@@ -4,9 +4,18 @@
 \alias{pred_int_sim}
 \title{Function to calculate simultaneous prediction interval}
 \usage{
-pred_int_sim(df, analysis_result = "analysis_result",
-  distribution = "distribution", n_mean = 1, k = 1, m = 2, r = 1,
-  rule = "k.of.m", pi_type = "upper", conf_level = 0.95)
+pred_int_sim(
+  df,
+  analysis_result = "analysis_result",
+  distribution = "distribution",
+  n_mean = 1,
+  k = 1,
+  m = 2,
+  r = 1,
+  rule = "k.of.m",
+  pi_type = "upper",
+  conf_level = 0.95
+)
 }
 \arguments{
 \item{df}{df data frame of groundwater data in tidy format}
