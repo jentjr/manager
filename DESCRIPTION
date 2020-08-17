@@ -14,7 +14,6 @@ Depends:
     tidyverse
 Imports:
     EnvStats,
-    car,
     scales,
     grid,
     outliers

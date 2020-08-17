@@ -53,13 +53,13 @@ assign_limits <- function(df,
     if (df[i, "default_unit"] != df[i, "gwps_unit"] &
         !is.na(df[i, "gwps_unit"])) {
 
-      df[i, "gwps"] <- udunits2::ud.convert(
-        df[i, "gwps"], 
+      df[[i, "gwps"]] <- udunits2::ud.convert(
+        df[[i, "gwps"]], 
         paste(df[[i, "gwps_unit"]]),
         paste(df[[i, "default_unit"]])
       )
 
-      df[i, "gwps_unit"] <- paste(df[i, "default_unit"])
+      df[[i, "gwps_unit"]] <- paste(df[[i, "default_unit"]])
 
     } else{
 

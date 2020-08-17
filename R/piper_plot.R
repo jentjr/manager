@@ -309,10 +309,10 @@ piper_time_html <- function(df, ...) {
             total_dissolved_solids)
 
   df <- df %>%
-    filter_(~param_name %in% ions) %>%
+    filter(param_name %in% ions) %>%
     mutate(grouped_id = row_number()) %>%
     spread_(param_name, analysis_result) %>%
-    group_by_(~location_id, ~sample_date, ~default_unit) %>%
+    group_by(location_id, sample_date, default_unit) %>%
     summarise_at(vars(ions), mean, na.rm = TRUE) %>%
     ungroup()
 

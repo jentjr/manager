@@ -63,7 +63,7 @@ est_dist <- function(df,
     dist_est %>%
       mutate(distribution = map(.x = dist_est, ~ .x$decision)) %>%
       select(-dist_est) %>%
-      unnest(distribution)
+      unnest(cols = c(distribution))
 
   } else {
 
