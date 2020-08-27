@@ -23,7 +23,7 @@ summary <- function(df,
 
   if (!combine_locations) {
     df %>%
-      group_by_(~location_id, ~param_name, ~default_unit) %>%
+      group_by(location_id, param_name, default_unit) %>%
       summarise(n = n(),
                 percent_lt = sum(lt_measure == "<", na.rm = na.rm) / n() * 100,
                 mean = mean(analysis_result, na.rm = na.rm),
@@ -40,7 +40,7 @@ summary <- function(df,
       )
   } else {
     df %>%
-      group_by_(~param_name, ~default_unit) %>%
+      group_by(param_name, default_unit) %>%
       summarise(n = n(),
                 percent_lt = sum(lt_measure == "<", na.rm = na.rm) / n() * 100,
                 mean = mean(analysis_result, na.rm = na.rm),
