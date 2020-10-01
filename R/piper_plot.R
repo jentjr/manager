@@ -51,6 +51,9 @@
 piper_plot <- function(df,
                        location_id = "location_id",
                        sample_date = "sample_date",
+                       param_name = "param_name",
+                       analysis_result = "analysis_result",
+                       default_unit = "default_unit",
                        x_cation = "Calcium, dissolved",
                        x_cation_label = "Ca",
                        y_cation = "Magnesium, dissolved",
@@ -75,20 +78,19 @@ piper_plot <- function(df,
                        title = NULL) {
 
   piper_df <- df %>%
-    .get_piper_ions(x_cation = x_cation,
-                    y_cation = y_cation,
-                    z_cation = z_cation,
-                    x_anion = x_anion,
-                    y_anion = y_anion,
-                    z_anion = z_anion,
-                    total_dissolved_solids = total_dissolved_solids) %>%
-    .transform_piper_data(x_cation = x_cation,
+    .transform_piper_data(location_id = location_id,
+                          sample_date = sample_date,
+                          param_name = param_name,
+                          analysis_result = analysis_result,
+                          default_unit = default_unit,
+                          x_cation = x_cation,
                           y_cation = y_cation,
                           z_cation = z_cation,
                           x_anion = x_anion,
                           y_anion = y_anion,
                           z_anion = z_anion,
-                          total_dissolved_solids = total_dissolved_solids)
+                          total_dissolved_solids = total_dissolved_solids
+                          )
 
   if (!is.null(group_col)) {
 
@@ -327,6 +329,9 @@ piper_time_html <- function(df, ...) {
 .transform_piper_data <- function(df,
                                   location_id = "location_id",
                                   sample_date = "sample_date",
+                                  param_name = "param_name",
+                                  analysis_result = "analysis_result",
+                                  default_unit = "default_unit",
                                   x_cation = "Calcium, dissolved",
                                   y_cation = "Magnesium, dissolved",
                                   z_cation = c("Sodium, dissolved",
@@ -337,7 +342,23 @@ piper_time_html <- function(df, ...) {
                                   z_anion = "Sulfate, total",
                                   total_dissolved_solids = NULL
                                   ) {
-
+  df <- df %>%
+    .get_piper_ions(location_id = location_id,
+                    sample_date = sample_date,
+                    param_name = param_name,
+                    analysis_result = analysis_result,
+                    default_unit = default_unit,
+                    x_cation = x_cation,
+                    y_cation = y_cation,
+                    z_cation = z_cation,
+                    x_anion = x_anion,
+                    y_anion = y_anion,
+                    z_anion = z_anion,
+                    total_dissolved_solids = total_dissolved_solids
+                    )
+  
+  # TODO: Add unit conversions
+  
   # cation data
   # Convert data to %
   cations <- df %>%
@@ -345,10 +366,10 @@ piper_time_html <- function(df, ...) {
     mutate(cation_total = rowSums(.))
 
   cations <- cations %>%
-    mutate_at(vars(y_cation), funs(cation_top = . / cation_total * 100))
+    mutate_at(vars(y_cation), list(cation_top = ~.x/cation_total*100))
 
   cations <- cations %>%
-    mutate_at(vars(x_cation), funs(cation_left = . / cation_total * 100))
+    mutate_at(vars(x_cation), list(cation_left = ~.x/cation_total*100))
 
   cations <- cations %>%
     select(cation_top, cation_left) %>%
@@ -367,10 +388,10 @@ piper_time_html <- function(df, ...) {
     mutate(anion_total = rowSums(.))
 
   anions <- anions %>%
-    mutate_at(vars(z_anion), funs(anion_top = . / anion_total * 100))
+    mutate_at(vars(z_anion), list(anion_top = ~.x/anion_total*100))
 
   anions <- anions %>%
-    mutate_at(vars(y_anion), funs(anion_left = . / anion_total * 100))
+    mutate_at(vars(y_anion), list(anion_left = ~.x/anion_total*100))
 
   anions <- anions %>%
     select(anion_top, anion_left) %>%

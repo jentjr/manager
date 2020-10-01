@@ -168,14 +168,14 @@ boxplot <- function(df,
   }
 
   explanation <- .ggplot_box_legend()
-  
+
   legend <- cowplot::get_legend(b)
-  
+
   b <- b + theme(legend.position = "none")
-  
+
   legend_combined <- cowplot::plot_grid(explanation, legend, ncol = 1, axis = "lb",
-                                        rel_heights = c(1.5, 1))
-  
+                                          rel_heights = c(1.5, 1))
+
   print(cowplot::plot_grid(b, legend_combined, nrow = 1, rel_widths = c(2.75, 1)))
 
 }
