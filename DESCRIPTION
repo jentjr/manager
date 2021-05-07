@@ -4,7 +4,7 @@ Description: Tools for plotting and analyzing environmental
     data as well as for reading data from external sources such as 
     MANAGES and gINT.
 Version: 0.1.0.9000
-Authors@R: person(given = "Justin", family = "Jent", email = "jentjr@gmail.com",
+Authors: person(given = "Justin", family = "Jent", email = "jentjr@gmail.com",
                   role = c("aut", "cre"))
 Maintainer: Justin Jent <jentjr@gmail.com>
 URL: http://github.com/jentjr/manager
