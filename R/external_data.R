@@ -113,6 +113,7 @@ read_manages4 <- function(driver = "SQL Server", server, database, site) {
            ANALYSIS_RESULT,
            DETECTION_LIMIT,
            RL,
+           ACHIEVED_MDC,
            DEFAULT_UNIT,
            SHORT_NAME,
            NORTH_COORDINATE,
@@ -120,7 +121,8 @@ read_manages4 <- function(driver = "SQL Server", server, database, site) {
            COORDINATE_REFERENCE,
            WATER_CLASS,
            LOCATION_CLASS,
-           WELL_TYPE
+           WELL_TYPE,
+           DESCRIPTION
     ) %>%
     select_all(., tolower) %>%
     filter(NAME %in% site) %>%
