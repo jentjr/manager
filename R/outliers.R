@@ -220,7 +220,7 @@ tukey_outlier <- function(df, x = "analysis_result", k = 3, na.rm = FALSE,
       )
      )
     ) %>%
-    unnest()
+    unnest(cols = c(data, outlier))
 
   return(df)
 }
