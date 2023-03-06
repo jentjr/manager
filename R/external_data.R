@@ -125,7 +125,7 @@ read_manages4 <- function(driver = "SQL Server", server, database, site) {
            DESCRIPTION
     ) %>%
     select_all(., tolower) %>%
-    filter(NAME %in% site) %>%
+    filter(name %in% site) %>%
     collect()
 
   DBI::dbDisconnect(manages_conn)
