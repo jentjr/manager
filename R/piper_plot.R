@@ -313,7 +313,7 @@ piper_time_html <- function(df, ...) {
   df <- df %>%
     filter(param_name %in% ions) %>%
     mutate(grouped_id = row_number()) %>%
-    spread_(param_name, analysis_result) %>%
+    spread(param_name, analysis_result) %>%
     group_by(location_id, sample_date, default_unit) %>%
     summarise_at(vars(ions), mean, na.rm = TRUE) %>%
     ungroup()
