@@ -44,36 +44,37 @@ est_dist_censored <- function(df,
 
   if (isTRUE(combine_locations)) {
     nested_df <- df %>%
+      to_censored() %>%
       group_by(param_name, default_unit) %>%
       nest()
     
   } else {
     
     nested_df <- df %>%
+      to_censored() %>%
       group_by(location_id, param_name, default_unit) %>%
       nest() 
     
   }
 
-  dist_est <- nested_df %>%
-    mutate(dist_est = map(.x = data, ~distChooseCensored(
+  cen_dist_est <- nested_df %>%
+    mutate(cen_dist_est = map(.x = data, ~distChooseCensored(
       x = .x$analysis_result, .x$left_censored, censoring.side ='left',
       choices = choices, method = method, alpha = alpha))
       )
 
   if (isTRUE(keep_data_object)) {
 
-    dist_est %>%
+    cen_dist_est %>%
       mutate(distribution = map(.x = dist_est, ~ .x$decision)) %>%
-      select(-dist_est) %>%
       unnest(distribution)
 
   } else {
 
-    dist_est %>%
+    cen_dist_est %>%
       mutate(distribution = map(.x = dist_est, ~ .x$decision)) %>%
-      select(-data, -dist_est) %>%
-      unnest()
+      select(-data) %>%
+      unnest(distribution)
 
   }
 
