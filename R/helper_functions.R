@@ -8,9 +8,7 @@
 sample_locations <- function(df, location_id = location_id){
 
   wells <- df %>%
-    group_by({{location_id}}) %>%
-    select({{location_id}}) %>%
-    first() %>%
+    pull({{location_id}}) %>%
     unique()
 
   return(wells)
@@ -27,9 +25,7 @@ sample_locations <- function(df, location_id = location_id){
 constituents <- function(df, param_name = param_name){
 
   constituents <- df %>%
-    group_by({{param_name}}) %>%
-    select({{param_name}}) %>%
-    first() %>%
+    pull({{param_name}}) %>%
     unique()
 
   return(constituents)

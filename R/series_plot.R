@@ -23,40 +23,40 @@
 #' @export
 
 series_plot <- function(df,
-                    x = "sample_date",
-                    y = "analysis_result",
-                    facet_var = "location_id",
-                    group_var = "param_name",
-                    lt_measure = "lt_measure",
-                    scale = "free",
-                    scale_y_trans = "identity",
-                    trend = NULL,
-                    background = NULL,
-                    limit1 = NULL,
-                    limit2 = NULL,
-                    short_name = FALSE,
-                    pnt = 3,
-                    ncol = NULL
-                    ) {
-
-    df %>%
-      group_by(!!!syms(group_var)) %>%
-      do(plot = .series_plot(.,
-                         x = x,
-                         y = y,
-                         group_var = group_var,
-                         facet_var = facet_var,
-                         lt_measure = lt_measure,
-                         scale = scale,
-                         scale_y_trans = scale_y_trans,
-                         trend = trend,
-                         background = background,
-                         limit1 = limit1,
-                         limit2 = limit2,
-                         short_name = short_name,
-                         pnt = pnt,
-                         ncol = ncol
-                         ))
+                        x = "sample_date",
+                        y = "analysis_result",
+                        facet_var = "location_id",
+                        group_var = "param_name",
+                        lt_measure = "lt_measure",
+                        scale = "free",
+                        scale_y_trans = "identity",
+                        trend = NULL,
+                        background = NULL,
+                        limit1 = NULL,
+                        limit2 = NULL,
+                        short_name = FALSE,
+                        pnt = 3,
+                        ncol = NULL
+) {
+  
+  df %>%
+    group_by(!!!syms(group_var)) %>%
+    do(plot = .series_plot(.,
+                           x = x,
+                           y = y,
+                           group_var = group_var,
+                           facet_var = facet_var,
+                           lt_measure = lt_measure,
+                           scale = scale,
+                           scale_y_trans = scale_y_trans,
+                           trend = trend,
+                           background = background,
+                           limit1 = limit1,
+                           limit2 = limit2,
+                           short_name = short_name,
+                           pnt = pnt,
+                           ncol = ncol
+    ))
 }
 
 #' Helper function for plotting time series of groundwater data
@@ -64,30 +64,30 @@ series_plot <- function(df,
 #' @noRd
 
 .series_plot <- function(df,
-                     x = "sample_date",
-                     y = "analysis_result",
-                     lt_measure = "lt_measure",
-                     facet_var = NULL,
-                     group_var = NULL,
-                     scale = "free",
-                     scale_y_trans = "identity",
-                     trend = NULL,
-                     background = NULL,
-                     limit1 = NULL,
-                     limit2 = NULL,
-                     short_name = FALSE,
-                     pnt = 3,
-                     ncol = NULL
-                     ) {
-
+                         x = "sample_date",
+                         y = "analysis_result",
+                         lt_measure = "lt_measure",
+                         facet_var = NULL,
+                         group_var = NULL,
+                         scale = "free",
+                         scale_y_trans = "identity",
+                         trend = NULL,
+                         background = NULL,
+                         limit1 = NULL,
+                         limit2 = NULL,
+                         short_name = FALSE,
+                         pnt = 3,
+                         ncol = NULL
+) {
+  
   df <- df %>%
     mutate(non_detect = if_else(lt_measure == "<",
                                 "non-detect", "detected",
-                                 missing = "detected"))
-
+                                missing = "detected"))
+  
   df <- df %>%
-   name_units(short_name = short_name)
-
+    name_units(short_name = short_name)
+  
   # main plot
   p <- ggplot(data = df, aes_string(x = x, y = y)) +
     geom_line(data = df) +
@@ -110,27 +110,27 @@ series_plot <- function(df,
            size = guide_legend("none"),
            linetype = guide_legend("Limits")) +
     scale_shape_manual(values = c("non-detect" = 1, "detected" = 16))
-
+  
   if (!is.null(trend)) {
-
-      p <- p + geom_smooth(method = trend)
-
+    
+    p <- p + geom_smooth(method = trend)
+    
   }
-
+  
   if (!is.null(facet_var)) {
-
+    
     p <- p + facet_wrap(paste(facet_var), scale = scale, ncol = ncol) +
       ggtitle(paste("Time Series Plots for",
                     df[[paste(group_var)]][1], "\n", sep = " "))
-
+    
   }
-
+  
   if (!is.null(background)) {
-
+    
     shaded_dates <- data.frame(xmin = background[1], xmax = background[2],
                                ymin = -Inf, ymax = Inf,
                                years = "background")
-
+    
     p <- p + geom_rect(data = shaded_dates,
                        aes(xmin = xmin, ymin = ymin, xmax = xmax,
                            ymax = ymax, fill = years),
@@ -139,31 +139,31 @@ series_plot <- function(df,
       scale_fill_manual(values = c("blue")) +
       guides(fill = guide_legend(override.aes = list(linetype = 0),
                                  title = "Date Ranges"))
-
+    
   }
-
+  
   if (!is.null(limit1)) {
-
+    
     df$limit1_name <- paste(limit1[[1]])
     p <- p + geom_hline(data = df,
                         aes_string(yintercept = limit1,
                                    linetype = "limit1_name"),
                         size = 1,
                         show.legend = TRUE)
-
+    
   }
-
+  
   if (!is.null(limit2)) {
-
+    
     df$limit2_name <- paste(limit2[[1]])
     p <- p + geom_hline(data = df,
                         aes_string(yintercept = limit2,
                                    linetype = "limit2_name"),
                         size = 1,
                         show.legend = TRUE)
-
+    
   }
-
+  
   print(p)
-
+  
 }

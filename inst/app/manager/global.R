@@ -27,10 +27,10 @@ pool <- dbPool(
   Database = dw$database
 )
 
-sites <- pool %>% tbl("SITE")
+sites <- pool %>% tbl("site")
 
 site_list <- sites %>%
-  select(NAME) %>%
+  select(name) %>%
   collect() %>%
   first()
 

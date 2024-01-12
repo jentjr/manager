@@ -3,7 +3,7 @@
 #' @description plots a stiff diagram
 #'
 #' @details tidy dataframe of water quality data in mg/L is converted to
-#' meq/L and then transformed to coordinates for Stiff diagmram.
+#' meq/L and then transformed to coordinates for Stiff diagram.
 #'
 #' @param df data frame of water quality data
 #' @param location_id column for sample locations
@@ -11,7 +11,7 @@
 #' @param param_name column for constituent names
 #' @param analysis_result column for analysis result
 #' @param default_unit column for units. Assumes all units are in mg/L and
-#' converts usign \code{\link{conc_to_meq}}
+#' converts using \code{\link{conc_to_meq}}
 #' @param magnesium name for magnesium
 #' @param calcium name for calcium
 #' @param sodium name for sodium
@@ -60,7 +60,7 @@ stiff_plot <- function(df,
                        ){
 
   df %>%
-    group_by_(group_var) %>%
+    group_by({{group_var}}) %>%
     do(plot = .stiff_plot(.,
                        location_id = location_id,
                        sample_date = sample_date,
@@ -315,9 +315,9 @@ stiff_plot <- function(df,
             sulfate, total_dissolved_solids)
   
   df <- df %>%
-    filter_(~param_name %in% ions) %>%
-    spread_(param_name, analysis_result) %>%
-    group_by_(~location_id, ~sample_date, ~default_unit) %>%
+    filter(param_name %in% ions) %>%
+    spread(param_name, analysis_result) %>%
+    group_by(location_id, sample_date, default_unit) %>%
     summarise_at(vars(ions), mean, na.rm = TRUE) %>%
     ungroup()
   

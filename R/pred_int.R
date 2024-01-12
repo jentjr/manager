@@ -92,7 +92,7 @@ pred_int_sim <- function(df,
            upl = map(.x = pred_int, ~ .x$interval$limits["UPL"]),
            conf_level = map(.x = pred_int, ~ .x$interval$conf.level)) %>%
     select(-data, -pred_int) %>%
-    unnest()
+    unnest(c(sample_size, lpl, upl, conf_level))
 
 }
 
@@ -186,6 +186,6 @@ pred_int <- function(df,
            upl = map(.x = pred_int, ~ .x$interval$limits["UPL"]),
            conf_level = map(.x = pred_int, ~ .x$interval$conf.level)) %>%
     select(-data, -pred_int) %>%
-    unnest()
+    unnest(c(sample_size, lpl, upl, conf_level))
 
 }
