@@ -4,7 +4,8 @@
 \name{ohio_data}
 \alias{ohio_data}
 \title{Groundwater quality data for the state of Ohio}
-\format{A data frame with 213845 rows and 47 variables:
+\format{
+A data frame with 213845 rows and 47 variables:
 \describe{
   \item{well_id}{well_id, Site Identifier}
   \item{result_value}{analytical result}
@@ -53,7 +54,8 @@
   \item{well_id_code}{}
   \item{well_log_num}{}
   \item{well_number}{}
-}}
+}
+}
 \source{
 \url{http://epa.ohio.gov/ddagw/gwqcp.aspx}
 }

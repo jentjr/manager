@@ -37,7 +37,7 @@ stiff_plot(
 \item{analysis_result}{column for analysis result}
 
 \item{default_unit}{column for units. Assumes all units are in mg/L and
-converts usign \code{\link{conc_to_meq}}}
+converts using \code{\link{conc_to_meq}}}
 
 \item{magnesium}{name for magnesium}
 
@@ -69,7 +69,7 @@ plots a stiff diagram
 }
 \details{
 tidy dataframe of water quality data in mg/L is converted to
-meq/L and then transformed to coordinates for Stiff diagmram.
+meq/L and then transformed to coordinates for Stiff diagram.
 }
 \examples{
 data(gw_data)

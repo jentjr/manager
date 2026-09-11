@@ -3,7 +3,7 @@
 #' @param df dataframe of groundwater data in tidy format
 #' @param x column for analysis result
 #' @param y column for sample date
-#' @param ... other arguements passed to @seealso [kendallTrendTest()]
+#' @param ... other arguments passed to @seealso [kendallTrendTest()]
 #' 
 #' @export 
 

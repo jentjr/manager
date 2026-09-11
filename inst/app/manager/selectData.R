@@ -13,10 +13,9 @@ selectData <- function(input, output, session, multiple) {
   get_locations <- reactive({
  
     query %>%
-      filter(name %in% !!input$sites) %>%
+      filter(name %in% input$sites) %>%
       select(location_id) %>%
-      collect() %>%
-      first()
+      collect()
   })
 
   output$selectLocations <- renderUI({
@@ -35,10 +34,9 @@ selectData <- function(input, output, session, multiple) {
 
   get_constituents <- reactive({
     query %>%
-      filter(name %in% !!input$sites, location_id %in% !!input$locations) %>%
+      filter(name %in% input$sites, location_id %in% input$locations) %>%
       select(param_name) %>%
-      collect() %>%
-      first()
+      collect()
   })
 
   output$selectConstituents <- renderUI({
@@ -62,9 +60,9 @@ selectData <- function(input, output, session, multiple) {
     )
 
     query %>%
-      filter(name %in% !!input$sites,
-             location_id %in% !!input$locations,
-             param_name %in% !!input$constituents) %>%
+      filter(name %in% input$sites,
+             location_id %in% input$locations,
+             param_name %in% input$constituents) %>%
       collect() %>%
       replace_missing(value = 0.0)
 

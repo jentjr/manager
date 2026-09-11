@@ -167,14 +167,18 @@ name_units <- function(df, short_name = FALSE) {
   if (short_name == TRUE) {
 
     df <- df %>%
-      mutate(param_name = paste0(.$short_name, " (", .$default_unit, ")"))
+      dplyr::mutate(
+        param_name = paste0(.$short_name, " (", .$default_unit, ")")
+        )
 
   }
 
   else {
 
     df <- df %>%
-      mutate(param_name  = paste0(.$param_name, " (", .$default_unit, ")"))
+      dplyr::mutate(
+        param_name  = paste0(.$param_name, " (", .$default_unit, ")")
+        )
 
   }
 

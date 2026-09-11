@@ -2,16 +2,14 @@
 % Please edit documentation in R/manager-package.R, R/manager_shiny_app.R
 \docType{package}
 \name{manager}
-\alias{manager}
 \alias{manager-package}
+\alias{manager}
 \title{manager}
 \usage{
 manager()
 }
 \description{
-Tools for plotting and analyzing environmental
-    data as well as for reading data from external sources such as 
-    MANAGES and gINT.
+Tools for plotting and analyzing environmental data as well as for reading data from external sources such as MANAGES and gINT.
 }
 \seealso{
 Useful links:
@@ -19,9 +17,5 @@ Useful links:
   \item \url{http://github.com/jentjr/manager}
   \item Report bugs at \url{https://github.com/jentjr/manager/issues}
 }
-
-}
-\author{
-\strong{Maintainer}: Justin Jent \email{jentjr@gmail.com}
 
 }

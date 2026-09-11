@@ -4,7 +4,8 @@
 \name{indiana_data}
 \alias{indiana_data}
 \title{Groundwater quality data for the state of Indiana}
-\format{A data frame with 162923 rows and 11 variables:
+\format{
+A data frame with 162923 rows and 11 variables:
 \describe{
   \item{SiteID}{Site Identifier}
   \item{Result}{analytical result}
@@ -17,7 +18,8 @@
   \item{UTM_Y}{}
   \item{Unit}{}
   \item{WellDepth}{}
-}}
+}
+}
 \source{
 \url{http://in.gov/idem/cleanwater/2453.html}
 }

@@ -10,14 +10,14 @@ stiff_time_html(df, ...)
 \item{df}{data frame of water quality data}
 
 \item{...}{
-  Arguments passed on to \code{\link[=stiff_plot]{stiff_plot}}
+  Arguments passed on to \code{\link{stiff_plot}}
   \describe{
     \item{\code{location_id}}{column for sample locations}
     \item{\code{sample_date}}{column for sample date}
     \item{\code{param_name}}{column for constituent names}
     \item{\code{analysis_result}}{column for analysis result}
     \item{\code{default_unit}}{column for units. Assumes all units are in mg/L and
-converts usign \code{\link{conc_to_meq}}}
+converts using \code{\link{conc_to_meq}}}
     \item{\code{magnesium}}{name for magnesium}
     \item{\code{calcium}}{name for calcium}
     \item{\code{sodium}}{name for sodium}

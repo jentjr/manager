@@ -10,17 +10,17 @@ navbarPage("MANAGER",
       column(10, 
         tabsetPanel(
           tabPanel("Data", 
-            dataTableOutput("data_table"),
+            DT::DTOutput("data_table"),
             downloadButton(outputId = "data_table_download", 
                            label = "Download Data")
           ),
           tabPanel("Summary",
-            dataTableOutput("summary_table"),
+            DT::DTOutput("summary_table"),
             downloadButton(outputId = "summary_table_download",
                            label = "Download Data")
           ),
           tabPanel("Wide Table", 
-            dataTableOutput("wide_table")
+            DT::DTOutput("wide_table")
           )
         )
       )
@@ -342,7 +342,7 @@ navbarMenu("Statistical Intervals",
                        step = 0.01)
         ),
         column(10, 
-          dataTableOutput("conf_int_out")
+          DT::DTOutput("conf_int_out")
         )
       )
     )
@@ -356,7 +356,7 @@ navbarMenu("Statistical Intervals",
           uiOutput("select_tol_int_date_range")
         ),
         column(10, 
-          dataTableOutput("tol_int_out")
+          DT::DTOutput("tol_int_out")
         )
       )
     )
@@ -412,7 +412,7 @@ navbarMenu("Statistical Intervals",
                            value = 0.95, min = 0, max = 1)
               ),
               column(10, 
-                dataTableOutput("intra_limit_out"),
+                DT::DTOutput("intra_limit_out"),
                 br(),
                 uiOutput("ts_intra_out")
               )
@@ -467,7 +467,7 @@ navbarMenu("Statistical Intervals",
                        value = 0.95, min = 0, max = 1)
         ),
         column(10, 
-          dataTableOutput("inter_limit_out")
+          DT::DTOutput("inter_limit_out")
         )
       )
     )

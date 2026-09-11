@@ -36,7 +36,7 @@ boxplot(
 \item{group_var}{the name of column used for constituents. Default is
 "param_name"}
 
-\item{coef}{length of the whiskers as multiple of the IQR. Defualt is 3.}
+\item{coef}{length of the whiskers as multiple of the IQR. Default is 3.}
 
 \item{scale_y_trans}{type of transformation to use for y scale. Default is
 "identity".  Built-in transformations include "asn", "atanh", "boxcox",
@@ -50,7 +50,7 @@ boxplot(
 \item{notch}{TRUE/FALSE plot a notched boxplot. 
 The notches (if requested) extend to +/-1.58 IQR/sqrt(n)}
 
-\item{plot_ci}{add boostrapped 95% confidence interval for mean}
+\item{plot_ci}{add bootstrapped 95% confidence interval for mean}
 
 \item{limit1}{column to be used to draw horizontal line}
 
@@ -68,6 +68,8 @@ The notches (if requested) extend to +/-1.58 IQR/sqrt(n)}
 Boxplot function
 }
 \examples{
+library(manager)
+library(dplyr)
 data(gw_data)
 gw_data \%>\%
 filter(param_name \%in\% c("Chloride, total", "Sulfate, total"), 

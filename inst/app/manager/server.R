@@ -9,7 +9,7 @@ shinyServer(function(input, output, session) {
     return(data)
   })
 
-  output$data_table <- renderDataTable({
+  output$data_table <- DT::renderDT({
     get_data()
   }, options = list(scrollY = "100%", scrollX = "100%",
                     lengthMenu = c(5, 10, 15, 25, 50, 100),
@@ -27,7 +27,7 @@ shinyServer(function(input, output, session) {
   # End Data Table -------------------------------------------------------------
 
   # Summary table --------------------------------------------------------------
-  output$summary_table <- renderDataTable({
+  output$summary_table <- DT::renderDT({
     manager::summary(get_data())
   }, options = list(scrollY = "100%", scrollX = "100%",
                     lengthMenu = c(5, 10, 15, 25, 50, 100),
@@ -43,7 +43,7 @@ shinyServer(function(input, output, session) {
   # End Summary table ----------------------------------------------------------
 
   # Cast to wide data table ----------------------------------------------------
-  output$wide_table <- renderDataTable({
+  output$wide_table <- DT::renderDT({
     to_wide(get_data(), lab_id = TRUE)
   })
 
@@ -1095,7 +1095,7 @@ shinyServer(function(input, output, session) {
 
   })
 
-  output$conf_int_out <- renderDataTable({
+  output$conf_int_out <- DT::renderDT({
     
     conf_int()
 
@@ -1228,7 +1228,7 @@ shinyServer(function(input, output, session) {
 
   })
 
-  output$tol_int_out <- renderDataTable({
+  output$tol_int_out <- DT::renderDT({
 
     tol_int()
 
@@ -1375,7 +1375,7 @@ shinyServer(function(input, output, session) {
 
   })
 
-  output$intra_limit_out <- renderDataTable({
+  output$intra_limit_out <- DT::renderDT({
 
     intra_limit()
 
@@ -1585,7 +1585,7 @@ shinyServer(function(input, output, session) {
       arrange(param_name)
   })
 
-  output$inter_limit_out <- renderDataTable({
+  output$inter_limit_out <- DT::renderDT({
 
     inter_limit()
 

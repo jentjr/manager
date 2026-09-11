@@ -1,0 +1,27 @@
+# Extracted from test-pred_int.R:22
+
+# setup ------------------------------------------------------------------------
+library(testthat)
+test_env <- simulate_test_env(package = "manager", path = "..")
+attach(test_env, warn.conflicts = FALSE)
+
+# prequel ----------------------------------------------------------------------
+set.seed(14)
+df_norm <- data.frame(
+  location_id = rep(1, 20),
+  sample_date = seq(lubridate::ymd("2010-01-01", tz = Sys.timezone()),
+                    by = "quarter", length.out = 20),
+  param_name = rep("test", 20),
+  lt_measure = rep("", 20),
+  analysis_result = rnorm(20, mean = 5, sd = 1),
+  default_unit = rep("mg/L", 20),
+  distribution = "Normal"
+)
+df_norm <-  df_norm %>%
+  group_by(location_id, param_name, default_unit, distribution) %>%
+  nest()
+
+# test -------------------------------------------------------------------------
+expect_equal(pred_int(df_norm, distribution)$upl,
+               7.1847,
+               tolerance = 0.001)

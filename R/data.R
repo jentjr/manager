@@ -81,10 +81,10 @@
 #'
 "gw_data"
 
-#' U.S. EPA Maximum Contaminant Level and RSL Lookup Table
+#' U.S. EPA Maximum Contaminant Level and Regional Screening Level Lookup Table
 #'
-#' @name default_gwps
-#' @return mcl data frame specific to CCR Program
+#' @name standards_df
+#' @return data frame of default groundwater protection standards specific to CCR Program
 #' @docType data
-#' @export default_gwps
+#' @export standards_df
 NULL

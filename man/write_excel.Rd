@@ -11,6 +11,7 @@ write_excel(
   constituents,
   file,
   short_name = TRUE,
+  lab_id = FALSE,
   overwrite = FALSE
 )
 }
@@ -24,6 +25,8 @@ write_excel(
 \item{file}{full file path name with extension for export}
 
 \item{short_name}{TRUE/FALSE to abbreviate constituent name}
+
+\item{lab_id}{TRUE/FALSE to include the lab id}
 
 \item{overwrite}{TRUE/FALSE overwrite existing spreadsheet if it exists}
 }

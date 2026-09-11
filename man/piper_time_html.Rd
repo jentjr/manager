@@ -10,7 +10,7 @@ piper_time_html(df, ...)
 \item{df}{data frame of groundwater data transformed using}
 
 \item{...}{
-  Arguments passed on to \code{\link[=piper_plot]{piper_plot}}
+  Arguments passed on to \code{\link{piper_plot}}
   \describe{
     \item{\code{location_id}}{column for sample location}
     \item{\code{sample_date}}{column for sample date}

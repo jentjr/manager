@@ -4,7 +4,9 @@
 \name{gw_data}
 \alias{gw_data}
 \title{Example groundwater quality data}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 5878 rows and 6 columns.}
+\format{
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 5878 rows and 6 columns.
+}
 \usage{
 gw_data
 }

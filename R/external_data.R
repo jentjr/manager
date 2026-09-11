@@ -87,22 +87,22 @@ read_manages4 <- function(driver = "SQL Server", server, database, site) {
   manages_conn <- connect_manages4(driver, server, database)
 
   sites <- manages_conn %>% 
-    tbl("SITE")
+    dplyr::tbl("SITE")
 
   locations <- manages_conn %>%
-    tbl("LOCATIONS")
+    dplyr::tbl("LOCATIONS")
   
   site_parameters <- manages_conn %>%
-    tbl("SITE_PARAMETERS")
+    dplyr::tbl("SITE_PARAMETERS")
   
   sample_results <- manages_conn %>%
-    tbl("SAMPLE_RESULTS")
+    dplyr::tbl("SAMPLE_RESULTS")
 
   query <- sample_results %>% 
-    left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) %>% 
-    left_join(locations, by = c("SITE_ID", "LOCATION_ID")) %>% 
-    left_join(sites, by = "SITE_ID") %>% 
-    select(SITE_ID,
+    dplyr::left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) %>% 
+    dplyr::left_join(locations, by = c("SITE_ID", "LOCATION_ID")) %>% 
+    dplyr::left_join(sites, by = "SITE_ID") %>% 
+    dplyr::select(SITE_ID,
            NAME,
            LAB_ID,
            LOCATION_ID,
@@ -113,6 +113,7 @@ read_manages4 <- function(driver = "SQL Server", server, database, site) {
            ANALYSIS_RESULT,
            DETECTION_LIMIT,
            RL,
+           PQL,
            ACHIEVED_MDC,
            DEFAULT_UNIT,
            SHORT_NAME,
@@ -124,9 +125,9 @@ read_manages4 <- function(driver = "SQL Server", server, database, site) {
            WELL_TYPE,
            DESCRIPTION
     ) %>%
-    select_all(., tolower) %>%
-    filter(name %in% site) %>%
-    collect()
+    dplyr::select_all(., tolower) %>%
+    dplyr::filter(name %in% site) %>%
+    dplyr::collect()
 
   DBI::dbDisconnect(manages_conn)
 

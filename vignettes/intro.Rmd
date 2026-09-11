@@ -110,7 +110,7 @@ conf_int_table <- conf_int %>%
 kable(conf_int_table)
 ```
 
-The manager pacakges simplifies the above steps.
+The manager packages simplifies the above steps.
 ```{r}
 manager_pred_int <- background_data %>% pred_int(.)
 kable(manager_pred_int)

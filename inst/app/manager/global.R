@@ -27,26 +27,23 @@ pool <- dbPool(
   Database = dw$database
 )
 
-sites <- pool %>% tbl("site")
+sites <- pool %>% tbl("SITE")
 
 site_list <- sites %>%
-  select(name) %>%
-  collect() %>%
-  first()
+  select(NAME) %>%
+  collect()
 
 locations <- pool %>% tbl("LOCATIONS")
 
 location_list <- locations %>%
   select(LOCATION_ID) %>%
-  collect() %>%
-  first()
+  collect()
 
 site_parameters <- pool %>% tbl("SITE_PARAMETERS")
 
 constituent_list <- site_parameters %>%
   select(PARAM_NAME) %>%
-  collect() %>%
-  first()
+  collect()
 
 sample_results <- pool %>% tbl("SAMPLE_RESULTS")
 
