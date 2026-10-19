@@ -79,12 +79,14 @@
 
 #' Example groundwater quality data
 #'
-"gw_data"
-
-#' U.S. EPA Maximum Contaminant Level and Regional Screening Level Lookup Table
+#'#' @format A data frame with 5878 rows and 6 variables:
+#' \describe{
+#'   \item{location_id}{Sample Location Identifier}
+#'   \item{sample_data}{sample date}
+#'   \item{analysis_result}{analysis result}
+#'   \item{lt_measure}{non-detect flag}
+#'   \item{default_unit}{unit of measure}
+#'   \item{param_name}{analyte name}
+#' }
 #'
-#' @name standards_df
-#' @return data frame of default groundwater protection standards specific to CCR Program
-#' @docType data
-#' @export standards_df
-NULL
+"gw_data"

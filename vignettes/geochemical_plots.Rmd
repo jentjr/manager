@@ -8,9 +8,18 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-The `manager` packages provides functions for geochemical plots.
+The manager package provides a set of geochemical visualization functions for evaluating groundwater and surface water chemistry.
+
+Currently supported plots include:
+
+Piper diagrams
+Schoeller diagrams
+Stiff diagrams
+
+These plots share a common data preparation workflow that ensures consistent analyte handling, unit standardization, and conversion to milliequivalents per liter (meq/L).
 
 ```{r, echo = FALSE, message=FALSE}
+library(dplyr)
 library(manager)
 
 knitr::opts_chunk$set(
@@ -20,14 +29,37 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, piper, fig.height=6, fig.width=9, results='hide', warning=FALSE}
-# load example data
+```{r example-dataset}
 data("gw_data")
+dplyr::glimpse(gw_data)
+```
+Geochemical Plot Workflow
+All geochemical plotting functions follow the same processing pipeline.
 
+1. Resolve analyte aliases to canonical analytes.
+2. Validate analyte-unit consistency.
+3. Standardize analytical units.
+4. Convert concentrations to milliequivalents per liter (meq/L).
+5. Transform data into plot-specific coordinates.
+6. Render visualization.
+
+This workflow allows plotting functions to accept either canonical analyte names or approved analyte aliases while maintaining consistent chemistry calculations.
+
+Piper Diagram
+A Piper diagram is commonly used to classify water types and evaluate hydrochemical facies.
+
+The plot is generated directly from the analytical data.
+```{r, piper, fig.height=6, fig.width=9, results='hide', warning=FALSE}
 gw_data %>%
   piper_plot()
 ```
+Schoeller Diagram
+A Schoeller diagram displays major ion concentrations on a logarithmic scale and is useful for:
 
+Comparing groundwater chemistry between wells
+Evaluating temporal trends
+Identifying mixing relationships
+Screening for anomalous chemistry
 ```{r schoeller, fig.height=6, fig.width=9, results='hide', warning=FALSE}
 gw_data %>%
   schoeller_plot()

@@ -5,28 +5,28 @@
 \title{Stiff Diagram}
 \usage{
 stiff_plot(
-  df,
+  data,
   location_id = "location_id",
   sample_date = "sample_date",
   param_name = "param_name",
   analysis_result = "analysis_result",
   default_unit = "default_unit",
-  magnesium = "Magnesium, dissolved",
   calcium = "Calcium, dissolved",
+  magnesium = "Magnesium, dissolved",
   sodium = "Sodium, dissolved",
   potassium = "Potassium, dissolved",
   chloride = "Chloride, total",
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
   total_dissolved_solids = NULL,
-  group_var = "location_id",
-  facet_var = "sample_date",
+  group_var = location_id,
+  facet_var = sample_date,
   lines = FALSE,
-  cex = 1
+  title = NULL
 )
 }
 \arguments{
-\item{df}{data frame of water quality data}
+\item{data}{data frame of water quality data}
 
 \item{location_id}{column for sample locations}
 
@@ -37,11 +37,11 @@ stiff_plot(
 \item{analysis_result}{column for analysis result}
 
 \item{default_unit}{column for units. Assumes all units are in mg/L and
-converts using \code{\link{conc_to_meq}}}
-
-\item{magnesium}{name for magnesium}
+converts using \code{\link{.convert_ions_to_meq}}}
 
 \item{calcium}{name for calcium}
+
+\item{magnesium}{name for magnesium}
 
 \item{sodium}{name for sodium}
 
@@ -56,13 +56,21 @@ converts using \code{\link{conc_to_meq}}}
 \item{total_dissolved_solids}{name for TDS to scale color of plot.
 Default is NULL}
 
-\item{group_var}{parameter to separate plots by. Default is sample location}
+\item{group_var}{Character column name used to split the data into
+separate Stiff diagrams. One ggplot object is returned for each
+unique value. Default is the value supplied to `location_id`.}
 
-\item{facet_var}{parameter to facet the plot by. Default is sample date}
+\item{facet_var}{Character column name used for faceting.
+Default is the value supplied to `sample_date`.}
 
 \item{lines}{TRUE/FALSE plots lines}
 
-\item{cex}{multiplier to scale plot height}
+\item{title}{Optional plot title. If NULL, the value of the current
+grouping variable is used.}
+}
+\value{
+A named list of ggplot objects, one element per value of
+`group_var`.
 }
 \description{
 plots a stiff diagram

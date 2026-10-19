@@ -4,7 +4,12 @@
 \alias{stiff_time_html}
 \title{Function to create an animated Stiff Diagram and save to html}
 \usage{
-stiff_time_html(df, ...)
+stiff_time_html(
+  df,
+  sample_date = "sample_date",
+  group_var = "location_id",
+  ...
+)
 }
 \arguments{
 \item{df}{data frame of water quality data}
@@ -12,12 +17,13 @@ stiff_time_html(df, ...)
 \item{...}{
   Arguments passed on to \code{\link{stiff_plot}}
   \describe{
+    \item{\code{data}}{data frame of water quality data}
     \item{\code{location_id}}{column for sample locations}
     \item{\code{sample_date}}{column for sample date}
     \item{\code{param_name}}{column for constituent names}
     \item{\code{analysis_result}}{column for analysis result}
     \item{\code{default_unit}}{column for units. Assumes all units are in mg/L and
-converts using \code{\link{conc_to_meq}}}
+converts using \code{\link{.convert_ions_to_meq}}}
     \item{\code{magnesium}}{name for magnesium}
     \item{\code{calcium}}{name for calcium}
     \item{\code{sodium}}{name for sodium}
@@ -27,10 +33,14 @@ converts using \code{\link{conc_to_meq}}}
     \item{\code{alkalinity}}{name for alkalinity}
     \item{\code{total_dissolved_solids}}{name for TDS to scale color of plot.
 Default is NULL}
-    \item{\code{group_var}}{parameter to separate plots by. Default is sample location}
-    \item{\code{facet_var}}{parameter to facet the plot by. Default is sample date}
+    \item{\code{group_var}}{Character column name used to split the data into
+separate Stiff diagrams. One ggplot object is returned for each
+unique value. Default is the value supplied to `location_id`.}
+    \item{\code{facet_var}}{Character column name used for faceting.
+Default is the value supplied to `sample_date`.}
     \item{\code{lines}}{TRUE/FALSE plots lines}
-    \item{\code{cex}}{multiplier to scale plot height}
+    \item{\code{title}}{Optional plot title. If NULL, the value of the current
+grouping variable is used.}
   }}
 }
 \description{

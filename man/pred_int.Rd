@@ -6,8 +6,6 @@
 \usage{
 pred_int(
   df,
-  analysis_result = "analysis_result",
-  distribution = "distribution",
   method = "Bonferroni",
   n_mean = 1,
   k = 1,
@@ -17,10 +15,6 @@ pred_int(
 }
 \arguments{
 \item{df}{df data frame of groundwater data in tidy format}
-
-\item{analysis_result}{the analysis result column}
-
-\item{distribution}{the distribution column}
 
 \item{method}{default is "Bonferroni"}
 
@@ -39,6 +33,10 @@ pi_type="upper", and pi_type="lower".}
 
 \item{conf_level}{a scalar between 0 and 1 indicating the confidence level
 of the prediction interval. The default value is conf.level=0.95}
+
+\item{analysis_result}{the analysis result column}
+
+\item{distribution}{the distribution column}
 }
 \description{
 Function to calculate prediction interval

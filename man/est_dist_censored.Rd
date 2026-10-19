@@ -2,29 +2,28 @@
 % Please edit documentation in R/est_dist_censored.R
 \name{est_dist_censored}
 \alias{est_dist_censored}
-\title{Function to return either normal, lognormal, gamma, or non-parametric 
+\title{Function to return either normal, lognormal, gamma, or non-parametric
 distribution estimate}
 \usage{
 est_dist_censored(
   df,
-  left_censored,
-  method = "sf",
+  return_result = FALSE,
   alpha = 0.05,
+  method = "sf",
   choices = c("norm", "lnorm"),
-  combine_locations = FALSE,
-  keep_data_object = FALSE
+  min_n = 4
 )
 }
 \arguments{
 \item{df}{groundwater data frame in tidy format}
 
-\item{left_censored}{logical vector.}
+\item{alpha}{alpha}
 
 \item{method}{default is "sf"}
 
-\item{alpha}{alpha}
-
 \item{choices}{vector of distributions to check. Default is c("norm, "lnorm")}
+
+\item{left_censored}{logical vector.}
 
 \item{combine_locations}{TRUE/FALSE to estimate distribution by individual
 location, or grouped together. Default is FALSE.}
@@ -32,7 +31,7 @@ location, or grouped together. Default is FALSE.}
 \item{keep_data_object}{Default is FALSE}
 }
 \description{
-Function to return either normal, lognormal, gamma, or non-parametric 
+Function to return either normal, lognormal, gamma, or non-parametric
 distribution estimate
 }
 \examples{
@@ -50,11 +49,11 @@ filter(percent_lt >=15, percent_lt <= 50)
 
 gw_data \%>\%
 group_by(location_id, param_name, default_unit) \%>\%
-est_dist_censored(., alpha = 0.05, keep_data_object = FALSE)
+est_dist_censored()
 
 
 gw_data \%>\%
 group_by(param_name, default_unit) \%>\%
-est_dist_censored(., combine_locations = TRUE, keep_data_object = FALSE)
+est_dist_censored()
 
 }

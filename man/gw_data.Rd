@@ -11,6 +11,14 @@ An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) w
 gw_data
 }
 \description{
-Example groundwater quality data
+#' @format A data frame with 5878 rows and 6 variables:
+\describe{
+  \item{location_id}{Sample Location Identifier}
+  \item{sample_data}{sample date}
+  \item{analysis_result}{analysis result}
+  \item{lt_measure}{non-detect flag}
+  \item{default_unit}{unit of measure}
+  \item{param_name}{analyte name}
+}
 }
 \keyword{datasets}

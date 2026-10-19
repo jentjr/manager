@@ -14,13 +14,17 @@ series_plot(
   lt_measure = "lt_measure",
   scale = "free",
   scale_y_trans = "identity",
-  trend = NULL,
+  trend = "none",
+  trend_ci = FALSE,
+  trend_conf_level = 0.95,
+  trend_label = c("none", "compact", "full"),
+  trend_label_sig_only = TRUE,
   background = NULL,
-  limit1 = NULL,
-  limit2 = NULL,
+  standards = TRUE,
   short_name = FALSE,
   pnt = 3,
-  ncol = NULL
+  ncol = NULL,
+  plot_type = c("split", "combined")
 )
 }
 \arguments{
@@ -34,7 +38,8 @@ series_plot(
 
 \item{group_var}{column to group plots by, default is by constituent}
 
-\item{lt_measure}{column for non-detect symbol}
+\item{lt_measure}{column for non-detect symbol.
+Symbol can be either "<", "ND", or "U"}
 
 \item{scale}{"fixed" or "free", or in one dimension "free_x", "free_y"}
 
@@ -47,9 +52,8 @@ series_plot(
 
 \item{background}{vector of dates for background start and end dates.}
 
-\item{limit1}{horizontal line 1}
-
-\item{limit2}{horizontal line 2}
+\item{standards}{Logical. If TRUE, standards from the internal
+standards_df lookup table are added as horizontal reference lines.}
 
 \item{short_name}{If TRUE, the constituent name will be abbreviated}
 

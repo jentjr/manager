@@ -19,3 +19,12 @@ Useful links:
 }
 
 }
+\author{
+\strong{Maintainer}: Justin Jent \email{jentjr@gmail.com}
+
+Authors:
+\itemize{
+  \item Justin Jent \email{jentjr@gmail.com}
+}
+
+}

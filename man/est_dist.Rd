@@ -2,55 +2,63 @@
 % Please edit documentation in R/est_dist.R
 \name{est_dist}
 \alias{est_dist}
-\title{Function to return either normal, lognormal, or non-parametric
-distribution}
+\title{Estimate statistical distribution}
 \usage{
 est_dist(
   df,
+  return_result = FALSE,
   alpha = 0.05,
   method = "sw",
   choices = c("norm", "lnorm"),
-  combine_locations = FALSE,
-  keep_data_object = FALSE
+  min_n = 4
 )
 }
 \arguments{
-\item{df}{groundwater data frame in tidy format}
+\item{df}{Tidy groundwater data frame. Grouping determines the
+level at which distributions are estimated.}
 
-\item{alpha}{alpha}
+\item{return_result}{TRUE/FALSE.}
 
-\item{method}{default is "sw"}
+\item{alpha}{Significance level.}
 
-\item{choices}{vector of distributions to check. Default is c("norm, "lnorm")}
+\item{method}{Goodness-of-fit method passed to EnvStats::distChoose().}
 
-\item{combine_locations}{TRUE/FALSE to estimate distribution by individual
-location, or grouped together. Default is FALSE.}
+\item{choices}{Candidate distributions.}
 
-\item{keep_data_object}{Default is FALSE}
+\item{min_n}{Minimum sample size required for estimation.}
+}
+\value{
+A tibble with one row per group containing:
+\describe{
+  \item{distribution}{Selected distribution.}
+  \item{n}{Number of non-missing observations used in estimation.}
+  \item{data}{Nested data frame containing the observations
+  used for the group.}
+  \item{result}{EnvStats result object stored as a
+  list-column when return_result = TRUE.}
+}
 }
 \description{
-Function to return either normal, lognormal, or non-parametric
-distribution
+Determines whether grouped data are best represented by a
+normal, lognormal, or other candidate distribution.
+}
+\details{
+The returned object retains the original grouped observations in a
+nested `data` list-column. This allows downstream functions such as
+prediction interval, tolerance interval, and control chart
+calculations to access the observations used for distribution
+estimation.
 }
 \examples{
 data("gw_data")
-wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
-params <- c("Sulfate, total",
-            "Arsenic, dissolved",
-           "Boron, dissolved")
-
-gw_data <- gw_data \%>\%
-filter(location_id \%in\% wells, param_name \%in\% params) \%>\%
-percent_lt() \%>\%
-filter(percent_lt <=15)
 
 gw_data \%>\%
-group_by(location_id, param_name, default_unit) \%>\%
-est_dist(., alpha = 0.05, keep_data_object = FALSE)
-
-
-gw_data \%>\%
-group_by(param_name, default_unit) \%>\%
-est_dist(., combine_locations = TRUE, keep_data_object = FALSE)
+  dplyr::group_by(
+    location_id,
+    param_name,
+    default_unit
+  ) \%>\%
+  percent_lt() \%>\%
+  est_dist()
 
 }

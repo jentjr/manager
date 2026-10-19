@@ -10,6 +10,7 @@ vignette: >
 ---
 
 ```{r, echo = FALSE, message=FALSE}
+library(dplyr)
 library(manager)
 
 knitr::opts_chunk$set(

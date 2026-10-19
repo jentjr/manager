@@ -16,58 +16,153 @@ schoeller_plot(
   sodium = "Sodium, dissolved",
   potassium = "Potassium, dissolved",
   chloride = "Chloride, total",
-  alkalinity = "Alkalinity, total (lab)",
   sulfate = "Sulfate, total",
-  facet_var = "location_id",
+  alkalinity = "Alkalinity, total (lab)",
+  analyte_matching = c("normalized", "strict", "exact"),
+  facet_var = c("location_id", "sample_date"),
   title = NULL,
   lwt = 1
 )
 }
 \arguments{
-\item{df}{dataframe of environmental data in tidy format. The function
-will convert data from mg/L to meq/L}
+\item{df}{Data frame containing environmental analytical results in
+tidy format.}
 
-\item{location_id}{the column for sample locations}
+\item{location_id}{Character. Column containing location identifiers.}
 
-\item{sample_date}{column for sample date}
+\item{sample_date}{Character. Column containing sample dates.}
 
-\item{param_name}{the column of parameter names}
+\item{param_name}{Character. Column containing analyte names.}
 
-\item{analysis_result}{column containing the numerical analysis result}
+\item{analysis_result}{Character. Column containing analytical results.}
 
-\item{default_unit}{column containing the units. Assumes mg/L.}
+\item{default_unit}{Character. Column containing analytical units.}
 
-\item{calcium}{name of calcium. Default is "Calcium, dissolved"}
+\item{calcium}{Character. Calcium analyte name or alias.}
 
-\item{magnesium}{name of magnesium. Default is "Magnesium, dissolved"}
+\item{magnesium}{Character. Magnesium analyte name or alias.}
 
-\item{sodium}{name for sodium. Default is "Sodium, dissolved"}
+\item{sodium}{Character. Sodium analyte name or alias.}
 
-\item{potassium}{name for potassium. Default is "Potassium, dissolved"}
+\item{potassium}{Character. Potassium analyte name or alias.}
 
-\item{chloride}{name for chloride. Default is "Chloride, total"}
+\item{chloride}{Character. Chloride analyte name or alias.}
 
-\item{alkalinity}{name for alkalinity. Default is "Alkalinity, total (lab)"}
+\item{sulfate}{Character. Sulfate analyte name or alias.}
 
-\item{sulfate}{name of sulfate. Default is "Sulfate, total"}
+\item{alkalinity}{Character. Alkalinity analyte name or alias.}
 
-\item{facet_var}{parameter to facet plots by. Default is location}
+\item{analyte_matching}{Character. Method used to match analyte names.
+One of:
 
-\item{title}{title of plot}
+* `"normalized"` (default)
+* `"strict"`
+* `"exact"`
 
-\item{lwt}{lineweight}
+See [resolve_analyte_name()] for details.}
+
+\item{facet_var}{Character. Variable used for faceting.
+One of:
+
+* `"location_id"`
+* `"sample_date"`
+
+When `"location_id"` is selected, each location receives its own panel
+and individual sample events are plotted as separate lines.
+
+When `"sample_date"` is selected, each sampling event receives its
+own panel and individual locations are plotted as separate lines.}
+
+\item{title}{Optional plot title.}
+
+\item{lwt}{Numeric line width.}
+}
+\value{
+A ggplot object.
 }
 \description{
-Schoeller Diagram
+Creates a Schoeller diagram for comparing major ion chemistry among
+groundwater or surface water samples.
+}
+\details{
+The function automatically:
+
+* Resolves analyte names using the package analyte metadata tables.
+* Converts analyte concentrations to milliequivalents per liter (meq/L).
+* Aggregates replicate results within each
+  location/sample/analyte combination.
+* Combines sodium and potassium into a single
+  Na + K Schoeller axis.
+* Produces a logarithmic concentration profile suitable for
+  hydrochemical interpretation.
+
+Analyte names may be supplied using any supported alias when
+`analyte_matching = "normalized"` or `"strict"`.
+
+
+Schoeller diagrams display major ion concentrations on a logarithmic
+y-axis and are commonly used to:
+
+* Compare groundwater chemistry between monitoring wells.
+* Evaluate temporal geochemical trends.
+* Identify mixing relationships.
+* Identify hydrochemical facies.
+* Screen for anomalous ion signatures.
+
+Concentrations are internally converted to milliequivalents per liter
+(meq/L) using analyte metadata stored in `analyte_tbl`.
+
+Missing analytes are permitted and are omitted from the plotted profile.
 }
 \examples{
-data(gw_data)
-gw_data \%>\%
-filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
-schoeller_plot(., facet_var = "location_id", title = "Example Scholler Plot")
 
+# Default Schoeller diagram
+schoeller_plot(gw_data)
+
+# Facet by sampling event
+schoeller_plot(
+  gw_data,
+  facet_var = "sample_date"
+)
+
+# Custom analyte aliases using normalized matching
+schoeller_plot(
+  gw_data,
+  calcium = "Ca",
+  magnesium = "Mg",
+  sodium = "Na",
+  potassium = "K",
+  chloride = "Cl",
+  sulfate = "SO4",
+  alkalinity = "HCO3",
+  analyte_matching = "normalized"
+)
+
+# Restrict to selected monitoring wells
 gw_data \%>\%
-filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
-schoeller_plot(., facet_var = "sample_date", lwt = 2)
+  dplyr::filter(
+    location_id \%in\% c(
+      "MW-1",
+      "MW-2",
+      "MW-3"
+    )
+  ) \%>\%
+  schoeller_plot()
+
+# Temporal comparison for a single well
+gw_data \%>\%
+  dplyr::filter(
+    location_id == "MW-1"
+  ) \%>\%
+  schoeller_plot(
+    facet_var = "location_id"
+  )
+
+# Customized appearance
+schoeller_plot(
+  gw_data,
+  title = "Major Ion Chemistry",
+  lwt = 1.5
+)
 
 }

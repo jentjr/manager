@@ -2,7 +2,7 @@
 % Please edit documentation in R/piper_plot.R
 \name{piper_plot}
 \alias{piper_plot}
-\title{Create a piper diagram}
+\title{Create a Piper diagram for hydrochemical facies interpretation}
 \usage{
 piper_plot(
   df,
@@ -11,6 +11,7 @@ piper_plot(
   param_name = "param_name",
   analysis_result = "analysis_result",
   default_unit = "default_unit",
+  analyte_matching = c("normalized", "strict", "exact"),
   x_cation = "Calcium, dissolved",
   x_cation_label = "Ca",
   y_cation = "Magnesium, dissolved",
@@ -20,12 +21,12 @@ piper_plot(
   x_anion = c("Chloride, total", "Fluoride, total"),
   x_anion_label = "Cl + F",
   y_anion = "Alkalinity, total (lab)",
-  y_anion_label = "HCO3 + CO2",
+  y_anion_label = "HCO[3] + CO[3]",
   z_anion = "Sulfate, total",
   z_anion_label = "SO4",
   x_z_anion_label = "SO4 + Cl + F",
   x_y_cation_label = "Ca + Mg",
-  total_dissolved_solids = NULL,
+  scale_analyte = NULL,
   group_col = NULL,
   transparency = 0.7,
   pnt_size = 3,
@@ -34,73 +35,282 @@ piper_plot(
 )
 }
 \arguments{
-\item{df}{data frame of water quality data in tidy format}
+\item{df}{A data frame containing water quality results in tidy format.
+Must contain one row per parameter result and include the columns
+specified by `location_id`, `sample_date`, `param_name`,
+`analysis_result`, and `default_unit`.}
 
-\item{location_id}{column for sample location}
+\item{location_id}{Character string identifying the column containing
+sample location identifiers.}
 
-\item{sample_date}{column for sample date}
+\item{sample_date}{Character string identifying the column containing
+sample dates.}
 
-\item{x_cation}{default is Calcium, dissolved}
+\item{param_name}{Character string identifying the column containing
+analyte or parameter names.}
 
-\item{x_cation_label}{label for x cation}
+\item{analysis_result}{Character string identifying the column containing
+numeric analytical results.}
 
-\item{y_cation}{default is Magnesium, dissolved}
+\item{default_unit}{Character string identifying the column containing
+analytical reporting units.}
 
-\item{y_cation_label}{label for y cation}
+\item{analyte_matching}{Character string specifying how analyte names are
+  matched. Must be one of `"normalized"`, `"strict"`, or `"exact"`.
+  The default is `"normalized"`.
 
-\item{z_cation}{default is Sodium, dissolved + Potassium, dissolved}
+  \describe{
+    \item{exact}{
+      Uses analyte names exactly as reported. For example,
+      `"Calcium, dissolved"` and `"Calcium, total"` are treated as
+      separate analytes.
+    }
 
-\item{z_cation_label}{label for z cation}
+    \item{strict}{
+      Applies text normalization (case, punctuation, and whitespace)
+      while preserving distinctions such as dissolved versus total
+      fractions. For example, `"Calcium, dissolved"` resolves to
+      `"calcium dissolved"` and remains distinct from
+      `"calcium total"`.
+    }
 
-\item{x_anion}{default is Chloride, total + Fluoride, total}
+    \item{normalized}{
+      Applies text normalization and resolves aliases using the package
+      analyte lookup table. For example,
+      `"Calcium, dissolved"`, `"Calcium, total"`, and `"Ca"` may all
+      resolve to `"calcium"`.
+    }
+  }}
 
-\item{x_anion_label}{label for x anion}
+\item{x_cation}{Character vector of analytes representing the left corner
+cation component of the Piper diagram. Default is
+`"Calcium, dissolved"`.}
 
-\item{y_anion}{default is Alkalinity, total (lab)}
+\item{x_cation_label}{Label displayed for the left corner cation axis.
+Labels are parsed as plotmath expressions.}
 
-\item{y_anion_label}{label for y anion}
+\item{y_cation}{Character vector of analytes representing the upper
+cation component of the Piper diagram. Default is
+`"Magnesium, dissolved"`.}
 
-\item{z_anion}{default is Sulfate, total}
+\item{y_cation_label}{Label displayed for the upper cation axis.
+Labels are parsed as plotmath expressions.}
 
-\item{z_anion_label}{label for z anion}
+\item{z_cation}{Character vector of analytes representing the right corner
+cation component of the Piper diagram. Defaults to sodium plus
+potassium:
+`c("Sodium, dissolved", "Potassium, dissolved")`.}
 
-\item{x_z_anion_label}{label for the upper left diamond}
+\item{z_cation_label}{Label displayed for the right cation axis.
+Labels are parsed as plotmath expressions.}
 
-\item{x_y_cation_label}{label for the upper right diamond}
+\item{x_anion}{Character vector of analytes representing the left corner
+anion component of the Piper diagram. Defaults to chloride plus
+fluoride:
+`c("Chloride, total", "Fluoride, total")`.}
 
-\item{total_dissolved_solids}{Scale plot by Total Dissolved Solids,
-default = FALSE}
+\item{x_anion_label}{Label displayed for the left anion axis.
+Labels are parsed as plotmath expressions.}
 
-\item{group_col}{grouping column for symbols}
+\item{y_anion}{Character vector of analytes representing the lower-right
+anion component of the Piper diagram. The default assumes alkalinity is
+reported as `"Alkalinity, total (lab)"` in units of mg/L as CaCO3.}
 
-\item{transparency}{the setting for transparency value for points. Default
-is 0.2}
+\item{y_anion_label}{Label displayed for the bicarbonate/carbonate axis.
+Labels are parsed as plotmath expressions.}
 
-\item{pnt_size}{the size of the points. Default is 3}
+\item{z_anion}{Character vector of analytes representing the upper anion
+component of the Piper diagram. Default is `"Sulfate, total"`.}
 
-\item{label_size}{size of font for labels}
+\item{z_anion_label}{Label displayed for the sulfate axis. Labels are
+parsed as plotmath expressions.}
 
-\item{title}{Title for plot, default = NULL}
+\item{x_z_anion_label}{Label displayed on the upper-left side of the
+central diamond. Labels are parsed as plotmath expressions.}
+
+\item{x_y_cation_label}{Label displayed on the upper-right side of the
+central diamond. Labels are parsed as plotmath expressions.}
+
+\item{scale_analyte}{Optional analyte name used to scale point
+size within the central diamond.
+
+The analyte must be present in the prepared Piper dataset.
+If `NULL`, all points are plotted with a constant size.}
+
+\item{group_col}{Optional column name used to assign point shape.
+Each location must correspond to a single grouping value.}
+
+\item{transparency}{Numeric transparency value passed to
+[ggplot2::geom_point()]. Must be between 0 and 1. Default is `0.7`.}
+
+\item{pnt_size}{Numeric point size used when
+`scale_analyte = NULL`. Default is `3`.}
+
+\item{label_size}{Numeric text size used for Piper axis labels. Default
+is `3`.}
+
+\item{title}{Optional plot title. Defaults to `NULL`.}
+}
+\value{
+An object of class `"ggplot"` containing a Piper diagram.
 }
 \description{
-labels accept plotmath expressions
+Creates a Piper diagram from major ion chemistry reported in a tidy
+groundwater or surface water dataset. Major ions are converted to
+milliequivalents per liter (meq/L), normalized to relative ionic
+percentages, and plotted in the cation triangle, anion triangle, and
+central diamond.
 }
+\details{
+Labels accept plotmath expressions.
+
+
+Major ion analytes are processed through the package geochemical
+preparation pipeline before Piper coordinates are calculated.
+
+The pipeline performs:
+
+\itemize{
+  \item analyte resolution;
+  \item analyte validation;
+  \item unit validation;
+  \item duplicate detection and averaging;
+  \item conversion to milliequivalents per liter (meq/L);
+  \item construction of a wide-format geochemical dataset.
+}
+
+The resulting geochemical dataset is transformed into cation,
+anion, and central-diamond Piper coordinates for plotting.
+}
+\section{Analyte matching}{
+
+
+The same water chemistry dataset may contain multiple reporting
+conventions for a given constituent (for example `"SO4"` versus
+`"Sulfate"` or `"Calcium, dissolved"` versus `"Calcium, total"`).
+
+The `analyte_matching` argument controls whether these values are
+treated as distinct analytes or resolved to a common analyte name prior
+to ion conversion and Piper coordinate calculation.
+
+For most hydrochemical applications,
+`analyte_matching = "normalized"` is recommended.
+
+When `analyte_matching = "normalized"`, analyte aliases are resolved
+using the package analyte lookup table. This allows multiple laboratory
+reporting conventions to be treated as the same chemical constituent.
+
+Examples include:
+
+\itemize{
+  \item `"Ca"` and `"Calcium"`
+  \item `"SO4"` and `"Sulfate"`
+  \item `"Alkalinity, total"` and `"Bicarbonate"`
+  \item `"Calcium, dissolved"` and `"Calcium, total"`
+}
+
+The `"exact"` option preserves laboratory-reported analyte names and may
+be useful for QA/QC, data auditing, or evaluating dissolved versus total
+fractions independently. The `"strict"` option provides normalized text
+matching while preserving those analytical distinctions.
+}
+
+\section{Validation and error handling}{
+
+
+The function performs several validation checks before constructing the
+Piper diagram.
+
+\strong{Required columns}
+
+The input data frame must contain the columns identified by
+`location_id`, `sample_date`, `param_name`, `analysis_result`, and
+`default_unit`. An error is thrown if any required columns are missing.
+
+\strong{Analyte resolution}
+
+Specified Piper ions are resolved according to the selected
+`analyte_matching` strategy. Analytes that cannot be resolved are
+retained using their normalized names and are not automatically dropped.
+
+\strong{Unit validation}
+
+Major ion analytes are validated and converted through the package
+geochemical preparation pipeline. Unsupported units generate an error.
+
+\strong{Duplicate analytes}
+
+Duplicate analyte measurements within a sample are detected after analyte
+resolution. A warning is issued when duplicate analyte/sample
+combinations are found. Duplicate results are averaged before
+conversion to milliequivalents and Piper coordinate calculation.
+
+Under `analyte_matching = "normalized"`, analytes such as
+`"Calcium, dissolved"` and `"Calcium, total"` may resolve to the same
+analyte and therefore be treated as duplicates.
+
+\strong{Missing major ions}
+
+A warning is issued when one or more requested Piper analytes are not
+present in the input data.
+
+Samples with missing major ion concentrations are retained during data
+preparation but omitted from the corresponding Piper triangle or diamond
+when coordinates cannot be calculated.
+
+Informational messages report the number and percentage of complete
+Piper analyses available for plotting.
+
+\strong{Grouping variables}
+
+When `group_col` is supplied, each `location_id` must map to exactly one
+grouping value. If multiple grouping values are associated with the same
+location, an error is thrown.
+}
+
+\section{Warnings}{
+
+
+The function may generate warnings when:
+\itemize{
+  \item requested Piper ions are not present in the dataset;
+  \item duplicate analyte/sample combinations are detected;
+  \item samples are omitted due to incomplete major-ion chemistry.
+}
+
+These warnings are intended to help identify data-quality issues and
+unexpected analyte resolution behavior.
+}
+
 \examples{
 data(gw_data)
 wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")
-gw_data \%>\%
-filter(location_id \%in\% wells) \%>\%
-piper_plot(., title = "Example Piper Diagram")
 
-# scaled by Total Dissolved Solids
+# preserve dissolved and total analytes as separate measurements
 gw_data \%>\%
-filter(location_id \%in\% wells) \%>\%
-piper_plot(., total_dissolved_solids = "Total Dissolved Solids",
-title = "Example Piper Diagram")
+  dplyr::filter(location_id \%in\% wells) \%>\%
+  piper_plot(
+    analyte_matching = "exact"
+  )
+
+# normalize analyte aliases to canonical ion names
+gw_data \%>\%
+  dplyr::filter(location_id \%in\% wells) \%>\%
+  piper_plot(
+    analyte_matching = "normalized"
+  )
+
+# scaled by analyte
+gw_data \%>\%
+dplyr::filter(location_id \%in\% wells) \%>\%
+piper_plot(
+scale_analyte = "Total Dissolved Solids",
+title = "Example Piper Diagram"
+)
 
 # use plotmath expressions for labels
 gw_data \%>\%
-filter(location_id \%in\% wells) \%>\%
-piper_plot(., x_cation_label = "Ca~phantom()^+2")
+dplyr::filter(location_id \%in\% wells) \%>\%
+piper_plot(x_cation_label = "Ca~phantom()^+2")
 
 }

@@ -2,15 +2,15 @@
 % Please edit documentation in R/background_helper.R
 \name{start_date}
 \alias{start_date}
-\title{Function to find the start of sampling for a well constituent pair}
+\title{Return the first sample date}
 \usage{
-start_date(df, sample_date)
+start_date(df, sample_date = sample_date)
 }
 \arguments{
-\item{df}{dataframe of groundwater data in tidy format}
+\item{df}{Data frame.}
 
-\item{sample_date}{the column for the sampling dates}
+\item{sample_date}{Sample date column.}
 }
 \description{
-Function to find the start of sampling for a well constituent pair
+Return the first sample date
 }

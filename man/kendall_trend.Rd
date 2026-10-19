@@ -2,15 +2,15 @@
 % Please edit documentation in R/trends.R
 \name{kendall_trend}
 \alias{kendall_trend}
-\title{Kendall Trend}
+\title{Kendall Trend Test}
 \usage{
-kendall_trend(df, conf.level = 0.99)
+kendall_trend(df, conf.level = 0.95)
 }
 \arguments{
-\item{df}{dataframe of groundwater data}
+\item{df}{dataframe}
 
-\item{conf.level}{confidence level between 0 and 1}
+\item{conf.level}{confidence level}
 }
 \description{
-Kendall Trend
+Kendall Trend Test
 }

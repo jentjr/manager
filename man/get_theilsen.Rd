@@ -2,19 +2,27 @@
 % Please edit documentation in R/trends.R
 \name{get_theilsen}
 \alias{get_theilsen}
-\title{Function to get slope and intercept from Theil-Sen slope for plotting}
+\title{Extract Theil-Sen trend statistics}
 \usage{
-get_theilsen(df, x = "analysis_result", y = "sample_date", ...)
+get_theilsen(
+  df,
+  x = "analysis_result",
+  y = "sample_date",
+  conf.level = 0.95,
+  ...
+)
 }
 \arguments{
-\item{df}{dataframe of groundwater data in tidy format}
+\item{df}{dataframe}
 
-\item{x}{column for analysis result}
+\item{x}{response variable}
 
-\item{y}{column for sample date}
+\item{y}{time variable}
 
-\item{...}{other arguments passed to @seealso [kendallTrendTest()]}
+\item{conf.level}{confidence level}
+
+\item{...}{additional arguments passed to kendallTrendTest}
 }
 \description{
-Function to get slope and intercept from Theil-Sen slope for plotting
+Extract Theil-Sen trend statistics
 }

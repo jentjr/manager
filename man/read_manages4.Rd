@@ -4,7 +4,7 @@
 \alias{read_manages4}
 \title{Function to read MANAGES 4.0 database}
 \usage{
-read_manages4(driver = "SQL Server", server, database, site)
+read_manages4(driver = "SQL Server", server, database, site_names)
 }
 \arguments{
 \item{driver}{default is "SQL Server"}
@@ -13,7 +13,7 @@ read_manages4(driver = "SQL Server", server, database, site)
 
 \item{database}{database name}
 
-\item{site}{list of sites}
+\item{site_names}{Character vector of site names}
 }
 \description{
 Function to read MANAGES 4.0 database

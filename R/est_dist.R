@@ -1,77 +1,83 @@
-#' Function to return either normal, lognormal, or non-parametric
-#' distribution
+#' Estimate statistical distribution
 #'
-#' @param df groundwater data frame in tidy format
-#' @param alpha alpha
-#' @param method default is "sw"
-#' @param choices vector of distributions to check. Default is c("norm, "lnorm")
-#' @param combine_locations TRUE/FALSE to estimate distribution by individual
-#' location, or grouped together. Default is FALSE.
-#' @param keep_data_object Default is FALSE
+#' Determines whether grouped data are best represented by a
+#' normal, lognormal, or other candidate distribution.
+#'
+#' The returned object retains the original grouped observations in a
+#' nested `data` list-column. This allows downstream functions such as
+#' prediction interval, tolerance interval, and control chart
+#' calculations to access the observations used for distribution
+#' estimation.
+#'
+#' @param df Tidy groundwater data frame. Grouping determines the
+#'   level at which distributions are estimated.
+#' @param return_result TRUE/FALSE.
+#' @param alpha Significance level.
+#' @param method Goodness-of-fit method passed to EnvStats::distChoose().
+#' @param choices Candidate distributions.
+#' @param min_n Minimum sample size required for estimation.
+#'
+#' @return A tibble with one row per group containing:
+#' \describe{
+#'   \item{distribution}{Selected distribution.}
+#'   \item{n}{Number of non-missing observations used in estimation.}
+#'   \item{data}{Nested data frame containing the observations
+#'   used for the group.}
+#'   \item{result}{EnvStats result object stored as a
+#'   list-column when return_result = TRUE.}
+#' }
 #'
 #' @examples
 #' data("gw_data")
-#' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
-#' params <- c("Sulfate, total",
-#'             "Arsenic, dissolved",
-#'            "Boron, dissolved")
-#'
-#' gw_data <- gw_data %>%
-#' filter(location_id %in% wells, param_name %in% params) %>%
-#' percent_lt() %>%
-#' filter(percent_lt <=15)
 #'
 #' gw_data %>%
-#' group_by(location_id, param_name, default_unit) %>%
-#' est_dist(., alpha = 0.05, keep_data_object = FALSE)
-#'
-#'
-#' gw_data %>%
-#' group_by(param_name, default_unit) %>%
-#' est_dist(., combine_locations = TRUE, keep_data_object = FALSE)
+#'   dplyr::group_by(
+#'     location_id,
+#'     param_name,
+#'     default_unit
+#'   ) %>%
+#'   percent_lt() %>%
+#'   est_dist()
 #'
 #' @export
 
-est_dist <- function(df,
-                     alpha = 0.05,
-                     method = "sw",
-                     choices = c("norm", "lnorm"),
-                     combine_locations = FALSE,
-                     keep_data_object = FALSE) {
+est_dist <- function(
+  df,
+  return_result = FALSE,
+  alpha = 0.05,
+  method = "sw",
+  choices = c("norm", "lnorm"),
+  min_n = 4
+) {
+  required_cols <- "analysis_result"
 
-  if (isTRUE(combine_locations)) {
-    nested_df <- df %>%
-      group_by(param_name, default_unit) %>%
-      nest()
+  missing_cols <- setdiff(
+    required_cols,
+    names(df)
+  )
 
-  } else {
-
-    nested_df <- df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      nest()
-
-  }
-
-  dist_est <- nested_df %>%
-    mutate(dist_est = map(.x = data, ~distChoose(
-      y = .x$analysis_result,
-      choices = choices, method = method, alpha = alpha))
+  if (length(missing_cols) > 0) {
+    rlang::abort(
+      paste(
+        "Missing required column(s):",
+        paste(missing_cols, collapse = ", ")
+      )
     )
-
-  if (isTRUE(keep_data_object)) {
-
-    dist_est %>%
-      mutate(distribution = map(.x = dist_est, ~ .x$decision)) %>%
-      select(-dist_est) %>%
-      unnest(cols = c(distribution))
-
-  } else {
-
-    dist_est %>%
-      mutate(distribution = map(.x = dist_est, ~ .x$decision)) %>%
-      select(-data, -dist_est) %>%
-      unnest()
-
   }
 
+  .validate_est_dist_args(
+    alpha = alpha,
+    method = method,
+    choices = choices,
+    return_result = return_result
+  )
+
+  .est_dist_worker(
+    df = df,
+    return_result = return_result,
+    min_n = min_n,
+    alpha = alpha,
+    method = method,
+    choices = choices
+  )
 }

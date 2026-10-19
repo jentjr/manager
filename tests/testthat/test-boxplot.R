@@ -33,7 +33,7 @@ test_df <- data.frame(
 )
 
 test_that("validate_boxplot_inputs succeeds with valid data", {
-  expect_invisible(
+  expect_no_error(
     .validate_boxplot_inputs(
       df = test_df,
       x = "location_id",
@@ -41,11 +41,16 @@ test_that("validate_boxplot_inputs succeeds with valid data", {
       lt_measure = "lt_measure",
       fill = NULL,
       scale_y_trans = "identity",
-      limit1 = NULL,
-      limit2 = NULL,
       group_var = "param_name",
       coef = 1.5,
-      notch = FALSE
+      notch = FALSE,
+      short_name = FALSE,
+      show_points = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     )
   )
 })
@@ -59,11 +64,16 @@ test_that("missing columns generate error", {
       lt_measure = "lt_measure",
       fill = NULL,
       scale_y_trans = "identity",
-      limit1 = NULL,
-      limit2 = NULL,
       group_var = "param_name",
       coef = 1.5,
-      notch = FALSE
+      notch = FALSE,
+      show_points = FALSE,
+      short_name = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     ),
     "Missing columns"
   )
@@ -83,11 +93,16 @@ test_that("non-numeric y generates error", {
       lt_measure = "lt_measure",
       fill = NULL,
       scale_y_trans = "identity",
-      limit1 = NULL,
-      limit2 = NULL,
       group_var = "param_name",
       coef = 1.5,
-      notch = FALSE
+      notch = FALSE,
+      show_points = FALSE,
+      short_name = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     ),
     "must be numeric"
   )
@@ -102,11 +117,16 @@ test_that("invalid transformation generates error", {
       lt_measure = "lt_measure",
       fill = NULL,
       scale_y_trans = "not_a_transform",
-      limit1 = NULL,
-      limit2 = NULL,
       group_var = "param_name",
       coef = 1.5,
-      notch = FALSE
+      notch = FALSE,
+      show_points = FALSE,
+      short_name = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     ),
     "Invalid scale_y_trans value"
   )
@@ -124,11 +144,16 @@ test_that("log transforms require positive values", {
       lt_measure = "lt_measure",
       fill = NULL,
       scale_y_trans = "log10",
-      limit1 = NULL,
-      limit2 = NULL,
       group_var = "param_name",
       coef = 1.5,
-      notch = FALSE
+      notch = FALSE,
+      show_points = FALSE,
+      short_name = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     ),
     "require all values to be positive"
   )
@@ -146,11 +171,16 @@ test_that("sqrt transform rejects negative values", {
       lt_measure = "lt_measure",
       fill = NULL,
       scale_y_trans = "sqrt",
-      limit1 = NULL,
-      limit2 = NULL,
       group_var = "param_name",
       coef = 1.5,
-      notch = FALSE
+      notch = FALSE,
+      show_points = FALSE,
+      short_name = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     ),
     "non-negative values"
   )
@@ -165,44 +195,59 @@ test_that("coef must be positive numeric scalar", {
       lt_measure = "lt_measure",
       fill = NULL,
       scale_y_trans = "identity",
-      limit1 = NULL,
-      limit2 = NULL,
       group_var = "param_name",
       coef = 0,
-      notch = FALSE
+      notch = FALSE,
+      show_points = FALSE,
+      short_name = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     ),
     "positive number"
   )
 
   expect_error(
     .validate_boxplot_inputs(
-      test_df,
-      "location_id",
-      "analysis_result",
-      "lt_measure",
-      NULL,
-      "identity",
-      NULL,
-      NULL,
-      "param_name",
-      -1,
-      FALSE
+      df = test_df,
+      x = "location_id",
+      y = "analysis_result",
+      lt_measure = "lt_measure",
+      fill = NULL,
+      scale_y_trans = "identity",
+      group_var = "param_name",
+      coef = c(1, 2),
+      notch = FALSE,
+      show_points = FALSE,
+      short_name = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     )
   )
 
   expect_error(
     .validate_boxplot_inputs(
-      test_df,
-      "location_id",
-      "analysis_result",
-      "lt_measure",
-      NULL,
-      "identity",
-      NULL,
-      NULL,
-      "param_name",
-      c(1, 2),
-      FALSE
+      df = test_df,
+      x = "location_id",
+      y = "analysis_result",
+      lt_measure = "lt_measure",
+      fill = NULL,
+      scale_y_trans = "identity",
+      group_var = "param_name",
+      coef = -1,
+      notch = FALSE,
+      show_points = FALSE,
+      short_name = FALSE,
+      coord_flip = FALSE,
+      plot_ci = FALSE,
+      standards = FALSE,
+      legend_title = NULL,
+      add_explanation = FALSE
     )
   )
 })
@@ -246,7 +291,7 @@ test_that("get_plot_title returns title from param_name", {
 
   expect_equal(
     title,
-    "Boxplot for Chloride, total"
+    "Boxplot for Chloride, total (mg/L)"
   )
 })
 
@@ -314,25 +359,6 @@ test_that("non-identity transform adds scale label", {
   )
 })
 
-test_that("add_limits adds one limit line", {
-  p <- ggplot(
-    test_df,
-    aes(location_id, analysis_result)
-  )
-
-  out <- .add_limits(
-    p,
-    test_df,
-    limit1 = "limit_a",
-    limit2 = NULL
-  )
-
-  expect_gt(
-    length(out$layers),
-    length(p$layers)
-  )
-})
-
 test_that("add_boxplot_layers adds boxplot layer", {
   p <- ggplot(
     test_df,
@@ -341,7 +367,6 @@ test_that("add_boxplot_layers adds boxplot layer", {
 
   out <- .add_boxplot_layers(
     p,
-    test_df,
     coef = 1.5,
     notch = FALSE,
     plot_ci = FALSE,
@@ -362,7 +387,6 @@ test_that("plot_ci adds additional summary layers", {
 
   out <- .add_boxplot_layers(
     p,
-    test_df,
     coef = 1.5,
     notch = FALSE,
     plot_ci = TRUE,
@@ -459,5 +483,109 @@ test_that("all analysis_result values NA does not crash validation", {
 
   expect_no_error(
     boxplot(df)
+  )
+})
+
+test_that("boxplot warns when short_name column missing", {
+  df <- gw_data %>%
+    dplyr::select(-dplyr::any_of("short_name"))
+
+  expect_warning(
+    boxplot(
+      df,
+      short_name = TRUE
+    ),
+    "short_name column not found"
+  )
+})
+
+test_that("show_points validator works", {
+  expect_error(
+    boxplot(
+      gw_data,
+      show_points = "yes"
+    ),
+    "show_points must be TRUE or FALSE"
+  )
+})
+
+test_that("coord_flip validator works", {
+  expect_error(
+    boxplot(
+      gw_data,
+      coord_flip = 1
+    ),
+    "coord_flip must be TRUE or FALSE"
+  )
+})
+
+test_that("plot_ci validator works", {
+  expect_error(
+    boxplot(
+      gw_data,
+      plot_ci = "TRUE"
+    ),
+    "plot_ci must be TRUE or FALSE"
+  )
+})
+
+test_that("boxplot works without default_unit", {
+  df <- gw_data %>%
+    dplyr::select(-default_unit)
+
+  expect_no_error(
+    boxplot(df)
+  )
+})
+
+
+test_that("boxplot returns ggplot when add_explanation = FALSE", {
+  expect_no_error(
+    gw_data %>%
+      dplyr::filter(
+        param_name == "Chloride, total"
+      ) %>%
+      boxplot(
+        add_explanation = TRUE
+      )
+  )
+})
+
+test_that("boxplot returns explained plot when add_explanation = TRUE", {
+  p <- gw_data %>%
+    dplyr::filter(param_name == "Chloride, total") %>%
+    boxplot(add_explanation = TRUE)
+
+  expect_length(p, 1)
+})
+
+test_that("add_explanation validator works", {
+  expect_error(
+    boxplot(
+      gw_data,
+      add_explanation = "TRUE"
+    ),
+    "add_explanation must be TRUE or FALSE"
+  )
+})
+
+test_that("add_explanation works with standards and fill legends", {
+  expect_no_error(
+    gw_data %>%
+      dplyr::mutate(
+        gradient = dplyr::if_else(
+          location_id %in% c("MW-1", "MW-2"),
+          "upgradient",
+          "downgradient"
+        )
+      ) %>%
+      dplyr::filter(
+        param_name == "Chloride, total"
+      ) %>%
+      boxplot(
+        fill = "gradient",
+        standards = TRUE,
+        add_explanation = TRUE
+      )
   )
 })

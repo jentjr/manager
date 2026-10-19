@@ -16,12 +16,12 @@ boxplot(
   fill = NULL,
   notch = FALSE,
   plot_ci = FALSE,
-  limit1 = NULL,
-  limit2 = NULL,
+  standards = FALSE,
   pnt = 2,
   short_name = FALSE,
   coord_flip = FALSE,
-  legend_title = NULL
+  legend_title = NULL,
+  add_explanation = FALSE
 )
 }
 \arguments{
@@ -31,7 +31,8 @@ boxplot(
 
 \item{y}{column to be used for the y axis, default is analysis result}
 
-\item{lt_measure}{column for >, or < identifier}
+\item{lt_measure}{column for non-detect symbol.
+Symbol can be either "<", "ND", or "U"}
 
 \item{group_var}{the name of column used for constituents. Default is
 "param_name"}
@@ -47,14 +48,13 @@ boxplot(
 
 \item{fill}{column used to fill the variable}
 
-\item{notch}{TRUE/FALSE plot a notched boxplot. 
+\item{notch}{TRUE/FALSE plot a notched boxplot.
 The notches (if requested) extend to +/-1.58 IQR/sqrt(n)}
 
 \item{plot_ci}{add bootstrapped 95% confidence interval for mean}
 
-\item{limit1}{column to be used to draw horizontal line}
-
-\item{limit2}{column to be used to draw a second horizontal line}
+\item{standards}{Logical. If TRUE, standards from the internal
+standards_df lookup table are added as horizontal reference lines.}
 
 \item{pnt}{size of points}
 
@@ -63,6 +63,9 @@ The notches (if requested) extend to +/-1.58 IQR/sqrt(n)}
 \item{coord_flip}{If TRUE the axes are flipped}
 
 \item{legend_title}{Legend title for fill variable}
+
+\item{add_explanation}{Logical. If TRUE, display the boxplot
+explanation panel created by `.ggplot_box_legend()`.}
 }
 \description{
 Boxplot function
@@ -72,11 +75,11 @@ library(manager)
 library(dplyr)
 data(gw_data)
 gw_data \%>\%
-filter(param_name \%in\% c("Chloride, total", "Sulfate, total"), 
+filter(param_name \%in\% c("Chloride, total", "Sulfate, total"),
       location_id \%in\% c("MW-1", "MW-2", "MW-3", "MW-4",
       "MW-5", "MW-6", "MW-7", "MW-8")) \%>\%
  mutate(gradient = if_else(location_id \%in\% c("MW-1", "MW-2", "MW-3", "MW-5"),
- "upgradient", "downgradient")) \%>\% 
+ "upgradient", "downgradient")) \%>\%
  boxplot(., fill = "gradient")
 
 }

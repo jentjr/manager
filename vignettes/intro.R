@@ -1,16 +1,17 @@
-## ---- echo=FALSE, message=FALSE------------------------------------------
+## ----echo=FALSE, message=FALSE------------------------------------------------
 library(knitr)
+library(tidyverse)
 library(manager)
 
-## ---- eval = FALSE-------------------------------------------------------
-#  data <- read_manages3("C:/path/to/manages/Site.mdb")
+## ----eval = FALSE-------------------------------------------------------------
+# data <- read_manages3("C:/path/to/manages/Site.mdb")
 
-## ---- eval=FALSE---------------------------------------------------------
-#  data("gw_data")
-#  data("ohio_data")
-#  data("indiana_data")
+## ----eval=FALSE---------------------------------------------------------------
+# data("gw_data")
+# data("ohio_data")
+# data("indiana_data")
 
-## ----echo=TRUE-----------------------------------------------------------
+## ----echo=TRUE----------------------------------------------------------------
 data("gw_data")
 
 wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
@@ -28,7 +29,7 @@ background_data <- gw_data %>%
          sample_date >= background[1] & sample_date <= background[2]) %>%
   group_by(location_id, param_name, default_unit) %>%
   percent_lt() %>%
-  est_dist(., keep_data_object = TRUE) %>%
+  est_dist() %>%
   arrange(location_id, param_name)
 
 pred_int <- background_data %>%
@@ -53,7 +54,7 @@ pred_int_table <- pred_int %>%
 
 kable(pred_int_table)
 
-## ----conf_int------------------------------------------------------------
+## ----conf_int-----------------------------------------------------------------
 conf_int <- background_data %>%
   mutate(conf_int = case_when(
     distribution == "Normal" ~ map(.x=data,
@@ -86,7 +87,7 @@ conf_int_table <- conf_int %>%
 
 kable(conf_int_table)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 manager_pred_int <- background_data %>% pred_int(.)
 kable(manager_pred_int)
 

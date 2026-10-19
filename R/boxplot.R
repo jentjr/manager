@@ -4,24 +4,26 @@
 #' @param x column to be used for the x axis, default is location
 #' @param y column to be used for the y axis, default is analysis result
 #' @param lt_measure column for non-detect symbol.
-#' Symbol can be either "<", "ND", or "U"
+#'  Symbol can be either "<", "ND", or "U"
 #' @param group_var the name of column used for constituents. Default is
-#' "param_name"
+#'  "param_name"
 #' @param coef length of the whiskers as multiple of the IQR. Default is 3.
 #' @param scale_y_trans type of transformation to use for y scale. Default is
-#' "identity".  Built-in transformations include "asn", "atanh", "boxcox",
-#' "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
-#' "probit", "reciprocal", "reverse" and "sqrt".
+#'   "identity".  Built-in transformations include "asn", "atanh", "boxcox",
+#'   "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
+#'   "probit", "reciprocal", "reverse" and "sqrt".
 #' @param show_points plot the individual points using ggbeeswarm.
 #' @param fill column used to fill the variable
 #' @param notch TRUE/FALSE plot a notched boxplot.
-#' The notches (if requested) extend to +/-1.58 IQR/sqrt(n)
+#'   The notches (if requested) extend to +/-1.58 IQR/sqrt(n)
 #' @param plot_ci add bootstrapped 95% confidence interval for mean
-#' @param limit1 column to be used to draw horizontal line
-#' @param limit2 column to be used to draw a second horizontal line
+#' @param standards Logical. If TRUE, standards from the internal
+#'   standards_df lookup table are added as horizontal reference lines.
 #' @param pnt size of points
 #' @param short_name If TRUE the constituent name will be abbreviated
 #' @param coord_flip If TRUE the axes are flipped
+#' @param add_explanation Logical. If TRUE, display the boxplot
+#'   explanation panel created by `.ggplot_box_legend()`.
 #' @param legend_title Legend title for fill variable
 #'
 #' @examples
@@ -50,12 +52,12 @@ boxplot <- function(
   fill = NULL,
   notch = FALSE,
   plot_ci = FALSE,
-  limit1 = NULL,
-  limit2 = NULL,
+  standards = FALSE,
   pnt = 2,
   short_name = FALSE,
   coord_flip = FALSE,
-  legend_title = NULL
+  legend_title = NULL,
+  add_explanation = FALSE
 ) {
   .validate_boxplot_inputs(
     df = df,
@@ -64,14 +66,23 @@ boxplot <- function(
     lt_measure = lt_measure,
     fill = fill,
     scale_y_trans = scale_y_trans,
-    limit1 = limit1,
-    limit2 = limit2,
     group_var = group_var,
+    short_name = short_name,
     coef = coef,
-    notch = notch
+    notch = notch,
+    show_points = show_points,
+    coord_flip = coord_flip,
+    plot_ci = plot_ci,
+    standards = standards,
+    legend_title = legend_title,
+    add_explanation = add_explanation
   )
 
-  explanation <- .ggplot_box_legend()
+  explanation <- NULL
+
+  if (isTRUE(add_explanation)) {
+    explanation <- .ggplot_box_legend()
+  }
 
   split(df, df[[group_var]]) %>%
     purrr::imap(
@@ -86,11 +97,11 @@ boxplot <- function(
         fill = fill,
         notch = notch,
         plot_ci = plot_ci,
-        limit1 = limit1,
-        limit2 = limit2,
+        standards = standards,
         pnt = pnt,
         short_name = short_name,
         coord_flip = coord_flip,
+        add_explanation = add_explanation,
         legend_title = legend_title,
         explanation = explanation
       )
@@ -108,19 +119,22 @@ boxplot <- function(
   lt_measure,
   fill,
   scale_y_trans,
-  limit1,
-  limit2,
   group_var,
   coef,
-  notch
+  notch,
+  show_points,
+  short_name,
+  coord_flip,
+  plot_ci,
+  standards,
+  legend_title,
+  add_explanation
 ) {
   cols <- c(
     x,
     y,
     lt_measure,
     fill,
-    limit1,
-    limit2,
     group_var
   )
 
@@ -132,6 +146,112 @@ boxplot <- function(
     stop(
       "Missing columns: ",
       paste(missing_cols, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.logical(notch) ||
+      length(notch) != 1 ||
+      is.na(notch)
+  ) {
+    stop(
+      "notch must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.null(fill) &&
+      (!is.character(fill) || length(fill) != 1)
+  ) {
+    stop(
+      "fill must be NULL or a single column name.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.null(legend_title) &&
+      (!is.character(legend_title) || length(legend_title) != 1)
+  ) {
+    stop(
+      "legend_title must be NULL or a single character string.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.logical(add_explanation) ||
+      length(add_explanation) != 1 ||
+      is.na(add_explanation)
+  ) {
+    stop(
+      "add_explanation must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.logical(short_name) ||
+      length(short_name) != 1 ||
+      is.na(short_name)
+  ) {
+    stop(
+      "short_name must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.logical(show_points) ||
+      length(show_points) != 1 ||
+      is.na(show_points)
+  ) {
+    stop(
+      "show_points must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    isTRUE(short_name) &&
+      !"short_name" %in% names(df)
+  ) {
+    rlang::warn(
+      "short_name column not found. Using param_name."
+    )
+  }
+
+  if (
+    !is.logical(coord_flip) ||
+      length(coord_flip) != 1 ||
+      is.na(coord_flip)
+  ) {
+    stop(
+      "coord_flip must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.logical(plot_ci) ||
+      length(plot_ci) != 1 ||
+      is.na(plot_ci)
+  ) {
+    stop(
+      "plot_ci must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.logical(standards) ||
+      length(standards) != 1 ||
+      is.na(standards)
+  ) {
+    stop(
+      "standards must be TRUE or FALSE.",
       call. = FALSE
     )
   }
@@ -205,13 +325,13 @@ boxplot <- function(
   fill = NULL,
   notch = TRUE,
   plot_ci = FALSE,
-  limit1 = NULL,
-  limit2 = NULL,
+  standards = FALSE,
   pnt = 2,
   short_name = FALSE,
   coord_flip = FALSE,
   legend_title = NULL,
-  explanation = NULL
+  explanation = NULL,
+  add_explanation = FALSE
 ) {
   if (!is.null(fill) && is.null(legend_title)) {
     legend_title <- fill
@@ -228,9 +348,8 @@ boxplot <- function(
       dplyr::filter(n < 5)
 
     if (nrow(small_n) > 0) {
-      warning(
-        "Some groups contain fewer than 5 observations. ",
-        "Notched boxplots may be unreliable."
+      rlang::warn(
+        "Some groups contain fewer than 5 observations. Notched boxplots may be unreliable."
       )
     }
   }
@@ -255,7 +374,6 @@ boxplot <- function(
 
   b <- .add_boxplot_layers(
     plot = b,
-    df = df,
     coef = coef,
     notch = notch,
     plot_ci = plot_ci,
@@ -268,11 +386,10 @@ boxplot <- function(
     pnt = pnt
   )
 
-  b <- .add_limits(
+  b <- .add_standards(
     plot = b,
     df = df,
-    limit1 = limit1,
-    limit2 = limit2
+    standards = standards
   )
 
   if (
@@ -290,7 +407,19 @@ boxplot <- function(
     b <- b + ggplot2::coord_flip()
   }
 
-  legend <- cowplot::get_legend(b)
+  if (!isTRUE(add_explanation)) {
+    return(
+      b +
+        ggplot2::theme(
+          legend.position = "right"
+        )
+    )
+  }
+
+  legend <- tryCatch(
+    cowplot::get_legend(b),
+    error = function(e) NULL
+  )
 
   if (is.null(legend)) {
     legend_panel <- explanation
@@ -303,13 +432,11 @@ boxplot <- function(
     )
   }
 
-  panel <- cowplot::plot_grid(
+  cowplot::plot_grid(
     b + ggplot2::theme(legend.position = "none"),
     legend_panel,
     rel_widths = c(4, 1)
   )
-
-  panel
 }
 
 #' Helper function to plot boxplots for groundwater data
@@ -365,11 +492,16 @@ boxplot <- function(
     )
   }
 
-  y_label <- paste0(
-    "Analysis Result (",
-    unit_lbl,
-    ")"
-  )
+  y_label <- "Analysis Result"
+
+  if (!identical(unit_lbl, "")) {
+    y_label <- paste0(
+      y_label,
+      " (",
+      unit_lbl,
+      ")"
+    )
+  }
 
   if (scale_y_trans != "identity") {
     y_label <- paste0(
@@ -395,7 +527,13 @@ boxplot <- function(
       sec.axis = ggplot2::dup_axis(name = NULL)
     ) +
     ggplot2::guides(
-      shape = ggplot2::guide_legend("Detection")
+      shape = ggplot2::guide_legend("Detection"),
+      color = ggplot2::guide_legend(
+        title = "Standard"
+      ),
+      linetype = ggplot2::guide_legend(
+        title = "Standard"
+      )
     )
 }
 
@@ -405,7 +543,6 @@ boxplot <- function(
 
 .add_boxplot_layers <- function(
   plot,
-  df,
   coef,
   notch,
   plot_ci,
@@ -463,90 +600,69 @@ boxplot <- function(
     return(plot)
   }
 
-  if (
-    show_points &&
-      any(!is.na(plot$data$non_detect))
-  ) {
-    plot <- plot +
-      ggplot2::scale_shape_manual(
-        values = c(
-          "Detected" = 16,
-          "Non-detect" = 1
-        ),
-        drop = FALSE
-      ) +
-      ggplot2::guides(
-        shape = ggplot2::guide_legend("Detection")
-      )
-
-    if (requireNamespace("ggbeeswarm", quietly = TRUE)) {
-      plot +
-        ggbeeswarm::geom_beeswarm(
-          ggplot2::aes(shape = non_detect),
-          size = pnt,
-          groupOnX = TRUE
-        )
-    } else {
-      plot +
-        ggplot2::geom_jitter(
-          ggplot2::aes(shape = non_detect),
-          width = 0.20,
-          size = pnt
-        )
-    }
-  }
-}
-
-#' Helper function to plot boxplots for groundwater data
-#'
-#' @noRd
-
-.add_limits <- function(
-  plot,
-  df,
-  limit1,
-  limit2
-) {
-  if (!is.null(limit1)) {
-    plot <- plot +
-      ggplot2::geom_hline(
-        data = df,
-        ggplot2::aes(
-          yintercept = .data[[limit1]],
-          linetype = "Limit 1"
-        ),
-        show.legend = TRUE
-      )
+  if (!any(!is.na(plot$data$non_detect))) {
+    return(plot)
   }
 
-  if (!is.null(limit2)) {
+  plot <- plot +
+    ggplot2::scale_shape_manual(
+      values = c(
+        "Detected" = 16,
+        "Non-detect" = 1
+      ),
+      drop = FALSE
+    ) +
+    ggplot2::guides(
+      shape = ggplot2::guide_legend("Detection")
+    )
+
+  if (requireNamespace("ggbeeswarm", quietly = TRUE)) {
     plot <- plot +
-      ggplot2::geom_hline(
-        data = df,
-        ggplot2::aes(
-          yintercept = .data[[limit2]],
-          linetype = "Limit 2"
-        ),
-        show.legend = TRUE
+      ggbeeswarm::geom_beeswarm(
+        ggplot2::aes(shape = non_detect),
+        size = pnt,
+        orientation = "x"
+      )
+  } else {
+    plot <- plot +
+      ggplot2::geom_jitter(
+        ggplot2::aes(shape = non_detect),
+        width = 0.20,
+        size = pnt
       )
   }
 
   plot
 }
-
 #' Helper function to plot boxplots for groundwater data
 #'
 #' @noRd
 
-.get_plot_title <- function(df, short_name = FALSE) {
+.get_plot_title <- function(
+  df,
+  short_name = FALSE
+) {
   if (!"param_name" %in% names(df)) {
     return("Boxplot")
   }
 
-  name <- df$param_name[[1]]
+  unit <- ""
 
-  if (isTRUE(short_name)) {
-    name <- name_units(name)
+  if ("default_unit" %in% names(df)) {
+    unit <- df$default_unit[[1]]
+  }
+
+  if (
+    isTRUE(short_name) &&
+      "short_name" %in% names(df)
+  ) {
+    name <- df$short_name[[1]]
+  } else {
+    name <- df$param_name[[1]]
+  }
+
+  if (!identical(unit, "")) {
+    name <- paste0(name, " (", unit, ")")
   }
 
   paste("Boxplot for", name)
@@ -775,7 +891,7 @@ boxplot <- function(
       ),
       vjust = c(0.4, 0.85, 0.4),
       fill = "white",
-      label.size = 0
+      linewidth = 0
     ) +
     ggplot2::ylab("") +
     ggplot2::xlab("") +
