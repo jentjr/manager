@@ -29,15 +29,60 @@
 #' # "calcium dissolved"
 #'
 #' @keywords internal
-.add_fraction_aliases <- function(x) {
-  c(
-    x,
-    paste(x, "dissolved"),
-    paste(x, "total"),
-    paste(x, "filtered"),
-    paste(x, "unfiltered")
+.add_fraction_aliases <- function(
+  alias,
+  fractions = c(
+    "dissolved",
+    "total",
+    "filtered",
+    "unfiltered"
+  )
+) {
+  stopifnot(
+    length(alias) == 1L
+  )
+
+  tibble::tibble(
+    alias = c(
+      alias,
+      paste(alias, fractions)
+    ),
+
+    fraction = c(
+      NA_character_,
+      fractions
+    )
   )
 }
+
+.extract_fraction <- function(x) {
+  x <- .normalize_analyte_text(x)
+
+  dplyr::case_when(
+    stringr::str_detect(
+      x,
+      "\\bdis\\b|\\bdissolved\\b"
+    ) ~ "dissolved",
+
+    stringr::str_detect(
+      x,
+      "\\btotal\\b"
+    ) ~ "total",
+
+    stringr::str_detect(
+      x,
+      "\\bfiltered\\b"
+    ) ~ "filtered",
+
+    stringr::str_detect(
+      x,
+      "\\bunfiltered\\b"
+    ) ~ "unfiltered",
+
+    TRUE ~ NA_character_
+  )
+}
+
 
 #' Build analyte alias lookup table
 #'
@@ -64,8 +109,8 @@
 #' }
 #'
 #' @details
-#' Aliases are expanded from the `aliases` list-column in
-#' [analyte_tbl]. Aliases are normalized using
+#' Aliases are expanded from the `aliases`
+#' [analyte_alias_tbl]. Aliases are normalized using
 #' `.normalize_analyte_text()`, and duplicate aliases mapping
 #' to multiple analytes are not permitted.
 #'
@@ -83,70 +128,49 @@
 #'
 #' @keywords internal
 .build_alias_lookup <- function(
-  lookup = analyte_tbl
+  analyte_tbl = analyte_tbl,
+  analyte_alias_tbl = analyte_alias_tbl
 ) {
-  validate_analyte_tbl(lookup)
+  validate_analyte_tbl(
+    analyte_tbl
+  )
 
-  alias_lookup <- purrr::pmap_dfr(
-    list(
-      analyte_id = lookup$analyte_id,
-      analyte = lookup$analyte,
-      aliases = lookup$aliases
-    ),
-    \(analyte_id, analyte, aliases) {
-      tibble::tibble(
-        alias = c(analyte, aliases),
-        analyte_id = analyte_id,
-        analyte = analyte
+  validate_analyte_alias_tbl(
+    analyte_alias_tbl,
+    analyte_tbl
+  )
+
+  expanded <- purrr::map2_dfr(
+    analyte_alias_tbl$analyte_id,
+    analyte_alias_tbl$alias,
+    ~ .add_fraction_aliases(.y) %>%
+      dplyr::mutate(
+        analyte_id = .x
       )
-    }
-  ) %>%
+  )
+
+  expanded %>%
     dplyr::mutate(
-      alias = .normalize_analyte_text(alias)
+      alias = .normalize_analyte_text(
+        alias
+      )
     ) %>%
-    dplyr::filter(
-      !is.na(alias),
-      alias != ""
+    dplyr::left_join(
+      analyte_tbl %>%
+        dplyr::select(
+          analyte_id,
+          analyte,
+          normalized_analyte
+        ),
+      by = "analyte_id",
+      relationship = "many-to-one"
     ) %>%
-    dplyr::distinct() %>%
+    dplyr::distinct(
+      alias,
+      .keep_all = TRUE
+    ) %>%
     dplyr::arrange(
       analyte_id,
       alias
     )
-
-  alias_conflicts <- alias_lookup %>%
-    dplyr::summarise(
-      analytes = paste(
-        sort(unique(analyte_id)),
-        collapse = ", "
-      ),
-      n_analytes = dplyr::n_distinct(analyte_id),
-      .by = alias
-    ) %>%
-    dplyr::filter(n_analytes > 1)
-
-  if (nrow(alias_conflicts) > 0) {
-    cli::cli_abort(
-      c(
-        "Alias conflicts detected.",
-        setNames(
-          paste0(
-            alias_conflicts$alias,
-            " -> ",
-            alias_conflicts$analytes
-          ),
-          rep("x", nrow(alias_conflicts))
-        )
-      )
-    )
-  }
-
-  alias_lookup
 }
-
-#' Analyte alias lookup table
-#'
-#' Derived from analyte_tbl.
-#'
-#' @noRd
-analyte_alias_lookup <- .build_alias_lookup(analyte_tbl)

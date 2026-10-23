@@ -2,277 +2,215 @@
 #'
 #' Validates the structure and integrity of an analyte metadata table.
 #'
-#' The validation ensures that the metadata table contains all required
-#' columns, stores aliases as a list-column, and contains unique
-#' canonical analyte names.
+#' An analyte metadata table provides the canonical analyte registry
+#' used throughout the package for analyte resolution, metadata
+#' assignment, standards matching, plotting, unit conversion, and
+#' environmental data classification workflows.
 #'
-#' @param lookup An analyte metadata table. Defaults to
-#'   [analyte_tbl].
+#' @param x An analyte metadata table, typically [analyte_tbl].
 #'
-#' @return
+#' @returns
 #' Invisibly returns `TRUE` if validation succeeds.
 #'
 #' @details
-#' Required columns are:
+#' The table must contain the following required columns:
 #'
 #' \itemize{
+#'   \item `analyte_id`
 #'   \item `analyte`
-#'   \item `aliases`
+#'   \item `normalized_analyte`
+#'   \item `short_name`
 #'   \item `std_unit`
-#'   \item `ion_class`
-#'   \item `charge`
-#'   \item `molecular_weight`
-#'   \item `meq_factor`
+#'   \item `analyte_group`
 #' }
 #'
-#' Duplicate analyte names are not permitted.
+#' Validation includes:
+#'
+#' \itemize{
+#'   \item presence of required columns;
+#'   \item non-missing analyte identifiers;
+#'   \item uniqueness of `analyte_id`;
+#'   \item uniqueness of canonical analyte names;
+#' }
 #'
 #' The `aliases` column must be stored as a list-column containing
-#' character vectors of alternate analyte names.
+#' one or more character aliases for each analyte.
 #'
-#' @section Validation checks:
+#' @seealso
+#' [analyte_tbl],
+#' [`.validate_alias_lookup`()]
 #'
-#' The function validates:
-#'
-#' \itemize{
-#'   \item required metadata columns;
-#'   \item alias list-column structure;
-#'   \item duplicate canonical analyte names;
-#'   \item suitability of the table for analyte resolution,
-#'         unit standardization, and ion conversion workflows.
-#' }
-#'
-#' @noRd
-.validate_analyte_tbl <- function(
-  lookup = analyte_tbl
-) {
-  required_cols <- c(
+#' @keywords internal
+validate_analyte_tbl <- function(x) {
+  required <- c(
+    "analyte_id",
     "analyte",
-    "aliases",
+    "normalized_analyte",
+    "short_name",
     "std_unit",
-    "ion_class",
-    "charge",
-    "molecular_weight",
-    "meq_factor"
+    "analyte_group"
   )
 
-  missing_cols <- setdiff(
-    required_cols,
-    names(lookup)
+  missing <- setdiff(
+    required,
+    names(x)
   )
 
-  if (length(missing_cols) > 0) {
+  if (length(missing) > 0) {
     rlang::abort(
-      paste0(
-        "analyte_tbl missing columns: ",
+      paste(
+        "Missing analyte_tbl columns:",
         paste(
-          missing_cols,
+          missing,
           collapse = ", "
         )
       )
     )
   }
 
-  if (!is.list(lookup$aliases)) {
+  if (!is.character(x$analyte_id)) {
     rlang::abort(
-      "'aliases' must be a list-column."
+      "'analyte_id' must be character."
     )
   }
 
-  dupes <- lookup$analyte[
-    duplicated(lookup$analyte)
-  ]
-
-  if (length(dupes) > 0) {
+  if (anyNA(x$analyte_id)) {
     rlang::abort(
-      paste0(
-        "Duplicate analytes detected: ",
-        paste(
-          unique(dupes),
-          collapse = ", "
-        )
-      )
+      "'analyte_id' cannot contain NA."
+    )
+  }
+
+  if (!is.character(x$analyte)) {
+    rlang::abort(
+      "'analyte' must be character."
+    )
+  }
+
+  if (anyNA(x$analyte)) {
+    rlang::abort(
+      "'analyte' cannot contain NA."
+    )
+  }
+
+  if (
+    anyDuplicated(
+      x$analyte
+    )
+  ) {
+    rlang::abort(
+      "Duplicate analyte names detected."
     )
   }
 
   invisible(TRUE)
 }
 
-#' Resolve supported analytes
+#' Validate supported analytes
 #'
-#' Resolves analyte names according to the requested matching strategy.
+#' Resolves analyte names using the configured analyte registry and
+#' validates that analytes can be matched to known analyte metadata.
 #'
-#' This is a lightweight wrapper around
-#' [`.resolve_analyte_name()`].
+#' This function performs validation of both the analyte metadata
+#' table and alias lookup table before attempting analyte resolution.
+#'
+#' Unsupported analytes are reported using
+#' [`.warn_unsupported_analytes`()].
 #'
 #' @param analytes Character vector of analyte names.
+#' @param alias_lookup Alias lookup table, typically
+#'   [analyte_alias_lookup].
+#' @param lookup An analyte metadata table, typically [analyte_tbl].
 #'
-#' @param analyte_matching Matching strategy. One of:
-#'   `"normalized"`, `"strict"`, or `"exact"`.
-#'
-#' @param alias_lookup Alias lookup table.
-#'
-#' @return
-#' Character vector of resolved analyte names.
+#' @returns
+#' Invisibly returns the resolved analyte metadata produced by
+#' [`.resolve_analyte`()].
 #'
 #' @details
-#' Matching behavior:
+#' The returned object includes:
 #'
-#' \describe{
-#'   \item{exact}{
-#'   Preserves analyte names exactly as supplied.
-#'   }
-#'
-#'   \item{strict}{
-#'   Normalizes case, punctuation, and whitespace while preserving
-#'   reporting distinctions such as dissolved versus total.
-#'   }
-#'
-#'   \item{normalized}{
-#'   Resolves analyte aliases to canonical analyte names using the
-#'   alias lookup table.
-#'   }
+#' \itemize{
+#'   \item resolved analyte identifiers;
+#'   \item canonical analyte names;
+#'   \item normalized analyte names;
+#'   \item fraction assignments;
+#'   \item analyte metadata;
+#'   \item analyte match status.
 #' }
 #'
-#' @noRd
+#' Unknown analytes are not discarded. Instead, they are flagged and
+#' reported through a warning.
+#'
+#' @seealso
+#' [`.resolve_analyte`()],
+#' [`.warn_unsupported_analytes`()]
+#'
+#' @keywords internal
 .validate_supported_analytes <- function(
   analytes,
-  analyte_matching = c(
-    "normalized",
-    "strict",
-    "exact"
-  ),
   alias_lookup = analyte_alias_lookup,
   lookup = analyte_tbl
 ) {
-  .validate_analyte_tbl(
-    lookup
-  )
+  validate_analyte_tbl(lookup)
 
   .validate_alias_lookup(
     alias_lookup,
     lookup
   )
 
-  analyte_matching <- rlang::arg_match(
-    analyte_matching,
-    c(
-      "normalized",
-      "strict",
-      "exact"
-    )
-  )
-
-  resolved <- .resolve_analyte_name(
+  resolved <- .resolve_analyte(
     analytes,
-    analyte_matching = analyte_matching,
-    alias_lookup = alias_lookup
+    alias_lookup = alias_lookup,
+    analyte_lookup = lookup
   )
 
   .warn_unsupported_analytes(
-    resolved,
-    lookup = lookup
+    resolved
   )
 
-  resolved
-}
-
-#' Add analyte metadata
-#'
-#' Resolves analyte names and joins analyte metadata from
-#' [analyte_tbl].
-#'
-#' @param df A data frame containing analytical results.
-#'
-#' @param analyte_col Character string identifying the analyte column.
-#'
-#' @param analyte_matching Matching strategy passed to
-#'   [`.resolve_analyte_column()`].
-#'
-#' @return
-#' A data frame with analyte metadata joined from [analyte_tbl].
-#'
-#' @details
-#' The function:
-#'
-#' \enumerate{
-#'   \item resolves analytes to canonical names;
-#'   \item creates an `analyte` column;
-#'   \item joins analyte metadata using the canonical analyte.
-#' }
-#'
-#' Metadata fields include:
-#'
-#' \itemize{
-#'   \item standard unit;
-#'   \item ion classification;
-#'   \item ionic charge;
-#'   \item molecular weight;
-#'   \item milliequivalent conversion factor.
-#' }
-#'
-#' @noRd
-.add_analyte_metadata <- function(
-  df,
-  analyte_col = "param_name",
-  analyte_matching = "normalized",
-  lookup = analyte_tbl
-) {
-  .validate_analyte_tbl(
-    lookup
-  )
-
-  .validate_alias_lookup(
-    analyte_alias_lookup,
-    lookup
-  )
-
-  df %>%
-    .add_canonical_analyte(
-      analyte_col = analyte_col,
-      analyte_matching = analyte_matching
-    ) %>%
-    dplyr::left_join(
-      lookup,
-      by = "analyte",
-      relationship = "many-to-one"
-    )
+  invisible(resolved)
 }
 
 #' Validate analytes and units
 #'
-#' Validates required analyte and unit columns, resolves analytes
-#' to canonical names, normalizes reporting units, and warns when
-#' analytes are absent from the analyte metadata table.
+#' Validates analyte and unit fields within an analytical dataset.
 #'
-#' @param df A data frame.
+#' The function verifies required columns, resolves analytes using the
+#' package analyte registry, warns on unsupported analytes, and
+#' standardizes unit values.
+#'
+#' @param df A data frame containing analytical results.
 #' @param param_name Character string identifying the analyte column.
 #' @param default_unit Character string identifying the unit column.
-#' @param analyte_matching Matching strategy used for analyte
-#'   resolution.
 #'
-#' @return
-#' A data frame containing:
-#' \itemize{
-#'   \item a canonical `analyte` column;
-#'   \item normalized unit values.
+#' @returns
+#' A data frame containing resolved analyte metadata and normalized
+#' unit values.
+#'
+#' @details
+#' Validation steps include:
+#'
+#' \enumerate{
+#'   \item verification of required columns;
+#'   \item validation of the analyte registry;
+#'   \item validation of the alias lookup table;
+#'   \item analyte resolution;
+#'   \item unsupported analyte checks;
+#'   \item unit normalization.
 #' }
 #'
-#' @noRd
+#' This helper is primarily used during environmental chemistry data
+#' import and schema creation workflows.
+#'
+#' @seealso
+#' [`.resolve_analyte_column`()],
+#' [`.normalize_unit`()]
+#'
+#' @keywords internal
 .validate_analyte_units <- function(
   df,
   param_name = "param_name",
-  default_unit = "default_unit",
-  analyte_matching = c(
-    "normalized",
-    "strict",
-    "exact"
-  )
+  default_unit = "default_unit"
 ) {
-  analyte_matching <- rlang::arg_match(
-    analyte_matching
-  )
-
   required_cols <- c(
     param_name,
     default_unit
@@ -283,30 +221,31 @@
     names(df)
   )
 
-  .validate_analyte_tbl(
-    analyte_tbl
-  )
-
   if (length(missing_cols) > 0) {
     rlang::abort(
-      paste0(
-        "Missing required columns: ",
-        paste(
-          missing_cols,
-          collapse = ", "
-        )
+      paste(
+        "Missing required columns:",
+        paste(missing_cols, collapse = ", ")
       )
     )
   }
 
+  validate_analyte_tbl(
+    analyte_tbl
+  )
+
+  .validate_alias_lookup(
+    analyte_alias_lookup,
+    analyte_tbl
+  )
+
   out <- df %>%
-    .add_canonical_analyte(
-      analyte_col = param_name,
-      analyte_matching = analyte_matching
+    .resolve_analyte_column(
+      analyte_col = param_name
     )
 
   .warn_unsupported_analytes(
-    out$analyte
+    out
   )
 
   out %>%
@@ -317,100 +256,75 @@
     )
 }
 
-#' Add canonical analyte names
-#'
-#' Adds a canonical analyte column to a data frame.
-#'
-#' @param df A data frame.
-#'
-#' @param analyte_col Character string identifying the analyte column.
-#'
-#' @param analyte_matching Matching strategy used for analyte
-#'   resolution.
-#'
-#' @return
-#' A data frame containing an additional `analyte` column.
-#'
-#' @details
-#' Canonical analyte names are generated using
-#' [`.resolve_analyte_column()`].
-#'
-#' The resulting `analyte` column may be used for:
-#'
-#' \itemize{
-#'   \item metadata joins;
-#'   \item unit standardization;
-#'   \item ion conversion;
-#'   \item hydrochemical plotting workflows.
-#' }
-#'
-#' @noRd
-.add_canonical_analyte <- function(
-  df,
-  analyte_col = "param_name",
-  analyte_matching = "normalized"
-) {
-  .validate_analyte_tbl(
-    analyte_tbl
-  )
-
-  .validate_alias_lookup(
-    analyte_alias_lookup
-  )
-
-  if (!analyte_col %in% names(df)) {
-    rlang::abort(
-      sprintf(
-        "Column '%s' not found.",
-        analyte_col
-      )
-    )
-  }
-
-  df %>%
-    .resolve_analyte_column(
-      analyte_col = !!rlang::sym(analyte_col),
-      output_col = "analyte",
-      analyte_matching = analyte_matching
-    )
-}
-
 #' Validate alias lookup table
 #'
-#' Validates the structure of an analyte alias lookup table.
+#' Validates the structure and integrity of an analyte alias lookup
+#' table.
 #'
-#' @param alias_lookup Alias lookup table.
+#' The alias lookup table is used during analyte resolution to map
+#' normalized analyte aliases to canonical analyte identifiers and
+#' metadata.
 #'
-#' @return
-#' Invisibly returns the validated lookup table.
+#' @param alias_lookup Alias lookup table, typically
+#'   [analyte_alias_lookup].
+#' @param lookup An analyte metadata table, typically [analyte_tbl].
+#'
+#' @returns
+#' Invisibly returns the validated alias lookup table.
 #'
 #' @details
 #' Required columns are:
 #'
 #' \itemize{
 #'   \item `alias`
+#'   \item `analyte_id`
 #'   \item `analyte`
+#'   \item `normalized_analyte`
+#'   \item `fraction`
 #' }
 #'
-#' The alias lookup table maps normalized analyte aliases to a
-#' canonical analyte name.
+#' Validation includes:
 #'
-#' It is used by [`.resolve_analyte_name()`] and
-#' [`.resolve_analyte_column()`] when
-#' `analyte_matching = "normalized"`.
+#' \itemize{
+#'   \item required column checks;
+#'   \item referential integrity against `analyte_tbl`;
+#'   \item duplicate alias detection;
+#'   \item character type validation;
+#'   \item missing value checks;
+#'   \item fraction validation;
+#'   \item alias normalization checks.
+#' }
 #'
-#' @noRd
+#' Valid fraction values are:
+#'
+#' \itemize{
+#'   \item `"dissolved"`
+#'   \item `"total"`
+#'   \item `"filtered"`
+#'   \item `"unfiltered"`
+#' }
+#'
+#' All aliases are expected to have already been normalized using
+#' [`.normalize_analyte_text`()].
+#'
+#' @seealso
+#' [analyte_tbl],
+#' [analyte_alias_lookup],
+#' [`.normalize_analyte_text`()]
+#'
+#' @keywords internal
 .validate_alias_lookup <- function(
   alias_lookup = analyte_alias_lookup,
   lookup = analyte_tbl
 ) {
+  validate_analyte_tbl(lookup)
+
   required_cols <- c(
     "alias",
-    "analyte"
-  )
-
-  .validate_analyte_tbl(
-    lookup
+    "analyte_id",
+    "analyte",
+    "normalized_analyte",
+    "fraction"
   )
 
   missing_cols <- setdiff(
@@ -431,70 +345,202 @@
   }
 
   bad_targets <- setdiff(
-    unique(alias_lookup$analyte),
-    unique(lookup$analyte)
+    unique(alias_lookup$analyte_id),
+    unique(lookup$analyte_id)
   )
 
   if (length(bad_targets) > 0) {
     cli::cli_abort(
-      paste0(
-        "Aliases reference unknown analytes: ",
-        paste(
+      c(
+        "Alias lookup references unknown analyte IDs.",
+        setNames(
           bad_targets,
+          rep("x", length(bad_targets))
+        )
+      )
+    )
+  }
+
+  alias_dupes <- alias_lookup %>%
+    dplyr::count(alias) %>%
+    dplyr::filter(n > 1)
+
+  if (nrow(alias_dupes) > 0) {
+    cli::cli_abort(
+      c(
+        "Duplicate aliases detected after normalization.",
+        setNames(
+          alias_dupes$alias,
+          rep("x", nrow(alias_dupes))
+        )
+      )
+    )
+  }
+
+  if (anyNA(alias_lookup$analyte_id)) {
+    rlang::abort(
+      "'analyte_id' cannot contain NA."
+    )
+  }
+
+  if (!is.character(alias_lookup$analyte)) {
+    rlang::abort(
+      "'analyte' must be character."
+    )
+  }
+
+  if (anyNA(alias_lookup$analyte)) {
+    rlang::abort(
+      "'analyte' cannot contain NA."
+    )
+  }
+
+  if (!is.character(alias_lookup$alias)) {
+    rlang::abort(
+      "'alias' must be character."
+    )
+  }
+
+  if (!is.character(alias_lookup$analyte_id)) {
+    rlang::abort(
+      "'analyte_id' must be character."
+    )
+  }
+
+  if (anyNA(alias_lookup$alias)) {
+    rlang::abort(
+      "'alias' cannot contain NA."
+    )
+  }
+
+  if (!is.character(alias_lookup$normalized_analyte)) {
+    rlang::abort(
+      "'normalized_analyte' must be character."
+    )
+  }
+
+  if (anyNA(alias_lookup$normalized_analyte)) {
+    rlang::abort(
+      "'normalized_analyte' cannot contain NA."
+    )
+  }
+
+  if (!is.character(alias_lookup$fraction)) {
+    rlang::abort(
+      "'fraction' must be character."
+    )
+  }
+
+  valid_fractions <- c(
+    "dissolved",
+    "total",
+    "filtered",
+    "unfiltered"
+  )
+
+  bad_fraction <- alias_lookup %>%
+    dplyr::filter(
+      !is.na(fraction),
+      !fraction %in% valid_fractions
+    )
+
+  if (nrow(bad_fraction) > 0) {
+    rlang::abort(
+      paste(
+        "Invalid fraction values detected:",
+        paste(
+          unique(bad_fraction$fraction),
           collapse = ", "
         )
       )
     )
   }
 
-  dupes <- alias_lookup$alias[
-    duplicated(alias_lookup$alias)
-  ]
+  bad_aliases <- alias_lookup %>%
+    dplyr::filter(
+      alias != .normalize_analyte_text(alias)
+    )
 
-  if (length(dupes) > 0) {
-    cli::cli_abort(
-      paste0(
-        "Duplicate aliases detected: ",
-        paste(
-          unique(dupes),
-          collapse = ", "
-        )
-      )
+  if (nrow(bad_aliases) > 0) {
+    rlang::abort(
+      "All aliases must already be normalized."
     )
   }
 
   invisible(alias_lookup)
 }
 
-#' Warn on analytes absent from the metadata table
+#' Warn on unsupported analytes
 #'
-#' Compares analytes against the canonical analyte metadata table
-#' and issues a warning for unsupported analyte names.
+#' Identifies analytes that could not be matched to the analyte
+#' registry.
 #'
-#' @param analytes Character vector of analyte names.
-#' @param lookup An analyte metadata table.
+#' @param x Output from [`.resolve_analyte`()] or
+#'   [`.resolve_analyte_column`()] containing
+#'   `source_analyte` and `is_known_analyte` columns.
 #'
-#' @return Invisibly returns the supplied analytes.
+#' @returns
+#' Invisibly returns the supplied object.
 #'
-#' @noRd
-.warn_unsupported_analytes <- function(
-  analytes,
-  lookup = analyte_tbl
-) {
-  .validate_analyte_tbl(lookup)
+#' @details
+#' Unsupported analytes are determined using the
+#' `is_known_analyte` flag generated during analyte resolution.
+#'
+#' When unsupported analytes are present, a warning is issued that
+#' includes the first several unmatched analyte names.
+#'
+#' This function is intended for quality assurance during data import
+#' and schema construction workflows.
+#'
+#' @seealso
+#' [`.resolve_analyte`()],
+#' [`.validate_supported_analytes`()]
+#'
+#' @keywords internal
+.warn_unsupported_analytes <- function(x) {
+  if (
+    all(
+      c(
+        "source_analyte",
+        "is_known_analyte"
+      ) %in%
+        names(x)
+    )
+  ) {
+    source_col <- "source_analyte"
+    known_col <- "is_known_analyte"
+  } else if (
+    all(
+      c(
+        ".source_analyte",
+        ".is_known_analyte"
+      ) %in%
+        names(x)
+    )
+  ) {
+    source_col <- ".source_analyte"
+    known_col <- ".is_known_analyte"
+  } else {
+    rlang::abort(
+      "Missing analyte resolution columns."
+    )
+  }
 
-  unsupported <- setdiff(
-    unique(stats::na.omit(analytes)),
-    lookup$analyte
-  )
+  unsupported <- x %>%
+    dplyr::filter(
+      !.data[[known_col]]
+    ) %>%
+    dplyr::distinct(
+      .data[[source_col]]
+    )
 
-  if (length(unsupported) > 0) {
+  if (nrow(unsupported) > 0) {
     cli::cli_warn(
       c(
-        "{length(unsupported)} analytes are not present in analyte_tbl.",
+        "{nrow(unsupported)} unsupported analytes detected.",
         "i" = paste(
           utils::head(
-            unsupported,
+            unsupported[[source_col]],
             10
           ),
           collapse = ", "
@@ -503,5 +549,5 @@
     )
   }
 
-  invisible(analytes)
+  invisible(x)
 }

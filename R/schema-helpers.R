@@ -30,11 +30,24 @@
 
   lookup <- lookup %>%
     dplyr::rename(
-      .analyte_id = analyte_id
+      .analyte_id = analyte_id,
+      .short_name = short_name,
+      .casrn = casrn,
+      .analyte_group = analyte_group,
+      .subcategory = subcategory,
+      .regulatory_class = regulatory_class,
+      .std_unit = std_unit,
+      .ion_class = ion_class,
+      .charge = charge,
+      .molecular_weight = molecular_weight,
+      .meq_factor = meq_factor,
+      .is_major_ion = is_major_ion,
+      .is_trace_metal = is_trace_metal,
+      .is_radionuclide = is_radionuclide,
+      .is_general_chemistry = is_general_chemistry,
+      .is_field_parameter = is_field_parameter
     ) %>%
-    dplyr::select(
-      -.data$analyte
-    )
+    dplyr::select(-analyte)
 
   dplyr::left_join(
     df,
@@ -144,4 +157,74 @@
   )
 
   to
+}
+
+#' Build env_schema call safely
+#'
+#' @keywords internal
+.build_env_schema_call <- function(
+  data,
+  location,
+  date,
+  analyte,
+  result,
+  unit = NULL,
+  sample_id = NULL,
+  reporting_flag = NULL,
+  reporting_limit = NULL,
+  detection_limit = NULL,
+  detection_threshold = NULL,
+  detection_threshold_type = NULL,
+  measurement_uncertainty = NULL,
+  method = NULL,
+  analysis_date = NULL,
+  matrix = NULL,
+  lab_name = NULL,
+  metadata = NULL,
+  qualifier_table = NULL,
+  analyte_lookup = analyte_tbl
+) {
+  args <- list(
+    df = data,
+    location = rlang::enquo(location),
+    date = rlang::enquo(date),
+    analyte = rlang::enquo(analyte),
+    result = rlang::enquo(result),
+    qualifier_table = qualifier_table,
+    analyte_lookup = analyte_lookup
+  )
+
+  optional_args <- list(
+    unit = rlang::enquo(unit),
+    sample_id = rlang::enquo(sample_id),
+    reporting_flag = rlang::enquo(reporting_flag),
+    reporting_limit = rlang::enquo(reporting_limit),
+    detection_limit = rlang::enquo(detection_limit),
+    detection_threshold = rlang::enquo(detection_threshold),
+    detection_threshold_type = rlang::enquo(detection_threshold_type),
+    measurement_uncertainty = rlang::enquo(measurement_uncertainty),
+    method = rlang::enquo(method),
+    analysis_date = rlang::enquo(analysis_date),
+    matrix = rlang::enquo(matrix),
+    lab_name = rlang::enquo(lab_name),
+    metadata = rlang::enquo(metadata)
+  )
+
+  optional_args <- optional_args[
+    !vapply(
+      optional_args,
+      rlang::quo_is_null,
+      logical(1)
+    )
+  ]
+
+  args <- c(
+    args,
+    optional_args
+  )
+
+  rlang::exec(
+    env_schema,
+    !!!args
+  )
 }

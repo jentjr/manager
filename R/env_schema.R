@@ -14,9 +14,12 @@
 #' @param reporting_flag Laboratory qualifier column.
 #' @param reporting_limit Reporting limit column.
 #' @param detection_limit Detection limit column.
-#' @param detection_threshold Generic threshold column
-#'   (MDA, RDL, LOQ, PQL, etc.).
-#' @param detection_threshold_type Threshold type column.
+#' @param reporting_limit Reporting limit column.
+#' @param detection_limit Detection limit column.
+#' @param quantitation_limit Quantitation limit column
+#'   (PQL, LOQ, SQL, etc.).
+#' @param achieved_mdc Achieved minimum detectable concentration
+#'   (radiochemistry).
 #' @param measurement_uncertainty Measurement uncertainty column.
 #' @param method Analytical method column.
 #' @param analysis_date Analysis date column.
@@ -38,15 +41,19 @@ env_schema <- function(
   unit = NULL,
   sample_id = NULL,
   reporting_flag = NULL,
+
   reporting_limit = NULL,
   detection_limit = NULL,
-  detection_threshold = NULL,
-  detection_threshold_type = NULL,
+  quantitation_limit = NULL,
+
+  achieved_mdc = NULL,
   measurement_uncertainty = NULL,
+
   method = NULL,
   analysis_date = NULL,
   matrix = NULL,
   lab_name = NULL,
+
   metadata = NULL,
   qualifier_table = NULL,
   analyte_lookup = analyte_tbl
@@ -63,15 +70,21 @@ env_schema <- function(
     .location = location,
     .date = date,
     .analyte = analyte,
+
     .result = result,
     .unit = unit,
+
     .sample_id = sample_id,
     .reporting_flag = reporting_flag,
+
     .reporting_limit = reporting_limit,
     .detection_limit = detection_limit,
-    .detection_threshold = detection_threshold,
-    .detection_threshold_type = detection_threshold_type,
+    .quantitation_limit = quantitation_limit,
+
+    .achieved_mdc = achieved_mdc,
+
     .measurement_uncertainty = measurement_uncertainty,
+
     .method = method,
     .analysis_date = analysis_date,
     .matrix = matrix,
@@ -89,12 +102,28 @@ env_schema <- function(
   source_cols <- vapply(
     rename_map,
     function(x) {
-      rlang::as_name(
-        rlang::get_expr(x)
-      )
+      expr <- rlang::quo_get_expr(x)
+
+      if (is.null(expr)) {
+        return(NA_character_)
+      }
+
+      if (!rlang::is_symbol(expr)) {
+        rlang::abort(
+          paste(
+            "Schema mappings must be simple column names.",
+            "Received:",
+            rlang::expr_deparse(expr)
+          )
+        )
+      }
+
+      rlang::as_name(expr)
     },
     character(1)
   )
+
+  source_cols <- stats::na.omit(source_cols)
 
   missing_cols <- setdiff(
     source_cols,
@@ -114,11 +143,6 @@ env_schema <- function(
     df,
     !!!rename_map
   )
-
-  out <- out %>%
-    dplyr::mutate(
-      .analyte_id = .analyte
-    )
 
   # --------------------------------------------------------------
   # Qualifier classification
@@ -265,17 +289,19 @@ env_schema <- function(
     )
 
     out <- out %>%
-      .attach_analyte_metadata(
-        lookup = analyte_lookup
+      .resolve_analyte_metadata(
+        analyte_col = ".analyte",
+        alias_lookup = analyte_alias_lookup,
+        analyte_lookup = analyte_lookup
       ) %>%
       .build_analyte_labels()
 
     if (".short_name" %in% names(out)) {
-      missing_metadata <- is.na(out$.short_name)
+      missing_metadata <- !out$.is_known_analyte
 
       if (any(missing_metadata)) {
         missing_analytes <- unique(
-          out$.analyte[missing_metadata]
+          out$.source_analyte[missing_metadata]
         )
 
         cli::cli_warn(
@@ -325,9 +351,28 @@ env_schema <- function(
 
     derived = list(
       analyte_id = ".analyte_id",
+
+      source_analyte = ".source_analyte",
+      normalized_input = ".normalized_input",
+
+      normalized_analyte = ".normalized_analyte",
+      fraction = ".fraction",
+      is_known_analyte = ".is_known_analyte",
+
+      original_lab_result = ".original_lab_result",
+      original_lab_unit = ".original_lab_unit",
+
+      usable = ".usable",
+
       analysis_result = ".analysis_result",
       analysis_unit = ".analysis_unit",
       analysis_method = ".analysis_method",
+
+      reporting_limit = ".reporting_limit",
+      detection_limit = ".detection_limit",
+      quantitation_limit = ".quantitation_limit",
+      achieved_mdc = ".achieved_mdc",
+
       analyte_label = ".analyte_label",
       short_analyte_label = ".short_analyte_label"
     ),
@@ -348,49 +393,94 @@ env_schema <- function(
 
   attr(out, "measurement_metadata") <- metadata_cols
 
-  attr(out, "analyte_metadata") <- c(
+  attr(
+    out,
+    "threshold_metadata"
+  ) <- c(
+    ".reporting_limit",
+    ".detection_limit",
+    ".quantitation_limit",
+    ".achieved_mdc"
+  )[
+    c(
+      ".reporting_limit",
+      ".detection_limit",
+      ".quantitation_limit",
+      ".achieved_mdc"
+    ) %in%
+      names(out)
+  ]
+
+  attr(out, "schema_metadata") <- c(
+    ".sample_id",
+    ".reporting_flag",
+    ".reporting_limit",
+    ".detection_limit",
+    ".quantitation_limit",
+    ".achieved_mdc",
+    ".measurement_uncertainty",
+    ".analysis_method",
+    ".analysis_date",
+    ".matrix",
+    ".lab_name"
+  )[
+    c(
+      ".sample_id",
+      ".reporting_flag",
+      ".reporting_limit",
+      ".detection_limit",
+      ".quantitation_limit",
+      ".achieved_mdc",
+      ".measurement_uncertainty",
+      ".analysis_method",
+      ".analysis_date",
+      ".matrix",
+      ".lab_name"
+    ) %in%
+      names(out)
+  ]
+
+  analyte_cols <- c(
+    ".source_analyte",
+    ".normalized_input",
+
+    ".analyte",
     ".analyte_id",
+    ".normalized_analyte",
+
+    ".fraction",
+    ".is_known_analyte",
+
     ".short_name",
     ".casrn",
+
     ".analyte_group",
     ".subcategory",
     ".regulatory_class",
+
     ".std_unit",
+
     ".ion_class",
     ".charge",
     ".molecular_weight",
     ".meq_factor",
+
     ".is_major_ion",
     ".is_trace_metal",
     ".is_radionuclide",
     ".is_general_chemistry",
     ".is_field_parameter",
+
     ".analyte_label",
     ".short_analyte_label"
-  )[
-    c(
-      ".short_name",
-      ".casrn",
-      ".analyte_group",
-      ".subcategory",
-      ".regulatory_class",
-      ".std_unit",
-      ".ion_class",
-      ".charge",
-      ".molecular_weight",
-      ".meq_factor",
-      ".is_major_ion",
-      ".is_trace_metal",
-      ".is_radionuclide",
-      ".is_general_chemistry",
-      ".is_field_parameter",
-      ".analyte_label",
-      ".short_analyte_label"
-    ) %in%
-      names(out)
-  ]
+  )
 
-  attr(out, "env_schema_version") <- "0.3.0"
+  attr(out, "analyte_metadata") <- intersect(
+    analyte_cols,
+    names(out)
+  )
+
+  attr(out, "env_schema_version") <- "0.4.0"
 
   attr(out, "env_schema_created") <- Sys.time()
 

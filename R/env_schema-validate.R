@@ -37,6 +37,10 @@ validate_env_schema <- function(x) {
     )
   }
 
+  # ------------------------------------------------------------
+  # Required column types
+  # ------------------------------------------------------------
+
   if (!is.character(x$.analyte_id)) {
     rlang::abort(
       "'.analyte_id' must be character."
@@ -58,7 +62,11 @@ validate_env_schema <- function(x) {
   if (
     !inherits(
       x$.date,
-      c("Date", "POSIXct", "POSIXt")
+      c(
+        "Date",
+        "POSIXct",
+        "POSIXt"
+      )
     )
   ) {
     rlang::abort(
@@ -78,6 +86,74 @@ validate_env_schema <- function(x) {
     )
   }
 
+  # ------------------------------------------------------------
+  # Optional environmental thresholds
+  # ------------------------------------------------------------
+
+  if (".reporting_limit" %in% names(x) && !is.numeric(x$.reporting_limit)) {
+    rlang::abort(
+      "'.reporting_limit' must be numeric."
+    )
+  }
+
+  if (".detection_limit" %in% names(x) && !is.numeric(x$.detection_limit)) {
+    rlang::abort(
+      "'.detection_limit' must be numeric."
+    )
+  }
+
+  if (
+    ".quantitation_limit" %in% names(x) && !is.numeric(x$.quantitation_limit)
+  ) {
+    rlang::abort(
+      "'.quantitation_limit' must be numeric."
+    )
+  }
+
+  if (".achieved_mdc" %in% names(x) && !is.numeric(x$.achieved_mdc)) {
+    rlang::abort(
+      "'.achieved_mdc' must be numeric."
+    )
+  }
+
+  # ------------------------------------------------------------
+  # Result classification columns
+  # ------------------------------------------------------------
+
+  if (".detected" %in% names(x) && !is.logical(x$.detected)) {
+    rlang::abort(
+      "'.detected' must be logical."
+    )
+  }
+
+  if (".censored" %in% names(x) && !is.logical(x$.censored)) {
+    rlang::abort(
+      "'.censored' must be logical."
+    )
+  }
+
+  if (".estimated" %in% names(x) && !is.logical(x$.estimated)) {
+    rlang::abort(
+      "'.estimated' must be logical."
+    )
+  }
+
+  if (".rejected" %in% names(x) && !is.logical(x$.rejected)) {
+    rlang::abort(
+      "'.rejected' must be logical."
+    )
+  }
+
+  if (".usable" %in% names(x) && !is.logical(x$.usable)) {
+    rlang::abort(
+      "'.usable' must be logical."
+    )
+  }
+
+  # ------------------------------------------------------------
+  # Analyte metadata
+  # ------------------------------------------------------------
+
   if (".charge" %in% names(x) && !is.numeric(x$.charge)) {
     rlang::abort(
       "'.charge' must be numeric."
@@ -93,6 +169,23 @@ validate_env_schema <- function(x) {
   if (".meq_factor" %in% names(x) && !is.numeric(x$.meq_factor)) {
     rlang::abort(
       "'.meq_factor' must be numeric."
+    )
+  }
+
+  # ------------------------------------------------------------
+  # Required attributes
+  # ------------------------------------------------------------
+
+  if (
+    is.null(
+      attr(
+        x,
+        "threshold_metadata"
+      )
+    )
+  ) {
+    rlang::abort(
+      "Missing threshold_metadata attribute."
     )
   }
 
