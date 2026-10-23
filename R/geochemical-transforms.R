@@ -31,17 +31,6 @@
     analyte_matching
   )
 
-  piper_analytes <- unique(
-    c(
-      x_cation,
-      y_cation,
-      z_cation,
-      x_anion,
-      y_anion,
-      z_anion
-    )
-  )
-
   chemistry_df <- .prepare_major_ion_chemistry(
     df = df,
     location_id = location_id,
@@ -86,8 +75,14 @@
     )
 
   scale_df <- NULL
+  scale_col <- NULL
 
   if (!is.null(scale_analyte)) {
+    scale_col <- .resolve_geochemical_analytes(
+      scale_analyte,
+      analyte_matching
+    )[1]
+
     scale_df <- .prepare_geochemical_data(
       df = df,
       analytes = scale_analyte,
@@ -144,12 +139,41 @@
     diamond_y = diamond_y
   )
 
-  dplyr::bind_cols(
+  result <- dplyr::bind_cols(
     chemistry_df,
     cations,
     anions,
     diamond
-  ) %>%
+  )
+
+  if (!is.null(scale_df)) {
+    scale_values <- scale_df %>%
+      dplyr::select(
+        dplyr::all_of(
+          c(
+            location_id,
+            sample_date
+          )
+        ),
+        analyte,
+        analysis_result_std
+      ) %>%
+      tidyr::pivot_wider(
+        names_from = analyte,
+        values_from = analysis_result_std
+      )
+
+    result <- result %>%
+      dplyr::left_join(
+        scale_values,
+        by = c(
+          location_id,
+          sample_date
+        )
+      )
+  }
+
+  result %>%
     dplyr::select(
       dplyr::all_of(
         c(
@@ -163,12 +187,7 @@
       anion_y,
       diamond_x,
       diamond_y,
-      dplyr::any_of(
-        .resolve_geochemical_analytes(
-          scale_analyte,
-          analyte_matching
-        )
-      )
+      dplyr::any_of(scale_col)
     )
 }
 
@@ -272,22 +291,6 @@
         sulfate,
         alkalinity
       ) {
-        xmax <- max(
-          abs(c(
-            sodium_potassium,
-            calcium,
-            magnesium,
-            chloride,
-            alkalinity,
-            sulfate
-          )),
-          na.rm = TRUE
-        )
-
-        if (!is.finite(xmax)) {
-          xmax <- 0
-        }
-
         tibble::tibble(
           location_id = location_id,
           sample_date = sample_date,
@@ -333,14 +336,15 @@
           )
         ) %>%
           dplyr::mutate(
-            stiff_x_label = dplyr::case_when(
+            label_side = dplyr::if_else(
               ion %in%
                 c(
                   "Na + K",
                   "Ca",
                   "Mg"
-                ) ~ -xmax - 0.5,
-              TRUE ~ xmax + 0.5
+                ),
+              "left",
+              "right"
             )
           )
       }
@@ -369,14 +373,12 @@
       )
   }
 
-  results <- results %>%
+  results %>%
     dplyr::arrange(
       location_id,
       sample_date,
       vertex
     )
-
-  results
 }
 
 #' Transform chemistry for Durov diagram

@@ -38,8 +38,9 @@
 #' Results already reported in the standard unit are copied directly
 #' without conversion.
 #'
-#' Unit conversion is performed only when a supported standard unit is
-#' available.
+#' Analytes without a defined standard unit retain their original
+#' reporting value and reporting unit. A warning is issued to
+#' indicate that no standardization was performed.
 #'
 #' @section Validation:
 #'
@@ -49,8 +50,9 @@
 #'   \item required columns must exist;
 #'   \item the analyte metadata table must contain unique analyte names;
 #'   \item analytes lacking a standard unit generate a warning;
-#'   \item failed unit conversions generate a warning and return
-#'   `NA_real_` for affected values.
+#'   \item failed unit conversions generate a warning.
+#'         Values that cannot be standardized retain their original
+#'         reporting value and reporting unit whenever possible.
 #' }
 #'
 #' @section Analyte resolution:
@@ -137,9 +139,9 @@ standardize_units <- function(
     )
 
   if (length(missing_analytes) > 0) {
-    cli::cli_warn(
+    cli::cli_inform(
       c(
-        "{length(missing_analytes)} analytes have no standard unit.",
+        "{length(missing_analytes)} analytes have no standard unit. Original reporting values and units were retained",
         "i" = paste(
           utils::head(
             missing_analytes,
@@ -161,15 +163,8 @@ standardize_units <- function(
     "_std"
   )
 
-  df2[[out_col]] <- NA_real_
-
-  same_unit_idx <-
-    !is.na(df2[[unit_col]]) &
-    !is.na(df2$std_unit) &
-    df2[[unit_col]] == df2$std_unit
-
-  df2[[out_col]][same_unit_idx] <-
-    df2[[value_col]][same_unit_idx]
+  # Default behavior: retain reported value
+  df2[[out_col]] <- df2[[value_col]]
 
   conversion_groups <- df2 %>%
     dplyr::filter(
@@ -182,13 +177,14 @@ standardize_units <- function(
 
   for (i in seq_len(nrow(conversion_groups))) {
     from_unit <- conversion_groups[[unit_col]][i]
-
     to_unit <- conversion_groups$std_unit[i]
 
+    # already in standard unit
     if (identical(from_unit, to_unit)) {
       next
     }
 
+    # invalid unit pair
     if (
       !isTRUE(.is_valid_unit(from_unit)) ||
         !isTRUE(.is_valid_unit(to_unit))
@@ -206,7 +202,6 @@ standardize_units <- function(
     }
 
     idx <-
-      is.na(df2[[out_col]]) &
       !is.na(df2[[unit_col]]) &
       !is.na(df2$std_unit) &
       df2[[unit_col]] == from_unit &
@@ -226,7 +221,10 @@ standardize_units <- function(
 
   df2 %>%
     dplyr::mutate(
-      !!unit_out_col := std_unit
+      !!unit_out_col := dplyr::coalesce(
+        std_unit,
+        .data[[unit_col]]
+      )
     ) %>%
     dplyr::select(
       -std_unit
@@ -366,32 +364,28 @@ standardize_units <- function(
 #' @noRd
 .convert_standard_units <- function(
   df,
-  data_unit_col = "default_unit"
+  data_unit_col = ".analysis_unit"
 ) {
   .validate_required_cols(
     df,
     c(
-      "standard_value",
-      "standard_unit",
+      ".standard_value",
+      ".standard_unit",
       data_unit_col
     )
   )
 
   from_unit <- .normalize_unit(
-    df$standard_unit
+    df$.standard_unit
   )
 
   to_unit <- .normalize_unit(
     df[[data_unit_col]]
   )
 
-  valid_from <- .is_valid_unit(
-    from_unit
-  )
+  valid_from <- .is_valid_unit(from_unit)
 
-  valid_to <- .is_valid_unit(
-    to_unit
-  )
+  valid_to <- .is_valid_unit(to_unit)
 
   invalid_idx <-
     (!valid_from | !valid_to) &
@@ -419,7 +413,7 @@ standardize_units <- function(
   }
 
   convert_idx <-
-    !is.na(df$standard_value) &
+    !is.na(df$.standard_value) &
     valid_from &
     valid_to &
     from_unit != to_unit
@@ -430,16 +424,14 @@ standardize_units <- function(
 
   converted_values <- purrr::pmap_dbl(
     list(
-      value = df$standard_value[convert_idx],
+      value = df$.standard_value[convert_idx],
       from_unit = from_unit[convert_idx],
       to_unit = to_unit[convert_idx]
     ),
     .safe_convert_unit
   )
 
-  convert_rows <- which(
-    convert_idx
-  )
+  convert_rows <- which(convert_idx)
 
   successful_rows <- convert_rows[
     !is.na(converted_values)
@@ -449,13 +441,13 @@ standardize_units <- function(
     return(df)
   }
 
-  df$standard_value[
+  df$.standard_value[
     successful_rows
   ] <- converted_values[
     !is.na(converted_values)
   ]
 
-  df$standard_unit[
+  df$.standard_unit[
     successful_rows
   ] <- to_unit[
     successful_rows

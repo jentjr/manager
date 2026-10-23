@@ -2,15 +2,18 @@
 % Please edit documentation in R/helper_functions.R
 \name{name_units}
 \alias{name_units}
-\title{Function to return a column of parameter name with units}
+\title{Return analyte display labels}
 \usage{
 name_units(df, short_name = FALSE)
 }
 \arguments{
-\item{df}{groundwater data frame}
+\item{df}{env_schema object.}
 
-\item{short_name}{If TRUE will use abbreviated constituent names}
+\item{short_name}{Use abbreviated names.}
+}
+\value{
+character vector.
 }
 \description{
-Function to return a column of parameter name with units
+Return analyte display labels
 }

@@ -99,3 +99,46 @@ set_proposed_background <- function(
 
   df
 }
+
+#' Helper funtion to filter data
+#'
+#' @noRd
+.filter_manager_data <- function(
+  data,
+  wells = NULL,
+  params = NULL,
+  start_date = NULL,
+  end_date = NULL
+) {
+  if (!is.null(wells)) {
+    data <- data %>%
+      filter(location_id %in% wells)
+  }
+
+  if (!is.null(params)) {
+    data <- data %>%
+      filter(param_name %in% params)
+  }
+
+  if (!is.null(start_date)) {
+    data <- data %>%
+      filter(sample_date >= start_date)
+  }
+
+  if (!is.null(end_date)) {
+    data <- data %>%
+      filter(sample_date <= end_date)
+  }
+
+  data
+}
+
+#' Helper function to get date ranges
+#'
+#' @noRd
+.get_date_range <- function(date_range) {
+  list(
+    start = min(as.Date(date_range), na.rm = TRUE),
+    end = max(as.Date(date_range), na.rm = TRUE)
+  )
+}

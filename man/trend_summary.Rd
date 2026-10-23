@@ -2,76 +2,53 @@
 % Please edit documentation in R/trends.R
 \name{trend_summary}
 \alias{trend_summary}
-\title{Summarize Trends for Groundwater Time Series}
+\title{Summarize Trends}
 \usage{
-trend_summary(
-  df,
-  x = "sample_date",
-  y = "analysis_result",
-  method = "mann_kendall",
-  conf.level = 0.95,
-  location_id = "location_id",
-  param_name = "param_name"
-)
+trend_summary(df, method = "mann_kendall", conf.level = 0.95)
 }
 \arguments{
-\item{df}{groundwater data in tidy format}
+\item{df}{env_schema object.}
 
-\item{x}{date column}
+\item{method}{Trend method. One of
+"lm", "loess", "gam", or "mann_kendall".}
 
-\item{y}{result column}
-
-\item{method}{trend method. One of:
-"lm", "loess", "gam", or "mann_kendall"}
-
-\item{conf.level}{confidence level}
-
-\item{location_id}{location identifier column}
-
-\item{param_name}{parameter identifier column}
+\item{conf.level}{Confidence level.}
 }
 \value{
-tibble containing one row per
-location_id + param_name combination.
-
-tibble with:
+A tibble with one row per location/analyte
+combination containing:
 \describe{
-  \item{location_id}{Location identifier}
-  \item{param_name}{Parameter name}
+  \item{.location}{Location identifier}
+  \item{.analyte}{Analyte name}
   \item{n}{Number of observations}
   \item{first_date}{Earliest sample date}
   \item{last_date}{Latest sample date}
   \item{date_range_days}{Monitoring period length in days}
   \item{date_range_years}{Monitoring period length in years}
   \item{sampling_frequency}{Samples per year}
-  \item{minimum_concentration}{Minimum observed concentration}
-  \item{median_concentration}{Median observed concentration}
-  \item{mean_concentration}{Mean observed concentration}
-  \item{maximum_concentration}{Maximum observed concentration}
+  \item{minimum_concentration}{Minimum concentration}
+  \item{median_concentration}{Median concentration}
+  \item{mean_concentration}{Mean concentration}
+  \item{maximum_concentration}{Maximum concentration}
   \item{standard_deviation}{Sample standard deviation}
-  \item{coefficient_of_variation}{
-     Standard deviation divided by mean concentration
-  }
+  \item{coefficient_of_variation}{Standard deviation divided by mean}
   \item{trend_method}{Trend method used}
-  \item{slope}{Trend slope estimate}
+  \item{slope}{Estimated trend slope}
   \item{p_value}{Trend p-value}
   \item{conf_low}{Lower confidence interval}
   \item{conf_high}{Upper confidence interval}
   \item{significant}{TRUE if p-value <= alpha}
-  \item{trend_direction}{
-     Increasing,
-     Decreasing,
-     Stable
-  }
+  \item{trend_direction}{Increasing, Decreasing, or Stable}
 }
 }
 \description{
 Computes trend statistics for each unique
-location_id + param_name combination using the same
-trend engine used by plotting functions.
+location and analyte combination using the
+same trend engine used by plotting functions.
 }
 \details{
-Date coverage and concentration summary statistics
-are included to assist with groundwater monitoring,
-CCR reporting, and statistical evaluations.
+Date coverage and concentration summary
+statistics are included to assist with
+environmental monitoring, reporting,
+and statistical evaluations.
 }

@@ -52,8 +52,9 @@ Unit strings are normalized before comparison using
 Results already reported in the standard unit are copied directly
 without conversion.
 
-Unit conversion is performed only when a supported standard unit is
-available.
+Analytes without a defined standard unit retain their original
+reporting value and reporting unit. A warning is issued to
+indicate that no standardization was performed.
 }
 \section{Validation}{
 
@@ -64,8 +65,9 @@ The function performs several validation checks:
   \item required columns must exist;
   \item the analyte metadata table must contain unique analyte names;
   \item analytes lacking a standard unit generate a warning;
-  \item failed unit conversions generate a warning and return
-  `NA_real_` for affected values.
+  \item failed unit conversions generate a warning.
+        Values that cannot be standardized retain their original
+        reporting value and reporting unit whenever possible.
 }
 }
 

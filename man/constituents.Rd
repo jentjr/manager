@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{constituents}
 \alias{constituents}
-\title{Function to return a list of all the constituents}
+\title{Function to return a sorted list of all the constituents}
 \usage{
 constituents(df, param_name = "param_name")
 }
@@ -12,5 +12,5 @@ constituents(df, param_name = "param_name")
 \item{param_name}{the column for the constituents}
 }
 \description{
-Function to return a list of all the constituents
+Function to return a sorted list of all the constituents
 }

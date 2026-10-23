@@ -474,7 +474,7 @@ piper_plot <- function(
   if (!is.null(scale_col)) {
     piper <- piper +
       ggplot2::scale_size_area(
-        name = tools::toTitleCase(scale_col),
+        name = tools::toTitleCase(scale_analyte),
         max_size = 8
       )
   }

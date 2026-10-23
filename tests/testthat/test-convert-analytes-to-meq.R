@@ -1,11 +1,11 @@
-test_that(".convert_analytes_to_meq converts supported analytes", {
+test_that("convert_analytes_to_meq converts supported analytes", {
   df <- tibble::tibble(
     analyte = "calcium",
     analysis_result_std = 40,
     default_unit_std = "mg/l"
   )
 
-  result <- .convert_analytes_to_meq(
+  result <- convert_analytes_to_meq(
     df
   )
 
@@ -31,14 +31,14 @@ test_that(".convert_analytes_to_meq converts supported analytes", {
   )
 })
 
-test_that(".convert_analytes_to_meq returns NA for unsupported analytes", {
+test_that("convert_analytes_to_meq returns NA for unsupported analytes", {
   df <- tibble::tibble(
     analyte = "benzene",
     analysis_result_std = 1,
     default_unit_std = "ug/l"
   )
 
-  result <- .convert_analytes_to_meq(
+  result <- convert_analytes_to_meq(
     df
   )
 
@@ -55,14 +55,14 @@ test_that(".convert_analytes_to_meq returns NA for unsupported analytes", {
   )
 })
 
-test_that(".convert_analytes_to_meq preserves missing values", {
+test_that("convert_analytes_to_meq preserves missing values", {
   df <- tibble::tibble(
     analyte = "calcium",
     analysis_result_std = NA_real_,
     default_unit_std = "mg/l"
   )
 
-  result <- .convert_analytes_to_meq(
+  result <- convert_analytes_to_meq(
     df
   )
 
@@ -73,7 +73,7 @@ test_that(".convert_analytes_to_meq preserves missing values", {
   )
 })
 
-test_that(".convert_analytes_to_meq validates units", {
+test_that("convert_analytes_to_meq validates units", {
   df <- tibble::tibble(
     analyte = "calcium",
     analysis_result_std = 40,
@@ -81,21 +81,21 @@ test_that(".convert_analytes_to_meq validates units", {
   )
 
   expect_error(
-    .convert_analytes_to_meq(
+    convert_analytes_to_meq(
       df
     ),
     "Non-standard units found"
   )
 })
 
-test_that(".convert_analytes_to_meq supports custom column names", {
+test_that("convert_analytes_to_meq supports custom column names", {
   df <- tibble::tibble(
     analyte = "calcium",
     concentration = 40,
     unit = "mg/l"
   )
 
-  result <- .convert_analytes_to_meq(
+  result <- convert_analytes_to_meq(
     df,
     value_col = "concentration",
     unit_col = "unit",
@@ -115,12 +115,35 @@ test_that(".convert_analytes_to_meq supports custom column names", {
 })
 
 test_that("calcium meq conversion matches handbook value", {
+  df <- tibble::tibble(
+    param_name = "Calcium",
+    default_unit = "mg/L",
+    analysis_result = 40
+  )
+
+  out <- convert_analytes_to_meq(df)
+
   expect_equal(
-    .convert_to_meq(
-      value = 40,
-      meq_factor = 0.0499
-    ),
+    out$analysis_result_meq[1],
     1.996,
-    tolerance = 1e-3
+    tolerance = 1e-4
+  )
+})
+
+test_that("creates meq columns", {
+  out <- convert_analytes_to_meq(
+    tibble::tibble(
+      param_name = "Calcium",
+      default_unit = "mg/L",
+      analysis_result = 40
+    )
+  )
+
+  expect_true(
+    "analysis_result_meq" %in% names(out)
+  )
+
+  expect_true(
+    "default_unit_meq" %in% names(out)
   )
 })

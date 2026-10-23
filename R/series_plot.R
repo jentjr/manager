@@ -1,52 +1,80 @@
-#' This function plots multiple groundwater data time series by location,
-#' or constituent
+#' Plot environmental chemistry time series
 #'
-#' @param df df groundwater data in tidy format
-#' @param x x column for x variable
-#' @param y y column for y variable
-#' @param facet_var column to facet wrap plots by, default is by location
-#' @param group_var column to group plots by, default is by constituent
-#' @param lt_measure column for non-detect symbol.
-#' Symbol can be either "<", "ND", or "U"
-#' @param scale "fixed" or "free", or in one dimension "free_x", "free_y"
-#' @param scale_y_trans type of transformation to use for y scale. Default is
-#' "identity".  Built-in transformations include "asn", "atanh", "boxcox",
-#' "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
-#' "probit", "reciprocal", "reverse" and "sqrt".
-#' @param trend trend add trend line to time series plot
-#' @param background vector of dates for background start and end dates.
-#' @param standards Logical. If TRUE, standards from the internal
-#' standards_df lookup table are added as horizontal reference lines.
-#' @param short_name If TRUE, the constituent name will be abbreviated
-#' @param pnt size of points on time series plots
-#' @param ncol number of columns
+#' @param df Environmental data frame or env_schema object.
+#' @param location Location column.
+#' @param date Date column.
+#' @param analyte Analyte column.
+#' @param result Result column.
+#' @param unit Unit column.
+#' @param reporting_flag Reporting qualifier column.
+#' @param reporting_limit Reporting limit column.
+#' @param detection_limit Detection limit column.
+#' @param scale Facet scales.
+#' @param scale_y_trans Y-axis transformation.
+#' @param trend Trend method.
+#' @param background Optional background date range.
+#' @param standards Logical.
+#' @param short_name Logical.
+#' @param pnt Point size.
+#' @param ncol Number of facet columns.
+#' @param plot_type "split" or "combined".
 #'
 #' @export
-
 series_plot <- function(
   df,
-  x = "sample_date",
-  y = "analysis_result",
-  facet_var = "location_id",
-  group_var = "param_name",
-  lt_measure = "lt_measure",
+  location = NULL,
+  date = NULL,
+  analyte = NULL,
+  result = NULL,
+  unit = NULL,
+  reporting_flag = NULL,
+  reporting_limit = NULL,
+  detection_limit = NULL,
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",
   trend_ci = FALSE,
   trend_conf_level = 0.95,
-  trend_label = c("none", "compact", "full"),
+  trend_label = c(
+    "none",
+    "compact",
+    "full"
+  ),
   trend_label_sig_only = TRUE,
   background = NULL,
   standards = TRUE,
   short_name = FALSE,
   pnt = 3,
   ncol = NULL,
-  plot_type = c("split", "combined")
+  plot_type = c(
+    "split",
+    "combined"
+  )
 ) {
+  df <- as_env_schema(
+    df,
+    location = {{ location }},
+    date = {{ date }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    unit = {{ unit }},
+    reporting_flag = {{ reporting_flag }},
+    reporting_limit = {{ reporting_limit }},
+    detection_limit = {{ detection_limit }}
+  )
+
+  validate_env_schema(df)
+
   plot_type <- match.arg(plot_type)
+
   trend_label <- match.arg(trend_label)
-  valid_scales <- c("fixed", "free", "free_x", "free_y")
+
+  valid_scales <- c(
+    "fixed",
+    "free",
+    "free_x",
+    "free_y"
+  )
 
   if (!scale %in% valid_scales) {
     stop(
@@ -100,15 +128,13 @@ series_plot <- function(
 
   if (plot_type == "split") {
     return(
-      split(df, df[[group_var]]) %>%
+      split(
+        df,
+        df$.analyte
+      ) |>
         purrr::imap(
           ~ .series_plot(
             .x,
-            x = x,
-            y = y,
-            facet_var = facet_var,
-            group_var = group_var,
-            lt_measure = lt_measure,
             scale = scale,
             scale_y_trans = scale_y_trans,
             trend = trend,
@@ -128,12 +154,7 @@ series_plot <- function(
   }
 
   .series_plot(
-    df,
-    x = x,
-    y = y,
-    facet_var = facet_var,
-    group_var = group_var,
-    lt_measure = lt_measure,
+    df = df,
     scale = scale,
     scale_y_trans = scale_y_trans,
     trend = trend,
@@ -150,23 +171,21 @@ series_plot <- function(
   )
 }
 
-#' Helper function for plotting time series of groundwater data
+#' Helper function for plotting time series
 #'
 #' @noRd
-
 .series_plot <- function(
   df,
-  x = "sample_date",
-  y = "analysis_result",
-  lt_measure = "lt_measure",
-  facet_var = NULL,
-  group_var = NULL,
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",
   trend_ci = FALSE,
   trend_conf_level = 0.95,
-  trend_label = c("none", "compact", "full"),
+  trend_label = c(
+    "none",
+    "compact",
+    "full"
+  ),
   trend_label_sig_only = TRUE,
   background = NULL,
   standards = TRUE,
@@ -175,51 +194,59 @@ series_plot <- function(
   ncol = NULL,
   plot_type = "split"
 ) {
-  x_sym <- rlang::sym(x)
-  y_sym <- rlang::sym(y)
-  group_sym <- rlang::sym(group_var)
-  lt_sym <- rlang::sym(lt_measure)
+  validate_env_schema(df)
 
   trend_label <- match.arg(trend_label)
 
-  df <- df %>%
-    dplyr::arrange(!!x_sym) %>%
+  if (plot_type == "combined") {
+    standards <- FALSE
+  }
+
+  df <- df |>
+    dplyr::arrange(.date) |>
     dplyr::mutate(
       non_detect = factor(
-        dplyr::case_when(
-          toupper(trimws(as.character(!!lt_sym))) %in%
-            c("<", "ND", "U") ~ "Non-detect",
-          TRUE ~ "Detected"
+        ifelse(
+          .censored,
+          "Non-detect",
+          "Detected"
         ),
         levels = c(
           "Detected",
           "Non-detect"
         )
-      )
-    ) %>%
-    name_units(
-      short_name = short_name
-    )
-
-  df <- df %>%
-    dplyr::mutate(
+      ),
       .trend_group = interaction(
-        .data$location_id,
-        .data$param_name,
+        .location,
+        .analyte,
         drop = TRUE
       )
     )
 
-  y_label <- paste0(
-    "Analysis Result (",
-    df$default_unit[1],
-    ")"
+  units <- unique(
+    stats::na.omit(
+      df$.analysis_unit
+    )
   )
+
+  y_label <-
+    if (length(units) == 1) {
+      paste0(
+        "Analysis Result (",
+        units,
+        ")"
+      )
+    } else {
+      "Analysis Result"
+    }
 
   if (scale_y_trans != "identity") {
     y_label <- paste(
       y_label,
-      paste0("Scale: ", scale_y_trans),
+      paste0(
+        "Scale: ",
+        scale_y_trans
+      ),
       sep = "\n"
     )
   }
@@ -227,15 +254,15 @@ series_plot <- function(
   mapping <-
     if (plot_type == "combined") {
       ggplot2::aes(
-        x = !!x_sym,
-        y = !!y_sym,
-        colour = !!group_sym,
+        x = .date,
+        y = .analysis_result,
+        colour = .analyte,
         group = .trend_group
       )
     } else {
       ggplot2::aes(
-        x = !!x_sym,
-        y = !!y_sym
+        x = .date,
+        y = .analysis_result
       )
     }
 
@@ -243,9 +270,13 @@ series_plot <- function(
     df,
     mapping
   ) +
-    ggplot2::geom_path(linewidth = 0.4) +
+    ggplot2::geom_path(
+      linewidth = 0.4
+    ) +
     ggplot2::geom_point(
-      ggplot2::aes(shape = non_detect),
+      ggplot2::aes(
+        shape = non_detect
+      ),
       size = pnt
     ) +
     ggplot2::scale_shape_manual(
@@ -272,62 +303,80 @@ series_plot <- function(
     ) +
     ggplot2::theme_bw() +
     ggplot2::theme(
-      plot.margin = grid::unit(c(1, 1, 1, 1), "lines"),
-      axis.title.x = ggplot2::element_text(size = 15, vjust = -0.3),
-      axis.title.y = ggplot2::element_text(size = 15, vjust = 0.3),
-      plot.title = ggplot2::element_text(hjust = 0.5)
-    ) +
-    ggplot2::guides(
-      color = ggplot2::guide_legend(
-        title = "Standard"
+      plot.margin = grid::unit(
+        c(1, 1, 1, 1),
+        "lines"
       ),
-      shape = ggplot2::guide_legend(
-        override.aes = list(
-          linetype = 0
-        )
+      axis.title.x = ggplot2::element_text(
+        size = 15,
+        vjust = -0.3
       ),
-      size = ggplot2::guide_legend(
-        "none"
+      axis.title.y = ggplot2::element_text(
+        size = 15,
+        vjust = 0.3
       ),
-      linetype = ggplot2::guide_legend(
-        title = "Standard"
+      plot.title = ggplot2::element_text(
+        hjust = 0.5
       )
     )
+
+  if (plot_type == "combined") {
+    p <- p +
+      ggplot2::guides(
+        colour = ggplot2::guide_legend(
+          title = "Analyte"
+        ),
+        shape = ggplot2::guide_legend(
+          override.aes = list(
+            linetype = 0
+          )
+        )
+      )
+  } else {
+    p <- p +
+      ggplot2::guides(
+        colour = "none",
+        shape = ggplot2::guide_legend(
+          override.aes = list(
+            linetype = 0
+          )
+        )
+      )
+  }
 
   p <- .add_trend(
     p = p,
     df = df,
-    x = x,
-    y = y,
     trend = trend,
     trend_ci = trend_ci,
     trend_conf_level = trend_conf_level,
     trend_label = trend_label,
     trend_label_sig_only = trend_label_sig_only,
-    plot_type = plot_type,
-    group_var = group_var
+    plot_type = plot_type
   )
 
-  if (!is.null(facet_var)) {
-    facet_sym <- rlang::sym(facet_var)
+  p <- p +
+    ggplot2::facet_wrap(
+      ggplot2::vars(.location),
+      scales = scale,
+      ncol = ncol
+    )
 
-    p <- p +
-      ggplot2::facet_wrap(
-        ggplot2::vars(!!facet_sym),
-        scales = scale,
-        ncol = ncol
-      )
-  }
+  if (plot_type == "split") {
+    plot_label <- if (
+      short_name &&
+        ".short_analyte_label" %in% names(df)
+    ) {
+      unique(df$.short_analyte_label)[1]
+    } else {
+      unique(df$.analyte_label)[1]
+    }
 
-  if (
-    plot_type == "split" &&
-      !is.null(group_var)
-  ) {
     p <- p +
       ggplot2::ggtitle(
         sprintf(
           "Time Series Plot for %s",
-          unique(df[[group_var]])[1]
+          plot_label
         )
       )
   }
@@ -344,10 +393,10 @@ series_plot <- function(
     p <- p +
       ggplot2::geom_rect(
         shaded_dates,
-        ggplot2::aes(
+        mapping = ggplot2::aes(
           xmin = xmin,
-          ymin = ymin,
           xmax = xmax,
+          ymin = ymin,
           ymax = ymax,
           fill = years
         ),
@@ -365,7 +414,6 @@ series_plot <- function(
       )
   }
 
-  # add standards from plotting dataframe
   p <- .add_standards(
     plot = p,
     df = df,

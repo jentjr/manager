@@ -2,16 +2,18 @@
 % Please edit documentation in R/series_plot.R
 \name{series_plot}
 \alias{series_plot}
-\title{This function plots multiple groundwater data time series by location,
-or constituent}
+\title{Plot environmental chemistry time series}
 \usage{
 series_plot(
   df,
-  x = "sample_date",
-  y = "analysis_result",
-  facet_var = "location_id",
-  group_var = "param_name",
-  lt_measure = "lt_measure",
+  location = NULL,
+  date = NULL,
+  analyte = NULL,
+  result = NULL,
+  unit = NULL,
+  reporting_flag = NULL,
+  reporting_limit = NULL,
+  detection_limit = NULL,
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",
@@ -28,40 +30,42 @@ series_plot(
 )
 }
 \arguments{
-\item{df}{df groundwater data in tidy format}
+\item{df}{Environmental data frame or env_schema object.}
 
-\item{x}{x column for x variable}
+\item{location}{Location column.}
 
-\item{y}{y column for y variable}
+\item{date}{Date column.}
 
-\item{facet_var}{column to facet wrap plots by, default is by location}
+\item{analyte}{Analyte column.}
 
-\item{group_var}{column to group plots by, default is by constituent}
+\item{result}{Result column.}
 
-\item{lt_measure}{column for non-detect symbol.
-Symbol can be either "<", "ND", or "U"}
+\item{unit}{Unit column.}
 
-\item{scale}{"fixed" or "free", or in one dimension "free_x", "free_y"}
+\item{reporting_flag}{Reporting qualifier column.}
 
-\item{scale_y_trans}{type of transformation to use for y scale. Default is
-"identity".  Built-in transformations include "asn", "atanh", "boxcox",
-"exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
-"probit", "reciprocal", "reverse" and "sqrt".}
+\item{reporting_limit}{Reporting limit column.}
 
-\item{trend}{trend add trend line to time series plot}
+\item{detection_limit}{Detection limit column.}
 
-\item{background}{vector of dates for background start and end dates.}
+\item{scale}{Facet scales.}
 
-\item{standards}{Logical. If TRUE, standards from the internal
-standards_df lookup table are added as horizontal reference lines.}
+\item{scale_y_trans}{Y-axis transformation.}
 
-\item{short_name}{If TRUE, the constituent name will be abbreviated}
+\item{trend}{Trend method.}
 
-\item{pnt}{size of points on time series plots}
+\item{background}{Optional background date range.}
 
-\item{ncol}{number of columns}
+\item{standards}{Logical.}
+
+\item{short_name}{Logical.}
+
+\item{pnt}{Point size.}
+
+\item{ncol}{Number of facet columns.}
+
+\item{plot_type}{"split" or "combined".}
 }
 \description{
-This function plots multiple groundwater data time series by location,
-or constituent
+Plot environmental chemistry time series
 }

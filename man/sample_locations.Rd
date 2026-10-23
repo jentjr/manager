@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{sample_locations}
 \alias{sample_locations}
-\title{Function to return a list of all the location IDs}
+\title{Function to return a sorted list of all the location IDs}
 \usage{
 sample_locations(df, location_id = "location_id")
 }
@@ -12,5 +12,5 @@ sample_locations(df, location_id = "location_id")
 \item{location_id}{column for the sample location id}
 }
 \description{
-Function to return a list of all the location IDs
+Function to return a sorted list of all the location IDs
 }

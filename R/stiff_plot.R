@@ -64,6 +64,8 @@ stiff_plot <- function(
   scale_analyte = NULL,
   group_var = location_id,
   facet_var = sample_date,
+  stiff_limit = NULL,
+  stiff_breaks = 1,
   lines = FALSE,
   title = NULL
 ) {
@@ -75,6 +77,33 @@ stiff_plot <- function(
   if (!group_var %in% c(location_id, sample_date)) {
     cli::cli_abort(
       "{.arg group_var} must be either the location_id or sample_date column."
+    )
+  }
+
+  required_ions <- c(
+    calcium,
+    magnesium,
+    sodium,
+    potassium,
+    chloride,
+    sulfate,
+    alkalinity
+  )
+
+  missing <- setdiff(
+    required_ions,
+    unique(data[[param_name]])
+  )
+
+  if (length(missing) == length(required_ions)) {
+    cli::cli_abort(
+      "No required major ions were found in the data."
+    )
+  }
+
+  if (length(missing) > 0) {
+    cli::cli_warn(
+      "Missing major ions: {paste(missing, collapse = ', ')}"
     )
   }
 
@@ -98,6 +127,8 @@ stiff_plot <- function(
         scale_analyte = scale_analyte,
         facet_var = facet_var,
         group_var = group_var,
+        stiff_limit = stiff_limit,
+        stiff_breaks = stiff_breaks,
         lines = lines,
         title = title
       )
@@ -126,6 +157,8 @@ stiff_plot <- function(
   facet_var,
   group_var,
   lines,
+  stiff_limit,
+  stiff_breaks,
   title
 ) {
   chemistry_df <- .prepare_major_ion_chemistry(
@@ -175,7 +208,9 @@ stiff_plot <- function(
     group_name = group_name,
     lines = lines,
     title = title,
-    scale_analyte = scale_analyte
+    scale_analyte = scale_analyte,
+    stiff_limit = stiff_limit,
+    stiff_breaks = stiff_breaks
   )
 }
 
@@ -192,13 +227,35 @@ stiff_plot <- function(
   group_name,
   lines,
   title,
-  scale_analyte
+  scale_analyte,
+  stiff_limit,
+  stiff_breaks
 ) {
   plot_title <- if (is.null(title)) {
-    paste(group_var, group_name, sep = ": ")
+    as.character(group_name)
   } else {
     title
   }
+
+  if (is.null(stiff_limit)) {
+    stiff_limit <- ceiling(
+      max(abs(data$stiff_x), na.rm = TRUE)
+    )
+
+    stiff_limit <- max(
+      stiff_limit,
+      1
+    )
+  }
+
+  grid_breaks <- setdiff(seq(-stiff_limit, stiff_limit, by = stiff_breaks), 0)
+
+  if (max(abs(data$stiff_x), na.rm = TRUE) > stiff_limit) {
+    cli::cli_warn(
+      "Some samples exceed {.arg stiff_limit} and will be truncated."
+    )
+  }
+
   p <- ggplot2::ggplot(
     data,
     ggplot2::aes(
@@ -211,15 +268,21 @@ stiff_plot <- function(
     )
   ) +
     ggplot2::geom_vline(
-      xintercept = 0,
-      colour = "grey50",
-      linewidth = 0.4
+      xintercept = grid_breaks,
+      colour = "grey85",
+      linewidth = 0.2
     )
 
   if (!is.null(scale_analyte)) {
     p <- p +
       ggplot2::geom_polygon(
-        ggplot2::aes(fill = scale_value),
+        ggplot2::aes(
+          fill = scale_value,
+          group = interaction(
+            .data[[location_id]],
+            .data[[sample_date]]
+          )
+        ),
         colour = "black"
       ) +
       ggplot2::scale_fill_viridis_c(
@@ -228,53 +291,75 @@ stiff_plot <- function(
   } else {
     p <- p +
       ggplot2::geom_polygon(
+        ggplot2::aes(
+          group = interaction(
+            .data[[location_id]],
+            .data[[sample_date]]
+          )
+        ),
         fill = "white",
         colour = "black"
       )
   }
 
+  # draw vertical reference line at 0 meq/L on top.
+  p <- p +
+    ggplot2::geom_vline(
+      xintercept = 0,
+      colour = "black",
+      linewidth = 0.8
+    )
+
   label_data <- data %>%
     dplyr::distinct(
       .data[[facet_var]],
       ion,
-      stiff_x_label,
+      label_side,
       stiff_y
     )
+
+  label_data <- label_data %>%
+    dplyr::mutate(
+      label_x = dplyr::if_else(
+        label_side == "left",
+        -stiff_limit,
+        stiff_limit
+      ),
+      hjust = dplyr::if_else(
+        label_side == "left",
+        1,
+        0
+      )
+    )
+
   p <- p +
     ggplot2::geom_text(
       data = label_data,
       ggplot2::aes(
-        x = stiff_x_label,
+        x = label_x,
         y = stiff_y,
-        label = ion
+        label = ion,
+        hjust = hjust
       ),
       inherit.aes = FALSE,
       parse = TRUE,
       size = 3
     )
+
   if (isTRUE(lines)) {
     p <- p +
       ggplot2::geom_segment(
+        data = label_data,
         ggplot2::aes(
-          x = -abs(stiff_x_label) + 0.3,
-          xend = abs(stiff_x_label) - 0.3,
+          x = -stiff_limit,
+          xend = stiff_limit,
           y = stiff_y,
           yend = stiff_y
         ),
-        linetype = "dotted"
+        inherit.aes = FALSE,
+        linetype = "dotted",
+        colour = "grey70"
       )
-  }
-
-  global_extent <- max(
-    abs(data$stiff_x),
-    na.rm = TRUE
-  )
-
-  if (
-    !is.finite(global_extent) ||
-      global_extent <= 0
-  ) {
-    global_extent <- 1
   }
 
   return(
@@ -283,10 +368,18 @@ stiff_plot <- function(
         stats::reformulate(facet_var),
         scales = "fixed"
       ) +
+      ggplot2::coord_equal(
+        clip = "off"
+      ) +
       ggplot2::scale_x_continuous(
         limits = c(
-          -global_extent * 1.15,
-          global_extent * 1.15
+          -stiff_limit * 1.10,
+          stiff_limit * 1.10
+        ),
+        breaks = seq(
+          -stiff_limit,
+          stiff_limit,
+          by = stiff_breaks
         ),
         labels = abs
       ) +
@@ -300,6 +393,12 @@ stiff_plot <- function(
         plot.title = ggplot2::element_text(
           hjust = 0.5
         ),
+        plot.margin = ggplot2::margin(
+          5.5,
+          25,
+          5.5,
+          25
+        ),
         panel.grid.major = ggplot2::element_blank(),
         panel.grid.minor = ggplot2::element_blank(),
         axis.ticks.y = ggplot2::element_blank(),
@@ -310,78 +409,59 @@ stiff_plot <- function(
   )
 }
 
-#' Function to create an animated Stiff Diagram
+#' Animate Stiff Diagrams
 #'
-#' @param df data frame of water quality data
-#' @inheritDotParams stiff_plot
+#' @param data Data frame of water quality data.
+#' @param sample_date Sample date column.
+#' @param pause Delay between frames in seconds.
+#' @param ...
+#' Additional arguments passed to `stiff_plot()`.
 #'
 #' @export
 
 stiff_time_plot <- function(
-  df,
-  group_var = "location_id",
+  data,
   sample_date = "sample_date",
+  pause = 1,
   ...
 ) {
-  dates <- sort(unique(df[[sample_date]]))
-
-  for (date in dates) {
-    plots <- stiff_plot(
-      dplyr::filter(
-        df,
-        .data[[sample_date]] == date
-      ),
-      group_var = group_var,
-      sample_date = sample_date,
-      ...
-    )
-
-    purrr::walk(
-      plots,
-      ~ {
-        print(.x)
-        animation::ani.pause()
-      }
-    )
-  }
+  .animate_geochemical_plots(
+    data = data,
+    plot_fn = stiff_plot,
+    sample_date = sample_date,
+    pause = pause,
+    ...
+  )
 }
 
-#' Function to create an animated Stiff Diagram and save to html
+#' Save animated Stiff Diagram to HTML
 #'
-#' @param df data frame of water quality data
-#' @inheritDotParams stiff_plot
+#' @param data Data frame of water quality data.
+#' @param sample_date Sample date column.
+#' @param htmlfile Output HTML file.
+#' @param pause Delay between frames in seconds.
+#' @param ...
+#' Additional arguments passed to `stiff_plot()`.
+#'
+#' @return Invisibly returns htmlfile.
 #'
 #' @export
 
 stiff_time_html <- function(
-  df,
+  data,
   sample_date = "sample_date",
-  group_var = "location_id",
+  htmlfile = "Stiff_plot.html",
+  pause = 1,
   ...
 ) {
-  n_frames <- df %>%
-    dplyr::distinct(
-      .data[[sample_date]],
-      .data[[group_var]]
-    ) %>%
-    nrow()
-
-  animation::saveHTML(
-    {
-      animation::ani.options(
-        nmax = n_frames
-      )
-
-      stiff_time_plot(
-        df,
-        sample_date = sample_date,
-        group_var = group_var,
-        ...
-      )
-    },
+  .save_geochemical_animation(
+    data = data,
+    plot_fn = stiff_plot,
+    sample_date = sample_date,
+    htmlfile = htmlfile,
+    title = "Stiff Diagram",
     img.name = "StiffPlot",
-    htmlfile = "Stiff_plot.html",
-    autobrowse = TRUE,
-    title = "Stiff Diagram"
+    pause = pause,
+    ...
   )
 }

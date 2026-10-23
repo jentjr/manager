@@ -7,19 +7,17 @@
 #' @noRd
 
 .prepare_standards_data <- function(df) {
-  std_df <- assign_standards(df) %>%
+  assign_standards(df) %>%
     dplyr::select(
-      standard_type,
-      standard_value
+      .standard_type,
+      .standard_value
     ) %>%
     dplyr::filter(
-      !is.na(standard_type),
-      !is.na(standard_value),
-      standard_value > 0
+      !is.na(.standard_type),
+      !is.na(.standard_value),
+      .standard_value > 0
     ) %>%
     dplyr::distinct()
-
-  std_df
 }
 
 #' Add standards to plot
@@ -49,16 +47,13 @@
     ggplot2::geom_hline(
       data = std_df,
       ggplot2::aes(
-        yintercept = standard_value,
-        color = standard_type,
-        linetype = standard_type
+        yintercept = .standard_value,
+        linetype = .standard_type
       ),
+      color = "red",
       linewidth = 0.9,
       inherit.aes = FALSE,
       show.legend = TRUE
-    ) +
-    ggplot2::scale_color_discrete(
-      name = "Standard"
     ) +
     ggplot2::scale_linetype_discrete(
       name = "Standard"

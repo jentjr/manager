@@ -14,5 +14,5 @@ data("gw_data")
 MW1_Arsenic <- gw_data %>%
   filter(location_id == "MW-1", param_name == "Arsenic, dissolved")
 
-series_plot(MW1_Arsenic)
+series_plot(MW1_Arsenic, standards = TRUE)
 

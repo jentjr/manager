@@ -90,3 +90,35 @@
 #' }
 #'
 "gw_data"
+
+#' Example environmental chemistry dataset
+#'
+#' An example environmental chemistry dataset stored as an
+#' `env_schema` object.
+#'
+#' The dataset contains a subset of monitoring well data suitable
+#' for demonstrating:
+#'
+#' * time series plotting
+#' * trend analysis
+#' * unit standardization
+#' * meq conversion
+#' * Piper diagrams
+#' * Stiff diagrams
+#' * handling of censored observations
+#'
+#' @format An `env_schema` object with approximately 500 observations.
+#'
+#' @source Internal package example dataset.
+#'
+#' @examples
+#' data(gw)
+#'
+#' is_env_schema(gw)
+#'
+#' schema_version(gw)
+#'
+#' series_plot(gw)
+#'
+#' @name gw
+NULL

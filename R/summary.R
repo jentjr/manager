@@ -12,49 +12,136 @@
 #'
 #' @export
 
-summary <- function(df,
-                    location_id = "location_id",
-                    param_name = "param_name",
-                    lt_measure = "lt_measure",
-                    analysis_result = "analysis_result",
-                    default_unit = "default_unit",
-                    combine_locations = FALSE,
-                    na.rm = TRUE) {
-
+summary_stats <- function(
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  lt_measure = "lt_measure",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  combine_locations = FALSE,
+  na.rm = TRUE
+) {
   if (!combine_locations) {
     df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      summarise(n = n(),
-                percent_lt = sum(lt_measure == "<", na.rm = na.rm) / n() * 100,
-                mean = mean(analysis_result, na.rm = na.rm),
-                median = median(analysis_result, na.rm = na.rm),
-                sd = sd(analysis_result, na.rm = na.rm),
-                var = var(analysis_result, na.rm = na.rm),
-                min = min(analysis_result, na.rm = na.rm),
-                max = max(analysis_result, na.rm = na.rm),
-                cv = cv(analysis_result, na.rm = na.rm),
-                `25%` = quantile(analysis_result, na.rm = na.rm)[2][[1]],
-                `75%` = quantile(analysis_result, na.rm = na.rm)[4][[1]],
-                IQR = IQR(analysis_result, na.rm = na.rm),
-                mad = mad(analysis_result, na.rm = na.rm)
+      dplyr::group_by(
+        .data[[location_id]],
+        .data[[param_name]],
+        .data[[default_unit]]
+      ) %>%
+      dplyr::summarise(
+        n = dplyr::n(),
+        percent_lt = sum(
+          .data[[lt_measure]] == "<",
+          na.rm = na.rm
+        ) /
+          dplyr::n() *
+          100,
+        mean = mean(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        median = stats::median(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        sd = stats::sd(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        var = stats::var(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        min = min(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        max = max(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        cv = cv(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        `25%` = stats::quantile(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        )[2],
+        `75%` = stats::quantile(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        )[4],
+        IQR = stats::IQR(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        mad = stats::mad(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        .groups = "drop"
       )
   } else {
     df %>%
-      group_by(param_name, default_unit) %>%
-      summarise(n = n(),
-                percent_lt = sum(lt_measure == "<", na.rm = na.rm) / n() * 100,
-                mean = mean(analysis_result, na.rm = na.rm),
-                median = median(analysis_result, na.rm = na.rm),
-                sd = sd(analysis_result, na.rm = na.rm),
-                var = var(analysis_result, na.rm = na.rm),
-                min = min(analysis_result, na.rm = na.rm),
-                max = max(analysis_result, na.rm = na.rm),
-                cv = cv(analysis_result, na.rm = na.rm),
-                `25%` = quantile(analysis_result, na.rm = na.rm)[2][[1]],
-                `75%` = quantile(analysis_result, na.rm = na.rm)[4][[1]],
-                IQR = IQR(analysis_result, na.rm = na.rm),
-                mad = mad(analysis_result, na.rm = na.rm)
+      dplyr::group_by(
+        .data[[param_name]],
+        .data[[default_unit]]
+      ) %>%
+      dplyr::summarise(
+        n = dplyr::n(),
+        percent_lt = sum(
+          .data[[lt_measure]] == "<",
+          na.rm = na.rm
+        ) /
+          dplyr::n() *
+          100,
+        mean = mean(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        median = stats::median(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        sd = stats::sd(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        var = stats::var(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        min = min(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        max = max(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        cv = cv(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        `25%` = stats::quantile(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        )[2],
+        `75%` = stats::quantile(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        )[4],
+        IQR = stats::IQR(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        mad = stats::mad(
+          .data[[analysis_result]],
+          na.rm = na.rm
+        ),
+        .groups = "drop"
       )
   }
-
 }

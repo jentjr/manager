@@ -7,7 +7,7 @@
 kendall_trend(df, conf.level = 0.95)
 }
 \arguments{
-\item{df}{dataframe}
+\item{df}{env_schema object.}
 
 \item{conf.level}{confidence level}
 }

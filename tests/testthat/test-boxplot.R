@@ -538,7 +538,6 @@ test_that("boxplot works without default_unit", {
   )
 })
 
-
 test_that("boxplot returns ggplot when add_explanation = FALSE", {
   expect_no_error(
     gw_data %>%

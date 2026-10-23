@@ -33,3 +33,50 @@ test_that(".convert_units errors on incompatible units", {
     )
   )
 })
+
+test_that(
+  "analytes without standard units retain values and units",
+  {
+    
+    x <- gw_data %>%
+      dplyr::filter(
+        param_name == "Total Dissolved Solids"
+      ) %>%
+      standardize_units()
+    
+    expect_true(
+      all(
+        x$analysis_result_std ==
+          x$analysis_result,
+        na.rm = TRUE
+      )
+    )
+    
+    expect_equal(
+      x$default_unit_std,
+      .normalize_unit(
+        x$default_unit
+      )
+    )
+    
+  }
+)
+
+test_that(
+  "analytes without standard units do not create missing standardized values",
+  {
+    
+    x <- gw_data %>%
+      dplyr::filter(
+        param_name == "Total Dissolved Solids"
+      ) %>%
+      standardize_units()
+    
+    expect_false(
+      any(
+        is.na(x$analysis_result_std)
+      )
+    )
+    
+  }
+)

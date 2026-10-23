@@ -15,7 +15,7 @@
 #'   \item{strict}{
 #'     Applies text normalization only (lower-casing, punctuation removal,
 #'     whitespace normalization), while preserving meaningful distinctions.
-#''     For example, `"Calcium, dissolved"` becomes
+#'     For example, `"Calcium, dissolved"` becomes
 #'     `"calcium dissolved"` and remains distinct from
 #'     `"calcium total"`.
 #'   }

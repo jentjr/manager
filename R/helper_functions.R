@@ -1,4 +1,4 @@
-#' Function to return a list of all the location IDs
+#' Function to return a sorted list of all the location IDs
 #'
 #' @param df data frame of groundwater data in the format with column names
 #' @param location_id column for the sample location id
@@ -6,10 +6,10 @@
 #' @export
 
 sample_locations <- function(df, location_id = "location_id") {
-  unique(df[[location_id]])
+  sort(unique(as.character(df[[location_id]])))
 }
 
-#' Function to return a list of all the constituents
+#' Function to return a sorted list of all the constituents
 #'
 #' @param df data frame of groundwater data in the format with column names
 #' @param param_name the column for the constituents
@@ -17,7 +17,7 @@ sample_locations <- function(df, location_id = "location_id") {
 #' @export
 
 constituents <- function(df, param_name = "param_name") {
-  unique(df[[param_name]])
+  sort(unique(as.character(df[[param_name]])))
 }
 
 #' Calculate the percentage of left censored data
@@ -101,7 +101,7 @@ include_dup <- function(df, wells) {
 #'
 #' @export
 
-replace_missing <- function(df, analysis_result = "analsyis_result", value) {
+replace_missing <- function(df, analysis_result, value) {
   df %>%
     mutate(
       {{ analysis_result }} := dplyr::na_if({{ analysis_result }}, value)
@@ -133,31 +133,32 @@ to_censored <- function(df) {
 
 join_lt <- function(df, lt_measure, analysis_result) {
   df %>%
-    replace_na(list(lt_measure = "")) %>%
-    unite(analysis_result, lt_measure, analysis_result, sep = " ")
+    tidyr::replace_na(list(lt_measure = "")) %>%
+    tidyr::unite(analysis_result, lt_measure, analysis_result, sep = " ")
 }
 
-#' Function to return a column of parameter name with units
+#' Return analyte display labels
 #'
-#' @param df groundwater data frame
-#' @param short_name If TRUE will use abbreviated constituent names
+#' @param df env_schema object.
+#' @param short_name Use abbreviated names.
+#'
+#' @returns character vector.
 #'
 #' @export
+name_units <- function(
+  df,
+  short_name = FALSE
+) {
+  validate_env_schema(df)
 
-name_units <- function(df, short_name = FALSE) {
-  if (short_name == TRUE) {
-    df <- df %>%
-      dplyr::mutate(
-        param_name = paste0(.$short_name, " (", .$default_unit, ")")
-      )
-  } else {
-    df <- df %>%
-      dplyr::mutate(
-        param_name = paste0(.$param_name, " (", .$default_unit, ")")
-      )
+  if (
+    short_name &&
+      ".short_analyte_label" %in% names(df)
+  ) {
+    return(df$.short_analyte_label)
   }
 
-  return(df)
+  df$.analyte_label
 }
 
 #' Helper function to cast data frame to wide format
@@ -181,30 +182,30 @@ to_wide <- function(df, lab_id = FALSE, join_lt = TRUE) {
       df <- df %>%
         join_lt() %>%
         name_units() %>%
-        group_by(location_id, lab_id, sample_date, param_name) %>%
-        summarise(analysis_result) %>%
-        spread(param_name, analysis_result)
+        dplyr::group_by(location_id, lab_id, sample_date, param_name) %>%
+        dplyr::summarise(analysis_result) %>%
+        tidyr::spread(param_name, analysis_result)
     } else {
       df <- df %>%
         join_lt() %>%
         name_units() %>%
-        group_by(location_id, sample_date, param_name) %>%
-        summarise(analysis_result) %>%
-        spread(param_name, analysis_result)
+        dplyr::group_by(location_id, sample_date, param_name) %>%
+        dplyr::summarise(analysis_result) %>%
+        tidyr::spread(param_name, analysis_result)
     }
   } else {
     if (isTRUE(lab_id)) {
       df <- df %>%
         name_units() %>%
-        group_by(location_id, lab_id, sample_date, param_name) %>%
-        summarise(analysis_result) %>%
-        spread(param_name, analysis_result)
+        dplyr::group_by(location_id, lab_id, sample_date, param_name) %>%
+        dplyr::summarise(analysis_result) %>%
+        tidyr::spread(param_name, analysis_result)
     } else {
       df <- df %>%
         name_units() %>%
-        group_by(location_id, sample_date, param_name) %>%
-        summarise(analysis_result) %>%
-        spread(param_name, analysis_result)
+        dplyr::group_by(location_id, sample_date, param_name) %>%
+        dplyr::summarise(analysis_result) %>%
+        tidyr::spread(param_name, analysis_result)
     }
   }
 

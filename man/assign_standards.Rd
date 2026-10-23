@@ -2,15 +2,56 @@
 % Please edit documentation in R/assign_standards.R
 \name{assign_standards}
 \alias{assign_standards}
-\title{Function to assign Standards}
+\title{Assign regulatory standards}
 \usage{
-assign_standards(df, column = "param_name")
+assign_standards(df, standards = standards_tbl)
 }
 \arguments{
-\item{df}{dataframe of data in tidy format}
+\item{df}{Environmental chemistry data as an \code{env_schema}
+object.}
 
-\item{column}{column containing the constituent names}
+\item{standards}{Standards table or \code{standards_schema} object.
+Defaults to \code{standards_tbl}.}
+}
+\value{
+An enriched \code{env_schema} containing matched standard metadata,
+including standard values, units, categories, and related fields from
+the standards schema.
+
+Schema attributes from \code{df} are preserved.
 }
 \description{
-Function to assign Standards
+Assigns regulatory, screening, permit, background, or project-specific
+standards to environmental chemistry results.
+}
+\details{
+Standards are matched using the analyte name stored in
+\code{.analyte}. Matching is performed through
+[as_standards_schema()] and [.match_standards()], which attach the
+highest-priority applicable standard to each observation.
+
+If multiple standards match a result, the standard with the lowest
+\code{.priority} value is retained.
+
+Following assignment, standard values are converted to the analytical
+units present in \code{.analysis_unit} so that exceedance comparisons
+can be performed directly.
+
+
+When multiple standards apply to a result, the standard with the
+lowest \code{.priority} value is assigned.
+
+Recommended priority ranges are:
+
+\itemize{
+  \item 1-9 = Site- or project-specific objectives
+  \item 10-19 = Permit limits and compliance criteria
+  \item 20-49 = Regulatory standards
+  \item 50-99 = Screening levels and guidance values
+  \item 100+ = Background or informational values
+}
+}
+\seealso{
+[`as_standards_schema`()],
+[standards_tbl]
 }

@@ -70,7 +70,7 @@ test_that("piper_plot warns when scale analyte cannot be resolved", {
       gw_data,
       scale_analyte = "This Analyte Does Not Exist"
     ),
-    "Point size scaling will be disabled"
+    "Size scaling analyte not available"
   )
 })
 

@@ -18,9 +18,11 @@ stiff_plot(
   chloride = "Chloride, total",
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
-  total_dissolved_solids = NULL,
+  scale_analyte = NULL,
   group_var = location_id,
   facet_var = sample_date,
+  stiff_limit = NULL,
+  stiff_breaks = 1,
   lines = FALSE,
   title = NULL
 )
@@ -37,7 +39,7 @@ stiff_plot(
 \item{analysis_result}{column for analysis result}
 
 \item{default_unit}{column for units. Assumes all units are in mg/L and
-converts using \code{\link{.convert_ions_to_meq}}}
+converts using \code{\link{convert_ions_to_meq}}}
 
 \item{calcium}{name for calcium}
 
@@ -53,7 +55,7 @@ converts using \code{\link{.convert_ions_to_meq}}}
 
 \item{alkalinity}{name for alkalinity}
 
-\item{total_dissolved_solids}{name for TDS to scale color of plot.
+\item{scale_analyte}{name of analyte to scale color of plot.
 Default is NULL}
 
 \item{group_var}{Character column name used to split the data into
@@ -87,7 +89,7 @@ stiff_plot()
 
 gw_data \%>\%
 filter(location_id \%in\% c("MW-1", "MW-2")) \%>\%
-stiff_plot(., total_dissolved_solids = "Total Dissolved Solids")
+stiff_plot(scale_analyte = "Total Dissolved Solids")
 
 }
 \keyword{Diagram}
