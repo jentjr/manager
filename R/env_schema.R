@@ -339,7 +339,7 @@ env_schema <- function(
   # Attributes
   # --------------------------------------------------------------
 
-  attr(out, "env_mapping") <- list(
+  env_mapping <- list(
     source = lapply(
       rename_map,
       function(x) {
@@ -391,40 +391,29 @@ env_schema <- function(
     )
   )
 
-  attr(out, "measurement_metadata") <- metadata_cols
-
-  attr(
+  out <- new_env_schema(
     out,
-    "threshold_metadata"
-  ) <- c(
-    ".reporting_limit",
-    ".detection_limit",
-    ".quantitation_limit",
-    ".achieved_mdc"
-  )[
-    c(
+
+    env_mapping = env_mapping,
+
+    measurement_metadata = metadata_cols,
+
+    threshold_metadata = c(
       ".reporting_limit",
       ".detection_limit",
       ".quantitation_limit",
       ".achieved_mdc"
-    ) %in%
-      names(out)
-  ]
+    )[
+      c(
+        ".reporting_limit",
+        ".detection_limit",
+        ".quantitation_limit",
+        ".achieved_mdc"
+      ) %in%
+        names(out)
+    ],
 
-  attr(out, "schema_metadata") <- c(
-    ".sample_id",
-    ".reporting_flag",
-    ".reporting_limit",
-    ".detection_limit",
-    ".quantitation_limit",
-    ".achieved_mdc",
-    ".measurement_uncertainty",
-    ".analysis_method",
-    ".analysis_date",
-    ".matrix",
-    ".lab_name"
-  )[
-    c(
+    schema_metadata = c(
       ".sample_id",
       ".reporting_flag",
       ".reporting_limit",
@@ -436,81 +425,26 @@ env_schema <- function(
       ".analysis_date",
       ".matrix",
       ".lab_name"
-    ) %in%
-      names(out)
-  ]
+    )[
+      c(
+        ".sample_id",
+        ".reporting_flag",
+        ".reporting_limit",
+        ".detection_limit",
+        ".quantitation_limit",
+        ".achieved_mdc",
+        ".measurement_uncertainty",
+        ".analysis_method",
+        ".analysis_date",
+        ".matrix",
+        ".lab_name"
+      ) %in%
+        names(out)
+    ],
 
-  analyte_cols <- c(
-    ".source_analyte",
-    ".normalized_input",
+    schema_version = "0.4.0",
 
-    ".analyte",
-    ".analyte_id",
-    ".normalized_analyte",
-
-    ".fraction",
-    ".is_known_analyte",
-
-    ".short_name",
-    ".casrn",
-
-    ".analyte_group",
-    ".subcategory",
-    ".regulatory_class",
-
-    ".std_unit",
-
-    ".ion_class",
-    ".charge",
-    ".molecular_weight",
-    ".meq_factor",
-
-    ".is_major_ion",
-    ".is_trace_metal",
-    ".is_radionuclide",
-    ".is_general_chemistry",
-    ".is_field_parameter",
-
-    ".analyte_label",
-    ".short_analyte_label"
-  )
-
-  attr(out, "analyte_metadata") <- intersect(
-    analyte_cols,
-    names(out)
-  )
-
-  attr(out, "env_schema_version") <- "0.4.0"
-
-  attr(out, "env_schema_created") <- Sys.time()
-
-  attr(out, "analyte_lookup_version") <- packageVersion("manager")
-
-  attr(out, "analyte_lookup_source") <-
-    if (
-      isTRUE(all.equal(
-        analyte_lookup,
-        analyte_tbl,
-        check.attributes = FALSE
-      ))
-    ) {
-      "package"
-    } else {
-      "user"
-    }
-
-  attr(out, "analyte_lookup_n") <-
-    nrow(analyte_lookup)
-
-  attr(out, "analyte_lookup_cols") <-
-    names(analyte_lookup)
-
-  out <- structure(
-    out,
-    class = c(
-      "env_schema",
-      class(out)
-    )
+    analyte_lookup = analyte_lookup
   )
 
   validate_env_schema(out)

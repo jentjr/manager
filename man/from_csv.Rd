@@ -2,17 +2,85 @@
 % Please edit documentation in R/external_data.R
 \name{from_csv}
 \alias{from_csv}
-\title{function to read data in csv format and convert date to POSIXct with lubridate}
+\title{Import environmental data from CSV}
 \usage{
-from_csv(path, date_format = c("mdy", "ymd"))
+from_csv(
+  path,
+  location,
+  date,
+  analyte,
+  result,
+  unit = NULL,
+  sample_id = NULL,
+  reporting_flag = NULL,
+  reporting_limit = NULL,
+  detection_limit = NULL,
+  quantitation_limit = NULL,
+  achieved_mdc = NULL,
+  measurement_uncertainty = NULL,
+  method = NULL,
+  analysis_date = NULL,
+  matrix = NULL,
+  lab_name = NULL,
+  metadata = NULL,
+  date_format = c("guess", "mdy", "dmy", "ymd"),
+  qualifier_table = NULL,
+  analyte_lookup = analyte_tbl
+)
 }
 \arguments{
-\item{path}{path to the csv file of groundwater data in the format
-with column names
-location_id, param_name, default_unit, lt_measure, analysis_result}
+\item{path}{Path to csv file.}
 
-\item{date_format}{date format as either mdy, or ymd passed to lubridate}
+\item{location}{Location identifier column.}
+
+\item{date}{Sample date column.}
+
+\item{analyte}{Analyte column.}
+
+\item{result}{Result column.}
+
+\item{unit}{Unit column.}
+
+\item{sample_id}{Sample identifier column.}
+
+\item{reporting_flag}{Reporting qualifier column.}
+
+\item{reporting_limit}{Reporting limit column.}
+
+\item{detection_limit}{Detection limit column.}
+
+\item{quantitation_limit}{Quantitation limit column
+(PQL, LOQ, SQL, etc.).}
+
+\item{achieved_mdc}{Achieved minimum detectable concentration
+(radiochemistry).}
+
+\item{measurement_uncertainty}{Measurement uncertainty column.}
+
+\item{method}{Analytical method column.}
+
+\item{analysis_date}{Analysis date column.}
+
+\item{matrix}{Matrix column.}
+
+\item{lab_name}{Laboratory name column.}
+
+\item{metadata}{Additional metadata columns.}
+
+\item{date_format}{Date format.}
+
+\item{qualifier_table}{Optional qualifier lookup.}
+
+\item{analyte_lookup}{Optional analyte lookup.}
+}
+\value{
+env_schema
 }
 \description{
-function to read data in csv format and convert date to POSIXct with lubridate
+Reads a CSV file and converts it directly to an
+`env_schema` object.
+}
+\details{
+Column mappings use tidy evaluation and may reference
+any column names present in the source file.
 }

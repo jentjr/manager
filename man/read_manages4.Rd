@@ -4,7 +4,13 @@
 \alias{read_manages4}
 \title{Function to read MANAGES 4.0 database}
 \usage{
-read_manages4(driver = "SQL Server", server, database, site_names)
+read_manages4(
+  driver = "SQL Server",
+  server,
+  database,
+  site_names,
+  analyte_lookup = analyte_tbl
+)
 }
 \arguments{
 \item{driver}{default is "SQL Server"}

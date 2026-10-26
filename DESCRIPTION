@@ -22,7 +22,8 @@ Imports:
     outliers,
     tidyverse,
     ggplot2,
-    mgcv
+    mgcv,
+    vctrs
 Suggests: 
     animation,
     lubridate,

@@ -15,8 +15,8 @@ env_schema(
   reporting_flag = NULL,
   reporting_limit = NULL,
   detection_limit = NULL,
-  detection_threshold = NULL,
-  detection_threshold_type = NULL,
+  quantitation_limit = NULL,
+  achieved_mdc = NULL,
   measurement_uncertainty = NULL,
   method = NULL,
   analysis_date = NULL,
@@ -48,10 +48,11 @@ env_schema(
 
 \item{detection_limit}{Detection limit column.}
 
-\item{detection_threshold}{Generic threshold column
-(MDA, RDL, LOQ, PQL, etc.).}
+\item{quantitation_limit}{Quantitation limit column
+(PQL, LOQ, SQL, etc.).}
 
-\item{detection_threshold_type}{Threshold type column.}
+\item{achieved_mdc}{Achieved minimum detectable concentration
+(radiochemistry).}
 
 \item{measurement_uncertainty}{Measurement uncertainty column.}
 

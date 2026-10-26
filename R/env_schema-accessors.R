@@ -6,24 +6,17 @@
 #'
 #' @export
 schema_created <- function(x) {
-  validate_env_schema(x)
+  if (!inherits(x, "env_schema")) {
+    rlang::abort(
+      "Object must inherit from 'env_schema'."
+    )
+  }
 
   attr(
     x,
     "env_schema_created",
     exact = TRUE
   )
-}
-
-#' Check if an object is an environmental schema
-#'
-#' @param x Object to check.
-#'
-#' @returns Logical scalar.
-#'
-#' @export
-is_env_schema <- function(x) {
-  inherits(x, "env_schema")
 }
 
 #' Return metadata column names
@@ -34,7 +27,11 @@ is_env_schema <- function(x) {
 #'
 #' @export
 schema_metadata <- function(x) {
-  validate_env_schema(x)
+  if (!inherits(x, "env_schema")) {
+    rlang::abort(
+      "Object must inherit from 'env_schema'."
+    )
+  }
 
   meta <- attr(
     x,
@@ -57,7 +54,11 @@ schema_metadata <- function(x) {
 #'
 #' @export
 schema_mapping <- function(x) {
-  validate_env_schema(x)
+  if (!inherits(x, "env_schema")) {
+    rlang::abort(
+      "Object must inherit from 'env_schema'."
+    )
+  }
 
   attr(
     x,
@@ -74,7 +75,11 @@ schema_mapping <- function(x) {
 #'
 #' @export
 schema_version <- function(x) {
-  validate_env_schema(x)
+  if (!inherits(x, "env_schema")) {
+    rlang::abort(
+      "Object must inherit from 'env_schema'."
+    )
+  }
 
   attr(
     x,
@@ -91,11 +96,35 @@ schema_version <- function(x) {
 #'
 #' @export
 schema_result_types <- function(x) {
-  validate_env_schema(x)
+  if (!inherits(x, "env_schema")) {
+    rlang::abort(
+      "Object must inherit from 'env_schema'."
+    )
+  }
 
   x %>%
     dplyr::count(
       .result_type,
       sort = TRUE
     )
+}
+
+location_var <- function(x) {
+  validate_env_schema(x)
+  ".location"
+}
+
+analyte_var <- function(x) {
+  validate_env_schema(x)
+  ".analyte"
+}
+
+result_var <- function(x) {
+  validate_env_schema(x)
+  ".analysis_result"
+}
+
+reporting_flag_var <- function(x) {
+  validate_env_schema(x)
+  ".reporting_flag"
 }

@@ -2,53 +2,15 @@
 % Please edit documentation in R/trends.R
 \name{trend_summary}
 \alias{trend_summary}
-\title{Summarize Trends}
+\title{Summarize trends}
 \usage{
-trend_summary(df, method = "mann_kendall", conf.level = 0.95)
+trend_summary(df, ...)
 }
 \arguments{
-\item{df}{env_schema object.}
+\item{df}{Data object.}
 
-\item{method}{Trend method. One of
-"lm", "loess", "gam", or "mann_kendall".}
-
-\item{conf.level}{Confidence level.}
-}
-\value{
-A tibble with one row per location/analyte
-combination containing:
-\describe{
-  \item{.location}{Location identifier}
-  \item{.analyte}{Analyte name}
-  \item{n}{Number of observations}
-  \item{first_date}{Earliest sample date}
-  \item{last_date}{Latest sample date}
-  \item{date_range_days}{Monitoring period length in days}
-  \item{date_range_years}{Monitoring period length in years}
-  \item{sampling_frequency}{Samples per year}
-  \item{minimum_concentration}{Minimum concentration}
-  \item{median_concentration}{Median concentration}
-  \item{mean_concentration}{Mean concentration}
-  \item{maximum_concentration}{Maximum concentration}
-  \item{standard_deviation}{Sample standard deviation}
-  \item{coefficient_of_variation}{Standard deviation divided by mean}
-  \item{trend_method}{Trend method used}
-  \item{slope}{Estimated trend slope}
-  \item{p_value}{Trend p-value}
-  \item{conf_low}{Lower confidence interval}
-  \item{conf_high}{Upper confidence interval}
-  \item{significant}{TRUE if p-value <= alpha}
-  \item{trend_direction}{Increasing, Decreasing, or Stable}
-}
+\item{...}{Additional arguments.}
 }
 \description{
-Computes trend statistics for each unique
-location and analyte combination using the
-same trend engine used by plotting functions.
-}
-\details{
-Date coverage and concentration summary
-statistics are included to assist with
-environmental monitoring, reporting,
-and statistical evaluations.
+Summarize trends
 }

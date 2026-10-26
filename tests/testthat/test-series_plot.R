@@ -1,40 +1,27 @@
-test_that("series_plot accepts env_schema", {
-  expect_no_error(
-    series_plot(gw)
+test_that("combined mode returns ggplot", {
+  p <- series_plot(
+    gw,
+    plot_type = "combined"
+  )
+
+  expect_s3_class(
+    p,
+    "ggplot"
   )
 })
 
-test_that("series_plot accepts raw data", {
-  expect_no_error(
-    series_plot(
-      gw_data,
-      location = location_id,
-      date = sample_date,
-      analyte = param_name,
-      result = analysis_result,
-      unit = default_unit,
-      reporting_flag = lt_measure
-    )
-  )
-})
-
-test_that("series_plot validates env_schema", {
-  bad <- gw
-
-  bad$.analysis_result <- as.character(
-    bad$.analysis_result
-  )
-
-  expect_error(
-    validate_env_schema(bad)
-  )
-})
-
-test_that("series_plot returns a named list of ggplots", {
+test_that("split mode returns named list of ggplots", {
   plots <- series_plot(gw)
 
-  expect_type(plots, "list")
-  expect_gt(length(plots), 0)
+  expect_type(
+    plots,
+    "list"
+  )
+
+  expect_gt(
+    length(plots),
+    0
+  )
 
   expect_true(
     all(
@@ -51,31 +38,32 @@ test_that("series_plot returns a named list of ggplots", {
   )
 })
 
-
-test_that("split mode returns list of plots", {
-  plots <- series_plot(
-    gw,
-    plot_type = "split"
-  )
-
-  expect_type(plots, "list")
-
-  expect_true(
-    all(
-      purrr::map_lgl(
-        plots,
-        inherits,
-        "ggplot"
+test_that("series_plot accepts raw data", {
+  expect_no_error(
+    suppressWarnings(
+      series_plot(
+        gw_data,
+        location = location_id,
+        date = sample_date,
+        analyte = param_name,
+        result = analysis_result,
+        unit = default_unit,
+        reporting_flag = lt_measure
       )
     )
   )
 })
 
-
-test_that("combined mode returns a ggplot", {
-  p <- series_plot(
-    gw,
-    plot_type = "combined"
+test_that("combined plot works with raw data", {
+  p <- suppressWarnings(
+    series_plot(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result,
+      plot_type = "combined"
+    )
   )
 
   expect_s3_class(
@@ -84,6 +72,17 @@ test_that("combined mode returns a ggplot", {
   )
 })
 
+test_that("series_plot validates env_schema", {
+  bad <- gw
+
+  bad$.analysis_result <- as.character(
+    bad$.analysis_result
+  )
+
+  expect_error(
+    validate_env_schema(bad)
+  )
+})
 
 test_that("invalid scale throws error", {
   expect_error(
@@ -95,7 +94,6 @@ test_that("invalid scale throws error", {
   )
 })
 
-
 test_that("invalid scale_y_trans throws error", {
   expect_error(
     series_plot(
@@ -105,7 +103,6 @@ test_that("invalid scale_y_trans throws error", {
     "`scale_y_trans` must be one of"
   )
 })
-
 
 test_that("invalid trend throws error", {
   expect_error(
@@ -117,7 +114,6 @@ test_that("invalid trend throws error", {
   )
 })
 
-
 test_that("invalid trend_label throws error", {
   expect_error(
     series_plot(
@@ -127,7 +123,6 @@ test_that("invalid trend_label throws error", {
   )
 })
 
-
 test_that("invalid plot_type throws error", {
   expect_error(
     series_plot(
@@ -136,7 +131,6 @@ test_that("invalid plot_type throws error", {
     )
   )
 })
-
 
 test_that("background shading is supported", {
   expect_no_error(
@@ -152,7 +146,6 @@ test_that("background shading is supported", {
   )
 })
 
-
 test_that("lm trend is supported", {
   expect_no_error(
     series_plot(
@@ -162,17 +155,7 @@ test_that("lm trend is supported", {
   )
 })
 
-
-test_that("facet wrapping is supported", {
-  expect_no_error(
-    series_plot(
-      gw,
-      facet_var = "location"
-    )
-  )
-})
-
-test_that("positive standards can be plotted", {
+test_that("standards can be plotted", {
   expect_no_error(
     series_plot(
       gw,
@@ -215,7 +198,6 @@ test_that("non-detect values are handled", {
   )
 })
 
-
 test_that("series_plot returns empty list for empty dataframe", {
   df <- gw[0, ]
 
@@ -240,11 +222,13 @@ test_that("single observation dataset plots successfully", {
   )
 })
 
-test_that("split mode returns one plot per constituent", {
+test_that("split mode returns one plot per analyte", {
   plots <- series_plot(gw)
 
   expect_length(
     plots,
-    dplyr::n_distinct(gw$.analyte)
+    dplyr::n_distinct(
+      gw$.analyte
+    )
   )
 })

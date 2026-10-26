@@ -1,51 +1,17 @@
-#' Boxplot function
+#' Boxplot of environmental data
 #'
-#' @param df groundwater data in tidy format
-#' @param x column to be used for the x axis, default is location
-#' @param y column to be used for the y axis, default is analysis result
-#' @param lt_measure column for non-detect symbol.
-#'  Symbol can be either "<", "ND", or "U"
-#' @param group_var the name of column used for constituents. Default is
-#'  "param_name"
-#' @param coef length of the whiskers as multiple of the IQR. Default is 3.
-#' @param scale_y_trans type of transformation to use for y scale. Default is
-#'   "identity".  Built-in transformations include "asn", "atanh", "boxcox",
-#'   "exp", "identity", "log", "log10", "log1p", "log2", "logit", "probability",
-#'   "probit", "reciprocal", "reverse" and "sqrt".
-#' @param show_points plot the individual points using ggbeeswarm.
-#' @param fill column used to fill the variable
-#' @param notch TRUE/FALSE plot a notched boxplot.
-#'   The notches (if requested) extend to +/-1.58 IQR/sqrt(n)
-#' @param plot_ci add bootstrapped 95% confidence interval for mean
-#' @param standards Logical. If TRUE, standards from the internal
-#'   standards_df lookup table are added as horizontal reference lines.
-#' @param pnt size of points
-#' @param short_name If TRUE the constituent name will be abbreviated
-#' @param coord_flip If TRUE the axes are flipped
-#' @param add_explanation Logical. If TRUE, display the boxplot
-#'   explanation panel created by `.ggplot_box_legend()`.
-#' @param legend_title Legend title for fill variable
-#'
-#' @examples
-#' library(manager)
-#' library(dplyr)
-#' data(gw_data)
-#' gw_data %>%
-#' filter(param_name %in% c("Chloride, total", "Sulfate, total"),
-#'       location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4",
-#'       "MW-5", "MW-6", "MW-7", "MW-8")) %>%
-#'  mutate(gradient = if_else(location_id %in% c("MW-1", "MW-2", "MW-3", "MW-5"),
-#'  "upgradient", "downgradient")) %>%
-#'  boxplot(., fill = "gradient")
+#' @param x An env_schema object.
+#' @param ... Additional arguments passed to methods.
 #'
 #' @export
+boxplot <- function(x, ...) {
+  UseMethod("boxplot")
+}
 
-boxplot <- function(
-  df,
-  x = "location_id",
-  y = "analysis_result",
-  lt_measure = "lt_measure",
-  group_var = "param_name",
+
+#' @export
+boxplot.env_schema <- function(
+  x,
   coef = 1.5,
   scale_y_trans = "identity",
   show_points = FALSE,
@@ -57,20 +23,19 @@ boxplot <- function(
   short_name = FALSE,
   coord_flip = FALSE,
   legend_title = NULL,
-  add_explanation = FALSE
+  add_explanation = FALSE,
+  ...
 ) {
-  .validate_boxplot_inputs(
-    df = df,
-    x = x,
-    y = y,
-    lt_measure = lt_measure,
+  validate_env_schema(x)
+
+  .validate_boxplot_args(
+    df = x,
     fill = fill,
     scale_y_trans = scale_y_trans,
-    group_var = group_var,
-    short_name = short_name,
     coef = coef,
     notch = notch,
     show_points = show_points,
+    short_name = short_name,
     coord_flip = coord_flip,
     plot_ci = plot_ci,
     standards = standards,
@@ -84,13 +49,19 @@ boxplot <- function(
     explanation <- .ggplot_box_legend()
   }
 
-  split(df, df[[group_var]]) %>%
+  location <- location_var(x)
+  analyte <- analyte_var(x)
+  result <- result_var(x)
+  reporting_flag <- reporting_flag_var(x)
+
+  split(x, x[[analyte]]) |>
     purrr::imap(
-      ~ .boxplot(
+      ~ .boxplot_build(
         df = .x,
-        x = x,
-        y = y,
-        lt_measure = lt_measure,
+        location = location,
+        analyte = analyte,
+        result = result,
+        reporting_flag = reporting_flag,
         coef = coef,
         scale_y_trans = scale_y_trans,
         show_points = show_points,
@@ -101,225 +72,44 @@ boxplot <- function(
         pnt = pnt,
         short_name = short_name,
         coord_flip = coord_flip,
-        add_explanation = add_explanation,
         legend_title = legend_title,
+        add_explanation = add_explanation,
         explanation = explanation
       )
     )
 }
 
-#' Helper function to plot boxplots for groundwater data
-#'
-#' @noRd
-
-.validate_boxplot_inputs <- function(
-  df,
+#' @export
+boxplot.data.frame <- function(
   x,
-  y,
-  lt_measure,
-  fill,
-  scale_y_trans,
-  group_var,
-  coef,
-  notch,
-  show_points,
-  short_name,
-  coord_flip,
-  plot_ci,
-  standards,
-  legend_title,
-  add_explanation
+  location,
+  analyte,
+  result,
+  date = NULL,
+  reporting_flag = NULL,
+  unit = NULL,
+  ...
 ) {
-  cols <- c(
+  x <- env_schema(
     x,
-    y,
-    lt_measure,
-    fill,
-    group_var
+    location = {{ location }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    date = {{ date }},
+    reporting_flag = {{ reporting_flag }},
+    unit = {{ unit }}
   )
 
-  cols <- unique(stats::na.omit(cols))
-
-  missing_cols <- setdiff(cols, names(df))
-
-  if (length(missing_cols) > 0) {
-    stop(
-      "Missing columns: ",
-      paste(missing_cols, collapse = ", "),
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.logical(notch) ||
-      length(notch) != 1 ||
-      is.na(notch)
-  ) {
-    stop(
-      "notch must be TRUE or FALSE.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.null(fill) &&
-      (!is.character(fill) || length(fill) != 1)
-  ) {
-    stop(
-      "fill must be NULL or a single column name.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.null(legend_title) &&
-      (!is.character(legend_title) || length(legend_title) != 1)
-  ) {
-    stop(
-      "legend_title must be NULL or a single character string.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.logical(add_explanation) ||
-      length(add_explanation) != 1 ||
-      is.na(add_explanation)
-  ) {
-    stop(
-      "add_explanation must be TRUE or FALSE.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.logical(short_name) ||
-      length(short_name) != 1 ||
-      is.na(short_name)
-  ) {
-    stop(
-      "short_name must be TRUE or FALSE.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.logical(show_points) ||
-      length(show_points) != 1 ||
-      is.na(show_points)
-  ) {
-    stop(
-      "show_points must be TRUE or FALSE.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    isTRUE(short_name) &&
-      !"short_name" %in% names(df)
-  ) {
-    rlang::warn(
-      "short_name column not found. Using param_name."
-    )
-  }
-
-  if (
-    !is.logical(coord_flip) ||
-      length(coord_flip) != 1 ||
-      is.na(coord_flip)
-  ) {
-    stop(
-      "coord_flip must be TRUE or FALSE.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.logical(plot_ci) ||
-      length(plot_ci) != 1 ||
-      is.na(plot_ci)
-  ) {
-    stop(
-      "plot_ci must be TRUE or FALSE.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.logical(standards) ||
-      length(standards) != 1 ||
-      is.na(standards)
-  ) {
-    stop(
-      "standards must be TRUE or FALSE.",
-      call. = FALSE
-    )
-  }
-
-  if (!is.numeric(df[[y]])) {
-    stop(
-      y,
-      " must be numeric.",
-      call. = FALSE
-    )
-  }
-
-  tryCatch(
-    scales::as.trans(scale_y_trans),
-    error = function(e) {
-      stop(
-        "Invalid scale_y_trans value.",
-        call. = FALSE
-      )
-    }
-  )
-
-  if (
-    scale_y_trans %in%
-      c("log", "log10", "log2") &&
-      any(df[[y]] <= 0, na.rm = TRUE)
-  ) {
-    stop(
-      "Log transformations require all values to be positive.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    scale_y_trans == "sqrt" &&
-      any(df[[y]] < 0, na.rm = TRUE)
-  ) {
-    stop(
-      "Sqrt transformation requires non-negative values.",
-      call. = FALSE
-    )
-  }
-
-  if (
-    !is.numeric(coef) ||
-      length(coef) != 1 ||
-      is.na(coef) ||
-      coef <= 0
-  ) {
-    stop(
-      "coef must be a single positive number.",
-      call. = FALSE
-    )
-  }
-
-  invisible(TRUE)
+  boxplot(x, ...)
 }
 
-#' Helper function to plot boxplots for groundwater data
-#'
-#' @noRd
-
-.boxplot <- function(
+.boxplot_build <- function(
   df,
-  x = "location_id",
-  y = "analysis_result",
+  location,
+  analyte,
+  result,
+  reporting_flag,
   coef = 1.5,
-  lt_measure = "lt_measure",
   scale_y_trans = "identity",
   show_points = TRUE,
   fill = NULL,
@@ -339,55 +129,60 @@ boxplot <- function(
 
   df <- .prepare_boxplot_data(
     df = df,
-    lt_measure = lt_measure
+    reporting_flag = reporting_flag
   )
 
   if (notch) {
-    small_n <- df %>%
-      dplyr::count(.data[[x]]) %>%
+    small_n <- df |>
+      dplyr::count(.data[[location]]) |>
       dplyr::filter(n < 5)
 
     if (nrow(small_n) > 0) {
       rlang::warn(
-        "Some groups contain fewer than 5 observations. Notched boxplots may be unreliable."
+        paste(
+          "Some groups contain fewer than",
+          "5 observations. Notched",
+          "boxplots may be unreliable."
+        )
       )
     }
   }
 
-  plot_title <- .get_plot_title(
-    df,
+  title <- .get_plot_title(
+    df = df,
+    analyte = analyte,
     short_name = short_name
   )
 
   unit_lbl <- .get_unit_label(df)
 
-  b <- .create_boxplot_base(
+  p <- .create_boxplot_base(
     df = df,
-    x = x,
-    y = y,
+    x = location,
+    y = result,
     fill = fill,
     scale_y_trans = scale_y_trans,
     unit_lbl = unit_lbl,
-    title = plot_title,
+    title = title,
     legend_title = legend_title
   )
 
-  b <- .add_boxplot_layers(
-    plot = b,
+  p <- .add_boxplot_layers(
+    plot = p,
     coef = coef,
     notch = notch,
     plot_ci = plot_ci,
     pnt = pnt
   )
 
-  b <- .add_points(
-    plot = b,
+  p <- .add_points(
+    plot = p,
     show_points = show_points,
     pnt = pnt
   )
 
-  b <- .add_standards(
-    plot = b,
+  p <- .add_standards(
+    plot = p,
     df = df,
     standards = standards
   )
@@ -396,20 +191,20 @@ boxplot <- function(
     !is.null(fill) &&
       requireNamespace("viridis", quietly = TRUE)
   ) {
-    b <- b +
+    p <- p +
       viridis::scale_fill_viridis(
         discrete = TRUE,
         name = legend_title
       )
   }
 
-  if (isTRUE(coord_flip)) {
-    b <- b + ggplot2::coord_flip()
+  if (coord_flip) {
+    p <- p + ggplot2::coord_flip()
   }
 
-  if (!isTRUE(add_explanation)) {
+  if (!add_explanation) {
     return(
-      b +
+      p +
         ggplot2::theme(
           legend.position = "right"
         )
@@ -417,23 +212,27 @@ boxplot <- function(
   }
 
   legend <- tryCatch(
-    cowplot::get_legend(b),
+    cowplot::get_legend(p),
     error = function(e) NULL
   )
 
-  if (is.null(legend)) {
-    legend_panel <- explanation
-  } else {
-    legend_panel <- cowplot::plot_grid(
-      explanation,
-      legend,
-      ncol = 1,
-      rel_heights = c(1.5, 1)
-    )
-  }
+  legend_panel <-
+    if (is.null(legend)) {
+      explanation
+    } else {
+      cowplot::plot_grid(
+        explanation,
+        legend,
+        ncol = 1,
+        rel_heights = c(1.5, 1)
+      )
+    }
 
   cowplot::plot_grid(
-    b + ggplot2::theme(legend.position = "none"),
+    p +
+      ggplot2::theme(
+        legend.position = "none"
+      ),
     legend_panel,
     rel_widths = c(4, 1)
   )
@@ -442,17 +241,41 @@ boxplot <- function(
 #' Helper function to plot boxplots for groundwater data
 #'
 #' @noRd
-
 .prepare_boxplot_data <- function(
   df,
-  lt_measure
+  reporting_flag
 ) {
-  df %>%
+  if (
+    is.null(reporting_flag) ||
+      !reporting_flag %in% names(df)
+  ) {
+    df$non_detect <- factor(
+      rep("Detected", nrow(df)),
+      levels = c(
+        "Detected",
+        "Non-detect"
+      )
+    )
+
+    return(df)
+  }
+
+  df |>
     dplyr::mutate(
       non_detect = factor(
         dplyr::if_else(
-          toupper(trimws(as.character(.data[[lt_measure]]))) %in%
-            c("<", "ND", "U"),
+          toupper(
+            trimws(
+              as.character(
+                .data[[reporting_flag]]
+              )
+            )
+          ) %in%
+            c(
+              "<",
+              "ND",
+              "U"
+            ),
           "Non-detect",
           "Detected",
           missing = "Detected"
@@ -464,6 +287,7 @@ boxplot <- function(
       )
     )
 }
+
 
 #' Helper function to plot boxplots for groundwater data
 #'
@@ -637,29 +461,21 @@ boxplot <- function(
 #' Helper function to plot boxplots for groundwater data
 #'
 #' @noRd
-
 .get_plot_title <- function(
   df,
+  analyte,
   short_name = FALSE
 ) {
-  if (!"param_name" %in% names(df)) {
-    return("Boxplot")
-  }
-
-  unit <- ""
-
-  if ("default_unit" %in% names(df)) {
-    unit <- df$default_unit[[1]]
-  }
+  name <- dplyr::first(df[[analyte]])
 
   if (
     isTRUE(short_name) &&
-      "short_name" %in% names(df)
+      ".short_name" %in% names(df)
   ) {
-    name <- df$short_name[[1]]
-  } else {
-    name <- df$param_name[[1]]
+    name <- dplyr::first(df$.short_name)
   }
+
+  unit <- .get_unit_label(df)
 
   if (!identical(unit, "")) {
     name <- paste0(name, " (", unit, ")")
@@ -671,10 +487,9 @@ boxplot <- function(
 #' Helper function to plot boxplots for groundwater data
 #'
 #' @noRd
-
 .get_unit_label <- function(df) {
-  if ("default_unit" %in% names(df)) {
-    return(df$default_unit[[1]])
+  if (".analysis_unit" %in% names(df) && !all(is.na(df$.analysis_unit))) {
+    return(df$.analysis_unit[[1]])
   }
 
   ""
@@ -913,4 +728,134 @@ boxplot <- function(
     ggplot2::labs(title = "EXPLANATION")
 
   return(explain_plot)
+}
+
+#' Validate boxplot arguments
+#'
+#' @noRd
+.validate_boxplot_args <- function(
+  df,
+  fill,
+  scale_y_trans,
+  coef,
+  notch,
+  show_points,
+  short_name,
+  coord_flip,
+  plot_ci,
+  standards,
+  legend_title,
+  add_explanation
+) {
+  .check_flag(notch, "notch")
+  .check_flag(show_points, "show_points")
+  .check_flag(short_name, "short_name")
+  .check_flag(coord_flip, "coord_flip")
+  .check_flag(plot_ci, "plot_ci")
+  .check_flag(standards, "standards")
+  .check_flag(add_explanation, "add_explanation")
+
+  if (
+    !is.null(fill) &&
+      (!is.character(fill) || length(fill) != 1)
+  ) {
+    stop(
+      "fill must be NULL or a single column name.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.null(fill) &&
+      !fill %in% names(df)
+  ) {
+    stop(
+      "Column '",
+      fill,
+      "' not found.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.null(legend_title) &&
+      (!is.character(legend_title) ||
+        length(legend_title) != 1)
+  ) {
+    stop(
+      "legend_title must be NULL or a single character string.",
+      call. = FALSE
+    )
+  }
+
+  tryCatch(
+    scales::as.trans(scale_y_trans),
+    error = function(e) {
+      stop(
+        "Invalid scale_y_trans value.",
+        call. = FALSE
+      )
+    }
+  )
+
+  result_col <- result_var(df)
+
+  if (!result_col %in% names(df)) {
+    stop(
+      "Mapped result column not found.",
+      call. = FALSE
+    )
+  }
+
+  if (!is.numeric(df[[result_col]])) {
+    stop(
+      result_col,
+      " must be numeric.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    scale_y_trans %in%
+      c("log", "log10", "log2") &&
+      any(df[[result_col]] <= 0, na.rm = TRUE)
+  ) {
+    stop(
+      "Log transformations require all values to be positive.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    identical(scale_y_trans, "sqrt") &&
+      any(df[[result_col]] < 0, na.rm = TRUE)
+  ) {
+    stop(
+      "Sqrt transformation requires non-negative values.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    !is.numeric(coef) ||
+      length(coef) != 1 ||
+      is.na(coef) ||
+      coef <= 0
+  ) {
+    stop(
+      "coef must be a single positive number.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    isTRUE(short_name) &&
+      !".short_name" %in% names(df)
+  ) {
+    rlang::warn(
+      "short_name column not found."
+    )
+  }
+
+  invisible(TRUE)
 }

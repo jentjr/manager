@@ -2,14 +2,18 @@
 % Please edit documentation in R/external_data.R
 \name{read_manages3}
 \alias{read_manages3}
-\title{Function return a MANAGES 3.x Site.mdb database in memory}
+\title{Read a MANAGES 3.x database}
 \usage{
-read_manages3(manages3_path)
+read_manages3(manages3_path, analyte_lookup = analyte_tbl)
 }
 \arguments{
-\item{manages3_path}{Path to MANAGES Site.mdb file}
+\item{manages3_path}{Path to MANAGES Site.mdb}
+
+\item{analyte_lookup}{Optional analyte lookup.}
+}
+\value{
+env_schema
 }
 \description{
-This function connects to the MANAGES database for the path supplied, and
-returns data in memory. R must be in 32-bit mode.
+Read a MANAGES 3.x database
 }

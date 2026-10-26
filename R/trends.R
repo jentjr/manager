@@ -1,3 +1,37 @@
+#' Summarize trends
+#'
+#' @param df Data object.
+#' @param ... Additional arguments.
+#'
+#' @export
+trend_summary <- function(df, ...) {
+  UseMethod("trend_summary")
+}
+
+
+#' @export
+trend_summary.data.frame <- function(
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  method = "mann_kendall",
+  conf.level = 0.95
+) {
+  env_schema(
+    df,
+    location = !!rlang::sym(location_id),
+    date = !!rlang::sym(sample_date),
+    analyte = !!rlang::sym(param_name),
+    result = !!rlang::sym(analysis_result)
+  ) |>
+    trend_summary(
+      method = method,
+      conf.level = conf.level
+    )
+}
+
 #' Summarize Trends
 #'
 #' Computes trend statistics for each unique
@@ -41,7 +75,7 @@
 #' }
 #'
 #' @export
-trend_summary <- function(
+trend_summary.env_schema <- function(
   df,
   method = "mann_kendall",
   conf.level = 0.95
@@ -199,13 +233,40 @@ trend_summary <- function(
     dplyr::ungroup()
 }
 
+#' @export
+kendall_trend <- function(df, ...) {
+  UseMethod("kendall_trend")
+}
+
+#' @export
+kendall_trend.data.frame <- function(
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  conf.level = 0.95
+) {
+  env_schema(
+    df,
+    location = !!rlang::sym(location_id),
+    date = !!rlang::sym(sample_date),
+    analyte = !!rlang::sym(param_name),
+    result = !!rlang::sym(analysis_result)
+  ) |>
+    kendall_trend(
+      conf.level = conf.level
+    )
+}
+
+
 #' Kendall Trend Test
 #'
 #' @param df env_schema object.
 #' @param conf.level confidence level
 #'
 #' @export
-kendall_trend <- function(
+kendall_trend.env_schema <- function(
   df,
   conf.level = 0.95
 ) {
@@ -278,14 +339,16 @@ kendall_trend <- function(
 #'
 #' Internal helper used by plotting functions.
 #'
+#' @param df Data frame
+#' @param method Trend method
+#' @param conf.level Confidence level
+#'
 #' @noRd
 .compute_trend <- function(
   df,
   method = "none",
   conf.level = 0.95
 ) {
-  validate_env_schema(df)
-
   valid_methods <- c(
     "none",
     "lm",
@@ -295,11 +358,16 @@ kendall_trend <- function(
   )
 
   if (!method %in% valid_methods) {
-    stop(
-      "`method` must be one of: ",
-      paste(valid_methods, collapse = ", "),
-      call. = FALSE
+    rlang::abort(
+      paste0(
+        "`method` must be one of: ",
+        paste(valid_methods, collapse = ", ")
+      )
     )
+  }
+
+  if (method == "none") {
+    return(NULL)
   }
 
   z <- stats::qnorm(
@@ -313,11 +381,10 @@ kendall_trend <- function(
     ) |>
     dplyr::arrange(.date)
 
-  if (nrow(df) < 3) {
-    return(NULL)
-  }
-
-  if (method == "none") {
+  if (
+    nrow(df) < 3 ||
+      dplyr::n_distinct(df$.analysis_result) < 2
+  ) {
     return(NULL)
   }
 
@@ -718,7 +785,7 @@ kendall_trend <- function(
 #' location/analyte combinations.
 #' regardless of plot faceting.
 #'
-#' @param df env_schema object.
+#' @param df Data frame.
 #' @param method trend method
 #' @param conf.level confidence level
 #'
@@ -731,8 +798,6 @@ kendall_trend <- function(
   method = "mann_kendall",
   conf.level = 0.95
 ) {
-  validate_env_schema(df)
-
   df |>
     dplyr::group_by(
       .location,

@@ -1,3 +1,14 @@
+#' Check if an object is an environmental schema
+#'
+#' @param x Object to check.
+#'
+#' @returns Logical scalar.
+#'
+#' @export
+is_env_schema <- function(x) {
+  inherits(x, "env_schema")
+}
+
 #' Validate an environmental schema
 #'
 #' @param x Object to validate.
@@ -203,4 +214,68 @@ validate_env_schema <- function(x) {
   }
 
   invisible(TRUE)
+}
+
+#' Validate minimum env_schema structure
+#'
+#' Used internally by vec_restore() and dplyr reconstruction.
+#'
+#' @keywords internal
+validate_env_schema_structure <- function(x) {
+  required <- c(
+    ".location",
+    ".date",
+    ".analyte",
+    ".analyte_id",
+    ".analysis_result"
+  )
+
+  missing <- setdiff(
+    required,
+    names(x)
+  )
+
+  if (length(missing) > 0) {
+    rlang::abort(
+      paste(
+        "Missing required structure columns:",
+        paste(missing, collapse = ", ")
+      )
+    )
+  }
+
+  invisible(TRUE)
+}
+
+#' Check if valid schema
+#'
+#' @keywords internal
+is_valid_env_schema <- function(x) {
+  if (!inherits(x, "env_schema")) {
+    return(FALSE)
+  }
+
+  tryCatch(
+    {
+      validate_env_schema(x)
+      TRUE
+    },
+    error = function(e) FALSE
+  )
+}
+
+#' Check required env_schema columns structure
+#'
+#' @keywords internal
+has_env_schema_structure <- function(x) {
+  required <- c(
+    ".location",
+    ".date",
+    ".analyte",
+    ".analyte_id",
+    ".analysis_result"
+  )
+
+  inherits(x, "data.frame") &&
+    all(required %in% names(x))
 }

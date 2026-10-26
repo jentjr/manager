@@ -9,21 +9,35 @@ print.env_schema <- function(x, ...) {
     "columns\n"
   )
 
-  cat(
-    "Locations:",
-    dplyr::n_distinct(x$.location),
-    "\n"
-  )
+  if (".location" %in% names(x)) {
+    cat(
+      "Locations:",
+      dplyr::n_distinct(x$.location),
+      "\n"
+    )
+  }
+
+  if (".analyte" %in% names(x)) {
+    cat(
+      "Analytes:",
+      dplyr::n_distinct(x$.analyte),
+      "\n"
+    )
+  }
 
   cat(
-    "Analytes:",
-    dplyr::n_distinct(x$.analyte),
+    "Valid:",
+    has_env_schema_structure(x),
     "\n"
   )
 
   cat(
     "Version:",
-    schema_version(x),
+    attr(
+      x,
+      "env_schema_version",
+      exact = TRUE
+    ),
     "\n"
   )
 

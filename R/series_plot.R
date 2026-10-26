@@ -76,13 +76,7 @@ series_plot <- function(
     "free_y"
   )
 
-  if (!scale %in% valid_scales) {
-    stop(
-      "`scale` must be one of: ",
-      paste(valid_scales, collapse = ", "),
-      call. = FALSE
-    )
-  }
+  .validate_choice(scale, valid_scales, "scale")
 
   valid_scale_y_trans <- c(
     "asn",
@@ -102,13 +96,7 @@ series_plot <- function(
     "sqrt"
   )
 
-  if (!scale_y_trans %in% valid_scale_y_trans) {
-    stop(
-      "`scale_y_trans` must be one of: ",
-      paste(valid_scale_y_trans, collapse = ", "),
-      call. = FALSE
-    )
-  }
+  .validate_choice(scale_y_trans, valid_scale_y_trans, "scale_y_trans")
 
   valid_trends <- c(
     "none",
@@ -118,13 +106,7 @@ series_plot <- function(
     "mann_kendall"
   )
 
-  if (!trend %in% valid_trends) {
-    stop(
-      "`trend` must be one of: ",
-      paste(valid_trends, collapse = ", "),
-      call. = FALSE
-    )
-  }
+  .validate_choice(trend, valid_trends, "trend")
 
   if (plot_type == "split") {
     return(
@@ -194,8 +176,6 @@ series_plot <- function(
   ncol = NULL,
   plot_type = "split"
 ) {
-  validate_env_schema(df)
-
   trend_label <- match.arg(trend_label)
 
   if (plot_type == "combined") {
@@ -363,14 +343,16 @@ series_plot <- function(
     )
 
   if (plot_type == "split") {
-    plot_label <- if (
-      short_name &&
-        ".short_analyte_label" %in% names(df)
-    ) {
-      unique(df$.short_analyte_label)[1]
-    } else {
-      unique(df$.analyte_label)[1]
-    }
+    plot_label <- dplyr::first(
+      if (
+        short_name &&
+          ".short_analyte_label" %in% names(df)
+      ) {
+        stats::na.omit(df$.short_analyte_label)
+      } else {
+        stats::na.omit(df$.analyte_label)
+      }
+    )
 
     p <- p +
       ggplot2::ggtitle(

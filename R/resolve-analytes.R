@@ -387,6 +387,41 @@
   )
 }
 
+#' Extract analyte fraction
+#'
+#' @param x Character vector of analyte names.
+#'
+#' @returns Character vector.
+#'
+#' @keywords internal
+.extract_fraction <- function(x) {
+  x <- .normalize_analyte_text(x)
+
+  dplyr::case_when(
+    stringr::str_detect(
+      x,
+      "\\bdis\\b|\\bdissolved\\b"
+    ) ~ "dissolved",
+
+    stringr::str_detect(
+      x,
+      "\\btotal\\b"
+    ) ~ "total",
+
+    stringr::str_detect(
+      x,
+      "\\bfiltered\\b"
+    ) ~ "filtered",
+
+    stringr::str_detect(
+      x,
+      "\\bunfiltered\\b"
+    ) ~ "unfiltered",
+
+    TRUE ~ NA_character_
+  )
+}
+
 #' Normalize analyte text
 #'
 #' @param x Character vector.

@@ -307,3 +307,42 @@ simplify_param_name <- function(df, param_name) {
     TRUE ~ NA_character_
   )
 }
+
+#' Validate choices
+#'
+#' @param x Character vector.
+#' @param choices Character vector
+#' @param arg Character vector
+#'
+#' @keywords internal
+.validate_choice <- function(x, choices, arg) {
+  if (!x %in% choices) {
+    stop(
+      sprintf(
+        "`%s` must be one of: %s",
+        arg,
+        paste(choices, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+
+  invisible(x)
+}
+
+#' @keywords internal
+.check_flag <- function(x, name) {
+  if (
+    !is.logical(x) ||
+      length(x) != 1 ||
+      is.na(x)
+  ) {
+    stop(
+      name,
+      " must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}

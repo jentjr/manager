@@ -160,10 +160,10 @@ assign_standards <- function(
   if (".location.x" %in% names(out) && ".location.y" %in% names(out)) {
     out <- out %>%
       dplyr::rename(
-        .location = .data$.location.x
+        .location = ".location.x"
       ) %>%
       dplyr::select(
-        -.data$.location.y
+        -".location.y"
       )
   }
 
