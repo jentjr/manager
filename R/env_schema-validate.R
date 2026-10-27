@@ -23,16 +23,16 @@ validate_env_schema <- function(x) {
     )
   }
 
+  mapping <- get_env_mapping(x)
+
   required <- c(
-    ".location",
-    ".date",
-    ".analyte_id",
-    ".analyte",
-    ".original_lab_result",
-    ".analysis_result",
-    ".original_lab_unit",
-    ".analysis_unit"
+    mapping$location,
+    mapping$date,
+    mapping$analyte,
+    mapping$result
   )
+
+  required <- stats::na.omit(required)
 
   missing <- setdiff(
     required,
@@ -42,7 +42,7 @@ validate_env_schema <- function(x) {
   if (length(missing) > 0) {
     rlang::abort(
       paste(
-        "Missing required schema columns:",
+        "Missing mapped columns:",
         paste(missing, collapse = ", ")
       )
     )
@@ -52,27 +52,39 @@ validate_env_schema <- function(x) {
   # Required column types
   # ------------------------------------------------------------
 
+  if (!".analyte_id" %in% names(x)) {
+    rlang::abort(
+      "Missing '.analyte_id'."
+    )
+  }
+
+  if (!".analyte_id" %in% names(x)) {
+    rlang::abort(
+      "Missing required derived column '.analyte_id'."
+    )
+  }
+
   if (!is.character(x$.analyte_id)) {
     rlang::abort(
       "'.analyte_id' must be character."
     )
   }
 
-  if (!is.character(x$.location)) {
+  if (!is.character(location(x))) {
     rlang::abort(
-      "'.location' must be character."
+      "Location column must be character."
     )
   }
 
-  if (!is.character(x$.analyte)) {
+  if (!is.character(analyte(x))) {
     rlang::abort(
-      "'.analyte' must be character."
+      "'Analyte' must be character."
     )
   }
 
   if (
     !inherits(
-      x$.date,
+      date(x),
       c(
         "Date",
         "POSIXct",
@@ -81,7 +93,7 @@ validate_env_schema <- function(x) {
     )
   ) {
     rlang::abort(
-      "'.date' must be a Date or POSIXct column."
+      "'date' must be a Date or POSIXct column."
     )
   }
 
@@ -91,9 +103,9 @@ validate_env_schema <- function(x) {
     )
   }
 
-  if (!is.numeric(x$.analysis_result)) {
+  if (!is.numeric(result(x))) {
     rlang::abort(
-      "'.analysis_result' must be numeric."
+      "Result column must be numeric."
     )
   }
 
@@ -222,13 +234,26 @@ validate_env_schema <- function(x) {
 #'
 #' @keywords internal
 validate_env_schema_structure <- function(x) {
-  required <- c(
-    ".location",
-    ".date",
-    ".analyte",
-    ".analyte_id",
-    ".analysis_result"
+  mapping <- attr(
+    x,
+    "env_mapping",
+    exact = TRUE
   )
+
+  if (is.null(mapping)) {
+    rlang::abort(
+      "Missing env_mapping attribute."
+    )
+  }
+
+  required <- c(
+    mapping$location,
+    mapping$date,
+    mapping$analyte,
+    mapping$result
+  )
+
+  required <- stats::na.omit(required)
 
   missing <- setdiff(
     required,
@@ -238,12 +263,11 @@ validate_env_schema_structure <- function(x) {
   if (length(missing) > 0) {
     rlang::abort(
       paste(
-        "Missing required structure columns:",
+        "Missing mapped columns:",
         paste(missing, collapse = ", ")
       )
     )
   }
-
   invisible(TRUE)
 }
 
@@ -268,14 +292,28 @@ is_valid_env_schema <- function(x) {
 #'
 #' @keywords internal
 has_env_schema_structure <- function(x) {
-  required <- c(
-    ".location",
-    ".date",
-    ".analyte",
-    ".analyte_id",
-    ".analysis_result"
+  mapping <- attr(
+    x,
+    "env_mapping",
+    exact = TRUE
   )
 
-  inherits(x, "data.frame") &&
-    all(required %in% names(x))
+  if (is.null(mapping)) {
+    return(FALSE)
+  }
+
+  required <- stats::na.omit(
+    c(
+      mapping$location,
+      mapping$date,
+      mapping$analyte,
+      mapping$result
+    )
+  )
+
+  required <- required[
+    !is.null(required)
+  ]
+
+  all(required %in% names(x))
 }

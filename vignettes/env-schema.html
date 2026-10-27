@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="manager package" />
+
+<meta name="date" content="2026-10-27" />
+
+<title>Working with env_schema</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Working with env_schema</h1>
+<h4 class="author">manager package</h4>
+<h4 class="date">2026-10-27</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#overview" id="toc-overview"><span class="toc-section-number">1</span> Overview</a></li>
+<li><a href="#why-use-env_schema" id="toc-why-use-env_schema"><span class="toc-section-number">2</span> Why Use env_schema?</a></li>
+<li><a href="#core-design-principles" id="toc-core-design-principles"><span class="toc-section-number">3</span> Core Design Principles</a></li>
+<li><a href="#schema-structure" id="toc-schema-structure"><span class="toc-section-number">4</span> Schema Structure</a></li>
+<li><a href="#creating-an-env_schema" id="toc-creating-an-env_schema"><span class="toc-section-number">5</span> Creating an env_schema</a></li>
+<li><a href="#accessors" id="toc-accessors"><span class="toc-section-number">6</span> Accessors</a></li>
+<li><a href="#optional-fields" id="toc-optional-fields"><span class="toc-section-number">7</span> Optional Fields</a></li>
+<li><a href="#metadata" id="toc-metadata"><span class="toc-section-number">8</span> Metadata</a></li>
+<li><a href="#validation" id="toc-validation"><span class="toc-section-number">9</span> Validation</a></li>
+<li><a href="#working-with-dplyr" id="toc-working-with-dplyr"><span class="toc-section-number">10</span> Working with dplyr</a>
+<ul>
+<li><a href="#selecting-columns" id="toc-selecting-columns"><span class="toc-section-number">10.1</span> Selecting Columns</a></li>
+<li><a href="#filtering-rows" id="toc-filtering-rows"><span class="toc-section-number">10.2</span> Filtering Rows</a></li>
+<li><a href="#mutating-columns" id="toc-mutating-columns"><span class="toc-section-number">10.3</span> Mutating Columns</a></li>
+<li><a href="#arranging-rows" id="toc-arranging-rows"><span class="toc-section-number">10.4</span> Arranging Rows</a></li>
+<li><a href="#renaming-columns" id="toc-renaming-columns"><span class="toc-section-number">10.5</span> Renaming Columns</a></li>
+</ul></li>
+<li><a href="#summaries-and-aggregations" id="toc-summaries-and-aggregations"><span class="toc-section-number">11</span> Summaries and Aggregations</a></li>
+<li><a href="#developing-functions-with-env_schema" id="toc-developing-functions-with-env_schema"><span class="toc-section-number">12</span> Developing Functions with
+env_schema</a></li>
+<li><a href="#example-workflow" id="toc-example-workflow"><span class="toc-section-number">13</span> Example Workflow</a></li>
+<li><a href="#best-practices" id="toc-best-practices"><span class="toc-section-number">14</span> Best Practices</a></li>
+<li><a href="#summary" id="toc-summary"><span class="toc-section-number">15</span> Summary</a></li>
+</ul>
+</div>
+
+<div id="overview" class="section level1" number="1">
+<h1><span class="header-section-number">1</span> Overview</h1>
+<p>The <code>env_schema</code> class is the primary data structure used
+throughout the <strong>manager</strong> package.</p>
+<p>Environmental data commonly originate from multiple laboratories,
+consultants, field programs, and regulatory databases. Even when the
+data represent the same concepts, column names and structures often
+differ significantly between sources.</p>
+<p>The purpose of <code>env_schema</code> is to provide a standardized
+and validated representation of environmental analytical data that can
+be used consistently across package functions.</p>
+<p>An <code>env_schema</code> object:</p>
+<ul>
+<li>Is an S3 subclass of a tibble.</li>
+<li>Uses standardized environmental column names.</li>
+<li>Stores schema metadata as object attributes.</li>
+<li>Preserves metadata through tidyverse workflows.</li>
+<li>Provides a stable accessor-based API.</li>
+<li>Supports downstream plotting, analysis, reporting, and QA/QC
+workflows.</li>
+</ul>
+<p>Because <code>env_schema</code> inherits from <code>tbl_df</code>,
+users can continue to work with familiar tidyverse tools while
+benefiting from a standardized environmental data model.</p>
+</div>
+<div id="why-use-env_schema" class="section level1" number="2">
+<h1><span class="header-section-number">2</span> Why Use
+env_schema?</h1>
+<p>Environmental datasets frequently contain equivalent information
+stored under different column names.</p>
+<p>For example, each of the following columns may represent a sampling
+location identifier:</p>
+<pre class="text"><code>LocationID
+Station
+Well
+MonitoringPoint
+SampleLocation</code></pre>
+<p>Similarly, analytical results may appear as:</p>
+<pre class="text"><code>Result
+Concentration
+Value
+LabResult
+ReportedResult</code></pre>
+<p>Without standardization, every downstream function must either:</p>
+<ol style="list-style-type: decimal">
+<li>Know every possible naming convention, or</li>
+<li>Require users to manually rename columns before analysis.</li>
+</ol>
+<p><code>env_schema</code> solves this problem by establishing a common
+structure that all package functions can rely on.</p>
+</div>
+<div id="core-design-principles" class="section level1" number="3">
+<h1><span class="header-section-number">3</span> Core Design
+Principles</h1>
+<p>The design of <code>env_schema</code> follows several principles:</p>
+<ol style="list-style-type: decimal">
+<li>Environmental data should be represented using a consistent
+schema.</li>
+<li>The object should behave like a tibble whenever possible.</li>
+<li>Metadata should be preserved through transformations.</li>
+<li>Tidyverse workflows should feel natural and predictable.</li>
+<li>Package code should use accessors instead of direct column
+references.</li>
+<li>Validation should occur at the schema level rather than in every
+downstream function.</li>
+</ol>
+</div>
+<div id="schema-structure" class="section level1" number="4">
+<h1><span class="header-section-number">4</span> Schema Structure</h1>
+<p>An <code>env_schema</code> object contains standardized environmental
+columns.</p>
+<p>A typical object may look like:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">names</span>(gw)</span></code></pre></div>
+<p>Example columns include:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>.location</code></td>
+<td>Sampling location identifier</td>
+</tr>
+<tr class="even">
+<td><code>.sample_date</code></td>
+<td>Sample collection date</td>
+</tr>
+<tr class="odd">
+<td><code>.analyte</code></td>
+<td>Analyte name</td>
+</tr>
+<tr class="even">
+<td><code>.result</code></td>
+<td>Analytical result</td>
+</tr>
+<tr class="odd">
+<td><code>.unit</code></td>
+<td>Reporting unit</td>
+</tr>
+<tr class="even">
+<td><code>.detect</code></td>
+<td>Detection indicator</td>
+</tr>
+<tr class="odd">
+<td><code>.limit</code></td>
+<td>Reporting or detection limit</td>
+</tr>
+<tr class="even">
+<td><code>.method</code></td>
+<td>Analytical method</td>
+</tr>
+</tbody>
+</table>
+<p>Not all datasets are required to contain every column.</p>
+<p>The schema is designed to support optional fields while maintaining a
+consistent interface.</p>
+</div>
+<div id="creating-an-env_schema" class="section level1" number="5">
+<h1><span class="header-section-number">5</span> Creating an
+env_schema</h1>
+<p>Datasets are typically converted using
+<code>as_env_schema()</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>gw <span class="ot">&lt;-</span> <span class="fu">as_env_schema</span>(raw_data)</span></code></pre></div>
+<p>The constructor:</p>
+<ul>
+<li>Validates schema structure.</li>
+<li>Standardizes the dataset.</li>
+<li>Attaches class metadata.</li>
+<li>Returns an <code>env_schema</code> object.</li>
+</ul>
+<p>The resulting object remains a tibble.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">class</span>(gw)</span></code></pre></div>
+<p>Typical output:</p>
+<pre class="text"><code>[1] &quot;env_schema&quot; &quot;tbl_df&quot; &quot;tbl&quot; &quot;data.frame&quot;</code></pre>
+</div>
+<div id="accessors" class="section level1" number="6">
+<h1><span class="header-section-number">6</span> Accessors</h1>
+<p>Package code should access schema fields through accessors rather
+than referencing columns directly.</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">location</span>(gw)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">sample_date</span>(gw)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">analyte</span>(gw)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">result</span>(gw)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">unit</span>(gw)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">detect</span>(gw)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">limit</span>(gw)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">method</span>(gw)</span></code></pre></div>
+<p>Accessors provide a stable API that isolates downstream code from
+changes to internal implementation details.</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">n_distinct</span>(<span class="fu">location</span>(gw))</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">result</span>(gw), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>Instead of:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">n_distinct</span>(gw<span class="sc">$</span>.location)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">mean</span>(gw<span class="sc">$</span>.result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>Using accessors results in code that is more maintainable and easier
+to refactor.</p>
+</div>
+<div id="optional-fields" class="section level1" number="7">
+<h1><span class="header-section-number">7</span> Optional Fields</h1>
+<p>Not every environmental dataset contains every possible schema
+field.</p>
+<p>For example, a field dataset may contain results but not laboratory
+methods.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">method</span>(gw)</span></code></pre></div>
+<p>Possible output:</p>
+<pre class="text"><code>NULL</code></pre>
+<p>Accessors generally return <code>NULL</code> when the corresponding
+schema field is not available.</p>
+<p>This behavior allows downstream functions to gracefully handle
+varying levels of data completeness.</p>
+</div>
+<div id="metadata" class="section level1" number="8">
+<h1><span class="header-section-number">8</span> Metadata</h1>
+<p>In addition to columns, an <code>env_schema</code> stores metadata as
+object attributes.</p>
+<p>Metadata may include information such as:</p>
+<ul>
+<li>Source files</li>
+<li>Import settings</li>
+<li>Validation settings</li>
+<li>Project information</li>
+<li>Additional schema attributes</li>
+</ul>
+<p>Metadata can be inspected through package helper functions.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">schema_metadata</span>(gw)</span></code></pre></div>
+<p>In general, package code should use exported helper functions instead
+of directly manipulating attributes.</p>
+</div>
+<div id="validation" class="section level1" number="9">
+<h1><span class="header-section-number">9</span> Validation</h1>
+<p>Schema validation ensures that an object satisfies the structural
+requirements expected by downstream functions.</p>
+<p>Use:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">validate_env_schema</span>(gw)</span></code></pre></div>
+<p>Validation may check:</p>
+<ul>
+<li>Required columns</li>
+<li>Column classes</li>
+<li>Schema consistency</li>
+<li>Metadata integrity</li>
+</ul>
+<p>A valid object should pass validation without error.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">validate_env_schema</span>(gw)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="co">#&gt; TRUE</span></span></code></pre></div>
+</div>
+<div id="working-with-dplyr" class="section level1" number="10">
+<h1><span class="header-section-number">10</span> Working with
+dplyr</h1>
+<p>A major design goal of <code>env_schema</code> is compatibility with
+the tidyverse.</p>
+<p>Most dplyr verbs operate normally while preserving schema
+metadata.</p>
+<div id="selecting-columns" class="section level2" number="10.1">
+<h2><span class="header-section-number">10.1</span> Selecting
+Columns</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>gw_small <span class="ot">&lt;-</span> gw <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>    .location,</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>    .sample_date,</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a>    .analyte,</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>    .result</span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>  )</span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>gw_small</span></code></pre></div>
+<p>The result remains an <code>env_schema</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">inherits</span>(gw_small, <span class="st">&quot;env_schema&quot;</span>)</span></code></pre></div>
+</div>
+<div id="filtering-rows" class="section level2" number="10.2">
+<h2><span class="header-section-number">10.2</span> Filtering Rows</h2>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>benzene <span class="ot">&lt;-</span> gw <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="fu">filter</span>(.analyte <span class="sc">==</span> <span class="st">&quot;Benzene&quot;</span>)</span></code></pre></div>
+<p>The filtered object retains the schema.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">inherits</span>(benzene, <span class="st">&quot;env_schema&quot;</span>)</span></code></pre></div>
+</div>
+<div id="mutating-columns" class="section level2" number="10.3">
+<h2><span class="header-section-number">10.3</span> Mutating
+Columns</h2>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>gw2 <span class="ot">&lt;-</span> gw <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>    <span class="at">result_log =</span> <span class="fu">log</span>(.result)</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>  )</span></code></pre></div>
+<p>Schema restoration occurs automatically.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">inherits</span>(gw2, <span class="st">&quot;env_schema&quot;</span>)</span></code></pre></div>
+</div>
+<div id="arranging-rows" class="section level2" number="10.4">
+<h2><span class="header-section-number">10.4</span> Arranging Rows</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>gw <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>  <span class="fu">arrange</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>    .location,</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>    .sample_date</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  )</span></code></pre></div>
+</div>
+<div id="renaming-columns" class="section level2" number="10.5">
+<h2><span class="header-section-number">10.5</span> Renaming
+Columns</h2>
+<p>Renaming schema columns is generally discouraged because downstream
+functions expect standard names.</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>gw <span class="sc">%&gt;%</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">location =</span> .location)</span></code></pre></div>
+<p>After renaming, package functions that rely on <code>.location</code>
+may no longer operate correctly.</p>
+<p>Whenever possible, retain standard schema field names.</p>
+</div>
+</div>
+<div id="summaries-and-aggregations" class="section level1" number="11">
+<h1><span class="header-section-number">11</span> Summaries and
+Aggregations</h1>
+<p>Operations that fundamentally change the shape of the dataset often
+return a regular tibble rather than an <code>env_schema</code>.</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>gw <span class="sc">%&gt;%</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>  <span class="fu">group_by</span>(.analyte) <span class="sc">%&gt;%</span></span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>    <span class="at">mean_result =</span> <span class="fu">mean</span>(.result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>  )</span></code></pre></div>
+<p>The resulting object is no longer a collection of analytical results
+in the original schema form.</p>
+<p>Returning a tibble in these situations is typically the expected
+behavior.</p>
+</div>
+<div id="developing-functions-with-env_schema" class="section level1" number="12">
+<h1><span class="header-section-number">12</span> Developing Functions
+with env_schema</h1>
+<p>Package developers should write functions against the accessor
+API.</p>
+<p>Prefer:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="cf">function</span>(x) {</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="fu">result</span>(x), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>}</span></code></pre></div>
+<p>Instead of:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="cf">function</span>(x) {</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="fu">mean</span>(x<span class="sc">$</span>.result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>}</span></code></pre></div>
+<p>Advantages include:</p>
+<ul>
+<li>Improved encapsulation</li>
+<li>Reduced coupling</li>
+<li>Easier internal refactoring</li>
+<li>Consistent behavior across methods</li>
+</ul>
+</div>
+<div id="example-workflow" class="section level1" number="13">
+<h1><span class="header-section-number">13</span> Example Workflow</h1>
+<p>A typical analysis workflow might look like:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>gw <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>    <span class="fu">analyte</span>(.) <span class="sc">==</span> <span class="st">&quot;Benzene&quot;</span></span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>    <span class="at">result_ug_l =</span> <span class="fu">result</span>(.)</span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>  <span class="fu">arrange</span>(</span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>    <span class="fu">sample_date</span>(.)</span>
+<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a>  )</span></code></pre></div>
+<p>The object remains an <code>env_schema</code> throughout the workflow
+while preserving both metadata and standardized structure.</p>
+</div>
+<div id="best-practices" class="section level1" number="14">
+<h1><span class="header-section-number">14</span> Best Practices</h1>
+<p>When working with <code>env_schema</code>:</p>
+<ul>
+<li>Use <code>as_env_schema()</code> to construct objects.</li>
+<li>Use accessors instead of direct column references.</li>
+<li>Preserve standard schema column names.</li>
+<li>Validate imported datasets early.</li>
+<li>Treat metadata as implementation details.</li>
+<li>Use tidyverse workflows normally.</li>
+</ul>
+</div>
+<div id="summary" class="section level1" number="15">
+<h1><span class="header-section-number">15</span> Summary</h1>
+<p><code>env_schema</code> provides a standardized foundation for
+environmental analytical data within the <strong>manager</strong>
+package.</p>
+<p>By combining:</p>
+<ul>
+<li>Standardized column names,</li>
+<li>Metadata preservation,</li>
+<li>Validation,</li>
+<li>Accessor-based APIs, and</li>
+<li>Tidyverse compatibility,</li>
+</ul>
+<p>the class enables downstream functions to operate on environmental
+data consistently regardless of the original source format.</p>
+<p>In practice, an <code>env_schema</code> should feel like a tibble
+while carrying the additional structure required for environmental data
+analysis.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

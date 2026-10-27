@@ -1,0 +1,441 @@
+---
+title: "Working with env_schema"
+author: "manager package"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Working with env_schema}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(manager)
+library(dplyr)
+```
+
+# Overview
+
+The `env_schema` class is the primary data structure used throughout the
+**manager** package.
+
+Environmental data commonly originate from multiple laboratories,
+consultants, field programs, and regulatory databases. Even when the data
+represent the same concepts, column names and structures often differ
+significantly between sources.
+
+The purpose of `env_schema` is to provide a standardized and validated
+representation of environmental analytical data that can be used
+consistently across package functions.
+
+An `env_schema` object:
+
+- Is an S3 subclass of a tibble.
+- Uses standardized environmental column names.
+- Stores schema metadata as object attributes.
+- Preserves metadata through tidyverse workflows.
+- Provides a stable accessor-based API.
+- Supports downstream plotting, analysis, reporting, and QA/QC workflows.
+
+Because `env_schema` inherits from `tbl_df`, users can continue to work
+with familiar tidyverse tools while benefiting from a standardized
+environmental data model.
+
+# Why Use env_schema?
+
+Environmental datasets frequently contain equivalent information stored
+under different column names.
+
+For example, each of the following columns may represent a sampling
+location identifier:
+
+```text
+LocationID
+Station
+Well
+MonitoringPoint
+SampleLocation
+```
+
+Similarly, analytical results may appear as:
+
+```text
+Result
+Concentration
+Value
+LabResult
+ReportedResult
+```
+
+Without standardization, every downstream function must either:
+
+1. Know every possible naming convention, or
+2. Require users to manually rename columns before analysis.
+
+`env_schema` solves this problem by establishing a common structure that
+all package functions can rely on.
+
+# Core Design Principles
+
+The design of `env_schema` follows several principles:
+
+1. Environmental data should be represented using a consistent schema.
+2. The object should behave like a tibble whenever possible.
+3. Metadata should be preserved through transformations.
+4. Tidyverse workflows should feel natural and predictable.
+5. Package code should use accessors instead of direct column references.
+6. Validation should occur at the schema level rather than in every
+   downstream function.
+
+# Schema Structure
+
+An `env_schema` object contains standardized environmental columns.
+
+A typical object may look like:
+
+```{r eval = FALSE}
+names(gw)
+```
+
+Example columns include:
+
+| Column | Description |
+|----------|-------------|
+| `.location` | Sampling location identifier |
+| `.sample_date` | Sample collection date |
+| `.analyte` | Analyte name |
+| `.result` | Analytical result |
+| `.unit` | Reporting unit |
+| `.detect` | Detection indicator |
+| `.limit` | Reporting or detection limit |
+| `.method` | Analytical method |
+
+Not all datasets are required to contain every column.
+
+The schema is designed to support optional fields while maintaining a
+consistent interface.
+
+# Creating an env_schema
+
+Datasets are typically converted using `as_env_schema()`.
+
+```{r eval = FALSE}
+gw <- as_env_schema(raw_data)
+```
+
+The constructor:
+
+- Validates schema structure.
+- Standardizes the dataset.
+- Attaches class metadata.
+- Returns an `env_schema` object.
+
+The resulting object remains a tibble.
+
+```{r eval = FALSE}
+class(gw)
+```
+
+Typical output:
+
+```text
+[1] "env_schema" "tbl_df" "tbl" "data.frame"
+```
+
+# Accessors
+
+Package code should access schema fields through accessors rather than
+referencing columns directly.
+
+For example:
+
+```{r eval = FALSE}
+location(gw)
+sample_date(gw)
+analyte(gw)
+result(gw)
+unit(gw)
+detect(gw)
+limit(gw)
+method(gw)
+```
+
+Accessors provide a stable API that isolates downstream code from
+changes to internal implementation details.
+
+For example:
+
+```{r eval = FALSE}
+dplyr::n_distinct(location(gw))
+
+mean(result(gw), na.rm = TRUE)
+```
+
+Instead of:
+
+```{r eval = FALSE}
+dplyr::n_distinct(gw$.location)
+
+mean(gw$.result, na.rm = TRUE)
+```
+
+Using accessors results in code that is more maintainable and easier to
+refactor.
+
+# Optional Fields
+
+Not every environmental dataset contains every possible schema field.
+
+For example, a field dataset may contain results but not laboratory
+methods.
+
+```{r eval = FALSE}
+method(gw)
+```
+
+Possible output:
+
+```text
+NULL
+```
+
+Accessors generally return `NULL` when the corresponding schema field is
+not available.
+
+This behavior allows downstream functions to gracefully handle varying
+levels of data completeness.
+
+# Metadata
+
+In addition to columns, an `env_schema` stores metadata as object
+attributes.
+
+Metadata may include information such as:
+
+- Source files
+- Import settings
+- Validation settings
+- Project information
+- Additional schema attributes
+
+Metadata can be inspected through package helper functions.
+
+```{r eval = FALSE}
+schema_metadata(gw)
+```
+
+In general, package code should use exported helper functions instead of
+directly manipulating attributes.
+
+# Validation
+
+Schema validation ensures that an object satisfies the structural
+requirements expected by downstream functions.
+
+Use:
+
+```{r eval = FALSE}
+validate_env_schema(gw)
+```
+
+Validation may check:
+
+- Required columns
+- Column classes
+- Schema consistency
+- Metadata integrity
+
+A valid object should pass validation without error.
+
+```{r eval = FALSE}
+validate_env_schema(gw)
+
+#> TRUE
+```
+
+# Working with dplyr
+
+A major design goal of `env_schema` is compatibility with the tidyverse.
+
+Most dplyr verbs operate normally while preserving schema metadata.
+
+## Selecting Columns
+
+```{r eval = FALSE}
+gw_small <- gw %>%
+  select(
+    .location,
+    .sample_date,
+    .analyte,
+    .result
+  )
+
+gw_small
+```
+
+The result remains an `env_schema`.
+
+```{r eval = FALSE}
+inherits(gw_small, "env_schema")
+```
+
+## Filtering Rows
+
+```{r eval = FALSE}
+benzene <- gw %>%
+  filter(.analyte == "Benzene")
+```
+
+The filtered object retains the schema.
+
+```{r eval = FALSE}
+inherits(benzene, "env_schema")
+```
+
+## Mutating Columns
+
+```{r eval = FALSE}
+gw2 <- gw %>%
+  mutate(
+    result_log = log(.result)
+  )
+```
+
+Schema restoration occurs automatically.
+
+```{r eval = FALSE}
+inherits(gw2, "env_schema")
+```
+
+## Arranging Rows
+
+```{r eval = FALSE}
+gw %>%
+  arrange(
+    .location,
+    .sample_date
+  )
+```
+
+## Renaming Columns
+
+Renaming schema columns is generally discouraged because downstream
+functions expect standard names.
+
+For example:
+
+```{r eval = FALSE}
+gw %>%
+  rename(location = .location)
+```
+
+After renaming, package functions that rely on `.location` may no longer
+operate correctly.
+
+Whenever possible, retain standard schema field names.
+
+# Summaries and Aggregations
+
+Operations that fundamentally change the shape of the dataset often
+return a regular tibble rather than an `env_schema`.
+
+For example:
+
+```{r eval = FALSE}
+gw %>%
+  group_by(.analyte) %>%
+  summarize(
+    mean_result = mean(.result, na.rm = TRUE)
+  )
+```
+
+The resulting object is no longer a collection of analytical results in
+the original schema form.
+
+Returning a tibble in these situations is typically the expected
+behavior.
+
+# Developing Functions with env_schema
+
+Package developers should write functions against the accessor API.
+
+Prefer:
+
+```{r eval = FALSE}
+function(x) {
+  mean(result(x), na.rm = TRUE)
+}
+```
+
+Instead of:
+
+```{r eval = FALSE}
+function(x) {
+  mean(x$.result, na.rm = TRUE)
+}
+```
+
+Advantages include:
+
+- Improved encapsulation
+- Reduced coupling
+- Easier internal refactoring
+- Consistent behavior across methods
+
+# Example Workflow
+
+A typical analysis workflow might look like:
+
+```{r eval = FALSE}
+gw %>%
+  filter(
+    analyte(.) == "Benzene"
+  ) %>%
+  mutate(
+    result_ug_l = result(.)
+  ) %>%
+  arrange(
+    sample_date(.)
+  )
+```
+
+The object remains an `env_schema` throughout the workflow while
+preserving both metadata and standardized structure.
+
+# Best Practices
+
+When working with `env_schema`:
+
+- Use `as_env_schema()` to construct objects.
+- Use accessors instead of direct column references.
+- Preserve standard schema column names.
+- Validate imported datasets early.
+- Treat metadata as implementation details.
+- Use tidyverse workflows normally.
+
+# Summary
+
+`env_schema` provides a standardized foundation for environmental
+analytical data within the **manager** package.
+
+By combining:
+
+- Standardized column names,
+- Metadata preservation,
+- Validation,
+- Accessor-based APIs, and
+- Tidyverse compatibility,
+
+the class enables downstream functions to operate on environmental data
+consistently regardless of the original source format.
+
+In practice, an `env_schema` should feel like a tibble while carrying the
+additional structure required for environmental data analysis.

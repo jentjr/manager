@@ -77,48 +77,43 @@
 #' @source \url{http://in.gov/idem/cleanwater/2453.html}
 "indiana_data"
 
-#' Example groundwater quality data
+#' Example Groundwater Raw Data
 #'
-#'#' @format A data frame with 5878 rows and 6 variables:
+#' A groundwater monitoring dataset used throughout the package to
+#' demonstrate creation of an [`env_schema`] object.
+#'
+#' This dataset serves as the source data for [gw], the corresponding
+#' processed `env_schema` example dataset.
+#'
+#' @format A tibble with 5,878 rows and 8 variables:
 #' \describe{
-#'   \item{location_id}{Sample Location Identifier}
-#'   \item{sample_data}{sample date}
-#'   \item{analysis_result}{analysis result}
-#'   \item{lt_measure}{non-detect flag}
-#'   \item{default_unit}{unit of measure}
-#'   \item{param_name}{analyte name}
+#'   \item{location_id}{Monitoring well or sampling location identifier.}
+#'   \item{sample_date}{Sample collection date.}
+#'   \item{param_name}{Laboratory-reported analyte name.}
+#'   \item{analysis_result}{Reported analytical result.}
+#'   \item{default_unit}{Reported analytical unit.}
+#'   \item{lt_measure}{Non-detect indicator.}
+#'   \item{sample_id}{Sample identifier.}
+#'   \item{method}{Analytical method.}
 #' }
 #'
-"gw_data"
-
-#' Example environmental chemistry dataset
+#' @source Example groundwater monitoring dataset.
 #'
-#' An example environmental chemistry dataset stored as an
-#' `env_schema` object.
-#'
-#' The dataset contains a subset of monitoring well data suitable
-#' for demonstrating:
-#'
-#' * time series plotting
-#' * trend analysis
-#' * unit standardization
-#' * meq conversion
-#' * Piper diagrams
-#' * Stiff diagrams
-#' * handling of censored observations
-#'
-#' @format An `env_schema` object with approximately 500 observations.
-#'
-#' @source Internal package example dataset.
+#' @seealso [gw], [env_schema()]
 #'
 #' @examples
-#' data(gw)
+#' data(gw_data)
 #'
-#' is_env_schema(gw)
+#' head(gw_data)
 #'
-#' schema_version(gw)
-#'
-#' series_plot(gw)
-#'
-#' @name gw
-NULL
+#' gw <- env_schema(
+#'   gw_data,
+#'   location = location_id,
+#'   date = sample_date,
+#'   analyte = param_name,
+#'   result = analysis_result,
+#'   unit = default_unit,
+#'   reporting_flag = lt_measure,
+#'   analyte_lookup = analyte_tbl
+#' )
+"gw_data"

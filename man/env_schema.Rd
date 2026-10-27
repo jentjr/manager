@@ -68,12 +68,75 @@ env_schema(
 columns containing method-specific metadata.}
 
 \item{qualifier_table}{Optional qualifier lookup table.}
+
+\item{analyte_lookup}{Optional analyte metadata lookup table.
+Defaults to \code{analyte_tbl}. Used to standardize analyte
+names, assign analyte identifiers, and attach analyte metadata.}
 }
 \value{
 A tibble with class `env_schema`.
+
+The returned object retains all original source columns and stores
+environmental column mappings in object metadata.
+
+Additional manager-generated columns may be added, including
+result-classification fields, normalized analyte metadata,
+analytical labels, uncertainty metrics, and reporting attributes.
 }
 \description{
-Standardizes environmental analytical data into a common structure
-for plotting, reporting, trend analysis, geochemical calculations,
-censored-data methods, and radiochemistry workflows.
+Creates an `env_schema` object by attaching environmental column
+mappings and schema metadata to a data frame.
+}
+\details{
+Source column names are preserved and their environmental meaning
+is stored in schema metadata, allowing downstream plotting,
+reporting, trend analysis, geochemical calculations,
+censored-data methods, and radiochemistry workflows to operate on
+a consistent environmental data model.
+
+
+`env_schema()` does not rename or modify source data columns.
+
+Instead, the environmental meaning of each source column is stored
+as schema metadata through an internal column-mapping structure.
+
+For example:
+
+\preformatted{
+env_schema(
+  data,
+  location = location_id,
+  date = sample_date,
+  analyte = parameter,
+  result = concentration
+)
+}
+
+records that `location_id` contains location identifiers,
+`sample_date` contains sample dates,
+`parameter` contains analyte names,
+and `concentration` contains analytical results.
+
+
+The constructor may also create standardized derived columns used
+internally by manager for result classification, analyte metadata,
+reporting workflows, plotting, and statistical calculations.
+
+Stored schema mappings can be inspected using
+`schema_mapping()`.
+}
+\examples{
+\dontrun{
+gw <- env_schema(
+  my_data,
+  location = location_id,
+  date = sample_date,
+  analyte = param_name,
+  result = analysis_result,
+  unit = default_unit
+)
+
+schema_mapping(gw)
+}
+
 }

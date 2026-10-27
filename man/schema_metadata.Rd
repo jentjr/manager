@@ -2,7 +2,7 @@
 % Please edit documentation in R/env_schema-accessors.R
 \name{schema_metadata}
 \alias{schema_metadata}
-\title{Return metadata column names}
+\title{Return schema metadata}
 \usage{
 schema_metadata(x)
 }
@@ -13,5 +13,5 @@ schema_metadata(x)
 Character vector.
 }
 \description{
-Return metadata column names
+Return schema metadata
 }

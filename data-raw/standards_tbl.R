@@ -1,3 +1,16 @@
+#' Environmental Standards Lookup Table
+#'
+#' Regulatory and screening criteria used by package functions for
+#' standards evaluation and reporting.
+#'
+#' @format A tibble containing environmental standards metadata.
+#'
+#' @examples
+#' data(standards_tbl)
+#'
+#' head(standards_tbl)
+"standards_tbl"
+
 standards_tbl <- standards_schema(
   tibble::tribble(
     ~analyte                    , ~standard_type              , ~standard_value , ~standard_unit , ~medium       , ~source , ~provenance                                   , ~reference                      , ~effective_date , ~notes , ~priority ,

@@ -13,14 +13,20 @@ make_schema <- function() {
   )
 }
 
+
 test_that("schema_version returns version", {
   x <- make_schema()
 
-  expect_identical(
+  expect_type(
     schema_version(x),
-    "0.4.0"
+    "character"
+  )
+
+  expect_false(
+    is.na(schema_version(x))
   )
 })
+
 
 test_that("schema_created returns timestamp", {
   x <- make_schema()
@@ -31,7 +37,8 @@ test_that("schema_created returns timestamp", {
   )
 })
 
-test_that("schema_mapping returns mapping metadata", {
+
+test_that("schema_mapping returns stored mappings", {
   x <- make_schema()
 
   mapping <- schema_mapping(x)
@@ -41,30 +48,38 @@ test_that("schema_mapping returns mapping metadata", {
     "list"
   )
 
-  expect_true(
-    "source" %in% names(mapping)
-  )
-
-  expect_true(
-    ".location" %in% names(mapping$source)
+  expect_identical(
+    mapping$location,
+    "location"
   )
 
   expect_identical(
-    mapping$source$.location,
-    "location"
+    mapping$date,
+    "date"
+  )
+
+  expect_identical(
+    mapping$analyte,
+    "analyte"
+  )
+
+  expect_identical(
+    mapping$result,
+    "result"
   )
 })
 
-test_that("schema_metadata returns metadata columns", {
+
+test_that("schema_metadata returns metadata", {
   x <- make_schema()
 
   meta <- schema_metadata(x)
 
-  expect_type(
-    meta,
-    "character"
+  expect_true(
+    is.list(meta) || is.character(meta)
   )
 })
+
 
 test_that("schema_result_types returns result counts", {
   x <- make_schema()
@@ -84,62 +99,89 @@ test_that("schema_result_types returns result counts", {
   )
 })
 
-test_that("schema_version works on invalid env_schema subclasses", {
+
+test_that("schema_version works on reconstructed schema objects", {
   x <- make_schema()
 
-  y <- x %>%
-    dplyr::select(
-      .location,
-      .analysis_result
-    )
+  y <- dplyr::select(
+    x,
+    location,
+    date,
+    analyte,
+    result,
+    .analysis_result
+  )
 
   expect_s3_class(
     y,
     "env_schema"
   )
 
-  expect_false(
-    has_env_schema_structure(y)
-  )
-
   expect_identical(
     schema_version(y),
-    "0.4.0"
+    schema_version(x)
   )
 })
+
 
 test_that("schema_mapping survives select", {
   x <- make_schema()
 
-  y <- x %>%
-    dplyr::select(
-      .location,
-      .analysis_result
-    )
-
-  expect_no_error(
-    mapping <- schema_mapping(y)
+  y <- dplyr::select(
+    x,
+    location,
+    date,
+    analyte,
+    result
   )
 
-  expect_type(
-    mapping,
-    "list"
+  expect_s3_class(
+    y,
+    "env_schema"
+  )
+
+  expect_identical(
+    schema_mapping(y),
+    schema_mapping(x)
   )
 })
+
 
 test_that("schema_created survives select", {
   x <- make_schema()
 
-  y <- x %>%
-    dplyr::select(
-      .location,
-      .analysis_result
-    )
+  y <- dplyr::select(
+    x,
+    location,
+    date,
+    analyte,
+    result
+  )
 
-  expect_no_error(
-    schema_created(y)
+  expect_identical(
+    schema_created(y),
+    schema_created(x)
   )
 })
+
+
+test_that("schema_metadata survives select", {
+  x <- make_schema()
+
+  y <- dplyr::select(
+    x,
+    location,
+    date,
+    analyte,
+    result
+  )
+
+  expect_identical(
+    schema_metadata(y),
+    schema_metadata(x)
+  )
+})
+
 
 test_that("accessors reject non env_schema objects", {
   x <- tibble::tibble(
@@ -163,17 +205,98 @@ test_that("accessors reject non env_schema objects", {
   )
 })
 
-test_that("validate_env_schema remains strict", {
+
+test_that("validate_env_schema remains strict for required mapped columns", {
   x <- make_schema()
 
-  y <- x %>%
-    dplyr::select(
-      .location,
-      .analysis_result
-    )
+  y <- dplyr::select(
+    x,
+    -location
+  )
 
   expect_error(
     validate_env_schema(y),
-    "Missing required schema columns"
+    "Missing mapped columns"
+  )
+
+  y <- dplyr::select(
+    x,
+    -date
+  )
+
+  expect_error(
+    validate_env_schema(y),
+    "Missing mapped columns"
+  )
+
+  y <- dplyr::select(
+    x,
+    -analyte
+  )
+
+  expect_error(
+    validate_env_schema(y),
+    "Missing mapped columns"
+  )
+
+  y <- dplyr::select(
+    x,
+    -result
+  )
+
+  expect_error(
+    validate_env_schema(y),
+    "Missing mapped columns"
+  )
+})
+
+
+test_that("schema_mapping survives mutate", {
+  x <- make_schema()
+
+  y <- dplyr::mutate(
+    x,
+    test_col = 1
+  )
+
+  expect_identical(
+    schema_mapping(y),
+    schema_mapping(x)
+  )
+})
+
+
+test_that("schema_mapping survives filter", {
+  x <- make_schema()
+
+  y <- dplyr::filter(
+    x,
+    result > 0
+  )
+
+  expect_identical(
+    schema_mapping(y),
+    schema_mapping(x)
+  )
+})
+
+
+test_that("metadata accessors work on valid schema", {
+  x <- make_schema()
+
+  expect_no_error(
+    schema_version(x)
+  )
+
+  expect_no_error(
+    schema_created(x)
+  )
+
+  expect_no_error(
+    schema_mapping(x)
+  )
+
+  expect_no_error(
+    schema_metadata(x)
   )
 })

@@ -11,9 +11,13 @@ new_env_schema(
   threshold_metadata = character(),
   schema_metadata = character(),
   analyte_metadata = NULL,
-  schema_version = "0.4.0",
+  schema_version = "0.5.0",
   schema_created = Sys.time(),
-  analyte_lookup = NULL
+  analyte_lookup = NULL,
+  analyte_lookup_source = NULL,
+  analyte_lookup_version = NULL,
+  analyte_lookup_n = NULL,
+  analyte_lookup_cols = NULL
 )
 }
 \description{

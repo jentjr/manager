@@ -16,17 +16,13 @@ summary_stats.data.frame <- function(
   lt_measure = "lt_measure",
   analysis_result = "analysis_result",
   default_unit = "default_unit",
-  combine_locations = FALSE,
   na.rm = TRUE
 ) {
-  group_cols <- if (!combine_locations) {
-    c(
-      location_id,
-      param_name,
-      default_unit
-    )
+  if (dplyr::is_grouped_df(df)) {
+    group_cols <- dplyr::group_vars(df)
   } else {
-    c(
+    group_cols <- c(
+      location_id,
       param_name,
       default_unit
     )
@@ -44,30 +40,26 @@ summary_stats.data.frame <- function(
 #' @export
 summary_stats.env_schema <- function(
   df,
-  combine_locations = FALSE,
   na.rm = TRUE,
   ...
 ) {
-  validate_env_schema(df)
+  analysis_df <- .as_analysis_tbl(df)
 
-  group_cols <- if (!combine_locations) {
-    c(
-      ".location",
-      ".analyte",
-      ".analysis_unit"
-    )
+  if (dplyr::is_grouped_df(analysis_df)) {
+    group_cols <- dplyr::group_vars(analysis_df)
   } else {
-    c(
-      ".analyte",
-      ".analysis_unit"
+    group_cols <- c(
+      "location",
+      "analyte",
+      "unit"
     )
   }
 
   .summary_stats_core(
-    df = df,
+    df = analysis_df,
     group_cols = group_cols,
-    result_col = ".analysis_result",
-    censored_col = ".censored",
+    result_col = "result",
+    censored_col = "censored",
     na.rm = na.rm
   )
 }
@@ -104,11 +96,22 @@ summary_stats.env_schema <- function(
     )
   }
 
+  if (length(group_cols) > 0) {
+    df <- df %>%
+      dplyr::group_by(
+        dplyr::across(
+          dplyr::all_of(group_cols)
+        ),
+        .add = FALSE
+      )
+  }
+
   df %>%
     dplyr::group_by(
       dplyr::across(
         dplyr::all_of(group_cols)
-      )
+      ),
+      .add = FALSE
     ) %>%
     dplyr::summarise(
       n = dplyr::n(),

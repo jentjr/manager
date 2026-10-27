@@ -7,7 +7,7 @@
 schema_result_types(x)
 }
 \arguments{
-\item{x}{env_schema object.}
+\item{x}{An env_schema object.}
 }
 \value{
 Tibble.

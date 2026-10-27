@@ -59,59 +59,59 @@
 
 #' Build analyte display labels
 #'
-#' Creates formatted analyte labels for plotting, reporting, and
-#' tabular output by combining analyte names with analytical units.
-#'
-#' Two label columns are generated:
-#'
-#' \itemize{
-#'   \item \code{.analyte_label}:
-#'   Canonical analyte name and unit.
-#'   Example: \code{"Benzene (ug/L)"}.
-#'
-#'   \item \code{.short_analyte_label}:
-#'   Preferred short analyte name and unit when available.
-#'   Example: \code{"Benzene (µg/L)"}.
-#' }
-#'
-#' If no \code{.analysis_unit} column exists, the input object is
-#' returned unchanged.
-#'
-#' @param df An \code{env_schema} object.
-#'
-#' @returns The input \code{env_schema} with additional display-label
-#'   columns.
-#'
 #' @keywords internal
 .build_analyte_labels <- function(df) {
   if (!".analysis_unit" %in% names(df)) {
     return(df)
   }
 
-  short_names <- if (".short_name" %in% names(df)) {
+  analyte_name <- if (".normalized_analyte" %in% names(df)) {
     dplyr::coalesce(
-      df$.short_name,
-      df$.analyte
+      df$.normalized_analyte,
+      df$.source_analyte
     )
   } else {
-    df$.analyte
+    df$.source_analyte
   }
+
+  short_name <- if (".short_name" %in% names(df)) {
+    dplyr::coalesce(
+      df$.short_name,
+      analyte_name
+    )
+  } else {
+    analyte_name
+  }
+
+  has_unit <- !is.na(df$.analysis_unit) &
+    trimws(df$.analysis_unit) != ""
+
+  analyte_label <- dplyr::if_else(
+    has_unit,
+    paste0(
+      analyte_name,
+      " (",
+      df$.analysis_unit,
+      ")"
+    ),
+    analyte_name
+  )
+
+  short_analyte_label <- dplyr::if_else(
+    has_unit,
+    paste0(
+      short_name,
+      " (",
+      df$.analysis_unit,
+      ")"
+    ),
+    short_name
+  )
 
   df %>%
     dplyr::mutate(
-      .analyte_label = paste0(
-        .analyte,
-        " (",
-        .analysis_unit,
-        ")"
-      ),
-
-      .short_analyte_label = paste0(
-        short_names,
-        " (",
-        .analysis_unit,
-        ")"
-      )
+      .analyte_label = analyte_label,
+      .short_analyte_label = short_analyte_label
     )
 }
 
@@ -227,4 +227,51 @@
     env_schema,
     !!!args
   )
+}
+
+#' Build Standard Analysis Tibble
+#'
+#' Converts an `env_schema` object into a standardized tibble using
+#' accessor functions while preserving any existing dplyr grouping.
+#'
+#' @param x An `env_schema` object.
+#'
+#' @returns A tibble suitable for downstream analytical workflows.
+#'
+#' @keywords internal
+.as_analysis_tbl <- function(x) {
+  validate_env_schema(x)
+
+  out <- tibble::tibble(
+    location = location(x),
+    date = date(x),
+    analyte = analyte(x),
+    result = analysis_result(x),
+    unit = analysis_unit(x),
+    method = analysis_method(x),
+    detected = detected(x),
+    censored = censored(x),
+    estimated = estimated(x),
+    rejected = rejected(x),
+    usable = usable(x)
+  )
+
+  if (dplyr::is_grouped_df(x)) {
+    groups <- dplyr::group_vars(x)
+
+    groups <- groups[
+      groups %in% names(out)
+    ]
+
+    if (length(groups) > 0) {
+      out <- dplyr::group_by(
+        out,
+        dplyr::across(
+          dplyr::all_of(groups)
+        )
+      )
+    }
+  }
+
+  out
 }

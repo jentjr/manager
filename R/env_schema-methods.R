@@ -9,21 +9,17 @@ print.env_schema <- function(x, ...) {
     "columns\n"
   )
 
-  if (".location" %in% names(x)) {
-    cat(
-      "Locations:",
-      dplyr::n_distinct(x$.location),
-      "\n"
-    )
-  }
+  cat(
+    "Locations:",
+    dplyr::n_distinct(location(x)),
+    "\n"
+  )
 
-  if (".analyte" %in% names(x)) {
-    cat(
-      "Analytes:",
-      dplyr::n_distinct(x$.analyte),
-      "\n"
-    )
-  }
+  cat(
+    "Analytes:",
+    dplyr::n_distinct(analyte(x)),
+    "\n"
+  )
 
   cat(
     "Valid:",

@@ -1,3 +1,16 @@
+#' Analyte Lookup Table
+#'
+#' Master analyte reference table used for analyte normalization,
+#' classification, unit standardization, and metadata enrichment.
+#'
+#' @format A tibble containing analyte metadata.
+#'
+#' @examples
+#' data(analyte_tbl)
+#'
+#' head(analyte_tbl)
+"analyte_tbl"
+
 analyte_tbl <- tibble::tribble(
   ~analyte_id         ,
   ~analyte            ,
@@ -239,7 +252,7 @@ analyte_tbl <- tibble::tribble(
   "radium_228"        , "Radium-228"             , "radium_228"  , "Ra-228"      , NA_character_ , "pCi/L" , NA , NA , NA ,
   "gross_alpha"       , "Gross Alpha"            , "gross_alpha" , "Gross Alpha" , NA_character_ , "pCi/L" , NA , NA , NA ,
   "gross_beta"        , "Gross Beta"             , "gross_beta"  , "Gross Beta"  , NA_character_ , "pCi/L" , NA , NA , NA
-) %>%
+) |>
   dplyr::mutate(
     fraction = NA_character_,
     meq_factor = dplyr::if_else(
@@ -378,7 +391,7 @@ analyte_tbl <- tibble::tribble(
         "General Chemistry",
       TRUE ~ "Other"
     )
-  ) %>%
+  ) |>
   dplyr::relocate(
     analyte_id,
     analyte,

@@ -3,22 +3,51 @@
 \docType{data}
 \name{gw_data}
 \alias{gw_data}
-\title{Example groundwater quality data}
+\title{Example Groundwater Raw Data}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 5878 rows and 6 columns.
+A tibble with 5,878 rows and 8 variables:
+\describe{
+  \item{location_id}{Monitoring well or sampling location identifier.}
+  \item{sample_date}{Sample collection date.}
+  \item{param_name}{Laboratory-reported analyte name.}
+  \item{analysis_result}{Reported analytical result.}
+  \item{default_unit}{Reported analytical unit.}
+  \item{lt_measure}{Non-detect indicator.}
+  \item{sample_id}{Sample identifier.}
+  \item{method}{Analytical method.}
+}
+}
+\source{
+Example groundwater monitoring dataset.
 }
 \usage{
 gw_data
 }
 \description{
-#' @format A data frame with 5878 rows and 6 variables:
-\describe{
-  \item{location_id}{Sample Location Identifier}
-  \item{sample_data}{sample date}
-  \item{analysis_result}{analysis result}
-  \item{lt_measure}{non-detect flag}
-  \item{default_unit}{unit of measure}
-  \item{param_name}{analyte name}
+A groundwater monitoring dataset used throughout the package to
+demonstrate creation of an [`env_schema`] object.
 }
+\details{
+This dataset serves as the source data for [gw], the corresponding
+processed `env_schema` example dataset.
+}
+\examples{
+data(gw_data)
+
+head(gw_data)
+
+gw <- env_schema(
+  gw_data,
+  location = location_id,
+  date = sample_date,
+  analyte = param_name,
+  result = analysis_result,
+  unit = default_unit,
+  reporting_flag = lt_measure,
+  analyte_lookup = analyte_tbl
+)
+}
+\seealso{
+[gw], [env_schema()]
 }
 \keyword{datasets}

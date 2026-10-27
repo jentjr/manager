@@ -2,7 +2,7 @@
 % Please edit documentation in R/env_schema-accessors.R
 \name{schema_mapping}
 \alias{schema_mapping}
-\title{Return original column mappings}
+\title{Return schema column mappings}
 \usage{
 schema_mapping(x)
 }
@@ -13,5 +13,5 @@ schema_mapping(x)
 Named list.
 }
 \description{
-Return original column mappings
+Return schema column mappings
 }

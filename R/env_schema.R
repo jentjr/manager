@@ -1,8 +1,13 @@
 #' Construct an environmental data schema
 #'
-#' Standardizes environmental analytical data into a common structure
-#' for plotting, reporting, trend analysis, geochemical calculations,
-#' censored-data methods, and radiochemistry workflows.
+#' Creates an `env_schema` object by attaching environmental column
+#' mappings and schema metadata to a data frame.
+#'
+#' Source column names are preserved and their environmental meaning
+#' is stored in schema metadata, allowing downstream plotting,
+#' reporting, trend analysis, geochemical calculations,
+#' censored-data methods, and radiochemistry workflows to operate on
+#' a consistent environmental data model.
 #'
 #' @param df Data frame.
 #' @param location Location identifier column.
@@ -12,8 +17,6 @@
 #' @param unit Unit column.
 #' @param sample_id Sample identifier column.
 #' @param reporting_flag Laboratory qualifier column.
-#' @param reporting_limit Reporting limit column.
-#' @param detection_limit Detection limit column.
 #' @param reporting_limit Reporting limit column.
 #' @param detection_limit Detection limit column.
 #' @param quantitation_limit Quantitation limit column
@@ -28,8 +31,64 @@
 #' @param metadata Optional tidyselect specification identifying
 #'   columns containing method-specific metadata.
 #' @param qualifier_table Optional qualifier lookup table.
+#' @param analyte_lookup Optional analyte metadata lookup table.
+#'   Defaults to \code{analyte_tbl}. Used to standardize analyte
+#'   names, assign analyte identifiers, and attach analyte metadata.
 #'
-#' @returns A tibble with class `env_schema`.
+#' @returns
+#' A tibble with class `env_schema`.
+#'
+#' The returned object retains all original source columns and stores
+#' environmental column mappings in object metadata.
+#'
+#' Additional manager-generated columns may be added, including
+#' result-classification fields, normalized analyte metadata,
+#' analytical labels, uncertainty metrics, and reporting attributes.
+#'
+#' @details
+#' `env_schema()` does not rename or modify source data columns.
+#'
+#' Instead, the environmental meaning of each source column is stored
+#' as schema metadata through an internal column-mapping structure.
+#'
+#' For example:
+#'
+#' \preformatted{
+#' env_schema(
+#'   data,
+#'   location = location_id,
+#'   date = sample_date,
+#'   analyte = parameter,
+#'   result = concentration
+#' )
+#' }
+#'
+#' records that `location_id` contains location identifiers,
+#' `sample_date` contains sample dates,
+#' `parameter` contains analyte names,
+#' and `concentration` contains analytical results.
+#'
+#'
+#' The constructor may also create standardized derived columns used
+#' internally by manager for result classification, analyte metadata,
+#' reporting workflows, plotting, and statistical calculations.
+#'
+#' Stored schema mappings can be inspected using
+#' `schema_mapping()`.
+#'
+#' @examples
+#' \dontrun{
+#' gw <- env_schema(
+#'   my_data,
+#'   location = location_id,
+#'   date = sample_date,
+#'   analyte = param_name,
+#'   result = analysis_result,
+#'   unit = default_unit
+#' )
+#'
+#' schema_mapping(gw)
+#' }
 #'
 #' @export
 env_schema <- function(
@@ -66,7 +125,7 @@ env_schema <- function(
     qualifier_table <- .qualifier_tbl
   }
 
-  rename_map <- rlang::enquos(
+  column_mapping <- rlang::enquos(
     .location = location,
     .date = date,
     .analyte = analyte,
@@ -91,16 +150,16 @@ env_schema <- function(
     .lab_name = lab_name
   )
 
-  rename_map <- rename_map[
+  column_mapping <- column_mapping[
     !vapply(
-      rename_map,
+      column_mapping,
       rlang::quo_is_null,
       logical(1)
     )
   ]
 
   source_cols <- vapply(
-    rename_map,
+    column_mapping,
     function(x) {
       expr <- rlang::quo_get_expr(x)
 
@@ -123,7 +182,45 @@ env_schema <- function(
     character(1)
   )
 
-  source_cols <- stats::na.omit(source_cols)
+  env_mapping <- list(
+    location = unname(source_cols[".location"]),
+    date = unname(source_cols[".date"]),
+    analyte = unname(source_cols[".analyte"]),
+    result = unname(source_cols[".result"]),
+
+    unit = unname(source_cols[".unit"]),
+    sample_id = unname(source_cols[".sample_id"]),
+
+    reporting_flag = unname(source_cols[".reporting_flag"]),
+
+    reporting_limit = unname(source_cols[".reporting_limit"]),
+
+    detection_limit = unname(source_cols[".detection_limit"]),
+
+    quantitation_limit = unname(source_cols[".quantitation_limit"]),
+
+    achieved_mdc = unname(source_cols[".achieved_mdc"]),
+
+    measurement_uncertainty = unname(source_cols[".measurement_uncertainty"]),
+
+    method = unname(source_cols[".method"]),
+
+    analysis_date = unname(source_cols[".analysis_date"]),
+
+    matrix = unname(source_cols[".matrix"]),
+
+    lab_name = unname(source_cols[".lab_name"])
+  )
+
+  env_mapping <- env_mapping[
+    !vapply(
+      env_mapping,
+      function(x) {
+        length(x) == 1 && is.na(x)
+      },
+      logical(1)
+    )
+  ]
 
   missing_cols <- setdiff(
     source_cols,
@@ -139,10 +236,7 @@ env_schema <- function(
     )
   }
 
-  out <- dplyr::rename(
-    df,
-    !!!rename_map
-  )
+  out <- tibble::as_tibble(df)
 
   # --------------------------------------------------------------
   # Qualifier classification
@@ -166,12 +260,11 @@ env_schema <- function(
     )
   }
 
-  if (".reporting_flag" %in% names(out)) {
+  if (!is.null(env_mapping$reporting_flag)) {
     qualifier_info <- .classify_results(
-      out$.reporting_flag,
+      out[[env_mapping$reporting_flag]],
       lookup = qualifier_table
     )
-
     out <- dplyr::bind_cols(
       out,
       qualifier_info |>
@@ -205,19 +298,23 @@ env_schema <- function(
   # Derived fields
   # --------------------------------------------------------------
 
+  result_col <- env_mapping$result
+
   out <- out %>%
     dplyr::mutate(
       .usable = !.rejected,
 
-      .original_lab_result = .result,
+      .original_lab_result = .data[[result_col]],
 
-      .analysis_result = .result
+      .analysis_result = .data[[result_col]]
     )
 
-  if (".method" %in% names(out)) {
+  if (!is.null(env_mapping$method)) {
+    method_col <- env_mapping$method
+
     out <- out %>%
       dplyr::mutate(
-        .analysis_method = .method
+        .analysis_method = .data[[method_col]]
       )
   } else {
     out <- out %>%
@@ -226,11 +323,14 @@ env_schema <- function(
       )
   }
 
-  if (".unit" %in% names(out)) {
+  if (!is.null(env_mapping$unit)) {
+    unit_col <- env_mapping$unit
+
     out <- out %>%
       dplyr::mutate(
-        .original_lab_unit = .unit,
-        .analysis_unit = .unit
+        .original_lab_unit = .data[[unit_col]],
+
+        .analysis_unit = .data[[unit_col]]
       )
   } else {
     out <- out %>%
@@ -239,45 +339,25 @@ env_schema <- function(
         .analysis_unit = NA_character_
       )
   }
+
   # --------------------------------------------------------------
   # Relative uncertainty
   # --------------------------------------------------------------
 
-  if (
-    all(
-      c(
-        ".measurement_uncertainty",
-        ".original_lab_result"
-      ) %in%
-        names(out)
-    )
-  ) {
+  if (!is.null(env_mapping$measurement_uncertainty)) {
+    unc_col <- env_mapping$measurement_uncertainty
+
     out <- out %>%
       dplyr::mutate(
         .relative_uncertainty = dplyr::if_else(
           is.na(.original_lab_result) |
             .original_lab_result == 0,
           NA_real_,
-          .measurement_uncertainty /
+          .data[[unc_col]] /
             abs(.original_lab_result)
         )
       )
   }
-
-  # --------------------------------------------------------------
-  # Remove intermediate columns
-  # --------------------------------------------------------------
-
-  out <- out %>%
-    dplyr::select(
-      -dplyr::any_of(
-        c(
-          ".result",
-          ".unit",
-          ".method"
-        )
-      )
-    )
 
   # --------------------------------------------------------------
   # Analyte metadata
@@ -290,7 +370,7 @@ env_schema <- function(
 
     out <- out %>%
       .resolve_analyte_metadata(
-        analyte_col = ".analyte",
+        analyte_col = env_mapping$analyte,
         alias_lookup = analyte_alias_lookup,
         analyte_lookup = analyte_lookup
       ) %>%
@@ -339,111 +419,32 @@ env_schema <- function(
   # Attributes
   # --------------------------------------------------------------
 
-  env_mapping <- list(
-    source = lapply(
-      rename_map,
-      function(x) {
-        rlang::as_name(
-          rlang::get_expr(x)
-        )
-      }
-    ),
-
-    derived = list(
-      analyte_id = ".analyte_id",
-
-      source_analyte = ".source_analyte",
-      normalized_input = ".normalized_input",
-
-      normalized_analyte = ".normalized_analyte",
-      fraction = ".fraction",
-      is_known_analyte = ".is_known_analyte",
-
-      original_lab_result = ".original_lab_result",
-      original_lab_unit = ".original_lab_unit",
-
-      usable = ".usable",
-
-      analysis_result = ".analysis_result",
-      analysis_unit = ".analysis_unit",
-      analysis_method = ".analysis_method",
-
-      reporting_limit = ".reporting_limit",
-      detection_limit = ".detection_limit",
-      quantitation_limit = ".quantitation_limit",
-      achieved_mdc = ".achieved_mdc",
-
-      analyte_label = ".analyte_label",
-      short_analyte_label = ".short_analyte_label"
-    ),
-
-    analyte_metadata = list(
-      short_name = ".short_name",
-      casrn = ".casrn",
-      analyte_group = ".analyte_group",
-      subcategory = ".subcategory",
-      regulatory_class = ".regulatory_class",
-      std_unit = ".std_unit",
-      ion_class = ".ion_class",
-      charge = ".charge",
-      molecular_weight = ".molecular_weight",
-      meq_factor = ".meq_factor"
+  threshold_metadata <- env_mapping[
+    c(
+      "reporting_limit",
+      "detection_limit",
+      "quantitation_limit",
+      "achieved_mdc"
     )
-  )
+  ]
+
+  threshold_metadata <- threshold_metadata[
+    !vapply(
+      threshold_metadata,
+      function(x) {
+        length(x) == 1 && is.na(x)
+      },
+      logical(1)
+    )
+  ]
 
   out <- new_env_schema(
     out,
-
     env_mapping = env_mapping,
-
     measurement_metadata = metadata_cols,
-
-    threshold_metadata = c(
-      ".reporting_limit",
-      ".detection_limit",
-      ".quantitation_limit",
-      ".achieved_mdc"
-    )[
-      c(
-        ".reporting_limit",
-        ".detection_limit",
-        ".quantitation_limit",
-        ".achieved_mdc"
-      ) %in%
-        names(out)
-    ],
-
-    schema_metadata = c(
-      ".sample_id",
-      ".reporting_flag",
-      ".reporting_limit",
-      ".detection_limit",
-      ".quantitation_limit",
-      ".achieved_mdc",
-      ".measurement_uncertainty",
-      ".analysis_method",
-      ".analysis_date",
-      ".matrix",
-      ".lab_name"
-    )[
-      c(
-        ".sample_id",
-        ".reporting_flag",
-        ".reporting_limit",
-        ".detection_limit",
-        ".quantitation_limit",
-        ".achieved_mdc",
-        ".measurement_uncertainty",
-        ".analysis_method",
-        ".analysis_date",
-        ".matrix",
-        ".lab_name"
-      ) %in%
-        names(out)
-    ],
-
-    schema_version = "0.4.0",
-
+    threshold_metadata = threshold_metadata,
+    schema_metadata = names(env_mapping),
+    schema_version = "0.5.0",
     analyte_lookup = analyte_lookup
   )
 

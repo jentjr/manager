@@ -1,3 +1,16 @@
+#' Analyte Alias Lookup Table
+#'
+#' Lookup table mapping alternate analyte names to standardized
+#' analyte definitions contained in [analyte_tbl].
+#'
+#' @format A tibble containing analyte aliases.
+#'
+#' @examples
+#' data(analyte_alias_tbl)
+#'
+#' head(analyte_alias_tbl)
+"analyte_alias_tbl"
+
 analyte_alias_tbl <- tibble::tribble(
   ~analyte_id    , ~alias                          ,
 
