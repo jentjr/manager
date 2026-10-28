@@ -2,18 +2,27 @@
 % Please edit documentation in R/series_plot.R
 \name{series_plot}
 \alias{series_plot}
-\title{Plot environmental chemistry time series}
+\alias{series_plot.data.frame}
+\alias{series_plot.env_schema}
+\title{Environmental Time Series Plot}
 \usage{
-series_plot(
+series_plot(df, ...)
+
+\method{series_plot}{data.frame}(
   df,
-  location = NULL,
-  date = NULL,
-  analyte = NULL,
-  result = NULL,
+  location,
+  date,
+  analyte,
+  result,
   unit = NULL,
   reporting_flag = NULL,
   reporting_limit = NULL,
   detection_limit = NULL,
+  ...
+)
+
+\method{series_plot}{env_schema}(
+  df,
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",
@@ -30,42 +39,48 @@ series_plot(
 )
 }
 \arguments{
-\item{df}{Environmental data frame or env_schema object.}
+\item{df}{A data frame or `env_schema` object.}
+
+\item{...}{Additional arguments passed to methods.}
 
 \item{location}{Location column.}
 
-\item{date}{Date column.}
+\item{date}{Sample date column.}
 
 \item{analyte}{Analyte column.}
 
-\item{result}{Result column.}
+\item{result}{Analytical result column.}
 
-\item{unit}{Unit column.}
+\item{unit}{Reporting unit column.}
 
 \item{reporting_flag}{Reporting qualifier column.}
 
 \item{reporting_limit}{Reporting limit column.}
 
 \item{detection_limit}{Detection limit column.}
-
-\item{scale}{Facet scales.}
-
-\item{scale_y_trans}{Y-axis transformation.}
-
-\item{trend}{Trend method.}
-
-\item{background}{Optional background date range.}
-
-\item{standards}{Logical.}
-
-\item{short_name}{Logical.}
-
-\item{pnt}{Point size.}
-
-\item{ncol}{Number of facet columns.}
-
-\item{plot_type}{"split" or "combined".}
 }
 \description{
-Plot environmental chemistry time series
+Creates time-series plots for environmental monitoring data.
 }
+\details{
+...
+}
+\section{env_schema Method}{
+
+For `env_schema` objects, `series_plot()` automatically uses
+the schema mappings and standardized analytical fields:
+
+\itemize{
+  \item `.analysis_result`
+  \item `.analysis_unit`
+  \item `.censored`
+  \item the mapped date variable returned by `date_var()`
+  \item the mapped location variable returned by `location_var()`
+  \item the mapped analyte variable returned by `analyte_var()`
+}
+
+This allows plots to be generated consistently regardless of
+the original source column names or schema mappings used by
+the input data.
+}
+

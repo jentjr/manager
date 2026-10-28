@@ -1,35 +1,79 @@
-#' Plot environmental chemistry time series
+#' Environmental Time Series Plot
 #'
-#' @param df Environmental data frame or env_schema object.
+#' Creates time-series plots for environmental monitoring data.
+#'
+#' ...
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @export
+series_plot <- function(df, ...) {
+  UseMethod("series_plot")
+}
+
+#' @rdname series_plot
 #' @param location Location column.
-#' @param date Date column.
+#' @param date Sample date column.
 #' @param analyte Analyte column.
-#' @param result Result column.
-#' @param unit Unit column.
+#' @param result Analytical result column.
+#' @param unit Reporting unit column.
 #' @param reporting_flag Reporting qualifier column.
 #' @param reporting_limit Reporting limit column.
 #' @param detection_limit Detection limit column.
-#' @param scale Facet scales.
-#' @param scale_y_trans Y-axis transformation.
-#' @param trend Trend method.
-#' @param background Optional background date range.
-#' @param standards Logical.
-#' @param short_name Logical.
-#' @param pnt Point size.
-#' @param ncol Number of facet columns.
-#' @param plot_type "split" or "combined".
-#'
 #' @export
-series_plot <- function(
+series_plot.data.frame <- function(
   df,
-  location = NULL,
-  date = NULL,
-  analyte = NULL,
-  result = NULL,
+  location,
+  date,
+  analyte,
+  result,
   unit = NULL,
   reporting_flag = NULL,
   reporting_limit = NULL,
   detection_limit = NULL,
+  ...
+) {
+  df <- env_schema(
+    df,
+    location = {{ location }},
+    date = {{ date }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    unit = {{ unit }},
+    reporting_flag = {{ reporting_flag }},
+    reporting_limit = {{ reporting_limit }},
+    detection_limit = {{ detection_limit }}
+  )
+
+  series_plot(
+    df,
+    ...
+  )
+}
+
+#' @rdname series_plot
+#'
+#' @section env_schema Method:
+#' For `env_schema` objects, `series_plot()` automatically uses
+#' the schema mappings and standardized analytical fields:
+#'
+#' \itemize{
+#'   \item `.analysis_result`
+#'   \item `.analysis_unit`
+#'   \item `.censored`
+#'   \item the mapped date variable returned by `date_var()`
+#'   \item the mapped location variable returned by `location_var()`
+#'   \item the mapped analyte variable returned by `analyte_var()`
+#' }
+#'
+#' This allows plots to be generated consistently regardless of
+#' the original source column names or schema mappings used by
+#' the input data.
+#'
+#' @export
+series_plot.env_schema <- function(
+  df,
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",
@@ -51,19 +95,19 @@ series_plot <- function(
     "combined"
   )
 ) {
-  df <- as_env_schema(
-    df,
-    location = {{ location }},
-    date = {{ date }},
-    analyte = {{ analyte }},
-    result = {{ result }},
-    unit = {{ unit }},
-    reporting_flag = {{ reporting_flag }},
-    reporting_limit = {{ reporting_limit }},
-    detection_limit = {{ detection_limit }}
-  )
-
   validate_env_schema(df)
+
+  if (nrow(df) == 0) {
+    rlang::abort(
+      "No observations available to plot."
+    )
+  }
+
+  date_col <- date_var(df)
+
+  location_col <- location_var(df)
+
+  analyte_col <- analyte_var(df)
 
   plot_type <- match.arg(plot_type)
 
@@ -112,7 +156,7 @@ series_plot <- function(
     return(
       split(
         df,
-        df$.analyte
+        df[[analyte_col]]
       ) |>
         purrr::imap(
           ~ .series_plot(
@@ -176,6 +220,12 @@ series_plot <- function(
   ncol = NULL,
   plot_type = "split"
 ) {
+  date_col <- date_var(df)
+
+  location_col <- location_var(df)
+
+  analyte_col <- analyte_var(df)
+
   trend_label <- match.arg(trend_label)
 
   if (plot_type == "combined") {
@@ -183,11 +233,11 @@ series_plot <- function(
   }
 
   df <- df |>
-    dplyr::arrange(.date) |>
+    dplyr::arrange(.data[[date_col]]) |>
     dplyr::mutate(
       non_detect = factor(
-        ifelse(
-          .censored,
+        dplyr::if_else(
+          .censored %in% TRUE,
           "Non-detect",
           "Detected"
         ),
@@ -197,15 +247,15 @@ series_plot <- function(
         )
       ),
       .trend_group = interaction(
-        .location,
-        .analyte,
+        .data[[location_col]],
+        .data[[analyte_col]],
         drop = TRUE
       )
     )
 
   units <- unique(
     stats::na.omit(
-      df$.analysis_unit
+      analysis_unit(df)
     )
   )
 
@@ -234,14 +284,14 @@ series_plot <- function(
   mapping <-
     if (plot_type == "combined") {
       ggplot2::aes(
-        x = .date,
+        x = .data[[date_col]],
         y = .analysis_result,
-        colour = .analyte,
+        colour = .data[[analyte_col]],
         group = .trend_group
       )
     } else {
       ggplot2::aes(
-        x = .date,
+        x = .data[[date_col]],
         y = .analysis_result
       )
     }
@@ -337,7 +387,7 @@ series_plot <- function(
 
   p <- p +
     ggplot2::facet_wrap(
-      ggplot2::vars(.location),
+      ggplot2::vars(!!rlang::sym(location_col)),
       scales = scale,
       ncol = ncol
     )

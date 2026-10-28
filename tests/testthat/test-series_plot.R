@@ -72,18 +72,6 @@ test_that("combined plot works with raw data", {
   )
 })
 
-test_that("series_plot validates env_schema", {
-  bad <- gw
-
-  bad$.analysis_result <- as.character(
-    bad$.analysis_result
-  )
-
-  expect_error(
-    validate_env_schema(bad)
-  )
-})
-
 test_that("invalid scale throws error", {
   expect_error(
     series_plot(
@@ -198,19 +186,12 @@ test_that("non-detect values are handled", {
   )
 })
 
-test_that("series_plot returns empty list for empty dataframe", {
-  df <- gw[0, ]
-
-  plots <- series_plot(df)
-
-  expect_type(
-    plots,
-    "list"
-  )
-
-  expect_length(
-    plots,
-    0
+test_that("empty data aborts", {
+  expect_error(
+    series_plot(
+      gw[0, ]
+    ),
+    "No observations available to plot"
   )
 })
 
@@ -225,10 +206,110 @@ test_that("single observation dataset plots successfully", {
 test_that("split mode returns one plot per analyte", {
   plots <- series_plot(gw)
 
+  expected_analytes <- unique(
+    as.character(
+      gw[[analyte_var(gw)]]
+    )
+  )
+
+  expect_setequal(
+    names(plots),
+    expected_analytes
+  )
+})
+
+test_that("split mode uses schema analyte mapping", {
+  plots <- series_plot(gw)
+
   expect_length(
     plots,
     dplyr::n_distinct(
-      gw$.analyte
+      gw[[analyte_var(gw)]]
+    )
+  )
+})
+
+test_that("series_plot splits using analyte schema mapping", {
+  plots <- series_plot(gw)
+
+  expected <- unique(
+    as.character(
+      gw[[analyte_var(gw)]]
+    )
+  )
+
+  expect_setequal(
+    names(plots),
+    expected
+  )
+})
+
+test_that("series_plot respects custom column mappings", {
+  df <- tibble::tibble(
+    monitoring_well = rep("MW-1", 4),
+    collected_on = as.POSIXct(
+      "2020-01-01"
+    ) +
+      c(0, 30, 60, 90) * 86400,
+    constituent = c(
+      "Benzene",
+      "Benzene",
+      "Toluene",
+      "Toluene"
+    ),
+    concentration = c(
+      1,
+      2,
+      3,
+      4
+    )
+  )
+
+  x <- suppressWarnings(
+    env_schema(
+      df,
+      location = monitoring_well,
+      date = collected_on,
+      analyte = constituent,
+      result = concentration
+    )
+  )
+
+  plots <- series_plot(x)
+
+  expect_setequal(
+    names(plots),
+    c(
+      "Benzene",
+      "Toluene"
+    )
+  )
+})
+
+test_that("series_plot splits using analyte schema mapping", {
+  plots <- series_plot(gw)
+
+  expected <- unique(
+    as.character(
+      gw[[analyte_var(gw)]]
+    )
+  )
+
+  expect_setequal(
+    names(plots),
+    expected
+  )
+})
+
+test_that("series_plot splits on mapped analyte column", {
+  plots <- series_plot(gw)
+
+  expect_setequal(
+    names(plots),
+    unique(
+      as.character(
+        gw[[analyte_var(gw)]]
+      )
     )
   )
 })

@@ -71,7 +71,7 @@ gw %>%
 
 Datasets in `manager` use the `env_schema` class:
 
-```r
+```{r}
 gw
 ```
 
