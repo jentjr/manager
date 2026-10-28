@@ -2,15 +2,155 @@
 % Please edit documentation in R/trends.R
 \name{trend_summary}
 \alias{trend_summary}
-\title{Summarize trends}
+\alias{trend_summary.data.frame}
+\alias{trend_summary.env_schema}
+\title{Trend Summary Statistics}
 \usage{
 trend_summary(df, ...)
+
+\method{trend_summary}{data.frame}(
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  method = "mann_kendall",
+  censored_method = "cenken",
+  conf.level = 0.95
+)
+
+\method{trend_summary}{env_schema}(
+  df,
+  method = "mann_kendall",
+  censored_method = "cenken",
+  conf.level = 0.95
+)
 }
 \arguments{
-\item{df}{Data object.}
+\item{df}{A data frame or `env_schema` object.}
 
-\item{...}{Additional arguments.}
+\item{...}{Additional arguments passed to methods.}
+
+\item{location_id}{Location column name.}
+
+\item{param_name}{Analyte column name.}
+
+\item{sample_date}{Sample date column name.}
+
+\item{analysis_result}{Analytical result column name.}
+
+\item{method}{Trend method. One of:
+\itemize{
+\item `"lm"` Linear regression
+\item `"loess"` Local regression smoother
+\item `"gam"` Generalized additive model
+\item `"mann_kendall"` Mann-Kendall trend test
+}}
+
+\item{censored_method}{Method used to handle censored data.
+One of:
+\itemize{
+\item `"cenken"` Censored Kendall trend estimator
+\item `"as_reported"` Use analytical results as reported
+}}
+
+\item{conf.level}{Confidence level used for trend estimates.}
+}
+\value{
+A tibble containing one row per trend group.
+
+The returned table includes:
+\describe{
+  \item{n}{Number of records in the group.}
+  \item{first_date}{Earliest sample date.}
+  \item{last_date}{Latest sample date.}
+  \item{date_range_days}{Monitoring period length in days.}
+  \item{date_range_years}{Monitoring period length in years.}
+  \item{sampling_frequency}{Approximate samples collected per year.}
+  \item{minimum_concentration}{Minimum analytical result.}
+  \item{median_concentration}{Median analytical result.}
+  \item{mean_concentration}{Mean analytical result.}
+  \item{maximum_concentration}{Maximum analytical result.}
+  \item{standard_deviation}{Sample standard deviation.}
+  \item{coefficient_of_variation}{Standard deviation divided by mean.}
+  \item{trend_method}{Trend estimation method used.}
+  \item{censored_method}{Censored-data handling method used.}
+  \item{slope}{Estimated trend slope.}
+  \item{p_value}{Trend test p-value.}
+  \item{conf_low}{Lower confidence limit for the slope estimate.}
+  \item{conf_high}{Upper confidence limit for the slope estimate.}
+  \item{significant}{TRUE when the trend is statistically significant
+  at the specified confidence level.}
+  \item{trend_direction}{Increasing, Decreasing, or Stable.}
+}
 }
 \description{
-Summarize trends
+Computes trend statistics and monitoring-period summary metrics
+for environmental time-series data.
+}
+\details{
+For `env_schema` objects, trend calculations are performed using
+the standardized `.analysis_result` values and schema mappings.
+This ensures trends are evaluated consistently regardless of the
+original source column names.
+
+If the input is grouped with [dplyr::group_by()], trend summaries
+are calculated within the existing groups. For ungrouped inputs,
+summaries are calculated separately for each location and analyte.
+
+
+Trend calculations require at least three non-missing observations
+and at least two distinct analytical result values. Groups that do not meet
+these requirements return summary metrics, but trend-specific fields
+such as `slope`, `p_value`, `conf_low`, and `conf_high` are returned as `NA`.
+
+Slope estimates and significance statistics are only available for
+trend methods that support formal trend estimation. For smoothing
+methods such as `"loess"` and `"gam"`, these fields are returned as `NA`.
+
+For Mann-Kendall analyses using `censored_method = "cenken"`,
+confidence limits for the Sen slope are not currently available
+and are returned as `NA`.
+
+For ungrouped `env_schema` inputs, trends are calculated by:
+
+\itemize{
+  \item the mapped location variable returned by `location_var()`
+  \item the mapped analyte variable returned by `analyte_var()`
+}
+
+Confidence intervals are available for some trend methods. When a
+confidence interval cannot be estimated, `conf_low` and `conf_high`
+are returned as `NA`.
+}
+\section{env_schema Method}{
+
+For `env_schema` objects, `trend_summary()` automatically uses
+the schema mappings and standardized analytical fields:
+
+\itemize{
+  \item `.analysis_result`
+  \item `.censored`
+  \item mapped location variable
+  \item mapped analyte variable
+}
+
+This allows trend summaries to remain consistent regardless
+of the original source column names or schema mappings used by
+the input data.
+}
+
+\examples{
+trend_summary(gw)
+
+gw |>
+  dplyr::group_by(location_id) |>
+  trend_summary()
+
+trend_summary(
+  gw,
+  method = "mann_kendall",
+  censored_method = "cenken"
+)
+
 }

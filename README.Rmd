@@ -64,7 +64,7 @@ data(gw)
 gw %>%
   filter(location_id == "MW-1",
          .analyte == "Chloride") %>%
-  summary_stats()
+  stats_summary()
 ```
 
 ## Environmental Data Standard
@@ -121,16 +121,16 @@ params <- c("Magnesium, dissolved",
             "Potassium, dissolved")
 
 gw %>%
-  filter(location %in% wells, analyte %in% params) %>%
-  series_plot(facet_var = "param_name", group_var = "location_id")
+  filter(location_id %in% wells, param_name %in% params) %>%
+  series_plot()
 ```
 
 ```{r boxplots, fig.height=6, fig.width=9, results='hide'}
 # create boxplots filled by gradient
 gw %>%
-  filter(analyte == "Chloride, total", 
-         location %in% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5", "MW-6", "MW-7", "MW-8")) %>%
-  mutate(gradient = if_else(location %in% wells, "upgradient", "downgradient")) %>% 
+  filter(param_name == "Chloride, total", 
+         location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5", "MW-6", "MW-7", "MW-8")) %>%
+  mutate(gradient = if_else(location_id %in% wells, "upgradient", "downgradient")) %>% 
   boxplot(fill = "gradient")
 ```
 

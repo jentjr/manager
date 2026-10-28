@@ -108,20 +108,6 @@ replace_missing <- function(df, analysis_result, value) {
     )
 }
 
-#' Function to convert character column of less than, or greater than
-#' symbols to logical vectors and return a data frame
-#'
-#' @param df data frame of groundwater data
-#' @export
-
-to_censored <- function(df) {
-  df %>%
-    group_by(location_id, param_name, default_unit) %>%
-    mutate(
-      left_censored = if_else(lt_measure == "<", TRUE, FALSE, missing = FALSE),
-      right_censored = if_else(lt_measure == ">", TRUE, FALSE, missing = FALSE)
-    )
-}
 
 #' Function to join columns of lt_measure and sample results
 #'
