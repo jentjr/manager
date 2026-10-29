@@ -405,7 +405,7 @@
 
     stringr::str_detect(
       x,
-      "\\btotal\\b"
+      "\\btot\\b|\\btotal\\b"
     ) ~ "total",
 
     stringr::str_detect(
