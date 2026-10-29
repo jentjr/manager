@@ -7,7 +7,7 @@
 #' The function is implemented as an S3 generic and supports both
 #' raw data frames and `env_schema` objects.
 #'
-#' @param x A data frame or `env_schema` object.
+#' @param df A data frame or `env_schema` object.
 #' @param ... Additional arguments passed to methods.
 #'
 #' @section Schema-aware plotting:
@@ -41,7 +41,7 @@
 #' )
 #'
 #' @export
-boxplot <- function(x, ...) {
+boxplot <- function(df, ...) {
   UseMethod("boxplot")
 }
 
@@ -61,7 +61,7 @@ boxplot <- function(x, ...) {
 #'
 #' @export
 boxplot.data.frame <- function(
-  x,
+  df,
   location,
   analyte,
   result,
@@ -70,8 +70,8 @@ boxplot.data.frame <- function(
   unit = NULL,
   ...
 ) {
-  x <- env_schema(
-    x,
+  df <- env_schema(
+    df,
     location = {{ location }},
     analyte = {{ analyte }},
     result = {{ result }},
@@ -80,7 +80,7 @@ boxplot.data.frame <- function(
     unit = {{ unit }}
   )
 
-  boxplot(x, ...)
+  boxplot(df, ...)
 }
 
 .boxplot_build <- function(
