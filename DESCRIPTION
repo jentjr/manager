@@ -14,7 +14,7 @@ Authors@R:
 URL: http://github.com/jentjr/manager
 BugReports: https://github.com/jentjr/manager/issues
 Depends:
-    R (>= 3.5)
+    R (>= 4.1)
 Imports:
     EnvStats,
     scales,
