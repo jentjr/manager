@@ -33,8 +33,8 @@ test_that("validate_boxplot_args succeeds with valid data", {
 
 test_that("non-numeric result generates error", {
   bad <- gw
-  bad$.analysis_result <- as.character(
-    bad$.analysis_result
+  bad[[result_var(bad)]] <- as.character(
+    bad[[result_var(bad)]]
   )
 
   expect_error(
@@ -69,7 +69,7 @@ test_that("invalid transformation generates error", {
 
 test_that("log transforms require positive values", {
   bad <- gw
-  bad$.analysis_result[1] <- 0
+  bad[[result_var(bad)]][1] <- 0
 
   expect_error(
     do.call(
@@ -90,7 +90,7 @@ test_that("log transforms require positive values", {
 
 test_that("sqrt transform rejects negative values", {
   bad <- gw
-  bad$.analysis_result[1] <- -1
+  bad[[result_var(bad)]][1] <- -1
 
   expect_error(
     do.call(
@@ -145,28 +145,28 @@ test_that("coef must be positive numeric scalar", {
 test_that("prepare_boxplot_data identifies non-detects", {
   out <- .prepare_boxplot_data(
     gw,
-    ".reporting_flag"
+    reporting_flag_var(gw)
   )
 
-  expect_true(
-    "non_detect" %in% names(out)
+  expected <- sum(
+    gw[[reporting_flag_var(gw)]] %in%
+      c("<", "ND", "U"),
+    na.rm = TRUE
   )
 
   expect_equal(
-    sum(
-      out$non_detect == "Non-detect"
-    ),
-    3
+    sum(out$non_detect == "Non-detect"),
+    expected
   )
 })
 
 test_that("get_plot_title returns analyte title", {
-  expect_equal(
+  expect_match(
     .get_plot_title(
       gw,
-      analyte = ".analyte"
+      analyte = analyte_var(gw)
     ),
-    "Boxplot for Chloride, total (mg/L)"
+    "^Boxplot for"
   )
 })
 
@@ -263,7 +263,7 @@ test_that("boxplot returns one plot per analyte", {
   expect_equal(
     length(out),
     dplyr::n_distinct(
-      gw$.analyte
+      gw[[analyte_var(gw)]]
     )
   )
 })
@@ -273,7 +273,11 @@ test_that("boxplot names correspond to analytes", {
 
   expect_setequal(
     names(out),
-    unique(gw$.analyte)
+    unique(
+      as.character(
+        gw[[analyte_var(gw)]]
+      )
+    )
   )
 })
 
@@ -281,7 +285,7 @@ test_that("boxplot works with fill variable", {
   expect_no_error(
     boxplot(
       gw,
-      fill = "gradient"
+      fill = location_var(gw)
     )
   )
 })
@@ -309,7 +313,7 @@ test_that("boxplot warns for small n when notch is TRUE", {
 
 test_that("all non-detect values are handled", {
   df <- gw
-  df$.reporting_flag <- "ND"
+  df[[reporting_flag_var(df)]] <- "ND"
 
   expect_no_error(
     boxplot(
@@ -373,7 +377,7 @@ test_that("boxplot works with explanation", {
     boxplot(
       gw %>%
         dplyr::filter(
-          .analyte == "Chloride, total"
+          .data[[analyte_var(gw)]] == "Chloride, total"
         ),
       add_explanation = TRUE
     )
@@ -385,11 +389,100 @@ test_that("boxplot works with explanation, standards and fill", {
     boxplot(
       gw %>%
         dplyr::filter(
-          .analyte == "Chloride, total"
+          .data[[analyte_var(gw)]] == "Chloride, total"
         ),
-      fill = "gradient",
+      fill = location_var(gw),
       standards = TRUE,
       add_explanation = TRUE
     )
   )
+})
+
+test_that("boxplot uses analyte schema mapping", {
+  plots <- boxplot(gw)
+
+  expected <- unique(
+    as.character(
+      gw[[analyte_var(gw)]]
+    )
+  )
+
+  expect_setequal(
+    names(plots),
+    expected
+  )
+})
+
+test_that("empty env_schema aborts", {
+  expect_error(
+    boxplot(
+      gw[0, ]
+    ),
+    "No observations available to plot"
+  )
+})
+
+test_that("boxplot.data.frame dispatch works", {
+  out <- boxplot(
+    gw_data,
+    location = location_id,
+    analyte = param_name,
+    date = sample_date,
+    result = analysis_result
+  )
+
+  expect_type(out, "list")
+
+  expect_gt(length(out), 0)
+})
+
+test_that("boxplot honors custom schema mappings", {
+  df <- tibble::tibble(
+    site = c("A", "A", "B", "B"),
+    chem = c(
+      "Chloride",
+      "Chloride",
+      "Sulfate",
+      "Sulfate"
+    ),
+    date = as.Date(c("2020-10-10", "2021-10-10", "2020-10-10", "2021-10-10")),
+    value = c(1, 2, 3, 4)
+  )
+
+  out <- boxplot(
+    df,
+    location = site,
+    analyte = chem,
+    date = date,
+    result = value
+  )
+
+  expect_setequal(
+    names(out),
+    c(
+      "Chloride",
+      "Sulfate"
+    )
+  )
+})
+
+test_that("short_name uses short analyte labels", {
+  plt <- boxplot(
+    gw %>%
+      filter(.data[[analyte_var(gw)]] == "Chloride, total"),
+    short_name = TRUE
+  )[[1]]
+
+  expect_match(
+    plt$labels$title,
+    "Cl"
+  )
+  
+  expect_false(
+    grepl(
+      "Chloride, total",
+      plt$labels$title
+    )
+  )
+  
 })

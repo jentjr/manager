@@ -1,84 +1,64 @@
-#' Boxplot of environmental data
+#' Environmental Boxplots
 #'
-#' @param x An env_schema object.
+#' Creates boxplots for environmental monitoring data. Boxplots are
+#' generated separately for each analyte and display the distribution
+#' of analytical results across sampling locations.
+#'
+#' The function is implemented as an S3 generic and supports both
+#' raw data frames and `env_schema` objects.
+#'
+#' @param x A data frame or `env_schema` object.
 #' @param ... Additional arguments passed to methods.
+#'
+#' @section Schema-aware plotting:
+#'
+#' `boxplot()` is schema-aware and relies on accessor functions rather
+#' than hard-coded column names. Users are encouraged to convert raw
+#' environmental datasets to `env_schema` objects prior to analysis
+#' and visualization.
+#'
+#' @return
+#' A named list of plots, with one plot generated for each analyte.
+#' List names correspond to the analyte values in the mapped analyte
+#' column.
+#'
+#' @examples
+#' data(gw)
+#'
+#' plots <- boxplot(gw)
+#'
+#' names(plots)
+#'
+#' plots[[1]]
+#'
+#' data(gw_data)
+#'
+#' plots <- boxplot(
+#'   gw_data,
+#'   location = location_id,
+#'   analyte = param_name,
+#'   result = analysis_result
+#' )
 #'
 #' @export
 boxplot <- function(x, ...) {
   UseMethod("boxplot")
 }
 
-
-#' @export
-boxplot.env_schema <- function(
-  x,
-  coef = 1.5,
-  scale_y_trans = "identity",
-  show_points = FALSE,
-  fill = NULL,
-  notch = FALSE,
-  plot_ci = FALSE,
-  standards = FALSE,
-  pnt = 2,
-  short_name = FALSE,
-  coord_flip = FALSE,
-  legend_title = NULL,
-  add_explanation = FALSE,
-  ...
-) {
-  validate_env_schema(x)
-
-  .validate_boxplot_args(
-    df = x,
-    fill = fill,
-    scale_y_trans = scale_y_trans,
-    coef = coef,
-    notch = notch,
-    show_points = show_points,
-    short_name = short_name,
-    coord_flip = coord_flip,
-    plot_ci = plot_ci,
-    standards = standards,
-    legend_title = legend_title,
-    add_explanation = add_explanation
-  )
-
-  explanation <- NULL
-
-  if (isTRUE(add_explanation)) {
-    explanation <- .ggplot_box_legend()
-  }
-
-  location <- location_var(x)
-  analyte <- analyte_var(x)
-  result <- result_var(x)
-  reporting_flag <- reporting_flag_var(x)
-
-  split(x, x[[analyte]]) |>
-    purrr::imap(
-      ~ .boxplot_build(
-        df = .x,
-        location = location,
-        analyte = analyte,
-        result = result,
-        reporting_flag = reporting_flag,
-        coef = coef,
-        scale_y_trans = scale_y_trans,
-        show_points = show_points,
-        fill = fill,
-        notch = notch,
-        plot_ci = plot_ci,
-        standards = standards,
-        pnt = pnt,
-        short_name = short_name,
-        coord_flip = coord_flip,
-        legend_title = legend_title,
-        add_explanation = add_explanation,
-        explanation = explanation
-      )
-    )
-}
-
+#' @rdname boxplot
+#'
+#' @param location Location column.
+#' @param analyte Analyte column.
+#' @param result Analytical result column.
+#' @param date Sample date column.
+#' @param reporting_flag Reporting qualifier column.
+#' @param unit Reporting unit column.
+#'
+#' @details
+#' For data frames, `boxplot()` first converts the input data to an
+#' `env_schema` object using the supplied column mappings and then
+#' dispatches to [boxplot.env_schema()].
+#'
 #' @export
 boxplot.data.frame <- function(
   x,
@@ -238,7 +218,141 @@ boxplot.data.frame <- function(
   )
 }
 
-#' Helper function to plot boxplots for groundwater data
+#' @rdname boxplot
+#'
+#' @param coef Length of whiskers expressed as a multiple of the
+#'   interquartile range.
+#' @param scale_y_trans Transformation applied to the y-axis.
+#' @param show_points Logical. If `TRUE`, individual observations are
+#'   displayed using either a beeswarm or jittered scatter overlay.
+#' @param fill Optional column name used to group and color boxplots.
+#'   Must be supplied as a character string naming a column in `x`.
+#' @param notch Logical. If `TRUE`, notched boxplots are produced.
+#' @param plot_ci Logical. If `TRUE`, bootstrap confidence intervals
+#'   for the mean are displayed.
+#' @param standards Logical. If `TRUE`, applicable standards are
+#'   displayed on the plot.
+#' @param pnt Point size used for observations and summaries.
+#' @param short_name Logical. If `TRUE`, titles use
+#'   `short_analyte_label()` values when available; otherwise
+#'   `analyte_label()` values are used.
+#' @param coord_flip Logical. If `TRUE`, axes are flipped.
+#' @param legend_title Optional legend title.
+#' @param add_explanation Logical. If `TRUE`, an explanatory panel
+#'   describing boxplot components is added.
+#'
+#' @section env_schema Method:
+#'
+#' Analyte grouping is determined by the mapped analyte variable
+#' returned by `analyte_var()`, not by internal standardized
+#' analyte metadata columns.
+#'
+#' For `env_schema` objects, `boxplot()` automatically uses the
+#' schema mappings and standardized analytical fields:
+#'
+#' \itemize{
+#'   \item the mapped location variable returned by `location_var()`
+#'   \item the mapped analyte variable returned by `analyte_var()`
+#'   \item the mapped result variable returned by `result_var()`
+#'   \item the mapped reporting flag variable returned by
+#'     `reporting_flag_var()`
+#'   \item `analysis_unit()` for axis labeling
+#'   \item `analyte_label()` and `short_analyte_label()` for titles
+#' }
+#'
+#' This allows boxplots to be generated consistently regardless of
+#' the original source column names used by the underlying dataset.
+#'
+#' @returns
+#' A named list of plot objects. One boxplot is produced for each
+#' analyte in the mapped analyte column.
+#'
+#'
+#' @export
+boxplot.env_schema <- function(
+  x,
+  coef = 1.5,
+  scale_y_trans = "identity",
+  show_points = FALSE,
+  fill = NULL,
+  notch = FALSE,
+  plot_ci = FALSE,
+  standards = FALSE,
+  pnt = 2,
+  short_name = FALSE,
+  coord_flip = FALSE,
+  legend_title = NULL,
+  add_explanation = FALSE,
+  ...
+) {
+  validate_env_schema(x)
+
+  if (nrow(x) == 0) {
+    rlang::abort(
+      "No observations available to plot."
+    )
+  }
+
+  .validate_boxplot_args(
+    df = x,
+    fill = fill,
+    scale_y_trans = scale_y_trans,
+    coef = coef,
+    notch = notch,
+    show_points = show_points,
+    short_name = short_name,
+    coord_flip = coord_flip,
+    plot_ci = plot_ci,
+    standards = standards,
+    legend_title = legend_title,
+    add_explanation = add_explanation
+  )
+
+  explanation <- NULL
+
+  if (isTRUE(add_explanation)) {
+    explanation <- .ggplot_box_legend()
+  }
+
+  location <- location_var(x)
+  analyte <- analyte_var(x)
+  result <- result_var(x)
+  reporting_flag <- reporting_flag_var(x)
+
+  split(x, as.character(x[[analyte]])) |>
+    purrr::imap(
+      ~ .boxplot_build(
+        df = .x,
+        location = location,
+        analyte = analyte,
+        result = result,
+        reporting_flag = reporting_flag,
+        coef = coef,
+        scale_y_trans = scale_y_trans,
+        show_points = show_points,
+        fill = fill,
+        notch = notch,
+        plot_ci = plot_ci,
+        standards = standards,
+        pnt = pnt,
+        short_name = short_name,
+        coord_flip = coord_flip,
+        legend_title = legend_title,
+        add_explanation = add_explanation,
+        explanation = explanation
+      )
+    )
+}
+
+#' Prepare boxplot plotting data
+#'
+#' Creates the derived `non_detect` variable used to distinguish
+#' detected and non-detect observations in point overlays.
+#'
+#' @param df An env_schema subset.
+#' @param reporting_flag Reporting flag column name.
+#'
+#' @return A data frame with a `non_detect` factor column.
 #'
 #' @noRd
 .prepare_boxplot_data <- function(
@@ -424,6 +538,10 @@ boxplot.data.frame <- function(
     return(plot)
   }
 
+  if (!"non_detect" %in% names(plot$data)) {
+    return(plot)
+  }
+
   if (!any(!is.na(plot$data$non_detect))) {
     return(plot)
   }
@@ -458,7 +576,11 @@ boxplot.data.frame <- function(
 
   plot
 }
-#' Helper function to plot boxplots for groundwater data
+
+#' Construct boxplot title
+#'
+#' Uses `short_analyte_label` when available and falls back to `analyte_label`
+#' column when metadata are unavailable.
 #'
 #' @noRd
 .get_plot_title <- function(
@@ -466,30 +588,38 @@ boxplot.data.frame <- function(
   analyte,
   short_name = FALSE
 ) {
-  name <- dplyr::first(df[[analyte]])
+  fallback <- dplyr::first(
+    df[[analyte]]
+  )
 
-  if (
-    isTRUE(short_name) &&
-      ".short_name" %in% names(df)
-  ) {
-    name <- dplyr::first(df$.short_name)
+  labels <- if (short_name) {
+    short_analyte_label(df)
+  } else {
+    analyte_label(df)
   }
 
-  unit <- .get_unit_label(df)
+  labels <- stats::na.omit(labels)
 
-  if (!identical(unit, "")) {
-    name <- paste0(name, " (", unit, ")")
-  }
+  name <- dplyr::first(
+    labels,
+    default = fallback
+  )
 
   paste("Boxplot for", name)
 }
-
-#' Helper function to plot boxplots for groundwater data
+#' Extract analysis unit label
+#'
+#' Returns the first non-missing analytical unit associated with the
+#' dataset.
 #'
 #' @noRd
 .get_unit_label <- function(df) {
-  if (".analysis_unit" %in% names(df) && !all(is.na(df$.analysis_unit))) {
-    return(df$.analysis_unit[[1]])
+  units <- stats::na.omit(
+    analysis_unit(df)
+  )
+
+  if (length(units) > 0) {
+    return(units[[1]])
   }
 
   ""
@@ -850,10 +980,10 @@ boxplot.data.frame <- function(
 
   if (
     isTRUE(short_name) &&
-      !".short_name" %in% names(df)
+      all(is.na(short_analyte_label(df)))
   ) {
     rlang::warn(
-      "short_name column not found."
+      "short analyte labels not found."
     )
   }
 

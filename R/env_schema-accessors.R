@@ -422,6 +422,24 @@ usable <- function(x) {
   UseMethod("usable")
 }
 
+#' Return analyte labels
+#'
+#' @param x Object.
+#'
+#' @export
+analyte_label <- function(x) {
+  UseMethod("analyte_label")
+}
+
+#' Return short analyte labels
+#'
+#' @param x Object.
+#'
+#' @export
+short_analyte_label <- function(x) {
+  UseMethod("short_analyte_label")
+}
+
 # -------------------------------------------------------------------------
 # env_schema source-column methods
 # -------------------------------------------------------------------------
@@ -566,6 +584,16 @@ usable.env_schema <- function(x) {
   x$.usable
 }
 
+#' @export
+analyte_label.env_schema <- function(x) {
+  x$.analyte_label
+}
+
+#' @export
+short_analyte_label.env_schema <- function(x) {
+  x$.short_analyte_label
+}
+
 # -------------------------------------------------------------------------
 # Default methods
 # -------------------------------------------------------------------------
@@ -682,4 +710,20 @@ rejected.default <- function(x) {
 #' @export
 usable.default <- function(x) {
   .accessor_not_implemented("usable", x)
+}
+
+#' @export
+analyte_label.default <- function(x) {
+  .accessor_not_implemented(
+    "analyte_label",
+    x
+  )
+}
+
+#' @export
+short_analyte_label.default <- function(x) {
+  .accessor_not_implemented(
+    "short_analyte_label",
+    x
+  )
 }

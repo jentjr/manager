@@ -2,15 +2,159 @@
 % Please edit documentation in R/boxplot.R
 \name{boxplot}
 \alias{boxplot}
-\title{Boxplot of environmental data}
+\alias{boxplot.data.frame}
+\alias{boxplot.env_schema}
+\title{Environmental Boxplots}
 \usage{
 boxplot(x, ...)
+
+\method{boxplot}{data.frame}(
+  x,
+  location,
+  analyte,
+  result,
+  date = NULL,
+  reporting_flag = NULL,
+  unit = NULL,
+  ...
+)
+
+\method{boxplot}{env_schema}(
+  x,
+  coef = 1.5,
+  scale_y_trans = "identity",
+  show_points = FALSE,
+  fill = NULL,
+  notch = FALSE,
+  plot_ci = FALSE,
+  standards = FALSE,
+  pnt = 2,
+  short_name = FALSE,
+  coord_flip = FALSE,
+  legend_title = NULL,
+  add_explanation = FALSE,
+  ...
+)
 }
 \arguments{
-\item{x}{An env_schema object.}
+\item{x}{A data frame or `env_schema` object.}
 
 \item{...}{Additional arguments passed to methods.}
+
+\item{location}{Location column.}
+
+\item{analyte}{Analyte column.}
+
+\item{result}{Analytical result column.}
+
+\item{date}{Sample date column.}
+
+\item{reporting_flag}{Reporting qualifier column.}
+
+\item{unit}{Reporting unit column.}
+
+\item{coef}{Length of whiskers expressed as a multiple of the
+interquartile range.}
+
+\item{scale_y_trans}{Transformation applied to the y-axis.}
+
+\item{show_points}{Logical. If `TRUE`, individual observations are
+displayed using either a beeswarm or jittered scatter overlay.}
+
+\item{fill}{Optional column name used to group and color boxplots.
+Must be supplied as a character string naming a column in `x`.}
+
+\item{notch}{Logical. If `TRUE`, notched boxplots are produced.}
+
+\item{plot_ci}{Logical. If `TRUE`, bootstrap confidence intervals
+for the mean are displayed.}
+
+\item{standards}{Logical. If `TRUE`, applicable standards are
+displayed on the plot.}
+
+\item{pnt}{Point size used for observations and summaries.}
+
+\item{short_name}{Logical. If `TRUE`, titles use
+`short_analyte_label()` values when available; otherwise
+`analyte_label()` values are used.}
+
+\item{coord_flip}{Logical. If `TRUE`, axes are flipped.}
+
+\item{legend_title}{Optional legend title.}
+
+\item{add_explanation}{Logical. If `TRUE`, an explanatory panel
+describing boxplot components is added.}
+}
+\value{
+A named list of plots, with one plot generated for each analyte.
+List names correspond to the analyte values in the mapped analyte
+column.
+
+A named list of plot objects. One boxplot is produced for each
+analyte in the mapped analyte column.
 }
 \description{
-Boxplot of environmental data
+Creates boxplots for environmental monitoring data. Boxplots are
+generated separately for each analyte and display the distribution
+of analytical results across sampling locations.
+}
+\details{
+The function is implemented as an S3 generic and supports both
+raw data frames and `env_schema` objects.
+
+For data frames, `boxplot()` first converts the input data to an
+`env_schema` object using the supplied column mappings and then
+dispatches to [boxplot.env_schema()].
+}
+\section{Schema-aware plotting}{
+
+
+`boxplot()` is schema-aware and relies on accessor functions rather
+than hard-coded column names. Users are encouraged to convert raw
+environmental datasets to `env_schema` objects prior to analysis
+and visualization.
+}
+
+\section{env_schema Method}{
+
+
+Analyte grouping is determined by the mapped analyte variable
+returned by `analyte_var()`, not by internal standardized
+analyte metadata columns.
+
+For `env_schema` objects, `boxplot()` automatically uses the
+schema mappings and standardized analytical fields:
+
+\itemize{
+  \item the mapped location variable returned by `location_var()`
+  \item the mapped analyte variable returned by `analyte_var()`
+  \item the mapped result variable returned by `result_var()`
+  \item the mapped reporting flag variable returned by
+    `reporting_flag_var()`
+  \item `analysis_unit()` for axis labeling
+  \item `analyte_label()` and `short_analyte_label()` for titles
+}
+
+This allows boxplots to be generated consistently regardless of
+the original source column names used by the underlying dataset.
+}
+
+\examples{
+data(gw)
+
+plots <- boxplot(gw)
+
+names(plots)
+
+plots[[1]]
+
+data(gw_data)
+
+plots <- boxplot(
+  gw_data,
+  location = location_id,
+  analyte = param_name,
+  result = analysis_result
+)
+
 }
