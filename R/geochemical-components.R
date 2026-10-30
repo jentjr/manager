@@ -30,12 +30,30 @@
 .create_geochemical_components <- function(
   chemistry_df,
   components,
-  value_col = "analysis_result_meq"
+  value_col = NULL
 ) {
+  if (is.null(value_col)) {
+    value_col <- analysis_result_meq_var(
+      chemistry_df
+    )
+  }
+
+  location_col <- location_var(
+    chemistry_df
+  )
+
+  date_col <- date_var(
+    chemistry_df
+  )
+
+  analyte_id_col <- analyte_id_var(
+    chemistry_df
+  )
+
   keys <- chemistry_df %>%
     dplyr::distinct(
-      location_id,
-      sample_date
+      .data[[location_col]],
+      .data[[date_col]]
     )
 
   component_dfs <- purrr::imap(
@@ -43,11 +61,11 @@
     function(analytes, component_name) {
       chemistry_df %>%
         dplyr::filter(
-          analyte %in% analytes
+          .data[[analyte_id_col]] %in% analytes
         ) %>%
         dplyr::group_by(
-          location_id,
-          sample_date
+          .data[[location_col]],
+          .data[[date_col]]
         ) %>%
         dplyr::summarise(
           value = {
@@ -77,8 +95,8 @@
       dplyr::left_join(
         component_df,
         by = c(
-          "location_id",
-          "sample_date"
+          location_col,
+          date_col
         )
       )
   }

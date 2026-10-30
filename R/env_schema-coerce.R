@@ -107,11 +107,7 @@ restore_env_schema <- function(
     ),
 
     analyte_metadata = intersect(
-      attr(
-        to,
-        "analyte_metadata",
-        exact = TRUE
-      ),
+      known_analyte_metadata(),
       metadata_names
     ),
 
@@ -220,6 +216,9 @@ new_env_schema <- function(
       ".molecular_weight",
       ".meq_factor",
 
+      ".analysis_result_meq",
+      ".analysis_unit_meq",
+
       ".is_major_ion",
       ".is_trace_metal",
       ".is_radionuclide",
@@ -301,4 +300,69 @@ new_env_schema <- function(
       class(x)
     )
   )
+}
+
+#' @keywords internal
+#' @noRd
+known_analyte_metadata <- function() {
+  c(
+    ".source_analyte",
+    ".normalized_input",
+    ".analyte",
+    ".analyte_id",
+    ".normalized_analyte",
+    ".fraction",
+    ".is_known_analyte",
+    ".short_name",
+    ".casrn",
+    ".analyte_group",
+    ".subcategory",
+    ".regulatory_class",
+    ".std_unit",
+    ".ion_class",
+    ".charge",
+    ".molecular_weight",
+    ".meq_factor",
+    ".analysis_result_meq",
+    ".analysis_unit_meq",
+    ".is_major_ion",
+    ".is_trace_metal",
+    ".is_radionuclide",
+    ".is_general_chemistry",
+    ".is_field_parameter",
+    ".analyte_label",
+    ".short_analyte_label"
+  )
+}
+
+#' @keywords internal
+#' @noRd
+.restore_geochemical_schema <- function(
+  x,
+  template
+) {
+  out <- restore_env_schema(
+    x = x,
+    to = template,
+    validate = FALSE
+  )
+
+  mapping <- attr(
+    out,
+    "env_mapping",
+    exact = TRUE
+  )
+
+  mapping$analyte <- "analyte"
+  mapping$result <- ".analysis_result"
+  mapping$unit <- ".analysis_unit"
+
+  attr(
+    out,
+    "env_mapping"
+  ) <- mapping
+
+  validate_env_schema(out)
+
+  out
 }

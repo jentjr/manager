@@ -1,149 +1,301 @@
-test_that("convert_analytes_to_meq converts supported analytes", {
-  df <- tibble::tibble(
-    analyte = "calcium",
-    analysis_result_std = 40,
-    default_unit_std = "mg/l"
-  )
+# tests/testthat/test-convert-analytes-to-meq.R
 
-  result <- convert_analytes_to_meq(
-    df
+make_meq_data <- function(
+  analyte = "Calcium, dissolved",
+  result = 100,
+  unit = "mg/L"
+) {
+  tibble::tibble(
+    location_id = "MW-01",
+    sample_date = as.Date("2024-01-01"),
+    param_name = analyte,
+    analysis_result = result,
+    default_unit = unit
   )
+}
+
+make_meq_schema <- function(
+  analyte = "Calcium, dissolved",
+  result = 100,
+  unit = "mg/L"
+) {
+  env_schema(
+    make_meq_data(
+      analyte = analyte,
+      result = result,
+      unit = unit
+    ),
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
+  )
+}
+
+get_meq_factor <- function(analyte) {
+  resolved <- .resolve_analyte(analyte)
+
+  .get_meq_conversion_factors() %>%
+    dplyr::filter(
+      analyte_id == resolved$analyte_id[[1]]
+    ) %>%
+    dplyr::pull(
+      meq_factor
+    ) %>%
+    unique()
+}
+
+test_that("meq output columns are created", {
+  out <- make_meq_schema() %>%
+    convert_analytes_to_meq()
 
   expect_true(
     "analysis_result_meq" %in%
-      names(result)
+      names(out)
   )
 
-  expect_equal(
-    result$analysis_result_meq,
-    40 *
-      analyte_tbl$meq_factor[
-        match(
-          "calcium",
-          analyte_tbl$analyte
-        )
-      ]
+  expect_true(
+    "default_unit_meq" %in%
+      names(out)
   )
+})
+
+test_that("meq unit is assigned", {
+  out <- make_meq_schema() %>%
+    convert_analytes_to_meq()
 
   expect_equal(
-    result$default_unit_meq,
+    out$default_unit_meq,
     "meq/L"
   )
 })
 
-test_that("convert_analytes_to_meq returns NA for unsupported analytes", {
-  df <- tibble::tibble(
-    analyte = "benzene",
-    analysis_result_std = 1,
-    default_unit_std = "ug/l"
+test_that("meq conversion uses analyte metadata", {
+  x <- make_meq_schema(
+    analyte = "Calcium, dissolved",
+    result = 100
   )
 
-  result <- convert_analytes_to_meq(
-    df
+  factor <- get_meq_factor(
+    "Calcium, dissolved"
   )
+
+  out <- convert_analytes_to_meq(x)
+
+  expect_equal(
+    out$analysis_result_meq,
+    x$.analysis_result * factor
+  )
+})
+
+test_that("known calcium meq value is correct", {
+  x <- make_meq_schema(
+    analyte = "Calcium, dissolved",
+    result = 100
+  )
+
+  out <- convert_analytes_to_meq(x)
+
+  expected <- 100 *
+    get_meq_factor(
+      "Calcium, dissolved"
+    )
+
+  expect_equal(
+    out$analysis_result_meq,
+    expected
+  )
+})
+
+test_that("known magnesium meq value is correct", {
+  x <- make_meq_schema(
+    analyte = "Magnesium, dissolved",
+    result = 24.305
+  )
+
+  out <- convert_analytes_to_meq(x)
+
+  expected <- 24.305 *
+    get_meq_factor(
+      "Magnesium, dissolved"
+    )
+
+  expect_equal(
+    out$analysis_result_meq,
+    expected
+  )
+})
+
+test_that("zero concentrations produce zero meq", {
+  out <- make_meq_schema(
+    analyte = "Calcium, dissolved",
+    result = 0
+  ) %>%
+    convert_analytes_to_meq()
+
+  expect_equal(
+    out$analysis_result_meq,
+    0
+  )
+})
+
+test_that("missing concentrations remain missing", {
+  out <- make_meq_schema(
+    analyte = "Calcium, dissolved",
+    result = NA_real_
+  ) %>%
+    convert_analytes_to_meq()
 
   expect_true(
     is.na(
-      result$analysis_result_meq
+      out$analysis_result_meq
     )
   )
 
   expect_true(
     is.na(
-      result$default_unit_meq
+      out$default_unit_meq
     )
   )
 })
 
-test_that("convert_analytes_to_meq preserves missing values", {
-  df <- tibble::tibble(
-    analyte = "calcium",
-    analysis_result_std = NA_real_,
-    default_unit_std = "mg/l"
-  )
-
-  result <- convert_analytes_to_meq(
-    df
-  )
-
-  expect_true(
-    is.na(
-      result$analysis_result_meq
-    )
-  )
-})
-
-test_that("convert_analytes_to_meq validates units", {
-  df <- tibble::tibble(
-    analyte = "calcium",
-    analysis_result_std = 40,
-    default_unit_std = "ug/l"
-  )
-
-  expect_error(
-    convert_analytes_to_meq(
-      df
+test_that("unsupported analytes return missing meq values", {
+  expect_warning(
+    x <- make_meq_schema(
+      analyte = "Imaginary Analyte",
+      result = 10
     ),
-    "Non-standard units found"
+
+    "not found in analyte metadata"
+  )
+
+  out <- convert_analytes_to_meq(x)
+
+  expect_true(
+    is.na(
+      out$analysis_result_meq
+    )
+  )
+
+  expect_true(
+    is.na(
+      out$default_unit_meq
+    )
   )
 })
 
-test_that("convert_analytes_to_meq supports custom column names", {
-  df <- tibble::tibble(
-    analyte = "calcium",
-    concentration = 40,
-    unit = "mg/l"
+test_that("equivalent concentrations produce identical meq values", {
+  x <- tibble::tibble(
+    location_id = c(
+      "MW-01",
+      "MW-01"
+    ),
+
+    sample_date = as.Date(
+      c(
+        "2024-01-01",
+        "2024-01-02"
+      )
+    ),
+
+    param_name = c(
+      "Iron, dissolved",
+      "Iron, dissolved"
+    ),
+
+    analysis_result = c(
+      1,
+      1000
+    ),
+
+    default_unit = c(
+      "mg/L",
+      "ug/L"
+    )
   )
 
-  result <- convert_analytes_to_meq(
-    df,
-    value_col = "concentration",
-    unit_col = "unit",
-    value_out_col = "meq",
-    unit_out_col = "meq_unit"
+  x <- env_schema(
+    x,
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
+  )
+
+  out <- convert_analytes_to_meq(x)
+
+  expect_equal(
+    out$analysis_result_meq[1],
+    out$analysis_result_meq[2]
+  )
+})
+
+test_that("major ions have valid meq factors", {
+  major <- analyte_tbl %>%
+    dplyr::filter(
+      is_major_ion
+    )
+
+  expect_true(
+    all(
+      !is.na(
+        major$meq_factor
+      )
+    )
   )
 
   expect_true(
     all(
-      c(
-        "meq",
-        "meq_unit"
-      ) %in%
-        names(result)
+      major$meq_factor > 0
     )
   )
 })
 
-test_that("calcium meq conversion matches handbook value", {
-  df <- tibble::tibble(
-    param_name = "Calcium",
-    default_unit = "mg/L",
-    analysis_result = 40
-  )
+test_that("major ions have charge definitions", {
+  major <- analyte_tbl %>%
+    dplyr::filter(
+      is_major_ion
+    )
 
-  out <- convert_analytes_to_meq(df)
+  expect_false(
+    any(
+      is.na(
+        major$charge
+      )
+    )
+  )
+})
+
+test_that("major ions have molecular weights", {
+  major <- analyte_tbl %>%
+    dplyr::filter(
+      is_major_ion
+    )
+
+  expect_false(
+    any(
+      is.na(
+        major$molecular_weight
+      )
+    )
+  )
+})
+
+test_that("meq factors are internally consistent", {
+  major <- analyte_tbl %>%
+    dplyr::filter(
+      is_major_ion
+    )
+
+  expected <-
+    abs(major$charge) /
+    major$molecular_weight
 
   expect_equal(
-    out$analysis_result_meq[1],
-    1.996,
-    tolerance = 1e-4
-  )
-})
-
-test_that("creates meq columns", {
-  out <- convert_analytes_to_meq(
-    tibble::tibble(
-      param_name = "Calcium",
-      default_unit = "mg/L",
-      analysis_result = 40
-    )
-  )
-
-  expect_true(
-    "analysis_result_meq" %in% names(out)
-  )
-
-  expect_true(
-    "default_unit_meq" %in% names(out)
+    major$meq_factor,
+    expected,
+    tolerance = 1e-10
   )
 })

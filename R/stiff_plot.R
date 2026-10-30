@@ -1,3 +1,30 @@
+#' @export
+stiff_plot <- function(x, ...) {
+  UseMethod("piper_plot")
+}
+
+#' @export
+stiff_plot.data.frame <- function(
+  x,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
+) {
+  x <- env_schema(
+    x,
+    location = {{ location }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    unit = {{ unit }},
+    date = {{ date }}
+  )
+
+  stiff_plot(x, ...)
+}
+
 #' @title Stiff Diagram
 #'
 #' @description plots a stiff diagram
@@ -47,7 +74,7 @@
 #'
 #' @export
 
-stiff_plot <- function(
+stiff_plot.env_schema <- function(
   data,
   location_id = "location_id",
   sample_date = "sample_date",

@@ -1,3 +1,31 @@
+#' @export
+schoeller_plot <- function(x, ...) {
+  UseMethod("schoeller_plot")
+}
+
+#' @export
+schoeller_plot.data.frame <- function(
+  x,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
+) {
+  x <- env_schema(
+    x,
+    location = {{ location }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    unit = {{ unit }},
+    date = {{ date }}
+  )
+
+  schoeller_plot(x, ...)
+}
+
+
 #' Schoeller Diagram
 #'
 #' Creates a Schoeller diagram for comparing major ion chemistry among
@@ -139,7 +167,7 @@
 #' )
 #'
 #' @export
-schoeller_plot <- function(
+schoeller_plot.env_schmema <- function(
   df,
   location_id = "location_id",
   sample_date = "sample_date",

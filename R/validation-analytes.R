@@ -486,8 +486,10 @@ validate_analyte_tbl <- function(x) {
 #' Unsupported analytes are determined using the
 #' `is_known_analyte` flag generated during analyte resolution.
 #'
-#' When unsupported analytes are present, a warning is issued that
-#' includes the first several unmatched analyte names.
+#' When unsupported analytes are present, a warning is issued
+#' describing the affected analytes and any analyte-dependent
+#' functionality that will be skipped, including metadata
+#' enrichment and standard-unit conversion.
 #'
 #' This function is intended for quality assurance during data import
 #' and schema construction workflows.
@@ -537,13 +539,17 @@ validate_analyte_tbl <- function(x) {
   if (nrow(unsupported) > 0) {
     cli::cli_warn(
       c(
-        "{nrow(unsupported)} unsupported analytes detected.",
+        "{nrow(unsupported)} analytes were not found in analyte metadata.",
         "i" = paste(
           utils::head(
             unsupported[[source_col]],
             10
           ),
           collapse = ", "
+        ),
+        "i" = paste(
+          "Analyte metadata, standard-unit conversion,",
+          "and analyte-specific calculations were skipped."
         )
       )
     )

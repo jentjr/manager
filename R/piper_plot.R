@@ -1,3 +1,30 @@
+#' @export
+piper_plot <- function(x, ...) {
+  UseMethod("piper_plot")
+}
+
+#' @export
+piper_plot.data.frame <- function(
+  x,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
+) {
+  x <- env_schema(
+    x,
+    location = {{ location }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    unit = {{ unit }},
+    date = {{ date }}
+  )
+
+  piper_plot(x, ...)
+}
+
 #' Create a Piper diagram for hydrochemical facies interpretation
 #'
 #' Creates a Piper diagram from major ion chemistry reported in a tidy
@@ -272,7 +299,7 @@
 #'
 #' @export
 
-piper_plot <- function(
+piper_plot.env_schema <- function(
   df,
   location_id = "location_id",
   sample_date = "sample_date",

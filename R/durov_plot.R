@@ -1,3 +1,31 @@
+#' @export
+durov_plot <- function(x, ...) {
+  UseMethod("durov_plot")
+}
+
+#' @export
+durov_plot.data.frame <- function(
+  x,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
+) {
+  x <- env_schema(
+    x,
+    location = {{ location }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    unit = {{ unit }},
+    date = {{ date }}
+  )
+
+  durov_plot(x, ...)
+}
+
+
 #' Durov Diagram
 #'
 #' Creates a Durov diagram for interpretation of hydrochemical facies,
@@ -17,7 +45,7 @@
 #' A ggplot object.
 #'
 #' @export
-durov_plot <- function(
+durov_plot.env_schema <- function(
   df,
   location_id = "location_id",
   sample_date = "sample_date",

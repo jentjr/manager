@@ -9,19 +9,28 @@
   df,
   analytes,
   additional_analytes = NULL,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
-  default_unit = "default_unit",
   analyte_matching = c(
-    "normalized",
+    "exact",
     "strict",
-    "exact"
+    "normalized"
   )
 ) {
   analyte_matching <- rlang::arg_match(
     analyte_matching
+  )
+
+  if (!inherits(df, "env_schema")) {
+    rlang::abort(
+      "df must inherit from 'env_schema'."
+    )
+  }
+
+  validate_env_schema(df)
+
+  location_col <- location_var(df)
+  date_col <- date_var(df)
+  analyte_id_col <- analyte_id_var(
+    df
   )
 
   analytes <- unique(
@@ -36,41 +45,53 @@
     analyte_matching
   )
 
-  df %>%
-    standardize_units(
-      analyte_col = param_name,
-      value_col = analysis_result,
-      unit_col = default_unit
-    ) %>%
-    .add_canonical_analyte(
-      analyte_col = param_name,
-      analyte_matching = analyte_matching
-    ) %>%
+  display_analyte <- analysis_analyte(
+    df,
+    analyte_matching = analyte_matching
+  )
+
+  canonical_id <- analyte_id(df)
+
+  out <- df |>
+    dplyr::mutate(
+      analyte = display_analyte,
+      !!analyte_id_col := canonical_id
+    ) |>
     dplyr::filter(
       analyte %in% resolved_analytes
-    ) %>%
+    ) |>
     dplyr::group_by(
-      .data[[location_id]],
-      .data[[sample_date]],
-      analyte
-    ) %>%
+      .data[[location_col]],
+      .data[[date_col]],
+      analyte,
+      .data[[analyte_id_col]]
+    ) |>
     dplyr::summarise(
-      analysis_result_std = mean(
-        analysis_result_std,
+      .original_lab_result = mean(
+        .original_lab_result,
         na.rm = TRUE
       ),
-      default_unit_std = dplyr::first(
-        default_unit_std
+
+      .original_lab_unit = dplyr::first(
+        .original_lab_unit
       ),
+
+      .analysis_result = mean(
+        .analysis_result,
+        na.rm = TRUE
+      ),
+
+      .analysis_unit = dplyr::first(
+        .analysis_unit
+      ),
+
       .groups = "drop"
-    ) %>%
-    dplyr::transmute(
-      location_id = .data[[location_id]],
-      sample_date = .data[[sample_date]],
-      analyte,
-      analysis_result_std,
-      default_unit_std
     )
+
+  .restore_geochemical_schema(
+    out,
+    df
+  )
 }
 
 #' Prepare major ion chemistry
@@ -87,32 +108,27 @@
     "Sulfate, total",
     "Alkalinity, total (lab)"
   ),
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
-  default_unit = "default_unit",
   analyte_matching = c(
-    "normalized",
+    "exact",
     "strict",
-    "exact"
+    "normalized"
   )
 ) {
   analyte_matching <- rlang::arg_match(
     analyte_matching
   )
 
-  .prepare_geochemical_data(
+  out <- .prepare_geochemical_data(
     df = df,
     analytes = analytes,
-    location_id = location_id,
-    sample_date = sample_date,
-    param_name = param_name,
-    analysis_result = analysis_result,
-    default_unit = default_unit,
     analyte_matching = analyte_matching
-  ) %>%
+  ) |>
     convert_analytes_to_meq()
+
+  .restore_geochemical_schema(
+    out,
+    df
+  )
 }
 
 #' Resolve requested analytes
@@ -121,20 +137,14 @@
 .resolve_geochemical_analytes <- function(
   analytes,
   analyte_matching = c(
-    "normalized",
+    "exact",
     "strict",
-    "exact"
+    "normalized"
   )
 ) {
-  analyte_matching <- rlang::arg_match(
-    analyte_matching
-  )
-
   .resolve_analyte_name(
     analytes,
     analyte_matching = analyte_matching
-  ) %>%
-    stats::na.omit() %>%
-    as.character() %>%
+  ) |>
     unique()
 }

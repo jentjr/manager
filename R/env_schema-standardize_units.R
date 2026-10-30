@@ -1,3 +1,234 @@
+#' Standardize env_schema analytical results
+#'
+#' Converts .analysis_result values to analyte-specific
+#' standard reporting units and updates .analysis_unit.
+#'
+#' Original laboratory values are preserved in
+#' .original_lab_result and .original_lab_unit.
+#'
+#' @param df Data frame containing schema analyte metadata.
+#'
+#' @returns Data frame.
+#'
+#' @keywords internal
+.standardize_schema_results <- function(df) {
+  if (!".std_unit" %in% names(df)) {
+    return(df)
+  }
+
+  required_cols <- c(
+    ".analysis_result",
+    ".analysis_unit",
+    ".std_unit"
+  )
+
+  .validate_required_cols(
+    df,
+    required_cols
+  )
+
+  df$.analysis_unit <- .normalize_unit(
+    df$.analysis_unit
+  )
+
+  df$.std_unit <- .normalize_unit(
+    df$.std_unit
+  )
+
+  conversion_groups <- df |>
+    dplyr::filter(
+      !is.na(.std_unit)
+    ) |>
+    dplyr::distinct(
+      .analysis_unit,
+      .std_unit
+    )
+
+  for (i in seq_len(nrow(conversion_groups))) {
+    from_unit <- conversion_groups$.analysis_unit[i]
+    to_unit <- conversion_groups$.std_unit[i]
+
+    if (identical(from_unit, to_unit)) {
+      next
+    }
+
+    if (
+      is.na(from_unit) ||
+        is.na(to_unit)
+    ) {
+      next
+    }
+
+    idx <-
+      !is.na(df$.analysis_unit) &
+      !is.na(df$.std_unit) &
+      df$.analysis_unit == from_unit &
+      df$.std_unit == to_unit
+
+    if (!any(idx)) {
+      next
+    }
+
+    df$.analysis_result[idx] <-
+      .safe_convert_units(
+        value = df$.analysis_result[idx],
+        from_unit = from_unit,
+        to_unit = to_unit
+      )
+  }
+
+  df$.analysis_unit <- dplyr::coalesce(
+    df$.std_unit,
+    df$.analysis_unit
+  )
+
+  df
+}
+
+#' Convert standards to reporting units
+#'
+#' Converts regulatory or screening standard values into the same
+#' reporting units used by analytical results.
+#'
+#' @param df Data frame containing standard values and units.
+#'
+#' @param data_unit_col Character string identifying the reporting
+#'   unit column associated with analytical results. Default is
+#'   `"default_unit"`.
+#'
+#' @return
+#' A data frame with standard values converted to match the
+#' reporting units contained in `data_unit_col`.
+#'
+#' @details
+#' Standard values are converted from `standard_unit` to the unit
+#' specified in `data_unit_col`.
+#'
+#' Successful conversions update both:
+#'
+#' \describe{
+#'   \item{standard_value}{
+#'     Standard concentration converted to the reporting unit.
+#'   }
+#'   \item{standard_unit}{
+#'     Updated to match the reporting unit.
+#'   }
+#' }
+#'
+#' Invalid unit definitions are identified using
+#' [`.is_valid_unit()`] and reported through warnings.
+#'
+#' Unit conversion is performed row-wise because individual rows
+#' may require different source and destination unit pairs.
+#'
+#' Conversion failures do not stop execution and instead return
+#' `NA_real_` for affected standards.
+#'
+#' @section Validation:
+#'
+#' The function validates:
+#'
+#' \itemize{
+#'   \item required columns exist;
+#'   \item source and destination units are valid;
+#'   \item standard values are non-missing before conversion.
+#' }
+#'
+#' @noRd
+.convert_standard_units <- function(
+  df,
+  data_unit_col = ".analysis_unit"
+) {
+  .validate_required_cols(
+    df,
+    c(
+      ".standard_value",
+      ".standard_unit",
+      data_unit_col
+    )
+  )
+
+  from_unit <- .normalize_unit(
+    df$.standard_unit
+  )
+
+  to_unit <- .normalize_unit(
+    df[[data_unit_col]]
+  )
+
+  valid_from <- .is_valid_unit(from_unit)
+
+  valid_to <- .is_valid_unit(to_unit)
+
+  invalid_idx <-
+    (!valid_from | !valid_to) &
+    !is.na(from_unit) &
+    !is.na(to_unit)
+
+  if (any(invalid_idx)) {
+    invalid_pairs <- unique(
+      paste(
+        from_unit[invalid_idx],
+        "->",
+        to_unit[invalid_idx]
+      )
+    )
+
+    cli::cli_warn(
+      c(
+        "Invalid unit conversions detected.",
+        "i" = paste(
+          invalid_pairs,
+          collapse = ", "
+        )
+      )
+    )
+  }
+
+  convert_idx <-
+    !is.na(df$.standard_value) &
+    valid_from &
+    valid_to &
+    from_unit != to_unit
+
+  if (!any(convert_idx)) {
+    return(df)
+  }
+
+  converted_values <- purrr::pmap_dbl(
+    list(
+      value = df$.standard_value[convert_idx],
+      from_unit = from_unit[convert_idx],
+      to_unit = to_unit[convert_idx]
+    ),
+    .safe_convert_unit
+  )
+
+  convert_rows <- which(convert_idx)
+
+  successful_rows <- convert_rows[
+    !is.na(converted_values)
+  ]
+
+  if (length(successful_rows) == 0) {
+    return(df)
+  }
+
+  df$.standard_value[
+    successful_rows
+  ] <- converted_values[
+    !is.na(converted_values)
+  ]
+
+  df$.standard_unit[
+    successful_rows
+  ] <- to_unit[
+    successful_rows
+  ]
+
+  df
+}
+
 #' Convert analytical values between units
 #'
 #' Converts numeric values from one unit to another using the

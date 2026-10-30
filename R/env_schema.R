@@ -125,6 +125,19 @@ env_schema <- function(
     qualifier_table <- .qualifier_tbl
   }
 
+  required_mapping <- rlang::enquos(
+    location,
+    date,
+    analyte,
+    result
+  )
+
+  if (any(vapply(required_mapping, rlang::quo_is_missing, logical(1)))) {
+    rlang::abort(
+      "location, date, analyte, and result mappings are required."
+    )
+  }
+
   column_mapping <- rlang::enquos(
     .location = location,
     .date = date,
@@ -375,30 +388,14 @@ env_schema <- function(
         analyte_lookup = analyte_lookup
       ) %>%
       .build_analyte_labels()
-
-    if (".short_name" %in% names(out)) {
-      missing_metadata <- !out$.is_known_analyte
-
-      if (any(missing_metadata)) {
-        missing_analytes <- unique(
-          out$.source_analyte[missing_metadata]
-        )
-
-        cli::cli_warn(
-          c(
-            "Analyte metadata missing.",
-            "i" = paste(
-              utils::head(
-                missing_analytes,
-                10
-              ),
-              collapse = ", "
-            )
-          )
-        )
-      }
-    }
   }
+
+  # --------------------------------------------------------------
+  # Unit standardization
+  # --------------------------------------------------------------
+
+  out <- out |>
+    .standardize_schema_results()
 
   # --------------------------------------------------------------
   # Metadata columns

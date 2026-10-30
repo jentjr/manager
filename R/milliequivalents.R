@@ -4,9 +4,9 @@
 #' milliequivalents per liter (meq/L) using analyte-specific
 #' conversion factors stored in [analyte_tbl].
 #'
-#' If standardized concentration columns are not present,
-#' the function automatically standardizes concentrations using
-#' [standardize_units()] prior to conversion.
+#' For env_schema objects, analytical concentrations are
+#' standardized during schema construction. This function
+#' converts those standardized concentrations to meq/L.
 #'
 #' The function validates that analytes eligible for
 #' milliequivalent conversion are reported in their expected
@@ -17,11 +17,11 @@
 #' @param analyte_col Character string identifying the canonical
 #'   analyte column. Default is `"analyte"`.
 #'
-#' @param value_col Character string identifying the standardized
-#'   concentration column. Default is `"analysis_result_std"`.
+#' @param value_col Character string identifying the analytical
+#'   concentration column. Default is `".analysis_result"`.
 #'
-#' @param unit_col Character string identifying the standardized
-#'   reporting unit column. Default is `"default_unit_std"`.
+#' @param unit_col Character string identifying the reporting
+#'   unit column. Default is `".analysis_unit"`.
 #'
 #' @param value_out_col Character string identifying the output meq
 #'   concentration column. Default is
@@ -61,10 +61,6 @@
 #'
 #' \preformatted{
 #' df |>
-#'   standardize_units() |>
-#'   convert_analytes_to_meq()
-#'
-#' df |>
 #'   convert_analytes_to_meq()
 #'
 #' }
@@ -96,7 +92,6 @@
 #' }
 #'
 #' @seealso
-#' [standardize_units()],
 #' [piper_plot()],
 #' [durov_plot()],
 #' [stiff_plot()],
@@ -105,7 +100,6 @@
 #'
 #' @examples
 #' gw_data |>
-#'   standardize_units() |>
 #'   convert_analytes_to_meq()
 #'
 #' gw_data |>
@@ -118,21 +112,12 @@
 #' @export
 convert_analytes_to_meq <- function(
   df,
-  analyte_col = "analyte",
-  value_col = "analysis_result_std",
-  unit_col = "default_unit_std",
-  value_out_col = "analysis_result_meq",
-  unit_out_col = "default_unit_meq"
+  analyte_col = ".analyte_id",
+  value_col = ".analysis_result",
+  unit_col = ".analysis_unit",
+  value_out_col = ".analysis_result_meq",
+  unit_out_col = ".analysis_unit_meq"
 ) {
-  df <- .prep_concentrations(
-    df = df,
-    value_col = sub(
-      "_std$",
-      "",
-      value_col
-    )
-  )
-
   .validate_required_cols(
     df,
     c(
@@ -150,15 +135,15 @@ convert_analytes_to_meq <- function(
 
   meq_lookup <- .get_meq_conversion_factors() %>%
     dplyr::select(
-      analyte,
+      analyte_id,
       meq_factor
     )
 
   df %>%
     dplyr::left_join(
       meq_lookup,
-      by = stats::setNames(
-        "analyte",
+      by = by <- stats::setNames(
+        "analyte_id",
         analyte_col
       ),
       relationship = "many-to-one"
@@ -221,7 +206,7 @@ convert_analytes_to_meq <- function(
 #' derived from [analyte_tbl].
 #'
 #' The lookup table is validated using
-#' [`.validate_analyte_tbl()`] before extraction.
+#' [`validate_analyte_tbl()`] before extraction.
 #'
 #' @param lookup An analyte metadata table. Defaults to
 #'   [analyte_tbl].
@@ -247,13 +232,13 @@ convert_analytes_to_meq <- function(
 .get_meq_conversion_factors <- function(
   lookup = analyte_tbl
 ) {
-  .validate_analyte_tbl(
+  validate_analyte_tbl(
     lookup
   )
 
   lookup %>%
     dplyr::select(
-      analyte,
+      analyte_id,
       std_unit,
       meq_factor
     ) %>%

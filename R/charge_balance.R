@@ -1,39 +1,47 @@
+#' @export
+charge_balance <- function(df, ...) {
+  UseMethod("charge_balance")
+}
+
+#' @export
+charge_balance.data.frame <- function(
+  df,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
+) {
+  df <- env_schema(
+    df,
+    location = {{ location }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    unit = {{ unit }},
+    date = {{ date }}
+  )
+
+  charge_balance(df, ...)
+}
+
 #' Charge balance calculation
 #'
 #' @export
-charge_balance <- function(
+charge_balance.env_schema <- function(
   df,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
-  default_unit = "default_unit",
   analyte_matching = c(
-    "normalized",
+    "exact",
     "strict",
-    "exact"
+    "normalized"
   )
 ) {
   analyte_matching <- rlang::arg_match(
     analyte_matching
   )
 
-  chemistry_df <- .prepare_geochemical_data(
+  chemistry_df <- .prepare_major_ion_chemistry(
     df = df,
-    analytes = c(
-      "Calcium, dissolved",
-      "Magnesium, dissolved",
-      "Sodium, dissolved",
-      "Potassium, dissolved",
-      "Chloride, total",
-      "Sulfate, total",
-      "Alkalinity, total (lab)"
-    ),
-    location_id = location_id,
-    sample_date = sample_date,
-    param_name = param_name,
-    analysis_result = analysis_result,
-    default_unit = default_unit,
     analyte_matching = analyte_matching
   )
 

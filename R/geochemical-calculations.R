@@ -6,6 +6,7 @@
 ) {
   totals <- .create_geochemical_components(
     chemistry_df,
+
     list(
       total_cations = c(
         "calcium",
@@ -19,6 +20,10 @@
         "sulfate",
         "bicarbonate"
       )
+    ),
+
+    value_col = analysis_result_meq_var(
+      chemistry_df
     )
   )
 
@@ -38,7 +43,10 @@
 ) {
   .create_geochemical_components(
     chemistry_df,
-    .major_ion_components()
+    .major_ion_components(),
+    value_col = analysis_result_meq_var(
+      chemistry_df
+    )
   )
 }
 

@@ -6,11 +6,11 @@
 \usage{
 convert_analytes_to_meq(
   df,
-  analyte_col = "analyte",
-  value_col = "analysis_result_std",
-  unit_col = "default_unit_std",
-  value_out_col = "analysis_result_meq",
-  unit_out_col = "default_unit_meq"
+  analyte_col = ".analyte_id",
+  value_col = ".analysis_result",
+  unit_col = ".analysis_unit",
+  value_out_col = ".analysis_result_meq",
+  unit_out_col = ".analysis_unit_meq"
 )
 }
 \arguments{
@@ -19,11 +19,11 @@ convert_analytes_to_meq(
 \item{analyte_col}{Character string identifying the canonical
 analyte column. Default is `"analyte"`.}
 
-\item{value_col}{Character string identifying the standardized
-concentration column. Default is `"analysis_result_std"`.}
+\item{value_col}{Character string identifying the analytical
+concentration column. Default is `".analysis_result"`.}
 
-\item{unit_col}{Character string identifying the standardized
-reporting unit column. Default is `"default_unit_std"`.}
+\item{unit_col}{Character string identifying the reporting
+unit column. Default is `".analysis_unit"`.}
 
 \item{value_out_col}{Character string identifying the output meq
 concentration column. Default is
@@ -51,9 +51,9 @@ milliequivalents per liter (meq/L) using analyte-specific
 conversion factors stored in [analyte_tbl].
 }
 \details{
-If standardized concentration columns are not present,
-the function automatically standardizes concentrations using
-[standardize_units()] prior to conversion.
+For env_schema objects, analytical concentrations are
+standardized during schema construction. This function
+converts those standardized concentrations to meq/L.
 
 The function validates that analytes eligible for
 milliequivalent conversion are reported in their expected
@@ -77,10 +77,6 @@ concentration column.
 The following workflows are equivalent:
 
 \preformatted{
-df |>
-  standardize_units() |>
-  convert_analytes_to_meq()
-
 df |>
   convert_analytes_to_meq()
 
@@ -119,7 +115,6 @@ including:
 
 \examples{
 gw_data |>
-  standardize_units() |>
   convert_analytes_to_meq()
 
 gw_data |>
@@ -131,7 +126,6 @@ gw_data |>
 
 }
 \seealso{
-[standardize_units()],
 [piper_plot()],
 [durov_plot()],
 [stiff_plot()],

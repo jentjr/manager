@@ -148,6 +148,9 @@
 
   if (!is.null(scale_df)) {
     scale_values <- scale_df %>%
+      dplyr::mutate(
+        .analysis_result = analysis_result(.)
+      ) %>%
       dplyr::select(
         dplyr::all_of(
           c(
@@ -156,11 +159,11 @@
           )
         ),
         analyte,
-        analysis_result_std
+        .analysis_result
       ) %>%
       tidyr::pivot_wider(
         names_from = analyte,
-        values_from = analysis_result_std
+        values_from = .analysis_result
       )
 
     result <- result %>%
@@ -360,7 +363,7 @@
       dplyr::select(
         location_id,
         sample_date,
-        scale_value = analysis_result_std
+        scale_value = .analysis_result
       )
 
     results <- results %>%

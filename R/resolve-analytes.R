@@ -203,6 +203,32 @@
     )
 }
 
+#' @keywords internal
+#' @noRd
+.resolve_analyte_name <- function(
+  x,
+  analyte_matching = c(
+    "exact",
+    "strict",
+    "normalized"
+  ),
+  alias_lookup = analyte_alias_lookup,
+  analyte_lookup = analyte_tbl
+) {
+  resolved <- .resolve_analyte(
+    x,
+    alias_lookup = alias_lookup,
+    analyte_lookup = analyte_lookup
+  )
+
+  .analyte_key(
+    analyte = resolved$analyte,
+    normalized_analyte = resolved$normalized_analyte,
+    fraction = resolved$fraction,
+    analyte_matching = analyte_matching
+  )
+}
+
 #' Resolve analyte metadata
 #'
 #' Resolves analyte aliases and attaches analyte metadata.
@@ -281,105 +307,44 @@
     )
 }
 
-#' Resolved analyte names
-#'
-#' @noRd
-.resolve_analyte_name <- function(
-  x,
-  analyte_matching = c(
-    "normalized",
-    "strict",
-    "exact"
-  ),
-  alias_lookup = analyte_alias_lookup,
-  analyte_lookup = analyte_tbl
-) {
-  analyte_matching <-
-    rlang::arg_match(
-      analyte_matching
-    )
-
-  resolved <- .resolve_analyte(
-    x,
-    alias_lookup = alias_lookup,
-    analyte_lookup = analyte_lookup
-  )
-
-  switch(
-    analyte_matching,
-
-    exact = as.character(x),
-
-    strict = .get_analyte_key(
-      resolved,
-      analyte_matching = "strict"
-    ),
-
-    normalized = resolved$normalized_analyte
-  )
-}
-
 #' Get analyte key
 #'
 #' @noRd
-.get_analyte_key <- function(
-  data,
+.analyte_key <- function(
+  analyte,
+  normalized_analyte,
+  fraction,
   analyte_matching = c(
-    "strict",
     "exact",
+    "strict",
     "normalized"
   )
 ) {
-  analyte_matching <-
-    rlang::arg_match(
-      analyte_matching
+  analyte_matching <- rlang::arg_match(
+    analyte_matching
+  )
+
+  exact_analyte <- dplyr::if_else(
+    is.na(fraction),
+    analyte,
+    paste(
+      analyte,
+      fraction,
+      sep = ", "
     )
+  )
 
   switch(
     analyte_matching,
 
-    exact = data$analyte,
+    exact = exact_analyte,
 
-    normalized = data$normalized_analyte,
-
-    strict = paste(
-      data$normalized_analyte,
-      dplyr::coalesce(
-        data$fraction,
-        "unspecified"
-      ),
-      sep = "::"
-    )
-  )
-}
-
-#' Get schema analyte key
-#'
-#' @noRd
-.get_schema_analyte_key <- function(
-  data,
-  analyte_matching = c(
-    "strict",
-    "exact",
-    "normalized"
-  )
-) {
-  analyte_matching <-
-    rlang::arg_match(
-      analyte_matching
-    )
-
-  switch(
-    analyte_matching,
-
-    exact = data$.analyte,
-
-    normalized = data$.normalized_analyte,
+    normalized = normalized_analyte,
 
     strict = paste(
-      data$.normalized_analyte,
+      normalized_analyte,
       dplyr::coalesce(
-        data$.fraction,
+        fraction,
         "unspecified"
       ),
       sep = "::"

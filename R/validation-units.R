@@ -1,24 +1,3 @@
-.validate_standard_units <- function(df) {
-  bad_units <- df %>%
-    dplyr::filter(is.na(result_unit_std)) %>%
-    dplyr::distinct(param_name)
-
-  if (nrow(bad_units) > 0) {
-    warning(
-      paste(
-        "No standard unit mapping found for:",
-        paste(
-          bad_units$param_name,
-          collapse = ", "
-        )
-      ),
-      call. = FALSE
-    )
-  }
-
-  invisible(df)
-}
-
 #' Validate units for meq conversion
 #'
 #' Ensures analytes eligible for meq conversion are reported using
@@ -29,8 +8,8 @@
 #' @param analyte_col Character string identifying the canonical
 #'   analyte column. Default is `"analyte"`.
 #'
-#' @param unit_col Character string identifying the reporting unit
-#'   column. Default is `"default_unit_std"`.
+#' @param unit_col Character string identifying the
+#'   reporting unit column. Default is `".analysis_unit"`.
 #'
 #' @return
 #' Invisibly returns `TRUE`.
@@ -52,8 +31,8 @@
 #' @noRd
 .validate_analyte_meq_units <- function(
   df,
-  analyte_col = "analyte",
-  unit_col = "default_unit_std"
+  analyte_col = ".analyte_id",
+  unit_col = ".analysis_unit"
 ) {
   .validate_required_cols(
     df,
@@ -77,7 +56,7 @@
     dplyr::left_join(
       meq_lookup,
       by = stats::setNames(
-        "analyte",
+        "analyte_id",
         analyte_col
       ),
       relationship = "many-to-one"
@@ -111,7 +90,7 @@
           ),
           collapse = ", "
         ),
-        "i" = "Run {.fun .standardize_units} before converting to meq."
+        "i" = "Analytical concentrations must be standardized before meq conversion."
       )
     )
   }

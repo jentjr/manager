@@ -186,6 +186,10 @@ schema_result_types <- function(x) {
 # Internal mapping accessors
 # -------------------------------------------------------------------------
 
+analyte_id_var <- function(x) {
+  ".analyte_id"
+}
+
 location_var <- function(x) {
   get_env_mapping(x)$location
 }
@@ -200,6 +204,14 @@ analyte_var <- function(x) {
 
 result_var <- function(x) {
   get_env_mapping(x)$result
+}
+
+analysis_result_var <- function() {
+  ".analysis_result"
+}
+
+analysis_unit_var <- function() {
+  ".analysis_unit"
 }
 
 unit_var <- function(x) {
@@ -234,9 +246,65 @@ method_var <- function(x) {
   get_env_mapping(x)$method
 }
 
+#' MEQ result column
+#'
+#' @param x An env_schema object.
+#'
+#' @returns Character scalar.
+#'
+#' @export
+analysis_result_meq_var <- function(x) {
+  ".analysis_result_meq"
+}
+
+#' MEQ unit column
+#'
+#' @param x An env_schema object.
+#'
+#' @returns Character scalar.
+#'
+#' @export
+analysis_unit_meq_var <- function(x) {
+  ".analysis_unit_meq"
+}
+
 # -------------------------------------------------------------------------
 # Source-column accessor generics
 # -------------------------------------------------------------------------
+
+#' Return resolved analyte values
+#'
+#' Returns analyte identifiers according to the requested
+#' analyte matching strategy.
+#'
+#' \describe{
+#'   \item{exact}{
+#'     Returns resolved analyte names and preserves
+#'     dissolved/total distinctions.
+#'   }
+#'   \item{strict}{
+#'     Returns analyte keys incorporating fraction information.
+#'   }
+#'   \item{normalized}{
+#'     Returns canonical analyte identifiers suitable for
+#'     grouping related analytes.
+#'   }
+#' }
+#'
+#' @param x Object.
+#' @param analyte_matching Matching strategy.
+#'
+#' @export
+analysis_analyte <- function(
+  x,
+  analyte_matching = c(
+    "normalized",
+    "strict",
+    "exact"
+  )
+) {
+  UseMethod("analysis_analyte")
+}
 
 #' Return location values
 #'
@@ -445,6 +513,23 @@ short_analyte_label <- function(x) {
 # -------------------------------------------------------------------------
 
 #' @export
+analysis_analyte.env_schema <- function(
+  x,
+  analyte_matching = c(
+    "exact",
+    "strict",
+    "normalized"
+  )
+) {
+  .analyte_key(
+    analyte = x$.analyte,
+    normalized_analyte = x$.normalized_analyte,
+    fraction = x$.fraction,
+    analyte_matching = analyte_matching
+  )
+}
+
+#' @export
 location.env_schema <- function(x) {
   .get_mapped_column(
     x,
@@ -545,13 +630,56 @@ method.env_schema <- function(x) {
 # -------------------------------------------------------------------------
 
 #' @export
+analyte_id <- function(x) {
+  x[[analyte_id_var(x)]]
+}
+
+#' @export
 analysis_result.env_schema <- function(x) {
-  x$.analysis_result
+  x[[analysis_result_var()]]
 }
 
 #' @export
 analysis_unit.env_schema <- function(x) {
-  x$.analysis_unit
+  x[[analysis_unit_var()]]
+}
+
+#' Extract milliequivalent results
+#'
+#' @param x An env_schema object.
+#'
+#' @returns Numeric vector.
+#'
+#' @export
+analysis_result_meq <- function(x) {
+  col <- analysis_result_meq_var(x)
+
+  if (!col %in% names(x)) {
+    rlang::abort(
+      "'.analysis_result_meq' is not present."
+    )
+  }
+
+  x[[col]]
+}
+
+#' Extract milliequivalent units
+#'
+#' @param x An env_schema object.
+#'
+#' @returns Character vector.
+#'
+#' @export
+analysis_unit_meq <- function(x) {
+  col <- analysis_unit_meq_var(x)
+
+  if (!col %in% names(x)) {
+    rlang::abort(
+      "'.analysis_unit_meq' is not present."
+    )
+  }
+
+  x[[col]]
 }
 
 #' @export
@@ -609,6 +737,21 @@ short_analyte_label.env_schema <- function(x) {
       "() method for class: ",
       paste(class(x), collapse = ", ")
     )
+  )
+}
+
+#' @export
+analysis_analyte.default <- function(
+  x,
+  analyte_matching = c(
+    "normalized",
+    "strict",
+    "exact"
+  )
+) {
+  .accessor_not_implemented(
+    "analysis_analyte",
+    x
   )
 }
 

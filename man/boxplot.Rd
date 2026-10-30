@@ -6,10 +6,10 @@
 \alias{boxplot.env_schema}
 \title{Environmental Boxplots}
 \usage{
-boxplot(x, ...)
+boxplot(df, ...)
 
 \method{boxplot}{data.frame}(
-  x,
+  df,
   location,
   analyte,
   result,
@@ -37,7 +37,7 @@ boxplot(x, ...)
 )
 }
 \arguments{
-\item{x}{A data frame or `env_schema` object.}
+\item{df}{A data frame or `env_schema` object.}
 
 \item{...}{Additional arguments passed to methods.}
 
