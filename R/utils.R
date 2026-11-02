@@ -8,7 +8,7 @@
 #' @noRd
 .attach_nested_data <- function(result, data) {
   result$data <- list(data)
-  
+
   result
 }
 
@@ -59,15 +59,15 @@ percent_lt <- function(df, lt_measure) {
 #' @export
 
 percent_gt <- function(
-    df,
-    lt_measure = "lt_measure",
-    percent_gt = "percent_gt"
+  df,
+  lt_measure = "lt_measure",
+  percent_gt = "percent_gt"
 ) {
   mutate_call <- lazyeval::interp(
     ~ sum(x == ">") / n() * 100,
     x = as.name(lt_measure)
   )
-  
+
   df %>%
     mutate_(.dots = setNames(list(mutate_call), percent_gt))
 }
@@ -99,7 +99,7 @@ include_dup <- function(df, wells) {
     paste(wells, collapse = "|"),
     ")\\s*Dup$"
   )
-  
+
   dups <- unique(
     df$location_id[
       stringr::str_detect(df$location_id, dup_pattern)
@@ -146,18 +146,18 @@ join_lt <- function(df, lt_measure, analysis_result) {
 #'
 #' @export
 name_units <- function(
-    df,
-    short_name = FALSE
+  df,
+  short_name = FALSE
 ) {
   validate_env_schema(df)
-  
+
   if (
     short_name &&
-    ".short_analyte_label" %in% names(df)
+      ".short_analyte_label" %in% names(df)
   ) {
     return(df$.short_analyte_label)
   }
-  
+
   df$.analyte_label
 }
 
@@ -208,8 +208,33 @@ to_wide <- function(df, lab_id = FALSE, join_lt = TRUE) {
         tidyr::spread(param_name, analysis_result)
     }
   }
-  
+
   df
+}
+
+#' function to convert data to sf object
+#'
+#' @param df data frame
+#' @param crs coordinate reference system to convert the sf object to
+#'
+#' @export
+
+to_spatial <- function(df, crs) {
+  df$coordinate_reference <- as.integer(df$coordinate_reference)
+
+  l <- lapply(unique(df$location_id), function(x) {
+    df <- df[df$location_id == x, ]
+    epsg <- df$coordinate_reference[1]
+    df <- sf::st_as_sf(
+      df,
+      coords = c('east_coordinate', 'north_coordinate'),
+      crs = epsg
+    )
+  })
+
+  out <- do.call(rbind, lapply(l, function(x) x <- sf::st_transform(x, crs)))
+
+  return(out)
 }
 
 #' Helper function to split parameter names
@@ -239,14 +264,14 @@ simplify_param_name <- function(df, param_name) {
 #'
 #' @noRd
 .validate_required_cols <- function(
-    data,
-    cols
+  data,
+  cols
 ) {
   missing_cols <- setdiff(
     cols,
     names(data)
   )
-  
+
   if (length(missing_cols) > 0) {
     rlang::abort(
       paste(
@@ -266,44 +291,44 @@ simplify_param_name <- function(df, param_name) {
 .standardize_ion_name <- function(x) {
   x <- x %>%
     stringr::str_to_lower() %>%
-    
+
     # normalize punctuation
     stringr::str_replace_all("[,_()/-]", " ") %>%
-    
+
     # remove charge notation
     stringr::str_replace_all("\\+\\d*", "") %>%
     stringr::str_replace_all("-\\d*", "") %>%
-    
+
     # remove "as ..."
     stringr::str_remove("\\s+as\\s+.*$") %>%
-    
+
     stringr::str_squish()
-  
+
   dplyr::case_when(
     # cations
     stringr::str_detect(x, "^(calcium|ca)\\b") ~ "calcium",
     stringr::str_detect(x, "^(magnesium|mg)\\b") ~ "magnesium",
     stringr::str_detect(x, "^(sodium|na)\\b") ~ "sodium",
     stringr::str_detect(x, "^(potassium|k)\\b") ~ "potassium",
-    
+
     # anions
     stringr::str_detect(x, "^(chloride|cl)\\b") ~ "chloride",
     stringr::str_detect(x, "^(fluoride|f)\\b") ~ "fluoride",
     stringr::str_detect(x, "^(bromide|br)\\b") ~ "bromide",
     stringr::str_detect(x, "^(iodide|i)\\b") ~ "iodide",
-    
+
     stringr::str_detect(x, "^(sulfate|so4)\\b") ~ "sulfate",
-    
+
     stringr::str_detect(x, "^(nitrate|no3)\\b") ~ "nitrate",
     stringr::str_detect(x, "^(nitrite|no2)\\b") ~ "nitrite",
-    
+
     stringr::str_detect(x, "^(phosphate|po4)\\b") ~ "phosphate",
-    
+
     stringr::str_detect(x, "^(bicarbonate|hco3)\\b") ~ "bicarbonate",
     stringr::str_detect(x, "^(carbonate|co3)\\b") ~ "carbonate",
-    
+
     stringr::str_detect(x, "\\balkalinity\\b") ~ "bicarbonate",
-    
+
     TRUE ~ NA_character_
   )
 }
@@ -326,7 +351,7 @@ simplify_param_name <- function(df, param_name) {
       call. = FALSE
     )
   }
-  
+
   invisible(x)
 }
 
@@ -334,8 +359,8 @@ simplify_param_name <- function(df, param_name) {
 .check_flag <- function(x, name) {
   if (
     !is.logical(x) ||
-    length(x) != 1 ||
-    is.na(x)
+      length(x) != 1 ||
+      is.na(x)
   ) {
     stop(
       name,
@@ -343,7 +368,7 @@ simplify_param_name <- function(df, param_name) {
       call. = FALSE
     )
   }
-  
+
   invisible(TRUE)
 }
 
@@ -357,7 +382,7 @@ start_date <- function(df, sample_date = sample_date) {
   sample_date <- rlang::as_name(
     rlang::ensym(sample_date)
   )
-  
+
   df %>%
     dplyr::arrange(.data[[sample_date]]) %>%
     dplyr::pull(.data[[sample_date]]) %>%
@@ -379,7 +404,7 @@ nth_date <- function(df, start, n = 4, sample_date) {
     select_(~sample_date) %>%
     first() %>%
     nth(., n)
-  
+
   return(nth_date)
 }
 
@@ -408,7 +433,7 @@ set_background <- function(df, sample_date, start, end, return_all = FALSE) {
     df <- df %>%
       filter(background == TRUE)
   }
-  
+
   df
 }
 
@@ -424,11 +449,11 @@ set_background <- function(df, sample_date, start, end, return_all = FALSE) {
 #' @export
 
 set_proposed_background <- function(
-    df,
-    sample_date,
-    start,
-    end,
-    return_all = FALSE
+  df,
+  sample_date,
+  start,
+  end,
+  return_all = FALSE
 ) {
   df <- df %>%
     arrange_(~sample_date) %>%
@@ -440,12 +465,12 @@ set_proposed_background <- function(
         FALSE
       )
     )
-  
+
   if (!return_all) {
     df <- df %>%
       filter(proposed_background == TRUE)
   }
-  
+
   df
 }
 
@@ -453,32 +478,32 @@ set_proposed_background <- function(
 #'
 #' @noRd
 .filter_manager_data <- function(
-    data,
-    wells = NULL,
-    params = NULL,
-    start_date = NULL,
-    end_date = NULL
+  data,
+  wells = NULL,
+  params = NULL,
+  start_date = NULL,
+  end_date = NULL
 ) {
   if (!is.null(wells)) {
     data <- data %>%
       filter(location_id %in% wells)
   }
-  
+
   if (!is.null(params)) {
     data <- data %>%
       filter(param_name %in% params)
   }
-  
+
   if (!is.null(start_date)) {
     data <- data %>%
       filter(sample_date >= start_date)
   }
-  
+
   if (!is.null(end_date)) {
     data <- data %>%
       filter(sample_date <= end_date)
   }
-  
+
   data
 }
 
@@ -499,15 +524,15 @@ set_proposed_background <- function(
 #' @noRd
 .safe_rowsum <- function(data) {
   vals <- as.matrix(data)
-  
+
   out <- rowSums(
     vals,
     na.rm = TRUE
   )
-  
+
   out[
     rowSums(!is.na(vals)) == 0
   ] <- NA_real_
-  
+
   out
 }

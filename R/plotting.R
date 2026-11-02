@@ -518,14 +518,14 @@ boxplot <- function(df, ...) {
 #'
 #' @export
 boxplot.data.frame <- function(
-    df,
-    location,
-    analyte,
-    result,
-    date = NULL,
-    reporting_flag = NULL,
-    unit = NULL,
-    ...
+  df,
+  location,
+  analyte,
+  result,
+  date = NULL,
+  reporting_flag = NULL,
+  unit = NULL,
+  ...
 ) {
   df <- env_schema(
     df,
@@ -536,44 +536,44 @@ boxplot.data.frame <- function(
     reporting_flag = {{ reporting_flag }},
     unit = {{ unit }}
   )
-  
+
   boxplot(df, ...)
 }
 
 .boxplot_build <- function(
-    df,
-    location,
-    analyte,
-    result,
-    reporting_flag,
-    coef = 1.5,
-    scale_y_trans = "identity",
-    show_points = TRUE,
-    fill = NULL,
-    notch = TRUE,
-    plot_ci = FALSE,
-    standards = FALSE,
-    pnt = 2,
-    short_name = FALSE,
-    coord_flip = FALSE,
-    legend_title = NULL,
-    explanation = NULL,
-    add_explanation = FALSE
+  df,
+  location,
+  analyte,
+  result,
+  reporting_flag,
+  coef = 1.5,
+  scale_y_trans = "identity",
+  show_points = TRUE,
+  fill = NULL,
+  notch = TRUE,
+  plot_ci = FALSE,
+  standards = FALSE,
+  pnt = 2,
+  short_name = FALSE,
+  coord_flip = FALSE,
+  legend_title = NULL,
+  explanation = NULL,
+  add_explanation = FALSE
 ) {
   if (!is.null(fill) && is.null(legend_title)) {
     legend_title <- fill
   }
-  
+
   df <- .prepare_boxplot_data(
     df = df,
     reporting_flag = reporting_flag
   )
-  
+
   if (notch) {
     small_n <- df |>
       dplyr::count(.data[[location]]) |>
       dplyr::filter(n < 5)
-    
+
     if (nrow(small_n) > 0) {
       rlang::warn(
         paste(
@@ -584,15 +584,15 @@ boxplot.data.frame <- function(
       )
     }
   }
-  
+
   title <- .get_plot_title(
     df = df,
     analyte = analyte,
     short_name = short_name
   )
-  
+
   unit_lbl <- .get_unit_label(df)
-  
+
   p <- .create_boxplot_base(
     df = df,
     x = location,
@@ -603,7 +603,7 @@ boxplot.data.frame <- function(
     title = title,
     legend_title = legend_title
   )
-  
+
   p <- .add_boxplot_layers(
     plot = p,
     coef = coef,
@@ -611,22 +611,22 @@ boxplot.data.frame <- function(
     plot_ci = plot_ci,
     pnt = pnt
   )
-  
+
   p <- .add_points(
     plot = p,
     show_points = show_points,
     pnt = pnt
   )
-  
+
   p <- .add_standards(
     plot = p,
     df = df,
     standards = standards
   )
-  
+
   if (
     !is.null(fill) &&
-    requireNamespace("viridis", quietly = TRUE)
+      requireNamespace("viridis", quietly = TRUE)
   ) {
     p <- p +
       viridis::scale_fill_viridis(
@@ -634,11 +634,11 @@ boxplot.data.frame <- function(
         name = legend_title
       )
   }
-  
+
   if (coord_flip) {
     p <- p + ggplot2::coord_flip()
   }
-  
+
   if (!add_explanation) {
     return(
       p +
@@ -647,12 +647,12 @@ boxplot.data.frame <- function(
         )
     )
   }
-  
+
   legend <- tryCatch(
     cowplot::get_legend(p),
     error = function(e) NULL
   )
-  
+
   legend_panel <-
     if (is.null(legend)) {
       explanation
@@ -664,7 +664,7 @@ boxplot.data.frame <- function(
         rel_heights = c(1.5, 1)
       )
     }
-  
+
   cowplot::plot_grid(
     p +
       ggplot2::theme(
@@ -727,29 +727,29 @@ boxplot.data.frame <- function(
 #'
 #' @export
 boxplot.env_schema <- function(
-    x,
-    coef = 1.5,
-    scale_y_trans = "identity",
-    show_points = FALSE,
-    fill = NULL,
-    notch = FALSE,
-    plot_ci = FALSE,
-    standards = FALSE,
-    pnt = 2,
-    short_name = FALSE,
-    coord_flip = FALSE,
-    legend_title = NULL,
-    add_explanation = FALSE,
-    ...
+  x,
+  coef = 1.5,
+  scale_y_trans = "identity",
+  show_points = FALSE,
+  fill = NULL,
+  notch = FALSE,
+  plot_ci = FALSE,
+  standards = FALSE,
+  pnt = 2,
+  short_name = FALSE,
+  coord_flip = FALSE,
+  legend_title = NULL,
+  add_explanation = FALSE,
+  ...
 ) {
   validate_env_schema(x)
-  
+
   if (nrow(x) == 0) {
     rlang::abort(
       "No observations available to plot."
     )
   }
-  
+
   .validate_boxplot_args(
     df = x,
     fill = fill,
@@ -764,18 +764,18 @@ boxplot.env_schema <- function(
     legend_title = legend_title,
     add_explanation = add_explanation
   )
-  
+
   explanation <- NULL
-  
+
   if (isTRUE(add_explanation)) {
     explanation <- .ggplot_box_legend()
   }
-  
+
   location <- location_var(x)
   analyte <- analyte_var(x)
   result <- result_var(x)
   reporting_flag <- reporting_flag_var(x)
-  
+
   split(x, as.character(x[[analyte]])) |>
     purrr::imap(
       ~ .boxplot_build(
@@ -813,12 +813,12 @@ boxplot.env_schema <- function(
 #'
 #' @noRd
 .prepare_boxplot_data <- function(
-    df,
-    reporting_flag
+  df,
+  reporting_flag
 ) {
   if (
     is.null(reporting_flag) ||
-    !reporting_flag %in% names(df)
+      !reporting_flag %in% names(df)
   ) {
     df$non_detect <- factor(
       rep("Detected", nrow(df)),
@@ -827,10 +827,10 @@ boxplot.env_schema <- function(
         "Non-detect"
       )
     )
-    
+
     return(df)
   }
-  
+
   df |>
     dplyr::mutate(
       non_detect = factor(
@@ -865,14 +865,14 @@ boxplot.env_schema <- function(
 #' @noRd
 
 .create_boxplot_base <- function(
-    df,
-    x,
-    y,
-    fill,
-    scale_y_trans,
-    unit_lbl,
-    title,
-    legend_title
+  df,
+  x,
+  y,
+  fill,
+  scale_y_trans,
+  unit_lbl,
+  title,
+  legend_title
 ) {
   if (!is.null(fill)) {
     mapping <- ggplot2::aes(
@@ -886,9 +886,9 @@ boxplot.env_schema <- function(
       y = .data[[y]]
     )
   }
-  
+
   y_label <- "Analysis Result"
-  
+
   if (!identical(unit_lbl, "")) {
     y_label <- paste0(
       y_label,
@@ -897,7 +897,7 @@ boxplot.env_schema <- function(
       ")"
     )
   }
-  
+
   if (scale_y_trans != "identity") {
     y_label <- paste0(
       y_label,
@@ -905,7 +905,7 @@ boxplot.env_schema <- function(
       scale_y_trans
     )
   }
-  
+
   ggplot2::ggplot(df, mapping) +
     .theme_manager() +
     EnvStats::stat_n_text(vjust = 1.5) +
@@ -937,23 +937,23 @@ boxplot.env_schema <- function(
 #' @noRd
 
 .add_boxplot_layers <- function(
-    plot,
-    coef,
-    notch,
-    plot_ci,
-    pnt
+  plot,
+  coef,
+  notch,
+  plot_ci,
+  pnt
 ) {
   if (isTRUE(plot_ci)) {
     boot_ci <- function(x) {
       ci <- Hmisc::smean.cl.boot(x)
-      
+
       data.frame(
         y = ci[1],
         ymin = ci[2],
         ymax = ci[3]
       )
     }
-    
+
     plot +
       ggplot2::geom_boxplot(
         coef = coef,
@@ -987,22 +987,22 @@ boxplot.env_schema <- function(
 #' @noRd
 
 .add_points <- function(
-    plot,
-    show_points,
-    pnt
+  plot,
+  show_points,
+  pnt
 ) {
   if (!isTRUE(show_points)) {
     return(plot)
   }
-  
+
   if (!"non_detect" %in% names(plot$data)) {
     return(plot)
   }
-  
+
   if (!any(!is.na(plot$data$non_detect))) {
     return(plot)
   }
-  
+
   plot <- plot +
     ggplot2::scale_shape_manual(
       values = c(
@@ -1014,7 +1014,7 @@ boxplot.env_schema <- function(
     ggplot2::guides(
       shape = ggplot2::guide_legend("Detection")
     )
-  
+
   if (requireNamespace("ggbeeswarm", quietly = TRUE)) {
     plot <- plot +
       ggbeeswarm::geom_beeswarm(
@@ -1030,7 +1030,7 @@ boxplot.env_schema <- function(
         size = pnt
       )
   }
-  
+
   plot
 }
 
@@ -1041,27 +1041,27 @@ boxplot.env_schema <- function(
 #'
 #' @noRd
 .get_plot_title <- function(
-    df,
-    analyte,
-    short_name = FALSE
+  df,
+  analyte,
+  short_name = FALSE
 ) {
   fallback <- dplyr::first(
     df[[analyte]]
   )
-  
+
   labels <- if (short_name) {
     short_analyte_label(df)
   } else {
     analyte_label(df)
   }
-  
+
   labels <- stats::na.omit(labels)
-  
+
   name <- dplyr::first(
     labels,
     default = fallback
   )
-  
+
   paste("Boxplot for", name)
 }
 #' Extract analysis unit label
@@ -1074,11 +1074,11 @@ boxplot.env_schema <- function(
   units <- stats::na.omit(
     analysis_unit(df)
   )
-  
+
   if (length(units) > 0) {
     return(units[[1]])
   }
-  
+
   ""
 }
 
@@ -1140,32 +1140,32 @@ boxplot.env_schema <- function(
 .ggplot_box_legend <- function(family = "sans") {
   # Create data to use in the boxplot legend:
   set.seed(100)
-  
+
   sample_df <- data.frame(parameter = "test", values = sample(500))
-  
+
   # Extend the top whisker a bit:
   sample_df$values[1:100] <- 701:800
   # Make sure there's only 1 lower outlier:
   sample_df$values[1] <- -350
-  
+
   # Function to calculate important values:
   ggplot2_boxplot <- function(x) {
     quartiles <- as.numeric(quantile(x, probs = c(0.25, 0.5, 0.75)))
-    
+
     names(quartiles) <- c(
       "25th percentile",
       "50th percentile\n(median)",
       "75th percentile"
     )
-    
+
     IQR <- diff(quartiles[c(1, 3)])
-    
+
     upper_whisker <- max(x[x < (quartiles[3] + 1.5 * IQR)])
     lower_whisker <- min(x[x > (quartiles[1] - 1.5 * IQR)])
-    
+
     upper_dots <- x[x > (quartiles[3] + 1.5 * IQR)]
     lower_dots <- x[x < (quartiles[1] - 1.5 * IQR)]
-    
+
     return(list(
       "quartiles" = quartiles,
       "25th percentile" = as.numeric(quartiles[1]),
@@ -1178,10 +1178,10 @@ boxplot.env_schema <- function(
       "lower_dots" = lower_dots
     ))
   }
-  
+
   # Get those values:
   ggplot_output <- ggplot2_boxplot(sample_df$values)
-  
+
   # Lots of text in the legend, make it smaller and consistent font:
   ggplot2::update_geom_defaults(
     "text",
@@ -1192,7 +1192,7 @@ boxplot.env_schema <- function(
     "label",
     list(size = 3, hjust = 0, family = family)
   )
-  
+
   # Create the legend:
   # The main elements of the plot (the boxplot, error bars, and count)
   # are the easy part.
@@ -1313,7 +1313,7 @@ boxplot.env_schema <- function(
     ) +
     ggplot2::coord_cartesian(xlim = c(1.4, 3.1), ylim = c(-600, 900)) +
     ggplot2::labs(title = "EXPLANATION")
-  
+
   return(explain_plot)
 }
 
@@ -1321,18 +1321,18 @@ boxplot.env_schema <- function(
 #'
 #' @noRd
 .validate_boxplot_args <- function(
-    df,
-    fill,
-    scale_y_trans,
-    coef,
-    notch,
-    show_points,
-    short_name,
-    coord_flip,
-    plot_ci,
-    standards,
-    legend_title,
-    add_explanation
+  df,
+  fill,
+  scale_y_trans,
+  coef,
+  notch,
+  show_points,
+  short_name,
+  coord_flip,
+  plot_ci,
+  standards,
+  legend_title,
+  add_explanation
 ) {
   .check_flag(notch, "notch")
   .check_flag(show_points, "show_points")
@@ -1341,20 +1341,20 @@ boxplot.env_schema <- function(
   .check_flag(plot_ci, "plot_ci")
   .check_flag(standards, "standards")
   .check_flag(add_explanation, "add_explanation")
-  
+
   if (
     !is.null(fill) &&
-    (!is.character(fill) || length(fill) != 1)
+      (!is.character(fill) || length(fill) != 1)
   ) {
     stop(
       "fill must be NULL or a single column name.",
       call. = FALSE
     )
   }
-  
+
   if (
     !is.null(fill) &&
-    !fill %in% names(df)
+      !fill %in% names(df)
   ) {
     stop(
       "Column '",
@@ -1363,18 +1363,18 @@ boxplot.env_schema <- function(
       call. = FALSE
     )
   }
-  
+
   if (
     !is.null(legend_title) &&
-    (!is.character(legend_title) ||
-     length(legend_title) != 1)
+      (!is.character(legend_title) ||
+        length(legend_title) != 1)
   ) {
     stop(
       "legend_title must be NULL or a single character string.",
       call. = FALSE
     )
   }
-  
+
   tryCatch(
     scales::as.trans(scale_y_trans),
     error = function(e) {
@@ -1384,16 +1384,16 @@ boxplot.env_schema <- function(
       )
     }
   )
-  
+
   result_col <- result_var(df)
-  
+
   if (!result_col %in% names(df)) {
     stop(
       "Mapped result column not found.",
       call. = FALSE
     )
   }
-  
+
   if (!is.numeric(df[[result_col]])) {
     stop(
       result_col,
@@ -1401,49 +1401,49 @@ boxplot.env_schema <- function(
       call. = FALSE
     )
   }
-  
+
   if (
     scale_y_trans %in%
-    c("log", "log10", "log2") &&
-    any(df[[result_col]] <= 0, na.rm = TRUE)
+      c("log", "log10", "log2") &&
+      any(df[[result_col]] <= 0, na.rm = TRUE)
   ) {
     stop(
       "Log transformations require all values to be positive.",
       call. = FALSE
     )
   }
-  
+
   if (
     identical(scale_y_trans, "sqrt") &&
-    any(df[[result_col]] < 0, na.rm = TRUE)
+      any(df[[result_col]] < 0, na.rm = TRUE)
   ) {
     stop(
       "Sqrt transformation requires non-negative values.",
       call. = FALSE
     )
   }
-  
+
   if (
     !is.numeric(coef) ||
-    length(coef) != 1 ||
-    is.na(coef) ||
-    coef <= 0
+      length(coef) != 1 ||
+      is.na(coef) ||
+      coef <= 0
   ) {
     stop(
       "coef must be a single positive number.",
       call. = FALSE
     )
   }
-  
+
   if (
     isTRUE(short_name) &&
-    all(is.na(short_analyte_label(df)))
+      all(is.na(short_analyte_label(df)))
   ) {
     rlang::warn(
       "short analyte labels not found."
     )
   }
-  
+
   invisible(TRUE)
 }
 
@@ -1461,50 +1461,55 @@ boxplot.env_schema <- function(
 #'
 #' @export
 
-corr_plot <- function(df,
-                      location_id = "location_id",
-                      sample_date = "sample_date",
-                      param_name = "param_name",
-                      analysis_result = "analysis_result",
-                      constituents = NULL,
-                      sample_locations = NULL
+corr_plot <- function(
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  constituents = NULL,
+  sample_locations = NULL
 ) {
-  
   if (!requireNamespace("GGally", quietly = TRUE)) {
-    stop("GGally needed for this function to work. Please install it.",
-         call. = FALSE)
+    stop(
+      "GGally needed for this function to work. Please install it.",
+      call. = FALSE
+    )
   }
-  
+
   df %>%
-    .get_corr_data(., constituents = constituents,
-                   sample_locations = sample_locations) %>%
+    .get_corr_data(
+      .,
+      constituents = constituents,
+      sample_locations = sample_locations
+    ) %>%
     GGally::ggpairs(columns = 3:ncol(.), aes(colour = location_id))
-  
 }
 
 #' Function to create a correlation matrix plot
 #'
 #' @noRd
 
-.get_corr_data <- function(df,
-                           location_id = "location_id",
-                           sample_date = "sample_date",
-                           param_name = "param_name",
-                           analysis_result = "analysis_result",
-                           constituents = NULL,
-                           sample_locations = NULL
+.get_corr_data <- function(
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  constituents = NULL,
+  sample_locations = NULL
 ) {
-  
   df <- df %>%
-    filter_(~param_name %in% constituents,
-            ~location_id %in% sample_locations) %>%
+    filter_(
+      ~ param_name %in% constituents,
+      ~ location_id %in% sample_locations
+    ) %>%
     spread_(param_name, analysis_result) %>%
     group_by_(~location_id, ~sample_date) %>%
     summarise_at(vars(constituents), mean, na.rm = TRUE) %>%
     ungroup()
-  
+
   return(df)
-  
 }
 
 #' @export
@@ -1514,13 +1519,13 @@ piper_plot <- function(x, ...) {
 
 #' @export
 piper_plot.data.frame <- function(
-    x,
-    location,
-    analyte,
-    result,
-    unit,
-    date,
-    ...
+  x,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
 ) {
   x <- env_schema(
     x,
@@ -1530,7 +1535,7 @@ piper_plot.data.frame <- function(
     unit = {{ unit }},
     date = {{ date }}
   )
-  
+
   piper_plot(x, ...)
 }
 
@@ -1809,50 +1814,50 @@ piper_plot.data.frame <- function(
 #' @export
 
 piper_plot.env_schema <- function(
-    df,
-    location_id = "location_id",
-    sample_date = "sample_date",
-    param_name = "param_name",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    analyte_matching = c("normalized", "strict", "exact"),
-    x_cation = "Calcium, dissolved",
-    x_cation_label = "Ca",
-    y_cation = "Magnesium, dissolved",
-    y_cation_label = "Mg",
-    z_cation = c(
-      "Sodium, dissolved",
-      "Potassium, dissolved"
-    ),
-    z_cation_label = "Na + K",
-    x_anion = c(
-      "Chloride, total",
-      "Fluoride, total"
-    ),
-    x_anion_label = "Cl + F",
-    y_anion = "Alkalinity, total (lab)",
-    y_anion_label = "HCO[3] + CO[3]",
-    z_anion = "Sulfate, total",
-    z_anion_label = "SO4",
-    x_z_anion_label = "SO4 + Cl + F",
-    x_y_cation_label = "Ca + Mg",
-    scale_analyte = NULL,
-    group_col = NULL,
-    transparency = 0.7,
-    pnt_size = 3,
-    label_size = 3,
-    title = NULL
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  analyte_matching = c("normalized", "strict", "exact"),
+  x_cation = "Calcium, dissolved",
+  x_cation_label = "Ca",
+  y_cation = "Magnesium, dissolved",
+  y_cation_label = "Mg",
+  z_cation = c(
+    "Sodium, dissolved",
+    "Potassium, dissolved"
+  ),
+  z_cation_label = "Na + K",
+  x_anion = c(
+    "Chloride, total",
+    "Fluoride, total"
+  ),
+  x_anion_label = "Cl + F",
+  y_anion = "Alkalinity, total (lab)",
+  y_anion_label = "HCO[3] + CO[3]",
+  z_anion = "Sulfate, total",
+  z_anion_label = "SO4",
+  x_z_anion_label = "SO4 + Cl + F",
+  x_y_cation_label = "Ca + Mg",
+  scale_analyte = NULL,
+  group_col = NULL,
+  transparency = 0.7,
+  pnt_size = 3,
+  label_size = 3,
+  title = NULL
 ) {
   analyte_matching <- rlang::arg_match(analyte_matching)
-  
+
   scale_col <- NULL
-  
+
   if (!is.null(scale_analyte)) {
     scale_col <- .resolve_geochemical_analytes(
       scale_analyte,
       analyte_matching
     )
-    
+
     if (length(scale_col) == 0) {
       cli::cli_warn(
         c(
@@ -1860,13 +1865,13 @@ piper_plot.env_schema <- function(
           "i" = "Point size scaling will be disabled."
         )
       )
-      
+
       scale_col <- NULL
     } else {
       scale_col <- scale_col[1]
     }
   }
-  
+
   required_cols <- c(
     location_id,
     sample_date,
@@ -1874,12 +1879,12 @@ piper_plot.env_schema <- function(
     analysis_result,
     default_unit
   )
-  
+
   missing_cols <- setdiff(
     required_cols,
     names(df)
   )
-  
+
   if (length(missing_cols) > 0) {
     cli::cli_abort(
       c(
@@ -1888,7 +1893,7 @@ piper_plot.env_schema <- function(
       )
     )
   }
-  
+
   piper_df <- df %>%
     .transform_piper_data(
       location_id = location_id,
@@ -1905,7 +1910,7 @@ piper_plot.env_schema <- function(
       z_anion = z_anion,
       scale_analyte = scale_analyte
     )
-  
+
   if (!is.null(group_col)) {
     group_df <- df %>%
       dplyr::distinct(
@@ -1915,7 +1920,7 @@ piper_plot.env_schema <- function(
     dup_groups <- group_df %>%
       dplyr::count(!!rlang::sym(location_id)) %>%
       dplyr::filter(n > 1)
-    
+
     if (nrow(dup_groups) > 0) {
       cli::cli_abort(
         c(
@@ -1924,39 +1929,39 @@ piper_plot.env_schema <- function(
         )
       )
     }
-    
+
     join_by <- stats::setNames(
       location_id,
       location_id
     )
-    
+
     piper_df <- piper_df %>%
       dplyr::left_join(
         group_df,
         by = join_by
       )
   }
-  
+
   cation_df <- piper_df %>%
     dplyr::filter(
       !is.na(cation_x),
       !is.na(cation_y)
     )
-  
+
   anion_df <- piper_df %>%
     dplyr::filter(
       !is.na(anion_x),
       !is.na(anion_y)
     )
-  
+
   diamond_df <- piper_df %>%
     dplyr::filter(
       !is.na(diamond_x),
       !is.na(diamond_y)
     )
-  
+
   piper <- .ggplot_piper()
-  
+
   # cation triangle
   piper <- .add_piper_points(
     plot = piper,
@@ -1968,7 +1973,7 @@ piper_plot.env_schema <- function(
     alpha = transparency,
     point_size = pnt_size
   )
-  
+
   # anion triangle
   piper <- .add_piper_points(
     plot = piper,
@@ -1980,7 +1985,7 @@ piper_plot.env_schema <- function(
     alpha = transparency,
     point_size = pnt_size
   )
-  
+
   # diamond
   piper <- .add_piper_points(
     plot = piper,
@@ -1993,7 +1998,7 @@ piper_plot.env_schema <- function(
     alpha = transparency,
     point_size = pnt_size
   )
-  
+
   piper <- .add_piper_labels(
     plot = piper,
     label_size = label_size,
@@ -2006,7 +2011,7 @@ piper_plot.env_schema <- function(
     x_z_anion_label = x_z_anion_label,
     x_y_cation_label = x_y_cation_label
   )
-  
+
   if (!is.null(scale_col)) {
     piper <- piper +
       ggplot2::scale_size_area(
@@ -2014,7 +2019,7 @@ piper_plot.env_schema <- function(
         max_size = 8
       )
   }
-  
+
   if (requireNamespace("viridis", quietly = TRUE)) {
     piper <- piper +
       viridis::scale_colour_viridis(discrete = TRUE)
@@ -2022,19 +2027,19 @@ piper_plot.env_schema <- function(
     piper <- piper +
       ggplot2::scale_colour_discrete()
   }
-  
+
   guide_args <- list(
     colour = ggplot2::guide_legend(location_id),
     alpha = "none"
   )
-  
+
   if (!is.null(group_col)) {
     guide_args$shape <- ggplot2::guide_legend(group_col)
   }
-  
+
   piper <- piper +
     do.call(ggplot2::guides, guide_args)
-  
+
   piper +
     ggplot2::ggtitle(title) +
     ggplot2::theme(
@@ -2046,28 +2051,28 @@ piper_plot.env_schema <- function(
 #'
 #' @noRd
 .add_piper_points <- function(
-    plot,
-    data,
-    x,
-    y,
-    location_id = "location_id",
-    group_col = NULL,
-    scale_col = NULL,
-    alpha = 0.7,
-    point_size = 3
+  plot,
+  data,
+  x,
+  y,
+  location_id = "location_id",
+  group_col = NULL,
+  scale_col = NULL,
+  alpha = 0.7,
+  point_size = 3
 ) {
   aes_args <- list(
     x = rlang::sym(x),
     y = rlang::sym(y),
     colour = rlang::sym(location_id)
   )
-  
+
   if (!is.null(group_col)) {
     aes_args$shape <- rlang::expr(
       factor(!!rlang::sym(group_col), exclude = NULL)
     )
   }
-  
+
   if (!is.null(scale_col)) {
     if (!scale_col %in% names(data)) {
       cli::cli_warn(
@@ -2076,25 +2081,25 @@ piper_plot.env_schema <- function(
           "i" = "Using constant point size."
         )
       )
-      
+
       scale_col <- NULL
     } else {
       aes_args$size <- rlang::sym(scale_col)
     }
   }
-  
+
   mapping <- do.call(ggplot2::aes, aes_args)
-  
+
   layer_args <- list(
     data = data,
     mapping = mapping,
     alpha = alpha
   )
-  
+
   if (is.null(scale_col)) {
     layer_args$size <- point_size
   }
-  
+
   plot +
     do.call(
       ggplot2::geom_point,
@@ -2106,29 +2111,29 @@ piper_plot.env_schema <- function(
 #'
 #' @noRd
 .add_piper_labels <- function(
-    plot,
-    label_size,
-    x_cation_label,
-    y_cation_label,
-    z_cation_label,
-    x_anion_label,
-    y_anion_label,
-    z_anion_label,
-    x_z_anion_label,
-    x_y_cation_label
+  plot,
+  label_size,
+  x_cation_label,
+  y_cation_label,
+  z_cation_label,
+  x_anion_label,
+  y_anion_label,
+  z_anion_label,
+  x_z_anion_label,
+  x_y_cation_label
 ) {
   label_df <- tibble::tribble(
     ~x    , ~y  , ~label           , ~angle ,
-    17   ,  50 , y_cation_label   ,     60 ,
-    82   ,  50 , z_cation_label   ,    -60 ,
-    50   , -10 , x_cation_label   ,      0 ,
+     17   ,  50 , y_cation_label   ,     60 ,
+     82   ,  50 , z_cation_label   ,    -60 ,
+     50   , -10 , x_cation_label   ,      0 ,
     170   , -10 , x_anion_label    ,      0 ,
     205   ,  50 , z_anion_label    ,    -60 ,
     138.5 ,  50 , y_anion_label    ,     60 ,
-    72.5 , 150 , x_z_anion_label  ,     60 ,
+     72.5 , 150 , x_z_anion_label  ,     60 ,
     147.5 , 150 , x_y_cation_label ,    -60
   )
-  
+
   plot +
     ggplot2::geom_text(
       data = label_df,
@@ -2159,9 +2164,9 @@ piper_time_plot <- function(df, ...) {
       call. = FALSE
     )
   }
-  
+
   iter <- unique(df$sample_date)
-  
+
   for (i in seq_along(iter)) {
     piper_plot(df[df$sample_date == iter[i], ], title = paste(iter[i]), ...)
     animation::ani.pause()
@@ -2181,17 +2186,17 @@ piper_time_html <- function(df, ...) {
       call. = FALSE
     )
   }
-  
+
   animation::saveHTML(
     {
       animation::ani.options(
         nmax = length(unique(df$sample_date)),
         outdir = getwd()
       )
-      
+
       piper_time_plot(df, ...)
     },
-    
+
     img.name = "PiperPlot",
     htmlfile = "Piper_plot.html",
     autobrowse = TRUE,
@@ -2205,7 +2210,7 @@ piper_time_html <- function(df, ...) {
 
 .ggplot_piper <- function() {
   p <- ggplot2::ggplot() +
-    
+
     ## left hand ternary plot
     ggplot2::geom_segment(ggplot2::aes(x = 0, y = 0, xend = 100, yend = 0)) +
     ggplot2::geom_segment(ggplot2::aes(
@@ -2220,7 +2225,7 @@ piper_time_html <- function(df, ...) {
       xend = 100,
       yend = 0
     )) +
-    
+
     ## right hand ternary plot
     ## shifted right by 20 points
     ggplot2::geom_segment(ggplot2::aes(x = 120, y = 0, xend = 220, yend = 0)) +
@@ -2236,7 +2241,7 @@ piper_time_html <- function(df, ...) {
       xend = 220,
       yend = 0
     )) +
-    
+
     ## Upper diamond
     ggplot2::geom_segment(ggplot2::aes(
       x = 110,
@@ -2262,7 +2267,7 @@ piper_time_html <- function(df, ...) {
       xend = 60,
       yend = 103.9236
     )) +
-    
+
     ## Add grid lines to the plots
     ggplot2::geom_segment(
       ggplot2::aes(x = x1, y = y1, yend = y2, xend = x2),
@@ -2360,7 +2365,7 @@ piper_time_html <- function(df, ...) {
       linewidth = 0.25,
       colour = "grey50"
     ) +
-    
+
     # add the grid labels
     # X Cation
     ggplot2::geom_text(
@@ -2390,7 +2395,7 @@ piper_time_html <- function(df, ...) {
       size = 2.5
     ) +
     ggplot2::coord_equal(ratio = 1) +
-    
+
     # Y Anion
     ggplot2::geom_text(
       ggplot2::aes(
@@ -2465,7 +2470,7 @@ piper_time_html <- function(df, ...) {
       axis.title.x = ggplot2::element_blank(),
       axis.title.y = ggplot2::element_blank()
     )
-  
+
   return(p)
 }
 
@@ -2476,13 +2481,13 @@ schoeller_plot <- function(x, ...) {
 
 #' @export
 schoeller_plot.data.frame <- function(
-    x,
-    location,
-    analyte,
-    result,
-    unit,
-    date,
-    ...
+  x,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
 ) {
   x <- env_schema(
     x,
@@ -2492,7 +2497,7 @@ schoeller_plot.data.frame <- function(
     unit = {{ unit }},
     date = {{ date }}
   )
-  
+
   schoeller_plot(x, ...)
 }
 
@@ -2639,39 +2644,39 @@ schoeller_plot.data.frame <- function(
 #'
 #' @export
 schoeller_plot.env_schmema <- function(
-    df,
-    location_id = "location_id",
-    sample_date = "sample_date",
-    param_name = "param_name",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    calcium = "Calcium, dissolved",
-    magnesium = "Magnesium, dissolved",
-    sodium = "Sodium, dissolved",
-    potassium = "Potassium, dissolved",
-    chloride = "Chloride, total",
-    sulfate = "Sulfate, total",
-    alkalinity = "Alkalinity, total (lab)",
-    analyte_matching = c(
-      "normalized",
-      "strict",
-      "exact"
-    ),
-    facet_var = c(
-      "location_id",
-      "sample_date"
-    ),
-    title = NULL,
-    lwt = 1
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  calcium = "Calcium, dissolved",
+  magnesium = "Magnesium, dissolved",
+  sodium = "Sodium, dissolved",
+  potassium = "Potassium, dissolved",
+  chloride = "Chloride, total",
+  sulfate = "Sulfate, total",
+  alkalinity = "Alkalinity, total (lab)",
+  analyte_matching = c(
+    "normalized",
+    "strict",
+    "exact"
+  ),
+  facet_var = c(
+    "location_id",
+    "sample_date"
+  ),
+  title = NULL,
+  lwt = 1
 ) {
   analyte_matching <- rlang::arg_match(
     analyte_matching
   )
-  
+
   facet_var <- rlang::arg_match(
     facet_var
   )
-  
+
   chemistry_df <- .prepare_major_ion_chemistry(
     df = df,
     analytes = c(
@@ -2690,11 +2695,11 @@ schoeller_plot.env_schmema <- function(
     default_unit = default_unit,
     analyte_matching = analyte_matching
   )
-  
+
   df_plot <- .transform_schoeller_data(
     chemistry_df = chemistry_df
   )
-  
+
   p <- ggplot2::ggplot(
     df_plot,
     ggplot2::aes(
@@ -2718,13 +2723,13 @@ schoeller_plot.env_schmema <- function(
         hjust = 0.5
       )
     )
-  
+
   p <- .add_schoeller_lines(
     p = p,
     facet_var = facet_var,
     lwt = lwt
   )
-  
+
   if (
     requireNamespace(
       "viridis",
@@ -2736,7 +2741,7 @@ schoeller_plot.env_schmema <- function(
         discrete = TRUE
       )
   }
-  
+
   p
 }
 
@@ -2744,9 +2749,9 @@ schoeller_plot.env_schmema <- function(
 #'
 #' @noRd
 .add_schoeller_lines <- function(
-    p,
-    facet_var,
-    lwt
+  p,
+  facet_var,
+  lwt
 ) {
   if (facet_var == "sample_date") {
     p +
@@ -2792,13 +2797,13 @@ stiff_plot <- function(x, ...) {
 
 #' @export
 stiff_plot.data.frame <- function(
-    x,
-    location,
-    analyte,
-    result,
-    unit,
-    date,
-    ...
+  x,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
 ) {
   x <- env_schema(
     x,
@@ -2808,7 +2813,7 @@ stiff_plot.data.frame <- function(
     unit = {{ unit }},
     date = {{ date }}
   )
-  
+
   stiff_plot(x, ...)
 }
 
@@ -2862,26 +2867,26 @@ stiff_plot.data.frame <- function(
 #' @export
 
 stiff_plot.env_schema <- function(
-    data,
-    location_id = "location_id",
-    sample_date = "sample_date",
-    param_name = "param_name",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    calcium = "Calcium, dissolved",
-    magnesium = "Magnesium, dissolved",
-    sodium = "Sodium, dissolved",
-    potassium = "Potassium, dissolved",
-    chloride = "Chloride, total",
-    sulfate = "Sulfate, total",
-    alkalinity = "Alkalinity, total (lab)",
-    scale_analyte = NULL,
-    group_var = location_id,
-    facet_var = sample_date,
-    stiff_limit = NULL,
-    stiff_breaks = 1,
-    lines = FALSE,
-    title = NULL
+  data,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  calcium = "Calcium, dissolved",
+  magnesium = "Magnesium, dissolved",
+  sodium = "Sodium, dissolved",
+  potassium = "Potassium, dissolved",
+  chloride = "Chloride, total",
+  sulfate = "Sulfate, total",
+  alkalinity = "Alkalinity, total (lab)",
+  scale_analyte = NULL,
+  group_var = location_id,
+  facet_var = sample_date,
+  stiff_limit = NULL,
+  stiff_breaks = 1,
+  lines = FALSE,
+  title = NULL
 ) {
   if (!facet_var %in% c(location_id, sample_date)) {
     cli::cli_abort(
@@ -2893,7 +2898,7 @@ stiff_plot.env_schema <- function(
       "{.arg group_var} must be either the location_id or sample_date column."
     )
   }
-  
+
   required_ions <- c(
     calcium,
     magnesium,
@@ -2903,24 +2908,24 @@ stiff_plot.env_schema <- function(
     sulfate,
     alkalinity
   )
-  
+
   missing <- setdiff(
     required_ions,
     unique(data[[param_name]])
   )
-  
+
   if (length(missing) == length(required_ions)) {
     cli::cli_abort(
       "No required major ions were found in the data."
     )
   }
-  
+
   if (length(missing) > 0) {
     cli::cli_warn(
       "Missing major ions: {paste(missing, collapse = ', ')}"
     )
   }
-  
+
   split(data, data[[group_var]]) %>%
     purrr::imap(
       ~ .stiff_plot(
@@ -2953,27 +2958,27 @@ stiff_plot.env_schema <- function(
 #'
 #' @noRd
 .stiff_plot <- function(
-    data,
-    group_name,
-    location_id,
-    sample_date,
-    param_name,
-    analysis_result,
-    default_unit,
-    calcium,
-    magnesium,
-    sodium,
-    potassium,
-    chloride,
-    sulfate,
-    alkalinity,
-    scale_analyte,
-    facet_var,
-    group_var,
-    lines,
-    stiff_limit,
-    stiff_breaks,
-    title
+  data,
+  group_name,
+  location_id,
+  sample_date,
+  param_name,
+  analysis_result,
+  default_unit,
+  calcium,
+  magnesium,
+  sodium,
+  potassium,
+  chloride,
+  sulfate,
+  alkalinity,
+  scale_analyte,
+  facet_var,
+  group_var,
+  lines,
+  stiff_limit,
+  stiff_breaks,
+  title
 ) {
   chemistry_df <- .prepare_major_ion_chemistry(
     df = data,
@@ -2992,9 +2997,9 @@ stiff_plot.env_schema <- function(
     analysis_result = analysis_result,
     default_unit = default_unit
   )
-  
+
   scale_df <- NULL
-  
+
   if (!is.null(scale_analyte)) {
     scale_df <- .prepare_geochemical_data(
       df = data,
@@ -3006,13 +3011,13 @@ stiff_plot.env_schema <- function(
       default_unit = default_unit
     )
   }
-  
+
   stiff_data <- .transform_stiff_data(
     chemistry_df = chemistry_df,
     scale_df = scale_df,
     scale_analyte = scale_analyte
   )
-  
+
   .build_stiff_plot(
     data = stiff_data,
     location_id = location_id,
@@ -3033,43 +3038,43 @@ stiff_plot.env_schema <- function(
 #' @noRd
 
 .build_stiff_plot <- function(
-    data,
-    location_id,
-    sample_date,
-    facet_var,
-    group_var,
-    group_name,
-    lines,
-    title,
-    scale_analyte,
-    stiff_limit,
-    stiff_breaks
+  data,
+  location_id,
+  sample_date,
+  facet_var,
+  group_var,
+  group_name,
+  lines,
+  title,
+  scale_analyte,
+  stiff_limit,
+  stiff_breaks
 ) {
   plot_title <- if (is.null(title)) {
     as.character(group_name)
   } else {
     title
   }
-  
+
   if (is.null(stiff_limit)) {
     stiff_limit <- ceiling(
       max(abs(data$stiff_x), na.rm = TRUE)
     )
-    
+
     stiff_limit <- max(
       stiff_limit,
       1
     )
   }
-  
+
   grid_breaks <- setdiff(seq(-stiff_limit, stiff_limit, by = stiff_breaks), 0)
-  
+
   if (max(abs(data$stiff_x), na.rm = TRUE) > stiff_limit) {
     cli::cli_warn(
       "Some samples exceed {.arg stiff_limit} and will be truncated."
     )
   }
-  
+
   p <- ggplot2::ggplot(
     data,
     ggplot2::aes(
@@ -3086,7 +3091,7 @@ stiff_plot.env_schema <- function(
       colour = "grey85",
       linewidth = 0.2
     )
-  
+
   if (!is.null(scale_analyte)) {
     p <- p +
       ggplot2::geom_polygon(
@@ -3115,7 +3120,7 @@ stiff_plot.env_schema <- function(
         colour = "black"
       )
   }
-  
+
   # draw vertical reference line at 0 meq/L on top.
   p <- p +
     ggplot2::geom_vline(
@@ -3123,7 +3128,7 @@ stiff_plot.env_schema <- function(
       colour = "black",
       linewidth = 0.8
     )
-  
+
   label_data <- data %>%
     dplyr::distinct(
       .data[[facet_var]],
@@ -3131,7 +3136,7 @@ stiff_plot.env_schema <- function(
       label_side,
       stiff_y
     )
-  
+
   label_data <- label_data %>%
     dplyr::mutate(
       label_x = dplyr::if_else(
@@ -3145,7 +3150,7 @@ stiff_plot.env_schema <- function(
         0
       )
     )
-  
+
   p <- p +
     ggplot2::geom_text(
       data = label_data,
@@ -3159,7 +3164,7 @@ stiff_plot.env_schema <- function(
       parse = TRUE,
       size = 3
     )
-  
+
   if (isTRUE(lines)) {
     p <- p +
       ggplot2::geom_segment(
@@ -3175,7 +3180,7 @@ stiff_plot.env_schema <- function(
         colour = "grey70"
       )
   }
-  
+
   return(
     p +
       ggplot2::facet_wrap(
@@ -3234,10 +3239,10 @@ stiff_plot.env_schema <- function(
 #' @export
 
 stiff_time_plot <- function(
-    data,
-    sample_date = "sample_date",
-    pause = 1,
-    ...
+  data,
+  sample_date = "sample_date",
+  pause = 1,
+  ...
 ) {
   .animate_geochemical_plots(
     data = data,
@@ -3262,11 +3267,11 @@ stiff_time_plot <- function(
 #' @export
 
 stiff_time_html <- function(
-    data,
-    sample_date = "sample_date",
-    htmlfile = "Stiff_plot.html",
-    pause = 1,
-    ...
+  data,
+  sample_date = "sample_date",
+  htmlfile = "Stiff_plot.html",
+  pause = 1,
+  ...
 ) {
   .save_geochemical_animation(
     data = data,
@@ -3287,13 +3292,13 @@ durov_plot <- function(x, ...) {
 
 #' @export
 durov_plot.data.frame <- function(
-    x,
-    location,
-    analyte,
-    result,
-    unit,
-    date,
-    ...
+  x,
+  location,
+  analyte,
+  result,
+  unit,
+  date,
+  ...
 ) {
   x <- env_schema(
     x,
@@ -3303,7 +3308,7 @@ durov_plot.data.frame <- function(
     unit = {{ unit }},
     date = {{ date }}
   )
-  
+
   durov_plot(x, ...)
 }
 
@@ -3328,23 +3333,23 @@ durov_plot.data.frame <- function(
 #'
 #' @export
 durov_plot.env_schema <- function(
-    df,
-    location_id = "location_id",
-    sample_date = "sample_date",
-    param_name = "param_name",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    analyte_matching = c(
-      "normalized",
-      "strict",
-      "exact"
-    ),
-    title = NULL
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  analyte_matching = c(
+    "normalized",
+    "strict",
+    "exact"
+  ),
+  title = NULL
 ) {
   analyte_matching <- rlang::arg_match(
     analyte_matching
   )
-  
+
   chemistry_df <- .prepare_major_ion_chemistry(
     df = df,
     location_id = location_id,
@@ -3354,11 +3359,11 @@ durov_plot.env_schema <- function(
     default_unit = default_unit,
     analyte_matching = analyte_matching
   )
-  
+
   plot_df <- .transform_durov_data(
     chemistry_df
   )
-  
+
   if (
     !all(
       c(
@@ -3367,22 +3372,22 @@ durov_plot.env_schema <- function(
         "durov_x_plot",
         "durov_y_plot"
       ) %in%
-      names(plot_df)
+        names(plot_df)
     )
   ) {
     rlang::abort(
       "Invalid Durov transform output."
     )
   }
-  
+
   plot_df <- plot_df %>%
     dplyr::filter(
       !is.na(durov_x_plot),
       !is.na(durov_y_plot)
     )
-  
+
   framework <- .durov_framework()
-  
+
   legend_text <- paste(
     c(
       "Durov Field Interpretation",
@@ -3395,21 +3400,21 @@ durov_plot.env_schema <- function(
     ),
     collapse = "\n"
   )
-  
+
   ggplot2::ggplot() +
-    
+
     # -------------------------------------------------
-  # CATION TRIANGLE
-  # -------------------------------------------------
-  
-  ggplot2::geom_path(
-    data = framework$cation_triangle,
-    ggplot2::aes(
-      x,
-      y
-    )
-  ) +
-    
+    # CATION TRIANGLE
+    # -------------------------------------------------
+
+    ggplot2::geom_path(
+      data = framework$cation_triangle,
+      ggplot2::aes(
+        x,
+        y
+      )
+    ) +
+
     ggplot2::geom_point(
       data = plot_df,
       ggplot2::aes(
@@ -3425,33 +3430,33 @@ durov_plot.env_schema <- function(
       y = -5,
       label = "Ca"
     ) +
-    
+
     ggplot2::annotate(
       "text",
       x = 100,
       y = -5,
       label = "Na + K"
     ) +
-    
+
     ggplot2::annotate(
       "text",
       x = 50,
       y = 90,
       label = "Mg"
     ) +
-    
+
     # -------------------------------------------------
-  # ANION TRIANGLE
-  # -------------------------------------------------
-  
-  ggplot2::geom_path(
-    data = framework$anion_triangle,
-    ggplot2::aes(
-      x,
-      y
-    )
-  ) +
-    
+    # ANION TRIANGLE
+    # -------------------------------------------------
+
+    ggplot2::geom_path(
+      data = framework$anion_triangle,
+      ggplot2::aes(
+        x,
+        y
+      )
+    ) +
+
     ggplot2::geom_point(
       data = plot_df,
       ggplot2::aes(
@@ -3469,14 +3474,14 @@ durov_plot.env_schema <- function(
         HCO[3]
       )
     ) +
-    
+
     ggplot2::annotate(
       "text",
       x = 220,
       y = -5,
       label = "Cl"
     ) +
-    
+
     ggplot2::annotate(
       "text",
       x = 170,
@@ -3485,19 +3490,19 @@ durov_plot.env_schema <- function(
         SO[4]
       )
     ) +
-    
+
     # -------------------------------------------------
-  # DUROV SQUARE
-  # -------------------------------------------------
-  
-  ggplot2::geom_path(
-    data = framework$square,
-    ggplot2::aes(
-      x,
-      y
-    )
-  ) +
-    
+    # DUROV SQUARE
+    # -------------------------------------------------
+
+    ggplot2::geom_path(
+      data = framework$square,
+      ggplot2::aes(
+        x,
+        y
+      )
+    ) +
+
     ggplot2::geom_segment(
       data = framework$square_grid_v,
       ggplot2::aes(
@@ -3509,7 +3514,7 @@ durov_plot.env_schema <- function(
       linetype = 2,
       linewidth = 0.25
     ) +
-    
+
     ggplot2::geom_segment(
       data = framework$square_grid_h,
       ggplot2::aes(
@@ -3521,7 +3526,7 @@ durov_plot.env_schema <- function(
       linetype = 2,
       linewidth = 0.25
     ) +
-    
+
     ggplot2::geom_point(
       data = plot_df,
       ggplot2::aes(
@@ -3531,23 +3536,23 @@ durov_plot.env_schema <- function(
       ),
       size = 2
     ) +
-    
+
     ggplot2::coord_equal(
       xlim = c(-10, 230),
       ylim = c(-10, 210),
       expand = FALSE,
       clip = "off"
     ) +
-    
+
     ggplot2::theme_bw() +
-    
+
     ggplot2::annotate(
       "text",
       x = 110,
       y = 95,
       label = "Na + K (% of cations)"
     ) +
-    
+
     ggplot2::annotate(
       "text",
       x = 50,
@@ -3555,13 +3560,13 @@ durov_plot.env_schema <- function(
       label = "Cl (% of anions)",
       angle = 90
     ) +
-    
+
     ggplot2::labs(
       title = title,
       colour = NULL,
       caption = legend_text
     ) +
-    
+
     ggplot2::theme(
       axis.title = ggplot2::element_blank(),
       axis.text = ggplot2::element_blank(),
@@ -3594,16 +3599,16 @@ durov_plot.env_schema <- function(
 #' @noRd
 .durov_framework <- function() {
   h <- sqrt(3) / 2 * 100
-  
+
   list(
     cation_triangle = tibble::tribble(
       ~x  , ~y ,
-      0 ,  0 ,
+        0 ,  0 ,
       100 ,  0 ,
-      50 , h  ,
-      0 ,  0
+       50 , h  ,
+        0 ,  0
     ),
-    
+
     anion_triangle = tibble::tribble(
       ~x  , ~y ,
       120 ,  0 ,
@@ -3611,41 +3616,41 @@ durov_plot.env_schema <- function(
       170 , h  ,
       120 ,  0
     ),
-    
+
     square = tibble::tribble(
       ~x  , ~y      ,
-      60 , h       ,
+       60 , h       ,
       160 , h       ,
       160 , h + 100 ,
-      60 , h + 100 ,
-      60 , h
+       60 , h + 100 ,
+       60 , h
     ),
-    
+
     square_grid_v = tibble::tribble(
       ~x  , ~xend , ~y , ~yend   ,
-      85 ,    85 , h  , h + 100 ,
+       85 ,    85 , h  , h + 100 ,
       110 ,   110 , h  , h + 100 ,
       135 ,   135 , h  , h + 100
     ),
-    
+
     square_grid_h = tibble::tribble(
       ~x , ~xend , ~y     , ~yend  ,
       60 ,   160 , h + 25 , h + 25 ,
       60 ,   160 , h + 50 , h + 50 ,
       60 ,   160 , h + 75 , h + 75
     ),
-    
+
     field_labels = tibble::tribble(
       ~label , ~x    , ~y       ,
-      
+
       "1"    ,  72.5 , h + 87.5 ,
       "2"    ,  97.5 , h + 87.5 ,
       "3"    , 122.5 , h + 87.5 ,
-      
+
       "4"    ,  72.5 , h + 62.5 ,
       "5"    ,  97.5 , h + 62.5 ,
       "6"    , 122.5 , h + 62.5 ,
-      
+
       "7"    ,  72.5 , h + 37.5 ,
       "8"    ,  97.5 , h + 37.5 ,
       "9"    , 122.5 , h + 37.5
@@ -3660,18 +3665,18 @@ durov_plot.env_schema <- function(
 .durov_field_legend <- function() {
   tibble::tribble(
     ~field , ~interpretation                          ,
-    
-    1 , "Ca-HCO3 facies (recharge waters)"       ,
-    2 , "Mixed Ca-Mg-HCO3 facies"                ,
-    3 , "Na-HCO3 facies"                         ,
-    
-    4 , "Ca-Mg-Cl facies"                        ,
-    5 , "Mixed water / no dominant facies"       ,
-    6 , "Na-Cl facies"                           ,
-    
-    7 , "Ca-Cl facies"                           ,
-    8 , "Ion exchange influenced waters"         ,
-    9 , "Advanced ion exchange or saline waters"
+
+         1 , "Ca-HCO3 facies (recharge waters)"       ,
+         2 , "Mixed Ca-Mg-HCO3 facies"                ,
+         3 , "Na-HCO3 facies"                         ,
+
+         4 , "Ca-Mg-Cl facies"                        ,
+         5 , "Mixed water / no dominant facies"       ,
+         6 , "Na-Cl facies"                           ,
+
+         7 , "Ca-Cl facies"                           ,
+         8 , "Ion exchange influenced waters"         ,
+         9 , "Advanced ion exchange or saline waters"
   )
 }
 
@@ -3684,20 +3689,20 @@ durov_plot.env_schema <- function(
 #' @noRd
 
 .add_standards <- function(
-    plot,
-    df,
-    standards = TRUE
+  plot,
+  df,
+  standards = TRUE
 ) {
   if (!isTRUE(standards)) {
     return(plot)
   }
-  
+
   std_df <- .prepare_standards_data(df)
-  
+
   if (nrow(std_df) == 0) {
     return(plot)
   }
-  
+
   plot +
     ggplot2::geom_hline(
       data = std_df,
@@ -3728,14 +3733,14 @@ durov_plot.env_schema <- function(
 #'
 #' @noRd
 .animate_geochemical_plots <- function(
-    data,
-    plot_fn,
-    sample_date = "sample_date",
-    pause = 1,
-    ...
+  data,
+  plot_fn,
+  sample_date = "sample_date",
+  pause = 1,
+  ...
 ) {
   dates <- sort(unique(data[[sample_date]]))
-  
+
   plots <- purrr::map(
     dates,
     function(date) {
@@ -3749,15 +3754,15 @@ durov_plot.env_schema <- function(
       )
     }
   )
-  
+
   plots <- unlist(
     plots,
     recursive = FALSE
   )
-  
+
   for (i in seq_along(plots)) {
     print(plots[[i]])
-    
+
     readline(
       paste(
         "Frame",
@@ -3768,7 +3773,7 @@ durov_plot.env_schema <- function(
       )
     )
   }
-  
+
   invisible(plots)
 }
 
@@ -3789,14 +3794,14 @@ durov_plot.env_schema <- function(
 #' @noRd
 
 .save_geochemical_animation <- function(
-    data,
-    plot_fn,
-    sample_date = "sample_date",
-    htmlfile,
-    title,
-    pause = 1,
-    img.name = "Animation",
-    ...
+  data,
+  plot_fn,
+  sample_date = "sample_date",
+  htmlfile,
+  title,
+  pause = 1,
+  img.name = "Animation",
+  ...
 ) {
   animation::saveHTML(
     expr = {
@@ -3813,6 +3818,65 @@ durov_plot.env_schema <- function(
     autobrowse = TRUE,
     title = title
   )
-  
+
   invisible(htmlfile)
+}
+
+#' Spatial Plot
+#' @export
+sp_plot <- function(
+  df,
+  x = "analysis_result",
+  color = "location_id",
+  sample_interval = "semi-annually",
+  group_var = "param_name",
+  facet_var = "sample_date"
+) {
+  df %>%
+    group_by_(group_var) %>%
+    do(
+      plot = .sp_plot(
+        .,
+        x = x,
+        color = color,
+        sample_interval = sample_interval,
+        group_var = group_var,
+        facet_var = facet_var
+      )
+    )
+}
+
+#' Helper function for sp_plot
+#'
+#' @noRd
+.sp_plot <- function(
+  df,
+  x = "analysis_result",
+  color = "location_id",
+  sample_interval = "semi-annually",
+  group_var = NULL,
+  facet_var = NULL
+) {
+  if (sample_interval == "semi-annually") {
+    df$sample_date <- lubridate::semester(df$sample_date, with_year = TRUE)
+  }
+
+  if (sample_interval == "quarterly") {
+    df$sample_date <- lubridate::quarter(df$sample_date, with_year = TRUE)
+  }
+
+  p <- ggplot(data = df, aes_string(size = x, color = color)) +
+    geom_sf() +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    scale_size_continuous(name = "Analysis Result") +
+    scale_color_viridis_d("Location ID")
+
+  if (!is.null(facet_var)) {
+    p <- p +
+      facet_wrap(paste(facet_var)) +
+      ggtitle(paste("Plot for", df[[paste(group_var)]][1], "\n", sep = " "))
+  }
+
+  print(p)
 }

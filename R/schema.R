@@ -470,64 +470,64 @@ env_schema <- function(
 #'
 #' @keywords internal
 .classify_results <- function(
-    flag,
-    lookup = .qualifier_tbl
+  flag,
+  lookup = .qualifier_tbl
 ) {
   flag <- stringr::str_squish(
     as.character(flag)
   )
-  
+
   x <- tibble::tibble(
     reporting_flag = toupper(flag)
   )
-  
+
   out <- x %>%
     dplyr::left_join(
       lookup,
       by = "reporting_flag"
     )
-  
+
   # ------------------------------------------------------------
   # Unqualified results are assumed to be detects
   # ------------------------------------------------------------
-  
+
   out$result_type[
     is.na(out$reporting_flag)
   ] <- "detect"
-  
+
   out$detected[
     is.na(out$reporting_flag)
   ] <- TRUE
-  
+
   out$censored[
     is.na(out$reporting_flag)
   ] <- FALSE
-  
+
   out$estimated[
     is.na(out$reporting_flag)
   ] <- FALSE
-  
+
   out$rejected[
     is.na(out$reporting_flag)
   ] <- FALSE
-  
+
   # ------------------------------------------------------------
   # Unknown qualifiers
   # ------------------------------------------------------------
-  
+
   unknown <- !is.na(out$reporting_flag) &
     is.na(out$result_type)
-  
+
   out$result_type[unknown] <- "unknown"
-  
+
   out$detected[unknown] <- FALSE
-  
+
   out$censored[unknown] <- FALSE
-  
+
   out$estimated[unknown] <- FALSE
-  
+
   out$rejected[unknown] <- FALSE
-  
+
   out
 }
 
@@ -549,17 +549,17 @@ env_schema <- function(
 #'
 #' @keywords internal
 .resolve_reporting_flag <- function(
-    flags = NULL,
-    lt_measure = NULL
+  flags = NULL,
+  lt_measure = NULL
 ) {
   flags <- trimws(
     as.character(flags)
   )
-  
+
   lt_measure <- trimws(
     as.character(lt_measure)
   )
-  
+
   flags[
     flags %in%
       c(
@@ -567,16 +567,16 @@ env_schema <- function(
         "NA"
       )
   ] <- NA_character_
-  
+
   out <- flags
-  
+
   missing_flag <- is.na(out)
-  
+
   out[
     missing_flag &
       lt_measure %in% "<"
   ] <- "U"
-  
+
   out
 }
 
@@ -585,16 +585,16 @@ env_schema <- function(
 #' @keywords internal
 .qualifier_tbl <- tibble::tribble(
   ~reporting_flag , ~result_type , ~detected , ~censored , ~estimated , ~rejected ,
-  
+
   "<"             , "nondetect"  , FALSE     , TRUE      , FALSE      , FALSE     ,
   "ND"            , "nondetect"  , FALSE     , TRUE      , FALSE      , FALSE     ,
   "U"             , "nondetect"  , FALSE     , TRUE      , FALSE      , FALSE     ,
-  
+
   "J"             , "estimated"  , TRUE      , FALSE     , TRUE       , FALSE     ,
   "UJ"            , "estimated"  , FALSE     , TRUE      , TRUE       , FALSE     ,
   "JB"            , "estimated"  , TRUE      , FALSE     , TRUE       , FALSE     ,
   "EST"           , "estimated"  , TRUE      , FALSE     , TRUE       , FALSE     ,
-  
+
   "R"             , "rejected"   , FALSE     , FALSE     , FALSE      , TRUE      ,
   "REJ"           , "rejected"   , FALSE     , FALSE     , FALSE      , TRUE
 )
@@ -619,285 +619,6 @@ is_env_schema <- function(x) {
   inherits(x, "env_schema")
 }
 
-#' Validate an environmental schema
-#'
-#' @param x Object to validate.
-#'
-#' @returns Invisibly returns TRUE.
-#'
-#' @export
-validate_env_schema <- function(x) {
-  if (!is_env_schema(x)) {
-    rlang::abort(
-      "Object must inherit from 'env_schema'."
-    )
-  }
-  
-  mapping <- get_env_mapping(x)
-  
-  required <- c(
-    mapping$location,
-    mapping$date,
-    mapping$analyte,
-    mapping$result
-  )
-  
-  required <- stats::na.omit(required)
-  
-  missing <- setdiff(
-    required,
-    names(x)
-  )
-  
-  if (length(missing) > 0) {
-    rlang::abort(
-      paste(
-        "Missing mapped columns:",
-        paste(missing, collapse = ", ")
-      )
-    )
-  }
-  
-  # ------------------------------------------------------------
-  # Required column types
-  # ------------------------------------------------------------
-  
-  if (!".analyte_id" %in% names(x)) {
-    rlang::abort(
-      "Missing '.analyte_id'."
-    )
-  }
-  
-  if (!".analyte_id" %in% names(x)) {
-    rlang::abort(
-      "Missing required derived column '.analyte_id'."
-    )
-  }
-  
-  if (!is.character(x$.analyte_id)) {
-    rlang::abort(
-      "'.analyte_id' must be character."
-    )
-  }
-  
-  if (!is.character(location(x))) {
-    rlang::abort(
-      "Location column must be character."
-    )
-  }
-  
-  if (!is.character(analyte(x))) {
-    rlang::abort(
-      "'Analyte' must be character."
-    )
-  }
-  
-  if (
-    !inherits(
-      date(x),
-      c(
-        "Date",
-        "POSIXct",
-        "POSIXt"
-      )
-    )
-  ) {
-    rlang::abort(
-      "'date' must be a Date or POSIXct column."
-    )
-  }
-  
-  if (!is.numeric(x$.original_lab_result)) {
-    rlang::abort(
-      "'.original_lab_result' must be numeric."
-    )
-  }
-  
-  if (!is.numeric(result(x))) {
-    rlang::abort(
-      "Result column must be numeric."
-    )
-  }
-  
-  # ------------------------------------------------------------
-  # Optional environmental thresholds
-  # ------------------------------------------------------------
-  
-  if (".reporting_limit" %in% names(x) && !is.numeric(x$.reporting_limit)) {
-    rlang::abort(
-      "'.reporting_limit' must be numeric."
-    )
-  }
-  
-  if (".detection_limit" %in% names(x) && !is.numeric(x$.detection_limit)) {
-    rlang::abort(
-      "'.detection_limit' must be numeric."
-    )
-  }
-  
-  if (
-    ".quantitation_limit" %in% names(x) && !is.numeric(x$.quantitation_limit)
-  ) {
-    rlang::abort(
-      "'.quantitation_limit' must be numeric."
-    )
-  }
-  
-  if (".achieved_mdc" %in% names(x) && !is.numeric(x$.achieved_mdc)) {
-    rlang::abort(
-      "'.achieved_mdc' must be numeric."
-    )
-  }
-  
-  # ------------------------------------------------------------
-  # Result classification columns
-  # ------------------------------------------------------------
-  
-  if (".detected" %in% names(x) && !is.logical(x$.detected)) {
-    rlang::abort(
-      "'.detected' must be logical."
-    )
-  }
-  
-  if (".censored" %in% names(x) && !is.logical(x$.censored)) {
-    rlang::abort(
-      "'.censored' must be logical."
-    )
-  }
-  
-  if (".estimated" %in% names(x) && !is.logical(x$.estimated)) {
-    rlang::abort(
-      "'.estimated' must be logical."
-    )
-  }
-  
-  if (".rejected" %in% names(x) && !is.logical(x$.rejected)) {
-    rlang::abort(
-      "'.rejected' must be logical."
-    )
-  }
-  
-  if (".usable" %in% names(x) && !is.logical(x$.usable)) {
-    rlang::abort(
-      "'.usable' must be logical."
-    )
-  }
-  
-  # ------------------------------------------------------------
-  # Analyte metadata
-  # ------------------------------------------------------------
-  
-  if (".charge" %in% names(x) && !is.numeric(x$.charge)) {
-    rlang::abort(
-      "'.charge' must be numeric."
-    )
-  }
-  
-  if (".molecular_weight" %in% names(x) && !is.numeric(x$.molecular_weight)) {
-    rlang::abort(
-      "'.molecular_weight' must be numeric."
-    )
-  }
-  
-  if (".meq_factor" %in% names(x) && !is.numeric(x$.meq_factor)) {
-    rlang::abort(
-      "'.meq_factor' must be numeric."
-    )
-  }
-  
-  # ------------------------------------------------------------
-  # Required attributes
-  # ------------------------------------------------------------
-  
-  if (
-    is.null(
-      attr(
-        x,
-        "threshold_metadata"
-      )
-    )
-  ) {
-    rlang::abort(
-      "Missing threshold_metadata attribute."
-    )
-  }
-  
-  if (
-    is.null(
-      attr(
-        x,
-        "env_schema_version"
-      )
-    )
-  ) {
-    rlang::abort(
-      "Missing env_schema_version attribute."
-    )
-  }
-  
-  invisible(TRUE)
-}
-
-#' Validate minimum env_schema structure
-#'
-#' Used internally by vec_restore() and dplyr reconstruction.
-#'
-#' @keywords internal
-validate_env_schema_structure <- function(x) {
-  mapping <- attr(
-    x,
-    "env_mapping",
-    exact = TRUE
-  )
-  
-  if (is.null(mapping)) {
-    rlang::abort(
-      "Missing env_mapping attribute."
-    )
-  }
-  
-  required <- c(
-    mapping$location,
-    mapping$date,
-    mapping$analyte,
-    mapping$result
-  )
-  
-  required <- stats::na.omit(required)
-  
-  missing <- setdiff(
-    required,
-    names(x)
-  )
-  
-  if (length(missing) > 0) {
-    rlang::abort(
-      paste(
-        "Missing mapped columns:",
-        paste(missing, collapse = ", ")
-      )
-    )
-  }
-  invisible(TRUE)
-}
-
-#' Check if valid schema
-#'
-#' @keywords internal
-is_valid_env_schema <- function(x) {
-  if (!inherits(x, "env_schema")) {
-    return(FALSE)
-  }
-  
-  tryCatch(
-    {
-      validate_env_schema(x)
-      TRUE
-    },
-    error = function(e) FALSE
-  )
-}
-
 #' Check required env_schema columns structure
 #'
 #' @keywords internal
@@ -907,11 +628,11 @@ has_env_schema_structure <- function(x) {
     "env_mapping",
     exact = TRUE
   )
-  
+
   if (is.null(mapping)) {
     return(FALSE)
   }
-  
+
   required <- stats::na.omit(
     c(
       mapping$location,
@@ -920,11 +641,11 @@ has_env_schema_structure <- function(x) {
       mapping$result
     )
   )
-  
+
   required <- required[
     !is.null(required)
   ]
-  
+
   all(required %in% names(x))
 }
 
@@ -948,7 +669,7 @@ as_env_schema.data.frame <- function(x, ...) {
       )
     )
   }
-  
+
   env_schema(
     x,
     ...
@@ -987,28 +708,28 @@ tbl_sum.env_schema <- function(x) {
 #'
 #' @keywords internal
 restore_env_schema <- function(
-    x,
-    to,
-    validate = TRUE
+  x,
+  to,
+  validate = TRUE
 ) {
   metadata_names <- names(x)
-  
+
   mapping <- attr(
     to,
     "env_mapping",
     exact = TRUE
   )
-  
+
   mapping <- mapping[
     unlist(mapping, use.names = FALSE) %in%
       names(x)
   ]
-  
+
   out <- new_env_schema(
     x,
-    
+
     env_mapping = mapping,
-    
+
     measurement_metadata = intersect(
       attr(
         to,
@@ -1017,7 +738,7 @@ restore_env_schema <- function(
       ),
       metadata_names
     ),
-    
+
     threshold_metadata = intersect(
       attr(
         to,
@@ -1026,7 +747,7 @@ restore_env_schema <- function(
       ),
       metadata_names
     ),
-    
+
     schema_metadata = intersect(
       attr(
         to,
@@ -1035,66 +756,66 @@ restore_env_schema <- function(
       ),
       metadata_names
     ),
-    
+
     analyte_metadata = intersect(
       known_analyte_metadata(),
       metadata_names
     ),
-    
+
     schema_version = attr(
       to,
       "env_schema_version",
       exact = TRUE
     ),
-    
+
     schema_created = attr(
       to,
       "env_schema_created",
       exact = TRUE
     ),
-    
+
     analyte_lookup_source = attr(
       to,
       "analyte_lookup_source",
       exact = TRUE
     ),
-    
+
     analyte_lookup_version = attr(
       to,
       "analyte_lookup_version",
       exact = TRUE
     ),
-    
+
     analyte_lookup_n = attr(
       to,
       "analyte_lookup_n",
       exact = TRUE
     ),
-    
+
     analyte_lookup_cols = attr(
       to,
       "analyte_lookup_cols",
       exact = TRUE
     )
   )
-  
+
   class(out) <- unique(
     c(
       setdiff(class(x), c("tbl_df", "tbl", "data.frame")),
       class(out)
     )
   )
-  
+
   dplyr_attrs <- attributes(x)
-  
+
   if (!is.null(dplyr_attrs$groups)) {
     attr(out, "groups") <- dplyr_attrs$groups
   }
-  
+
   if (validate) {
     validate_env_schema(out)
   }
-  
+
   out
 }
 
@@ -1102,72 +823,72 @@ restore_env_schema <- function(
 #'
 #' @keywords internal
 new_env_schema <- function(
-    x,
-    env_mapping = NULL,
-    measurement_metadata = character(),
-    threshold_metadata = character(),
-    schema_metadata = character(),
-    analyte_metadata = NULL,
-    schema_version = "0.5.0",
-    schema_created = Sys.time(),
-    
-    analyte_lookup = NULL,
-    
-    analyte_lookup_source = NULL,
-    analyte_lookup_version = NULL,
-    analyte_lookup_n = NULL,
-    analyte_lookup_cols = NULL
+  x,
+  env_mapping = NULL,
+  measurement_metadata = character(),
+  threshold_metadata = character(),
+  schema_metadata = character(),
+  analyte_metadata = NULL,
+  schema_version = "0.5.0",
+  schema_created = Sys.time(),
+
+  analyte_lookup = NULL,
+
+  analyte_lookup_source = NULL,
+  analyte_lookup_version = NULL,
+  analyte_lookup_n = NULL,
+  analyte_lookup_cols = NULL
 ) {
   x <- tibble::as_tibble(x)
-  
+
   if (is.null(analyte_metadata)) {
     analyte_cols <- c(
       ".source_analyte",
       ".normalized_input",
-      
+
       ".analyte",
       ".analyte_id",
       ".normalized_analyte",
-      
+
       ".fraction",
       ".is_known_analyte",
-      
+
       ".short_name",
       ".casrn",
-      
+
       ".analyte_group",
       ".subcategory",
       ".regulatory_class",
-      
+
       ".std_unit",
-      
+
       ".ion_class",
       ".charge",
       ".molecular_weight",
       ".meq_factor",
-      
+
       ".analysis_result_meq",
       ".analysis_unit_meq",
-      
+
       ".is_major_ion",
       ".is_trace_metal",
       ".is_radionuclide",
       ".is_general_chemistry",
       ".is_field_parameter",
-      
+
       ".analyte_label",
       ".short_analyte_label"
     )
-    
+
     analyte_metadata <- intersect(
       analyte_cols,
       names(x)
     )
   }
-  
+
   if (
     is.null(analyte_lookup_source) &&
-    !is.null(analyte_lookup)
+      !is.null(analyte_lookup)
   ) {
     analyte_lookup_source <-
       if (
@@ -1184,47 +905,47 @@ new_env_schema <- function(
         "user"
       }
   }
-  
+
   if (
     is.null(analyte_lookup_version) &&
-    !is.null(analyte_lookup)
+      !is.null(analyte_lookup)
   ) {
     analyte_lookup_version <-
       utils::packageVersion("manager")
   }
-  
+
   if (
     is.null(analyte_lookup_n) &&
-    !is.null(analyte_lookup)
+      !is.null(analyte_lookup)
   ) {
     analyte_lookup_n <- nrow(analyte_lookup)
   }
-  
+
   if (
     is.null(analyte_lookup_cols) &&
-    !is.null(analyte_lookup)
+      !is.null(analyte_lookup)
   ) {
     analyte_lookup_cols <- names(analyte_lookup)
   }
-  
+
   structure(
     x,
-    
+
     env_mapping = env_mapping,
-    
+
     measurement_metadata = measurement_metadata,
     threshold_metadata = threshold_metadata,
     schema_metadata = schema_metadata,
     analyte_metadata = analyte_metadata,
-    
+
     env_schema_version = schema_version,
     env_schema_created = schema_created,
-    
+
     analyte_lookup_source = analyte_lookup_source,
     analyte_lookup_version = analyte_lookup_version,
     analyte_lookup_n = analyte_lookup_n,
     analyte_lookup_cols = analyte_lookup_cols,
-    
+
     class = c(
       "env_schema",
       class(x)
@@ -1268,32 +989,32 @@ known_analyte_metadata <- function() {
 #' @keywords internal
 #' @noRd
 .restore_geochemical_schema <- function(
-    x,
-    template
+  x,
+  template
 ) {
   out <- restore_env_schema(
     x = x,
     to = template,
     validate = FALSE
   )
-  
+
   mapping <- attr(
     out,
     "env_mapping",
     exact = TRUE
   )
-  
+
   mapping$analyte <- "analyte"
   mapping$result <- ".analysis_result"
   mapping$unit <- ".analysis_unit"
-  
+
   attr(
     out,
     "env_mapping"
   ) <- mapping
-  
+
   validate_env_schema(out)
-  
+
   out
 }
 
@@ -1359,7 +1080,7 @@ schema_created <- function(x) {
       "Object must inherit from 'env_schema'."
     )
   }
-  
+
   attr(
     x,
     "env_schema_created",
@@ -1380,7 +1101,7 @@ schema_metadata <- function(x) {
       "Object must inherit from 'env_schema'."
     )
   }
-  
+
   get_schema_metadata(x)
 }
 
@@ -1397,13 +1118,13 @@ measurement_metadata <- function(x) {
       "Object must inherit from 'env_schema'."
     )
   }
-  
+
   meta <- get_measurement_metadata(x)
-  
+
   if (is.null(meta)) {
     return(character())
   }
-  
+
   meta
 }
 
@@ -1420,7 +1141,7 @@ schema_mapping <- function(x) {
       "Object must inherit from 'env_schema'."
     )
   }
-  
+
   get_env_mapping(x)
 }
 
@@ -1437,7 +1158,7 @@ schema_version <- function(x) {
       "Object must inherit from 'env_schema'."
     )
   }
-  
+
   attr(
     x,
     "env_schema_version",
@@ -1458,7 +1179,7 @@ schema_result_types <- function(x) {
       "Object must inherit from 'env_schema'."
     )
   }
-  
+
   x %>%
     dplyr::count(
       .result_type,
@@ -1472,13 +1193,13 @@ schema_result_types <- function(x) {
 
 #' @keywords internal
 .get_mapped_column <- function(
-    x,
-    column
+  x,
+  column
 ) {
   if (is.null(column)) {
     return(NULL)
   }
-  
+
   x[[column]]
 }
 
@@ -1596,12 +1317,12 @@ analysis_unit_meq_var <- function(x) {
 #'
 #' @export
 analysis_analyte <- function(
-    x,
-    analyte_matching = c(
-      "normalized",
-      "strict",
-      "exact"
-    )
+  x,
+  analyte_matching = c(
+    "normalized",
+    "strict",
+    "exact"
+  )
 ) {
   UseMethod("analysis_analyte")
 }
@@ -1814,12 +1535,12 @@ short_analyte_label <- function(x) {
 
 #' @export
 analysis_analyte.env_schema <- function(
-    x,
-    analyte_matching = c(
-      "exact",
-      "strict",
-      "normalized"
-    )
+  x,
+  analyte_matching = c(
+    "exact",
+    "strict",
+    "normalized"
+  )
 ) {
   .analyte_key(
     analyte = x$.analyte,
@@ -1953,13 +1674,13 @@ analysis_unit.env_schema <- function(x) {
 #' @export
 analysis_result_meq <- function(x) {
   col <- analysis_result_meq_var(x)
-  
+
   if (!col %in% names(x)) {
     rlang::abort(
       "'.analysis_result_meq' is not present."
     )
   }
-  
+
   x[[col]]
 }
 
@@ -1972,13 +1693,13 @@ analysis_result_meq <- function(x) {
 #' @export
 analysis_unit_meq <- function(x) {
   col <- analysis_unit_meq_var(x)
-  
+
   if (!col %in% names(x)) {
     rlang::abort(
       "'.analysis_unit_meq' is not present."
     )
   }
-  
+
   x[[col]]
 }
 
@@ -2027,8 +1748,8 @@ short_analyte_label.env_schema <- function(x) {
 # -------------------------------------------------------------------------
 
 .accessor_not_implemented <- function(
-    generic,
-    x
+  generic,
+  x
 ) {
   rlang::abort(
     paste0(
@@ -2042,12 +1763,12 @@ short_analyte_label.env_schema <- function(x) {
 
 #' @export
 analysis_analyte.default <- function(
-    x,
-    analyte_matching = c(
-      "normalized",
-      "strict",
-      "exact"
-    )
+  x,
+  analyte_matching = c(
+    "normalized",
+    "strict",
+    "exact"
+  )
 ) {
   .accessor_not_implemented(
     "analysis_analyte",
@@ -2173,10 +1894,10 @@ short_analyte_label.default <- function(x) {
 
 #' @export
 group_by.env_schema <- function(
-    .data,
-    ...,
-    .add = FALSE,
-    .drop = dplyr::group_by_drop_default(.data)
+  .data,
+  ...,
+  .add = FALSE,
+  .drop = dplyr::group_by_drop_default(.data)
 ) {
   out <- dplyr::group_by(
     tibble::as_tibble(.data),
@@ -2184,7 +1905,7 @@ group_by.env_schema <- function(
     .add = .add,
     .drop = .drop
   )
-  
+
   restore_env_schema(
     out,
     .data,
@@ -2197,7 +1918,7 @@ ungroup.env_schema <- function(x, ...) {
   out <- dplyr::ungroup(
     tibble::as_tibble(x)
   )
-  
+
   restore_env_schema(
     out,
     x,
@@ -2210,9 +1931,9 @@ NULL
 
 #' @export
 vec_restore.env_schema <- function(
-    x,
-    to,
-    ...
+  x,
+  to,
+  ...
 ) {
   restore_env_schema(
     x,
@@ -2223,8 +1944,8 @@ vec_restore.env_schema <- function(
 
 #' @export
 dplyr_reconstruct.env_schema <- function(
-    data,
-    template
+  data,
+  template
 ) {
   restore_env_schema(
     data,
@@ -2236,32 +1957,32 @@ dplyr_reconstruct.env_schema <- function(
 #' @export
 print.env_schema <- function(x, ...) {
   cat("<env_schema>\n")
-  
+
   cat(
     nrow(x),
     "rows x",
     ncol(x),
     "columns\n"
   )
-  
+
   cat(
     "Locations:",
     dplyr::n_distinct(location(x)),
     "\n"
   )
-  
+
   cat(
     "Analytes:",
     dplyr::n_distinct(analyte(x)),
     "\n"
   )
-  
+
   cat(
     "Valid:",
     has_env_schema_structure(x),
     "\n"
   )
-  
+
   cat(
     "Version:",
     attr(
@@ -2271,466 +1992,8 @@ print.env_schema <- function(x, ...) {
     ),
     "\n"
   )
-  
+
   invisible(x)
-}
-
-#' Standardize env_schema analytical results
-#'
-#' Converts .analysis_result values to analyte-specific
-#' standard reporting units and updates .analysis_unit.
-#'
-#' Original laboratory values are preserved in
-#' .original_lab_result and .original_lab_unit.
-#'
-#' @param df Data frame containing schema analyte metadata.
-#'
-#' @returns Data frame.
-#'
-#' @keywords internal
-.standardize_schema_results <- function(df) {
-  if (!".std_unit" %in% names(df)) {
-    return(df)
-  }
-  
-  required_cols <- c(
-    ".analysis_result",
-    ".analysis_unit",
-    ".std_unit"
-  )
-  
-  .validate_required_cols(
-    df,
-    required_cols
-  )
-  
-  df$.analysis_unit <- .normalize_unit(
-    df$.analysis_unit
-  )
-  
-  df$.std_unit <- .normalize_unit(
-    df$.std_unit
-  )
-  
-  conversion_groups <- df |>
-    dplyr::filter(
-      !is.na(.std_unit)
-    ) |>
-    dplyr::distinct(
-      .analysis_unit,
-      .std_unit
-    )
-  
-  for (i in seq_len(nrow(conversion_groups))) {
-    from_unit <- conversion_groups$.analysis_unit[i]
-    to_unit <- conversion_groups$.std_unit[i]
-    
-    if (identical(from_unit, to_unit)) {
-      next
-    }
-    
-    if (
-      is.na(from_unit) ||
-      is.na(to_unit)
-    ) {
-      next
-    }
-    
-    idx <-
-      !is.na(df$.analysis_unit) &
-      !is.na(df$.std_unit) &
-      df$.analysis_unit == from_unit &
-      df$.std_unit == to_unit
-    
-    if (!any(idx)) {
-      next
-    }
-    
-    df$.analysis_result[idx] <-
-      .safe_convert_units(
-        value = df$.analysis_result[idx],
-        from_unit = from_unit,
-        to_unit = to_unit
-      )
-  }
-  
-  df$.analysis_unit <- dplyr::coalesce(
-    df$.std_unit,
-    df$.analysis_unit
-  )
-  
-  df
-}
-
-#' Convert standards to reporting units
-#'
-#' Converts regulatory or screening standard values into the same
-#' reporting units used by analytical results.
-#'
-#' @param df Data frame containing standard values and units.
-#'
-#' @param data_unit_col Character string identifying the reporting
-#'   unit column associated with analytical results. Default is
-#'   `"default_unit"`.
-#'
-#' @return
-#' A data frame with standard values converted to match the
-#' reporting units contained in `data_unit_col`.
-#'
-#' @details
-#' Standard values are converted from `standard_unit` to the unit
-#' specified in `data_unit_col`.
-#'
-#' Successful conversions update both:
-#'
-#' \describe{
-#'   \item{standard_value}{
-#'     Standard concentration converted to the reporting unit.
-#'   }
-#'   \item{standard_unit}{
-#'     Updated to match the reporting unit.
-#'   }
-#' }
-#'
-#' Invalid unit definitions are identified using
-#' [`.is_valid_unit()`] and reported through warnings.
-#'
-#' Unit conversion is performed row-wise because individual rows
-#' may require different source and destination unit pairs.
-#'
-#' Conversion failures do not stop execution and instead return
-#' `NA_real_` for affected standards.
-#'
-#' @section Validation:
-#'
-#' The function validates:
-#'
-#' \itemize{
-#'   \item required columns exist;
-#'   \item source and destination units are valid;
-#'   \item standard values are non-missing before conversion.
-#' }
-#'
-#' @noRd
-.convert_standard_units <- function(
-    df,
-    data_unit_col = ".analysis_unit"
-) {
-  .validate_required_cols(
-    df,
-    c(
-      ".standard_value",
-      ".standard_unit",
-      data_unit_col
-    )
-  )
-  
-  from_unit <- .normalize_unit(
-    df$.standard_unit
-  )
-  
-  to_unit <- .normalize_unit(
-    df[[data_unit_col]]
-  )
-  
-  valid_from <- .is_valid_unit(from_unit)
-  
-  valid_to <- .is_valid_unit(to_unit)
-  
-  invalid_idx <-
-    (!valid_from | !valid_to) &
-    !is.na(from_unit) &
-    !is.na(to_unit)
-  
-  if (any(invalid_idx)) {
-    invalid_pairs <- unique(
-      paste(
-        from_unit[invalid_idx],
-        "->",
-        to_unit[invalid_idx]
-      )
-    )
-    
-    cli::cli_warn(
-      c(
-        "Invalid unit conversions detected.",
-        "i" = paste(
-          invalid_pairs,
-          collapse = ", "
-        )
-      )
-    )
-  }
-  
-  convert_idx <-
-    !is.na(df$.standard_value) &
-    valid_from &
-    valid_to &
-    from_unit != to_unit
-  
-  if (!any(convert_idx)) {
-    return(df)
-  }
-  
-  converted_values <- purrr::pmap_dbl(
-    list(
-      value = df$.standard_value[convert_idx],
-      from_unit = from_unit[convert_idx],
-      to_unit = to_unit[convert_idx]
-    ),
-    .safe_convert_unit
-  )
-  
-  convert_rows <- which(convert_idx)
-  
-  successful_rows <- convert_rows[
-    !is.na(converted_values)
-  ]
-  
-  if (length(successful_rows) == 0) {
-    return(df)
-  }
-  
-  df$.standard_value[
-    successful_rows
-  ] <- converted_values[
-    !is.na(converted_values)
-  ]
-  
-  df$.standard_unit[
-    successful_rows
-  ] <- to_unit[
-    successful_rows
-  ]
-  
-  df
-}
-
-#' Convert analytical values between units
-#'
-#' Converts numeric values from one unit to another using the
-#' \pkg{units} package.
-#'
-#' @param value Numeric vector of values.
-#'
-#' @param from_unit Character string specifying the source unit.
-#'
-#' @param to_unit Character string specifying the destination unit.
-#'
-#' @return
-#' Numeric vector converted to the requested units.
-#'
-#' @details
-#' Unit conversion is performed using
-#' [units::set_units()] and [units::drop_units()].
-#'
-#' @noRd
-.convert_units <- function(
-    value,
-    from_unit,
-    to_unit
-) {
-  units::drop_units(
-    units::set_units(
-      units::set_units(
-        value,
-        from_unit,
-        mode = "standard"
-      ),
-      to_unit,
-      mode = "standard"
-    )
-  )
-}
-
-#' Safely convert a single value between units
-#'
-#' Performs a unit conversion while suppressing conversion errors.
-#'
-#' @param value Numeric value to convert.
-#'
-#' @param from_unit Character string specifying the source unit.
-#'
-#' @param to_unit Character string specifying the destination unit.
-#'
-#' @return
-#' Converted numeric value.
-#'
-#' Returns `NA_real_` if conversion cannot be performed.
-#'
-#' @details
-#' This helper wraps [`.convert_units()`] in a
-#' [base::tryCatch()] block and converts conversion failures into
-#' warnings.
-#'
-#' Typical causes of conversion failure include:
-#'
-#' \itemize{
-#'   \item incompatible dimensions (for example `"mg/L"` to
-#'   `"feet"`);
-#'   \item invalid unit strings;
-#'   \item unsupported unit definitions.
-#' }
-#'
-#' This helper is intended for row-wise conversions where source
-#' and destination units may vary between observations.
-#'
-#' @noRd
-.safe_convert_unit <- function(
-    value,
-    from_unit,
-    to_unit
-) {
-  if (
-    is.na(from_unit) ||
-    is.na(to_unit)
-  ) {
-    return(NA_real_)
-  }
-  
-  tryCatch(
-    .convert_units(
-      value = value,
-      from_unit = from_unit,
-      to_unit = to_unit
-    ),
-    error = function(e) {
-      cli::cli_warn(
-        paste0(
-          "Skipped incompatible unit conversion: ",
-          from_unit,
-          " -> ",
-          to_unit
-        )
-      )
-      
-      NA_real_
-    }
-  )
-}
-
-#' Safely convert a vector of values between units
-#'
-#' Performs vectorized unit conversion while suppressing
-#' conversion errors.
-#'
-#' @param value Numeric vector to convert.
-#'
-#' @param from_unit Character string specifying the source unit.
-#'
-#' @param to_unit Character string specifying the destination unit.
-#'
-#' @return
-#' A numeric vector containing converted values.
-#'
-#' If conversion fails, a vector of `NA_real_` values having the
-#' same length as `value` is returned.
-#'
-#' @details
-#' This helper wraps [`.convert_units()`] in a
-#' [base::tryCatch()] block and converts conversion failures into
-#' warnings.
-#'
-#' Unlike [`.safe_convert_unit()`], this function is intended for
-#' grouped conversions where all values share a common source and
-#' destination unit.
-#'
-#' It is used by [`standardize_units()`] to efficiently convert
-#' analytical results by unit-pair group rather than converting
-#' observations one at a time.
-#'
-#' @noRd
-.safe_convert_units <- function(
-    value,
-    from_unit,
-    to_unit
-) {
-  if (
-    is.na(from_unit) ||
-    is.na(to_unit)
-  ) {
-    return(
-      rep(
-        NA_real_,
-        length(value)
-      )
-    )
-  }
-  
-  tryCatch(
-    .convert_units(
-      value = value,
-      from_unit = from_unit,
-      to_unit = to_unit
-    ),
-    error = function(e) {
-      cli::cli_warn(
-        paste0(
-          "Skipped incompatible unit conversion: ",
-          from_unit,
-          " -> ",
-          to_unit
-        )
-      )
-      
-      rep(
-        NA_real_,
-        length(value)
-      )
-    }
-  )
-}
-
-#' Validate unit strings
-#'
-#' Determines whether unit strings can be successfully interpreted
-#' by the \pkg{units} package.
-#'
-#' Unit strings are first normalized using
-#' [`.normalize_unit()`] before validation.
-#'
-#' @param x Character vector of unit strings.
-#'
-#' @return
-#' A logical vector of the same length as `x` indicating whether
-#' each unit string represents a valid unit recognized by
-#' \pkg{units}.
-#'
-#' @details
-#' Validation is performed using [units::as_units()].
-#'
-#' Missing values, empty strings, and unrecognized units are
-#' considered invalid and return `FALSE`.
-#'
-#' This helper is primarily used internally by
-#' [`standardize_units()`] and [`.convert_standard_units()`]
-#' to identify invalid reporting or standard units before
-#' attempting conversion.
-#'
-#' @noRd
-.is_valid_unit <- function(x) {
-  x <- .normalize_unit(x)
-  
-  vapply(
-    x,
-    function(unit) {
-      if (
-        is.na(unit) ||
-        !nzchar(unit)
-      ) {
-        return(FALSE)
-      }
-      
-      tryCatch(
-        {
-          units::as_units(unit)
-          TRUE
-        },
-        error = function(e) FALSE
-      )
-    },
-    logical(1)
-  )
 }
 
 #' Normalize analytical units
@@ -2760,229 +2023,12 @@ print.env_schema <- function(x, ...) {
 #' @noRd
 .normalize_unit <- function(x) {
   x <- as.character(x)
-  
+
   x %>%
     stringr::str_trim() %>%
     stringr::str_replace_all("µg", "ug") %>%
     stringr::str_replace_all("μg", "ug") %>%
     stringr::str_to_lower()
-}
-
-#' Validate units for meq conversion
-#'
-#' Ensures analytes eligible for meq conversion are reported using
-#' their expected standardized reporting units.
-#'
-#' @param df Data frame containing analytical results.
-#'
-#' @param analyte_col Character string identifying the canonical
-#'   analyte column. Default is `"analyte"`.
-#'
-#' @param unit_col Character string identifying the
-#'   reporting unit column. Default is `".analysis_unit"`.
-#'
-#' @return
-#' Invisibly returns `TRUE`.
-#'
-#' @details
-#' Validation is performed using the metadata returned by
-#' [`.get_meq_conversion_factors()`].
-#'
-#' Only analytes having a non-missing `meq_factor` are validated.
-#'
-#' @section Validation:
-#'
-#' An error is raised when a convertible analyte is reported using a
-#' unit that differs from the expected standard unit.
-#'
-#' This typically indicates that
-#' [`.standardize_units()`] has not yet been executed.
-#'
-#' @noRd
-.validate_analyte_meq_units <- function(
-    df,
-    analyte_col = ".analyte_id",
-    unit_col = ".analysis_unit"
-) {
-  .validate_required_cols(
-    df,
-    c(
-      analyte_col,
-      unit_col
-    )
-  )
-  
-  meq_lookup <- .get_meq_conversion_factors() %>%
-    dplyr::filter(
-      !is.na(meq_factor)
-    )
-  
-  invalid_units <- df %>%
-    dplyr::mutate(
-      !!unit_col := .normalize_unit(
-        .data[[unit_col]]
-      )
-    ) %>%
-    dplyr::left_join(
-      meq_lookup,
-      by = stats::setNames(
-        "analyte_id",
-        analyte_col
-      ),
-      relationship = "many-to-one"
-    ) %>%
-    dplyr::filter(
-      !is.na(meq_factor),
-      !is.na(.data[[unit_col]]),
-      .data[[unit_col]] != std_unit
-    ) %>%
-    dplyr::distinct(
-      .data[[analyte_col]],
-      .data[[unit_col]],
-      std_unit
-    )
-  
-  if (nrow(invalid_units) > 0) {
-    examples <- invalid_units %>%
-      utils::head(10)
-    
-    cli::cli_abort(
-      c(
-        "Non-standard units found for meq conversion.",
-        "x" = paste(
-          paste0(
-            examples[[analyte_col]],
-            " (",
-            examples[[unit_col]],
-            " != ",
-            examples$std_unit,
-            ")"
-          ),
-          collapse = ", "
-        ),
-        "i" = "Analytical concentrations must be standardized before meq conversion."
-      )
-    )
-  }
-  
-  invisible(TRUE)
-}
-
-#' Attach analyte metadata
-#'
-#' Joins analyte metadata from an analyte lookup table onto an
-#' \code{env_schema} object using the internal analyte identifier.
-#'
-#' This helper enriches schema data with analyte-level attributes such as
-#' canonical names, short names, categories, groups, fractions,
-#' regulatory classifications, preferred plotting labels, and any future
-#' metadata stored in \code{analyte_tbl}.
-#'
-#' The join is performed on \code{.analyte_id}, allowing analyte naming
-#' conventions to evolve independently of downstream analyses.
-#'
-#' @param df An \code{env_schema} object containing a
-#'   \code{.analyte_id} column.
-#' @param lookup An analyte metadata table, typically
-#'   \code{analyte_tbl}.
-#'
-#' @returns An enriched \code{env_schema} object containing all original
-#'   observations plus analyte metadata columns from \code{lookup}.
-#'
-#' @seealso [analyte_tbl], [validate_analyte_tbl()]
-#'
-#' @keywords internal
-.attach_analyte_metadata <- function(
-    df,
-    lookup = analyte_tbl
-) {
-  validate_analyte_tbl(lookup)
-  
-  lookup <- lookup %>%
-    dplyr::rename(
-      .analyte_id = analyte_id,
-      .short_name = short_name,
-      .casrn = casrn,
-      .analyte_group = analyte_group,
-      .subcategory = subcategory,
-      .regulatory_class = regulatory_class,
-      .std_unit = std_unit,
-      .ion_class = ion_class,
-      .charge = charge,
-      .molecular_weight = molecular_weight,
-      .meq_factor = meq_factor,
-      .is_major_ion = is_major_ion,
-      .is_trace_metal = is_trace_metal,
-      .is_radionuclide = is_radionuclide,
-      .is_general_chemistry = is_general_chemistry,
-      .is_field_parameter = is_field_parameter
-    ) %>%
-    dplyr::select(-analyte)
-  
-  dplyr::left_join(
-    df,
-    lookup,
-    by = ".analyte_id",
-    relationship = "many-to-one"
-  )
-}
-
-#' Build analyte display labels
-#'
-#' @keywords internal
-.build_analyte_labels <- function(df) {
-  if (!".analysis_unit" %in% names(df)) {
-    return(df)
-  }
-  
-  analyte_name <- if (".normalized_analyte" %in% names(df)) {
-    dplyr::coalesce(
-      df$.normalized_analyte,
-      df$.source_analyte
-    )
-  } else {
-    df$.source_analyte
-  }
-  
-  short_name <- if (".short_name" %in% names(df)) {
-    dplyr::coalesce(
-      df$.short_name,
-      analyte_name
-    )
-  } else {
-    analyte_name
-  }
-  
-  has_unit <- !is.na(df$.analysis_unit) &
-    trimws(df$.analysis_unit) != ""
-  
-  analyte_label <- dplyr::if_else(
-    has_unit,
-    paste0(
-      analyte_name,
-      " (",
-      df$.analysis_unit,
-      ")"
-    ),
-    analyte_name
-  )
-  
-  short_analyte_label <- dplyr::if_else(
-    has_unit,
-    paste0(
-      short_name,
-      " (",
-      df$.analysis_unit,
-      ")"
-    ),
-    short_name
-  )
-  
-  df %>%
-    dplyr::mutate(
-      .analyte_label = analyte_label,
-      .short_analyte_label = short_analyte_label
-    )
 }
 
 #' Copy env_schema attributes
@@ -3007,25 +2053,25 @@ print.env_schema <- function(x, ...) {
 #'
 #' @keywords internal
 .copy_env_schema_attributes <- function(
-    from,
-    to
+  from,
+  to
 ) {
   protected <- c(
     "names",
     "row.names"
   )
-  
+
   atts <- attributes(from)
-  
+
   atts <- atts[
     !names(atts) %in% protected
   ]
-  
+
   attributes(to) <- utils::modifyList(
     attributes(to),
     atts
   )
-  
+
   to
 }
 
@@ -3033,26 +2079,26 @@ print.env_schema <- function(x, ...) {
 #'
 #' @keywords internal
 .build_env_schema_call <- function(
-    data,
-    location,
-    date,
-    analyte,
-    result,
-    unit = NULL,
-    sample_id = NULL,
-    reporting_flag = NULL,
-    reporting_limit = NULL,
-    detection_limit = NULL,
-    detection_threshold = NULL,
-    detection_threshold_type = NULL,
-    measurement_uncertainty = NULL,
-    method = NULL,
-    analysis_date = NULL,
-    matrix = NULL,
-    lab_name = NULL,
-    metadata = NULL,
-    qualifier_table = NULL,
-    analyte_lookup = analyte_tbl
+  data,
+  location,
+  date,
+  analyte,
+  result,
+  unit = NULL,
+  sample_id = NULL,
+  reporting_flag = NULL,
+  reporting_limit = NULL,
+  detection_limit = NULL,
+  detection_threshold = NULL,
+  detection_threshold_type = NULL,
+  measurement_uncertainty = NULL,
+  method = NULL,
+  analysis_date = NULL,
+  matrix = NULL,
+  lab_name = NULL,
+  metadata = NULL,
+  qualifier_table = NULL,
+  analyte_lookup = analyte_tbl
 ) {
   args <- list(
     df = data,
@@ -3063,7 +2109,7 @@ print.env_schema <- function(x, ...) {
     qualifier_table = qualifier_table,
     analyte_lookup = analyte_lookup
   )
-  
+
   optional_args <- list(
     unit = rlang::enquo(unit),
     sample_id = rlang::enquo(sample_id),
@@ -3079,7 +2125,7 @@ print.env_schema <- function(x, ...) {
     lab_name = rlang::enquo(lab_name),
     metadata = rlang::enquo(metadata)
   )
-  
+
   optional_args <- optional_args[
     !vapply(
       optional_args,
@@ -3087,12 +2133,12 @@ print.env_schema <- function(x, ...) {
       logical(1)
     )
   ]
-  
+
   args <- c(
     args,
     optional_args
   )
-  
+
   rlang::exec(
     env_schema,
     !!!args

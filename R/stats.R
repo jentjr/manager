@@ -93,13 +93,13 @@ stats_summary <- function(df, ...) {
 #' @param default_unit Reporting unit column name.
 #' @export
 stats_summary.data.frame <- function(
-    df,
-    location_id = "location_id",
-    param_name = "param_name",
-    censored = "censored",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    na.rm = TRUE
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  censored = "censored",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  na.rm = TRUE
 ) {
   group_cols <- if (dplyr::is_grouped_df(df)) {
     dplyr::group_vars(df)
@@ -110,7 +110,7 @@ stats_summary.data.frame <- function(
       default_unit
     )
   }
-  
+
   .stats_summary_core(
     df = df,
     group_cols = group_cols,
@@ -137,9 +137,9 @@ stats_summary.data.frame <- function(
 #'
 #' @export
 stats_summary.env_schema <- function(
-    df,
-    na.rm = TRUE,
-    ...
+  df,
+  na.rm = TRUE,
+  ...
 ) {
   group_cols <- if (dplyr::is_grouped_df(df)) {
     dplyr::group_vars(df)
@@ -150,7 +150,7 @@ stats_summary.env_schema <- function(
       ".analysis_unit"
     )
   }
-  
+
   .stats_summary_core(
     df = df,
     group_cols = group_cols,
@@ -164,23 +164,23 @@ stats_summary.env_schema <- function(
 #'
 #' @keywords internal
 .stats_summary_core <- function(
-    df,
-    group_cols,
-    result_col,
-    censored_col,
-    na.rm = TRUE
+  df,
+  group_cols,
+  result_col,
+  censored_col,
+  na.rm = TRUE
 ) {
   required_cols <- c(
     group_cols,
     result_col,
     censored_col
   )
-  
+
   missing_cols <- setdiff(
     required_cols,
     names(df)
   )
-  
+
   if (length(missing_cols) > 0) {
     rlang::abort(
       paste(
@@ -189,7 +189,7 @@ stats_summary.env_schema <- function(
       )
     )
   }
-  
+
   if (length(group_cols) > 0) {
     df <- dplyr::group_by(
       df,
@@ -199,7 +199,7 @@ stats_summary.env_schema <- function(
       .add = FALSE
     )
   }
-  
+
   if (nrow(df) == 0) {
     return(
       tibble::tibble(
@@ -219,52 +219,52 @@ stats_summary.env_schema <- function(
       )
     )
   }
-  
+
   df |>
     dplyr::summarise(
       n = dplyr::n(),
-      
+
       percent_censored = mean(
         .data[[censored_col]],
         na.rm = na.rm
       ) *
         100,
-      
+
       mean = mean(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       median = stats::median(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       sd = stats::sd(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       var = stats::var(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       min = min(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       max = max(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       cv = cv(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       `25%` = unname(
         stats::quantile(
           .data[[result_col]],
@@ -272,7 +272,7 @@ stats_summary.env_schema <- function(
           na.rm = na.rm
         )
       ),
-      
+
       `75%` = unname(
         stats::quantile(
           .data[[result_col]],
@@ -280,17 +280,17 @@ stats_summary.env_schema <- function(
           na.rm = na.rm
         )
       ),
-      
+
       IQR = stats::IQR(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       mad = stats::mad(
         .data[[result_col]],
         na.rm = na.rm
       ),
-      
+
       .groups = "drop"
     )
 }
@@ -404,14 +404,14 @@ trend_summary <- function(df, ...) {
 #' @param analysis_result Analytical result column name.
 #' @export
 trend_summary.data.frame <- function(
-    df,
-    location_id = "location_id",
-    param_name = "param_name",
-    sample_date = "sample_date",
-    analysis_result = "analysis_result",
-    method = "mann_kendall",
-    censored_method = "cenken",
-    conf.level = 0.95
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  method = "mann_kendall",
+  censored_method = "cenken",
+  conf.level = 0.95
 ) {
   env_schema(
     df,
@@ -446,19 +446,19 @@ trend_summary.data.frame <- function(
 #'
 #' @export
 trend_summary.env_schema <- function(
-    df,
-    method = "mann_kendall",
-    censored_method = "cenken",
-    conf.level = 0.95
+  df,
+  method = "mann_kendall",
+  censored_method = "cenken",
+  conf.level = 0.95
 ) {
   validate_env_schema(df)
-  
+
   alpha <- 1 - conf.level
-  
+
   date_col <- date_var(df)
-  
+
   group_cols <- .get_trend_group_cols(df)
-  
+
   df |>
     dplyr::group_by(
       dplyr::across(
@@ -480,24 +480,24 @@ trend_summary.env_schema <- function(
 
 #' @keywords internal
 .trend_summary_group <- function(
-    df,
-    date_col,
-    method,
-    censored_method,
-    alpha,
-    conf.level
+  df,
+  date_col,
+  method,
+  censored_method,
+  alpha,
+  conf.level
 ) {
   n <- nrow(df)
-  
+
   date_values <- stats::na.omit(
     df[[date_col]]
   )
-  
+
   if (length(date_values) > 0) {
     first_date <- min(date_values)
-    
+
     last_date <- max(date_values)
-    
+
     date_range_days <- as.numeric(
       difftime(
         last_date,
@@ -505,39 +505,39 @@ trend_summary.env_schema <- function(
         units = "days"
       )
     )
-    
+
     date_range_years <- date_range_days / 365.25
   } else {
     first_date <- as.Date(NA)
-    
+
     last_date <- as.Date(NA)
-    
+
     date_range_days <- NA_real_
-    
+
     date_range_years <- NA_real_
   }
-  
+
   sampling_frequency <- dplyr::case_when(
     is.na(date_range_years) ~ NA_real_,
     date_range_years <= 0 ~ NA_real_,
     TRUE ~ n / date_range_years
   )
-  
+
   values <- stats::na.omit(
     df$.analysis_result
   )
-  
+
   if (length(values) > 0) {
     minimum_concentration <- min(values)
-    
+
     median_concentration <- stats::median(values)
-    
+
     mean_concentration <- mean(values)
-    
+
     maximum_concentration <- max(values)
-    
+
     standard_deviation <- stats::sd(values)
-    
+
     coefficient_of_variation <- dplyr::case_when(
       is.na(mean_concentration) ~ NA_real_,
       mean_concentration == 0 ~ NA_real_,
@@ -551,7 +551,7 @@ trend_summary.env_schema <- function(
     standard_deviation <- NA_real_
     coefficient_of_variation <- NA_real_
   }
-  
+
   tr <- .compute_trend(
     df = df,
     date_col = date_col,
@@ -559,7 +559,7 @@ trend_summary.env_schema <- function(
     censored_method = censored_method,
     conf.level = conf.level
   )
-  
+
   if (is.null(tr)) {
     return(
       tibble::tibble(
@@ -586,7 +586,7 @@ trend_summary.env_schema <- function(
       )
     )
   }
-  
+
   tibble::tibble(
     n = n,
     first_date = first_date,
@@ -621,9 +621,9 @@ trend_summary.env_schema <- function(
 
 #' @keywords internal
 .prepare_trend_data <- function(
-    df,
-    date_col,
-    censored_method = "cenken"
+  df,
+  date_col,
+  censored_method = "cenken"
 ) {
   out <- df |>
     dplyr::filter(
@@ -633,20 +633,20 @@ trend_summary.env_schema <- function(
     dplyr::arrange(
       .data[[date_col]]
     )
-  
+
   if (nrow(out) < 3) {
     return(NULL)
   }
-  
+
   if (
     dplyr::n_distinct(
       out$.analysis_result
     ) <
-    2
+      2
   ) {
     return(NULL)
   }
-  
+
   out
 }
 
@@ -704,12 +704,12 @@ kendall_trend <- function(df, ...) {
 #' @param analysis_result Analytical result column name.
 #' @export
 kendall_trend.data.frame <- function(
-    df,
-    location_id = "location_id",
-    param_name = "param_name",
-    sample_date = "sample_date",
-    analysis_result = "analysis_result",
-    conf.level = 0.95
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  conf.level = 0.95
 ) {
   env_schema(
     df,
@@ -736,13 +736,13 @@ kendall_trend.data.frame <- function(
 #'
 #' @export
 kendall_trend.env_schema <- function(
-    df,
-    conf.level = 0.95
+  df,
+  conf.level = 0.95
 ) {
   validate_env_schema(df)
-  
+
   date_col <- date_var(df)
-  
+
   EnvStats::kendallTrendTest(
     x = df$.analysis_result,
     y = df[[date_col]],
@@ -757,29 +757,29 @@ kendall_trend.env_schema <- function(
 #'
 #' @noRd
 .extract_lm_stats <- function(
-    fit,
-    conf.level = 0.95
+  fit,
+  conf.level = 0.95
 ) {
   fit_summary <- suppressWarnings(
     base::summary(fit)
   )
-  
+
   coef_tbl <- fit_summary$coefficients
-  
+
   slope <- NA_real_
   p_value <- NA_real_
   conf_low <- NA_real_
   conf_high <- NA_real_
-  
+
   if (
     !is.null(coef_tbl) &&
-    nrow(coef_tbl) >= 2 &&
-    length(stats::coef(fit)) >= 2
+      nrow(coef_tbl) >= 2 &&
+      length(stats::coef(fit)) >= 2
   ) {
     slope <- unname(stats::coef(fit)[2])
-    
+
     p_value <- coef_tbl[2, 4]
-    
+
     slope_ci <- tryCatch(
       suppressWarnings(
         stats::confint(
@@ -789,16 +789,16 @@ kendall_trend.env_schema <- function(
       ),
       error = function(e) NULL
     )
-    
+
     if (
       !is.null(slope_ci) &&
-      nrow(slope_ci) >= 2
+        nrow(slope_ci) >= 2
     ) {
       conf_low <- slope_ci[2, 1]
       conf_high <- slope_ci[2, 2]
     }
   }
-  
+
   list(
     slope = slope,
     p_value = p_value,
@@ -817,22 +817,22 @@ kendall_trend.env_schema <- function(
 #'
 #' @noRd
 .compute_trend <- function(
-    df,
-    date_col,
-    method = "mann_kendall",
-    censored_method = "cenken",
-    conf.level = 0.95
+  df,
+  date_col,
+  method = "mann_kendall",
+  censored_method = "cenken",
+  conf.level = 0.95
 ) {
   df <- .prepare_trend_data(
     df = df,
     date_col = date_col,
     censored_method = censored_method
   )
-  
+
   if (is.null(df)) {
     return(NULL)
   }
-  
+
   method <- rlang::arg_match(
     method,
     c(
@@ -843,7 +843,7 @@ kendall_trend.env_schema <- function(
       "mann_kendall"
     )
   )
-  
+
   censored_method <- rlang::arg_match(
     censored_method,
     c(
@@ -851,41 +851,41 @@ kendall_trend.env_schema <- function(
       "as_reported"
     )
   )
-  
+
   if (method == "none") {
     return(NULL)
   }
-  
+
   z <- stats::qnorm(
     1 - (1 - conf.level) / 2
   )
-  
+
   if (method == "lm") {
     df$.date_num <- as.numeric(
       df[[date_col]]
     )
-    
+
     fit <- stats::lm(
       .analysis_result ~ .date_num,
       data = df
     )
-    
+
     pred <- stats::predict(
       fit,
       interval = "confidence",
       level = conf.level
     )
-    
+
     trend_df <- dplyr::bind_cols(
       df,
       as.data.frame(pred)
     )
-    
+
     trend_stats <- .extract_lm_stats(
       fit,
       conf.level
     )
-    
+
     return(
       list(
         method = method,
@@ -898,22 +898,22 @@ kendall_trend.env_schema <- function(
       )
     )
   }
-  
+
   if (method == "loess") {
     df$.date_num <- as.numeric(
       df[[date_col]]
     )
-    
+
     fit <- stats::loess(
       .analysis_result ~ .date_num,
       data = df
     )
-    
+
     pred <- stats::predict(
       fit,
       se = TRUE
     )
-    
+
     trend_df <- df |>
       dplyr::mutate(
         fit = pred$fit,
@@ -921,7 +921,7 @@ kendall_trend.env_schema <- function(
         lwr = fit - z * se,
         upr = fit + z * se
       )
-    
+
     return(
       list(
         method = method,
@@ -930,12 +930,12 @@ kendall_trend.env_schema <- function(
       )
     )
   }
-  
+
   if (method == "gam") {
     df$.date_num <- as.numeric(
       df[[date_col]]
     )
-    
+
     fit <- tryCatch(
       mgcv::gam(
         .analysis_result ~ s(.date_num),
@@ -943,16 +943,16 @@ kendall_trend.env_schema <- function(
       ),
       error = function(e) NULL
     )
-    
+
     if (is.null(fit)) {
       return(NULL)
     }
-    
+
     pred <- stats::predict(
       fit,
       se.fit = TRUE
     )
-    
+
     trend_df <- df |>
       dplyr::mutate(
         fit = pred$fit,
@@ -960,7 +960,7 @@ kendall_trend.env_schema <- function(
         lwr = fit - z * se,
         upr = fit + z * se
       )
-    
+
     return(
       list(
         method = method,
@@ -969,50 +969,50 @@ kendall_trend.env_schema <- function(
       )
     )
   }
-  
+
   if (
     method == "mann_kendall" &&
-    censored_method == "as_reported"
+      censored_method == "as_reported"
   ) {
     fit <- EnvStats::kendallTrendTest(
       x = df$.analysis_result,
       y = df[[date_col]],
       conf.level = conf.level
     )
-    
+
     x_num <- as.numeric(
       df[[date_col]]
     )
-    
+
     x0 <- min(x_num)
-    
+
     slope <- unname(
       fit$estimate[["slope"]]
     )
-    
+
     intercept <- stats::median(
       df$.analysis_result -
         slope * (x_num - x0),
       na.rm = TRUE
     )
-    
+
     trend_df <- df |>
       dplyr::mutate(
         fit = intercept +
           slope * (x_num - x0)
       )
-    
+
     conf_low <- NA_real_
     conf_high <- NA_real_
-    
+
     if (
       !is.null(fit$conf.int) &&
-      length(fit$conf.int) >= 2
+        length(fit$conf.int) >= 2
     ) {
       conf_low <- fit$conf.int[1]
       conf_high <- fit$conf.int[2]
     }
-    
+
     return(
       list(
         method = method,
@@ -1024,10 +1024,10 @@ kendall_trend.env_schema <- function(
       )
     )
   }
-  
+
   if (
     method == "mann_kendall" &&
-    censored_method == "cenken"
+      censored_method == "cenken"
   ) {
     fit <- suppressWarnings(
       tryCatch(
@@ -1039,29 +1039,29 @@ kendall_trend.env_schema <- function(
         error = function(e) NULL
       )
     )
-    
+
     if (is.null(fit)) {
       return(NULL)
     }
-    
+
     slope <- fit$slope
-    
+
     p_value <- fit$p
-    
+
     x_num <- as.numeric(
       df[[date_col]]
     )
-    
+
     x0 <- min(x_num)
-    
+
     intercept <- fit$intercept
-    
+
     trend_df <- df |>
       dplyr::mutate(
         fit = intercept +
           slope * (x_num - x0)
       )
-    
+
     return(
       list(
         method = method,
@@ -1079,15 +1079,15 @@ kendall_trend.env_schema <- function(
 #'
 #' @noRd
 .add_trend <- function(
-    p,
-    df,
-    trend = "none",
-    trend_ci = FALSE,
-    trend_conf_level = 0.95,
-    trend_label = "none",
-    trend_label_sig_only = TRUE,
-    censored_method = "cenken",
-    plot_type = "split"
+  p,
+  df,
+  trend = "none",
+  trend_ci = FALSE,
+  trend_conf_level = 0.95,
+  trend_label = "none",
+  trend_label_sig_only = TRUE,
+  censored_method = "cenken",
+  plot_type = "split"
 ) {
   censored_method <- rlang::arg_match(
     censored_method,
@@ -1096,23 +1096,23 @@ kendall_trend.env_schema <- function(
       "as_reported"
     )
   )
-  
+
   date_col <- date_var(df)
-  
+
   location_col <- location_var(df)
-  
+
   analyte_col <- analyte_var(df)
-  
+
   if (trend == "none") {
     return(p)
   }
-  
+
   if (trend %in% c("loess", "gam")) {
     trend_label <- "none"
   }
-  
+
   alpha <- 1 - trend_conf_level
-  
+
   if (plot_type == "split") {
     tr <- .compute_trend(
       df = df,
@@ -1121,14 +1121,14 @@ kendall_trend.env_schema <- function(
       censored_method = censored_method,
       conf.level = trend_conf_level
     )
-    
+
     if (is.null(tr)) {
       return(p)
     }
-    
+
     if (
       trend_ci &&
-      all(c("lwr", "upr") %in% names(tr$trend_df))
+        all(c("lwr", "upr") %in% names(tr$trend_df))
     ) {
       p <- p +
         ggplot2::geom_ribbon(
@@ -1143,7 +1143,7 @@ kendall_trend.env_schema <- function(
           inherit.aes = FALSE
         )
     }
-    
+
     p <- p +
       ggplot2::geom_line(
         data = tr$trend_df,
@@ -1155,7 +1155,7 @@ kendall_trend.env_schema <- function(
         linewidth = 1,
         inherit.aes = FALSE
       )
-    
+
     if (trend_label != "none") {
       label_df <- tr$trend_df |>
         dplyr::slice_tail(n = 1) |>
@@ -1164,7 +1164,7 @@ kendall_trend.env_schema <- function(
           .trend_slope = tr$slope,
           .trend_conf_low = tr$conf_low,
           .trend_conf_high = tr$conf_high,
-          
+
           label = .format_trend_label(
             slope = tr$slope,
             p_value = tr$p_value,
@@ -1174,18 +1174,18 @@ kendall_trend.env_schema <- function(
             trend = trend
           )
         )
-      
+
       keep_label <- TRUE
-      
+
       if (
         trend_label_sig_only &&
-        trend == "mann_kendall"
+          trend == "mann_kendall"
       ) {
         keep_label <-
           !is.na(tr$p_value) &&
           tr$p_value <= alpha
       }
-      
+
       if (keep_label) {
         p <- p +
           ggplot2::geom_text(
@@ -1201,26 +1201,26 @@ kendall_trend.env_schema <- function(
           )
       }
     }
-    
+
     return(p)
   }
-  
+
   trend_df <- .compute_group_trends(
     df = df,
     method = trend,
     censored_method = censored_method,
     conf.level = trend_conf_level
   )
-  
+
   if (nrow(trend_df) == 0) {
     return(p)
   }
-  
+
   if (
     trend_ci &&
-    all(
-      c("lwr", "upr") %in% names(trend_df)
-    )
+      all(
+        c("lwr", "upr") %in% names(trend_df)
+      )
   ) {
     p <- p +
       ggplot2::geom_ribbon(
@@ -1241,7 +1241,7 @@ kendall_trend.env_schema <- function(
         show.legend = FALSE
       )
   }
-  
+
   p <- p +
     ggplot2::geom_line(
       data = trend_df,
@@ -1257,7 +1257,7 @@ kendall_trend.env_schema <- function(
       linewidth = 1,
       inherit.aes = FALSE
     )
-  
+
   if (trend_label != "none") {
     labels <- .compute_group_labels(
       trend_df = trend_df,
@@ -1267,10 +1267,10 @@ kendall_trend.env_schema <- function(
       location_col = location_col,
       analyte_col = analyte_col
     )
-    
+
     if (
       trend_label_sig_only &&
-      trend == "mann_kendall"
+        trend == "mann_kendall"
     ) {
       labels <- labels |>
         dplyr::filter(
@@ -1278,7 +1278,7 @@ kendall_trend.env_schema <- function(
           .trend_p_value <= alpha
         )
     }
-    
+
     if (nrow(labels) > 0) {
       p <- p +
         ggplot2::geom_text(
@@ -1296,7 +1296,7 @@ kendall_trend.env_schema <- function(
         )
     }
   }
-  
+
   p
 }
 
@@ -1304,15 +1304,15 @@ kendall_trend.env_schema <- function(
 #'
 #' @noRd
 .compute_group_trends <- function(
-    df,
-    method = "mann_kendall",
-    censored_method = "cenken",
-    conf.level = 0.95
+  df,
+  method = "mann_kendall",
+  censored_method = "cenken",
+  conf.level = 0.95
 ) {
   date_col <- date_var(df)
-  
+
   group_cols <- .get_trend_group_cols(df)
-  
+
   df |>
     dplyr::group_by(
       dplyr::across(
@@ -1328,35 +1328,35 @@ kendall_trend.env_schema <- function(
           censored_method = censored_method,
           conf.level = conf.level
         )
-        
+
         if (is.null(tr)) {
           return(
             tibble::tibble()
           )
         }
-        
+
         tr$trend_df |>
           dplyr::mutate(
             .trend_method = method,
-            
+
             .trend_slope = if (is.null(tr$slope)) {
               NA_real_
             } else {
               tr$slope
             },
-            
+
             .trend_p_value = if (is.null(tr$p_value)) {
               NA_real_
             } else {
               tr$p_value
             },
-            
+
             .trend_conf_low = if (is.null(tr$conf_low)) {
               NA_real_
             } else {
               tr$conf_low
             },
-            
+
             .trend_conf_high = if (is.null(tr$conf_high)) {
               NA_real_
             } else {
@@ -1372,12 +1372,12 @@ kendall_trend.env_schema <- function(
 #'
 #' @noRd
 .compute_group_labels <- function(
-    trend_df,
-    trend = "mann_kendall",
-    trend_label = "compact",
-    date_col,
-    location_col,
-    analyte_col
+  trend_df,
+  trend = "mann_kendall",
+  trend_label = "compact",
+  date_col,
+  location_col,
+  analyte_col
 ) {
   trend_df |>
     dplyr::group_by(
@@ -1400,9 +1400,9 @@ kendall_trend.env_schema <- function(
     dplyr::ungroup() |>
     dplyr::mutate(
       label_x = .data[[date_col]],
-      
+
       label_y = fit,
-      
+
       label = purrr::pmap_chr(
         list(
           .trend_slope,
@@ -1424,26 +1424,26 @@ kendall_trend.env_schema <- function(
 
 #' @keywords internal
 .format_trend_label <- function(
-    slope,
-    p_value,
-    conf_low,
-    conf_high,
-    trend_label,
-    trend
+  slope,
+  p_value,
+  conf_low,
+  conf_high,
+  trend_label,
+  trend
 ) {
   if (
     trend_label == "none" ||
-    is.na(p_value)
+      is.na(p_value)
   ) {
     return("")
   }
-  
+
   direction <- dplyr::case_when(
     slope > 0 ~ "Increasing",
     slope < 0 ~ "Decreasing",
     TRUE ~ "Stable"
   )
-  
+
   if (trend_label == "compact") {
     return(
       sprintf(
@@ -1453,11 +1453,11 @@ kendall_trend.env_schema <- function(
       )
     )
   }
-  
+
   if (
     trend == "mann_kendall" &&
-    (is.na(conf_low) ||
-     is.na(conf_high))
+      (is.na(conf_low) ||
+        is.na(conf_high))
   ) {
     return(
       sprintf(
@@ -1472,7 +1472,7 @@ kendall_trend.env_schema <- function(
       )
     )
   }
-  
+
   if (trend == "mann_kendall") {
     return(
       sprintf(
@@ -1490,10 +1490,10 @@ kendall_trend.env_schema <- function(
       )
     )
   }
-  
+
   if (
     is.na(conf_low) ||
-    is.na(conf_high)
+      is.na(conf_high)
   ) {
     return(
       sprintf(
@@ -1507,7 +1507,7 @@ kendall_trend.env_schema <- function(
       )
     )
   }
-  
+
   sprintf(
     paste(
       "Slope=%.3g",
@@ -1529,7 +1529,7 @@ kendall_trend.env_schema <- function(
       dplyr::group_vars(df)
     )
   }
-  
+
   c(
     location_var(df),
     analyte_var(df)
@@ -1557,14 +1557,15 @@ kendall_trend.env_schema <- function(
 #'
 #' @export
 
-dixon_test <- function(df,
-                       x = "analysis_result",
-                       type = 0,
-                       opposite = FALSE,
-                       two_sided = TRUE,
-                       group_by_location = FALSE,
-                       keep_data_object = FALSE) {
-  
+dixon_test <- function(
+  df,
+  x = "analysis_result",
+  type = 0,
+  opposite = FALSE,
+  two_sided = TRUE,
+  group_by_location = FALSE,
+  keep_data_object = FALSE
+) {
   if (isTRUE(group_by_location)) {
     df <- df %>%
       group_by(param_name, default_unit) %>%
@@ -1574,32 +1575,38 @@ dixon_test <- function(df,
       group_by(location_id, param_name, default_unit) %>%
       nest()
   }
-  
+
   df <- df %>%
-    mutate(dixon = map(.x = data, ~outliers::dixon.test(
-      .x$analysis_result,
-      type = type,
-      opposite = opposite,
-      two.sided = two_sided
+    mutate(
+      dixon = map(
+        .x = data,
+        ~ outliers::dixon.test(
+          .x$analysis_result,
+          type = type,
+          opposite = opposite,
+          two.sided = two_sided
+        )
+      )
     )
-    )
-    )
-  
+
   if (isTRUE(keep_data_object)) {
     outliers <- df %>%
-      mutate(alternative = map(.x = dixon, ~ .x$alternative),
-             p_value = map(.x = dixon, ~ .X$p.value)) %>%
+      mutate(
+        alternative = map(.x = dixon, ~ .x$alternative),
+        p_value = map(.x = dixon, ~ .X$p.value)
+      ) %>%
       select(-data)
   } else {
     outliers <- df %>%
-      mutate(alternative = map(.x = dixon, ~ .x$alternative),
-             p_value = map(.x = dixon, ~ .x$p.value)) %>%
+      mutate(
+        alternative = map(.x = dixon, ~ .x$alternative),
+        p_value = map(.x = dixon, ~ .x$p.value)
+      ) %>%
       select(-data, -dixon) %>%
       unnest()
   }
-  
+
   return(outliers)
-  
 }
 
 #' Grubb's test for outliers
@@ -1619,15 +1626,15 @@ dixon_test <- function(df,
 #' @param keep_data_object TRUE/FALSE default is FALSE
 #' @export
 
-grubbs_test <- function(df,
-                        x = "analysis_result",
-                        type = 10,
-                        opposite = FALSE,
-                        two_sided = FALSE,
-                        group_by_location = FALSE,
-                        keep_data_object = FALSE
+grubbs_test <- function(
+  df,
+  x = "analysis_result",
+  type = 10,
+  opposite = FALSE,
+  two_sided = FALSE,
+  group_by_location = FALSE,
+  keep_data_object = FALSE
 ) {
-  
   if (isTRUE(group_by_location)) {
     df <- df %>%
       group_by(param_name, default_unit) %>%
@@ -1637,32 +1644,38 @@ grubbs_test <- function(df,
       group_by(location_id, param_name, default_unit) %>%
       nest()
   }
-  
+
   df <- df %>%
-    mutate(grubbs = map(.x = data, ~outliers::grubbs.test(
-      .x$analysis_result,
-      type = type,
-      opposite = opposite,
-      two.sided = two_sided
+    mutate(
+      grubbs = map(
+        .x = data,
+        ~ outliers::grubbs.test(
+          .x$analysis_result,
+          type = type,
+          opposite = opposite,
+          two.sided = two_sided
+        )
+      )
     )
-    )
-    )
-  
+
   if (isTRUE(keep_data_object)) {
     outliers <- df %>%
-      mutate(alternative = map(.x = grubbs, ~ .x$alternative),
-             p_value = map(.x = grubbs, ~ .X$p.value)) %>%
+      mutate(
+        alternative = map(.x = grubbs, ~ .x$alternative),
+        p_value = map(.x = grubbs, ~ .X$p.value)
+      ) %>%
       select(-data)
   } else {
     outliers <- df %>%
-      mutate(alternative = map(.x = grubbs, ~ .x$alternative),
-             p_value = map(.x = grubbs, ~ .x$p.value)) %>%
+      mutate(
+        alternative = map(.x = grubbs, ~ .x$alternative),
+        p_value = map(.x = grubbs, ~ .x$p.value)
+      ) %>%
       select(-data, -grubbs) %>%
       unnest()
   }
-  
+
   return(outliers)
-  
 }
 
 #' Rosner's test for outliers
@@ -1679,14 +1692,15 @@ grubbs_test <- function(df,
 #' @param keep_data_object TRUE/FALSE to return entire gofOutlier object
 #' @export
 
-rosner_test <- function(df,
-                        x = "analysis_result",
-                        k = 3,
-                        alpha = 0.05,
-                        warn = TRUE,
-                        group_by_location = FALSE,
-                        keep_data_object = FALSE) {
-  
+rosner_test <- function(
+  df,
+  x = "analysis_result",
+  k = 3,
+  alpha = 0.05,
+  warn = TRUE,
+  group_by_location = FALSE,
+  keep_data_object = FALSE
+) {
   if (isTRUE(group_by_location)) {
     df <- df %>%
       group_by(param_name, default_unit) %>%
@@ -1696,29 +1710,31 @@ rosner_test <- function(df,
       group_by(location_id, param_name, default_unit) %>%
       nest()
   }
-  
+
   df <- df %>%
-    mutate(rosner = map(.x = data, ~rosnerTest(.x$analysis_result,
-                                               k = k,
-                                               alpha = alpha,
-                                               warn = warn
+    mutate(
+      rosner = map(
+        .x = data,
+        ~ rosnerTest(.x$analysis_result, k = k, alpha = alpha, warn = warn)
+      )
     )
-    )
-    )
-  
+
   if (isTRUE(keep_data_object)) {
     outliers <- df %>%
-      mutate(value = map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])) %>%
+      mutate(
+        value = map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])
+      ) %>%
       select(-data)
   } else {
     outliers <- df %>%
-      mutate(value = map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])) %>%
+      mutate(
+        value = map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])
+      ) %>%
       select(-data, -rosner) %>%
       unnest()
   }
-  
+
   return(outliers)
-  
 }
 
 #' Tukey's test for outliers
@@ -1734,9 +1750,14 @@ rosner_test <- function(df,
 #'
 #' @export
 
-tukey_outlier <- function(df, x = "analysis_result", k = 3, na.rm = FALSE,
-                          type = 6, combine_locations = FALSE) {
-  
+tukey_outlier <- function(
+  df,
+  x = "analysis_result",
+  k = 3,
+  na.rm = FALSE,
+  type = 6,
+  combine_locations = FALSE
+) {
   if (isTRUE(combine_locations)) {
     df <- df %>%
       group_by(param_name, default_unit) %>%
@@ -1746,35 +1767,48 @@ tukey_outlier <- function(df, x = "analysis_result", k = 3, na.rm = FALSE,
       group_by(location_id, param_name, default_unit) %>%
       nest()
   }
-  
+
   df <- df %>%
-    mutate(outlier = map(.x = data, ~case_when(
-      .x$analysis_result > .tukey_high_cutoff(
-        .x$analysis_result, k = k,
-        na.rm = na.rm, type = type) ~ TRUE,
-      .x$analysis_result < .tukey_low_cutoff(
-        .x$analysis_result, k = k,
-        na.rm = na.rm, type = type) ~ TRUE,
-      TRUE ~ FALSE
-    )
-    )
+    mutate(
+      outlier = map(
+        .x = data,
+        ~ case_when(
+          .x$analysis_result >
+            .tukey_high_cutoff(
+              .x$analysis_result,
+              k = k,
+              na.rm = na.rm,
+              type = type
+            ) ~ TRUE,
+          .x$analysis_result <
+            .tukey_low_cutoff(
+              .x$analysis_result,
+              k = k,
+              na.rm = na.rm,
+              type = type
+            ) ~ TRUE,
+          TRUE ~ FALSE
+        )
+      )
     ) %>%
     unnest(cols = c(data, outlier))
-  
+
   return(df)
 }
 
 .tukey_low_cutoff <- function(x, k = 3, na.rm = FALSE, type = 6) {
-  low <- quantile(x, na.rm = na.rm, type = type)[["25%"]] - k*IQR(x, na.rm = na.rm, type = type)
+  low <- quantile(x, na.rm = na.rm, type = type)[["25%"]] -
+    k * IQR(x, na.rm = na.rm, type = type)
   return(low)
 }
 
 .tukey_high_cutoff <- function(x, k = 3, na.rm = FALSE, type = 6, ...) {
-  high <- quantile(x, na.rm = na.rm, type = type)[["75%"]] + k*IQR(x, na.rm = na.rm, type = type)
+  high <- quantile(x, na.rm = na.rm, type = type)[["75%"]] +
+    k * IQR(x, na.rm = na.rm, type = type)
   return(high)
 }
 
-#' Boxcox transformation 
+#' Boxcox transformation
 #'
 #' @param df data frame
 #' @param combine_locations logical
@@ -1785,71 +1819,72 @@ tukey_outlier <- function(df, x = "analysis_result", k = 3, na.rm = FALSE,
 #'
 #' @export
 
-boxcox_transform <- function(df,
-                             combine_locations = FALSE,
-                             objective_name = "PPCC") {
-  
+boxcox_transform <- function(
+  df,
+  combine_locations = FALSE,
+  objective_name = "PPCC"
+) {
   if (combine_locations) {
-    
     df <- df %>%
       group_by(param_name, default_unit) %>%
-      nest()%>%
+      nest() %>%
       mutate(
-        boxcox = map(.x = data,
-                     ~EnvStats::boxcox(.x$analysis_result,
-                                       optimize = TRUE,
-                                       objective.name = objective_name)
+        boxcox = map(
+          .x = data,
+          ~ EnvStats::boxcox(
+            .x$analysis_result,
+            optimize = TRUE,
+            objective.name = objective_name
+          )
         )
       ) %>%
       mutate(
-        lambda = map(.x = boxcox,
-                     ~.x$lambda)
+        lambda = map(.x = boxcox, ~ .x$lambda)
       ) %>%
       select(-boxcox) %>%
-      unnest(lambda)%>%
+      unnest(lambda) %>%
       unnest(data) %>%
       group_by(param_name, default_unit) %>%
       nest() %>%
       mutate(
-        analysis_result = map(.x = data,
-                              ~boxcoxTransform(.x$analysis_result,
-                                               lambda = .x$lambda[1])
+        analysis_result = map(
+          .x = data,
+          ~ boxcoxTransform(.x$analysis_result, lambda = .x$lambda[1])
         )
       ) %>%
       unnest()
-    
   } else {
-    
     df <- df %>%
       group_by(location_id, param_name, default_unit) %>%
-      nest()%>%
+      nest() %>%
       mutate(
-        boxcox = map(.x = data,
-                     ~EnvStats::boxcox(.x$analysis_result,
-                                       optimize = TRUE,
-                                       objective.name = objective_name)
+        boxcox = map(
+          .x = data,
+          ~ EnvStats::boxcox(
+            .x$analysis_result,
+            optimize = TRUE,
+            objective.name = objective_name
+          )
         )
       ) %>%
       mutate(
-        lambda = map(.x = boxcox,
-                     ~.x$lambda)
+        lambda = map(.x = boxcox, ~ .x$lambda)
       ) %>%
       select(-boxcox) %>%
-      unnest(lambda)%>%
+      unnest(lambda) %>%
       unnest(data) %>%
       group_by(location_id, param_name, default_unit) %>%
       nest() %>%
       mutate(
-        analysis_result = map(.x = data,
-                              ~boxcoxTransform(.x$analysis_result,
-                                               lambda = .x$lambda[1])
+        analysis_result = map(
+          .x = data,
+          ~ boxcoxTransform(.x$analysis_result, lambda = .x$lambda[1])
         )
       ) %>%
       unnest()
   }
-  
+
   df
-  
 }
 
 #' Analysis of Variance
@@ -1877,34 +1912,42 @@ boxcox_transform <- function(df,
 #' @export
 
 anova <- function(df, keep_data_object = FALSE) {
-  
   df <- df %>%
     mutate(location_id = fct_recode(location_id))
-  
+
   aov_result <- df %>%
     group_by(param_name, default_unit) %>%
     nest() %>%
     mutate(
       anova = map(
-        .x = data, ~aov(analysis_result ~ location_id, data = .x)),
-      tukey = map(.x = anova, ~TukeyHSD(.x))
+        .x = data,
+        ~ aov(analysis_result ~ location_id, data = .x)
+      ),
+      tukey = map(.x = anova, ~ TukeyHSD(.x))
     ) %>%
     ungroup() %>%
     select(-data)
-  
+
   if (isTRUE(keep_data_object)) {
     aov_result %>%
-      mutate(pairwise = map(.x = tukey,
-                            ~rownames_to_column(data.frame(.x$location_id)))) %>%
+      mutate(
+        pairwise = map(
+          .x = tukey,
+          ~ rownames_to_column(data.frame(.x$location_id))
+        )
+      ) %>%
       select(-default_unit)
   } else {
     aov_result %>%
-      mutate(pairwise = map(.x = tukey,
-                            ~rownames_to_column(data.frame(.x$location_id)))) %>%
+      mutate(
+        pairwise = map(
+          .x = tukey,
+          ~ rownames_to_column(data.frame(.x$location_id))
+        )
+      ) %>%
       select(-anova, -tukey, -default_unit) %>%
       unnest()
   }
-  
 }
 
 #' Estimate statistical distribution
@@ -1951,20 +1994,20 @@ anova <- function(df, keep_data_object = FALSE) {
 #' @export
 
 est_dist <- function(
-    df,
-    return_result = FALSE,
-    alpha = 0.05,
-    method = "sw",
-    choices = c("norm", "lnorm"),
-    min_n = 4
+  df,
+  return_result = FALSE,
+  alpha = 0.05,
+  method = "sw",
+  choices = c("norm", "lnorm"),
+  min_n = 4
 ) {
   required_cols <- "analysis_result"
-  
+
   missing_cols <- setdiff(
     required_cols,
     names(df)
   )
-  
+
   if (length(missing_cols) > 0) {
     rlang::abort(
       paste(
@@ -1973,14 +2016,14 @@ est_dist <- function(
       )
     )
   }
-  
+
   .validate_est_dist_args(
     alpha = alpha,
     method = method,
     choices = choices,
     return_result = return_result
   )
-  
+
   .est_dist_worker(
     df = df,
     return_result = return_result,
@@ -2028,23 +2071,23 @@ est_dist <- function(
 #' @export
 
 est_dist_censored <- function(
-    df,
-    return_result = FALSE,
-    alpha = 0.05,
-    method = "sf",
-    choices = c("norm", "lnorm"),
-    min_n = 4
+  df,
+  return_result = FALSE,
+  alpha = 0.05,
+  method = "sf",
+  choices = c("norm", "lnorm"),
+  min_n = 4
 ) {
   required_cols <- c(
     "analysis_result",
     "left_censored"
   )
-  
+
   missing_cols <- setdiff(
     required_cols,
     names(df)
   )
-  
+
   if (length(missing_cols) > 0) {
     rlang::abort(
       paste(
@@ -2053,14 +2096,14 @@ est_dist_censored <- function(
       )
     )
   }
-  
+
   .validate_est_dist_args(
     alpha = alpha,
     method = method,
     choices = choices,
     return_result = return_result
   )
-  
+
   .est_dist_censored_worker(
     df = df,
     return_result = return_result,
@@ -2082,10 +2125,10 @@ est_dist_censored <- function(
 #'
 #' @noRd
 .fit_dist <- function(
-    x,
-    alpha,
-    method,
-    choices
+  x,
+  alpha,
+  method,
+  choices
 ) {
   EnvStats::distChoose(
     y = x,
@@ -2109,11 +2152,11 @@ est_dist_censored <- function(
 #'
 #' @noRd
 .fit_dist_censored <- function(
-    x,
-    censored,
-    alpha,
-    method,
-    choices
+  x,
+  censored,
+  alpha,
+  method,
+  choices
 ) {
   EnvStats::distChooseCensored(
     x = x,
@@ -2137,31 +2180,31 @@ est_dist_censored <- function(
 #' @noRd
 #' @noRd
 .est_dist_worker <- function(
-    df,
-    return_result,
-    min_n,
-    alpha,
-    method,
-    choices
+  df,
+  return_result,
+  min_n,
+  alpha,
+  method,
+  choices
 ) {
   df %>%
     dplyr::group_modify(
       ~ {
         group_data <- .x
-        
+
         x <- stats::na.omit(
           .x$analysis_result
         )
-        
+
         n <- length(x)
-        
+
         if (n < min_n) {
           result <- .make_dist_result(
             distribution = "insufficient_data",
             n = n,
             return_result = return_result
           )
-          
+
           return(
             .attach_nested_data(
               result = result,
@@ -2169,7 +2212,7 @@ est_dist_censored <- function(
             )
           )
         }
-        
+
         fit_result <- purrr::possibly(
           .fit_dist,
           otherwise = NULL
@@ -2179,13 +2222,13 @@ est_dist_censored <- function(
           method = method,
           choices = choices
         )
-        
+
         result <- .handle_dist_result(
           result = fit_result,
           n = n,
           return_result = return_result
         )
-        
+
         .attach_nested_data(
           result = result,
           data = group_data
@@ -2205,35 +2248,35 @@ est_dist_censored <- function(
 #' @noRd
 #' @noRd
 .est_dist_censored_worker <- function(
-    df,
-    return_result,
-    min_n,
-    alpha,
-    method,
-    choices
+  df,
+  return_result,
+  min_n,
+  alpha,
+  method,
+  choices
 ) {
   df %>%
     dplyr::group_modify(
       ~ {
         group_data <- .x
-        
+
         x <- .x$analysis_result
         censored <- .x$left_censored
-        
+
         keep <- !is.na(x)
-        
+
         x <- x[keep]
         censored <- censored[keep]
-        
+
         n <- length(x)
-        
+
         if (n < min_n) {
           result <- .make_dist_result(
             distribution = "insufficient_data",
             n = n,
             return_result = return_result
           )
-          
+
           return(
             .attach_nested_data(
               result = result,
@@ -2241,13 +2284,13 @@ est_dist_censored <- function(
             )
           )
         }
-        
+
         if (any(is.na(censored))) {
           rlang::abort(
             "left_censored cannot contain missing values."
           )
         }
-        
+
         fit_result <- if (!any(censored)) {
           purrr::possibly(
             .fit_dist,
@@ -2270,13 +2313,13 @@ est_dist_censored <- function(
             choices = choices
           )
         }
-        
+
         result <- .handle_dist_result(
           result = fit_result,
           n = n,
           return_result = return_result
         )
-        
+
         .attach_nested_data(
           result = result,
           data = group_data
@@ -2299,20 +2342,20 @@ est_dist_censored <- function(
 #'
 #' @noRd
 .make_dist_result <- function(
-    distribution,
-    n,
-    result = NULL,
-    return_result = FALSE
+  distribution,
+  n,
+  result = NULL,
+  return_result = FALSE
 ) {
   out <- tibble::tibble(
     distribution = distribution,
     n = n
   )
-  
+
   if (return_result) {
     out$result <- list(result)
   }
-  
+
   out
 }
 
@@ -2320,9 +2363,9 @@ est_dist_censored <- function(
 #'
 #' @noRd
 .handle_dist_result <- function(
-    result,
-    n,
-    return_result
+  result,
+  n,
+  return_result
 ) {
   if (is.null(result)) {
     return(
@@ -2333,7 +2376,7 @@ est_dist_censored <- function(
       )
     )
   }
-  
+
   .make_dist_result(
     distribution = paste(
       result$decision,
@@ -2349,21 +2392,21 @@ est_dist_censored <- function(
 #'
 #' @keywords internal
 .compute_pred_int <- function(
-    df,
-    simultaneous = FALSE,
-    method = "Bonferroni",
-    n_mean = 1,
-    k = 1,
-    pi_type = "upper",
-    conf_level = 0.95
+  df,
+  simultaneous = FALSE,
+  method = "Bonferroni",
+  n_mean = 1,
+  k = 1,
+  pi_type = "upper",
+  conf_level = 0.95
 ) {
   .validate_est_dist_output(df)
-  
+
   rlang::arg_match0(
     pi_type,
     c("upper", "lower", "two-sided")
   )
-  
+
   checkmate::assert_int(n_mean, lower = 1)
   checkmate::assert_int(k, lower = 1)
   checkmate::assert_number(
@@ -2371,13 +2414,13 @@ est_dist_censored <- function(
     lower = 0,
     upper = 1
   )
-  
+
   pred_fun <- function(data, distribution) {
     values <- data$analysis_result
-    
+
     switch(
       distribution,
-      
+
       "Normal" = {
         if (simultaneous) {
           EnvStats::predIntNormSimultaneous(
@@ -2398,7 +2441,7 @@ est_dist_censored <- function(
           )
         }
       },
-      
+
       "Lognormal" = {
         if (simultaneous) {
           EnvStats::predIntLnormSimultaneous(
@@ -2419,7 +2462,7 @@ est_dist_censored <- function(
           )
         }
       },
-      
+
       "Nonparametric" = {
         if (simultaneous) {
           EnvStats::predIntNparSimultaneous(
@@ -2435,7 +2478,7 @@ est_dist_censored <- function(
       }
     )
   }
-  
+
   df %>%
     dplyr::mutate(
       pred_int = purrr::map2(
@@ -2505,52 +2548,61 @@ est_dist_censored <- function(
 #'
 #' @export
 
-conf_int <- function(df,
-                     analysis_result = "analysis_result",
-                     distribution = "distribution",
-                     method = "mvue",
-                     ci_type = "two-sided",
-                     conf_level = 0.95) {
-  
+conf_int <- function(
+  df,
+  analysis_result = "analysis_result",
+  distribution = "distribution",
+  method = "mvue",
+  ci_type = "two-sided",
+  conf_level = 0.95
+) {
   conf_int <- df %>%
-    mutate(conf_int = case_when(
-      distribution == "Normal" ~ map(.x = data,
-                                     ~EnvStats::enorm(
-                                       x = .x$analysis_result,
-                                       method = method,
-                                       ci = TRUE,
-                                       ci.type = ci_type,
-                                       conf.level = conf_level,
-                                       ci.param = "mean")
-      ),
-      distribution == "Lognormal" ~ map(.x = data,
-                                        ~EnvStats::elnormAlt(
-                                          x = .x$analysis_result,
-                                          ci = TRUE,
-                                          ci.type = ci_type,
-                                          ci.method = "land",
-                                          conf.level = conf_level)
-      ),
-      distribution == "Nonparametric" ~ map(.x = data,
-                                            ~EnvStats::eqnpar(
-                                              x = .x$analysis_result,
-                                              ci = TRUE,
-                                              ci.type = ci_type,
-                                              ci.method = "interpolate",
-                                              approx.conf.level = conf_level)
+    mutate(
+      conf_int = case_when(
+        distribution == "Normal" ~ map(
+          .x = data,
+          ~ EnvStats::enorm(
+            x = .x$analysis_result,
+            method = method,
+            ci = TRUE,
+            ci.type = ci_type,
+            conf.level = conf_level,
+            ci.param = "mean"
+          )
+        ),
+        distribution == "Lognormal" ~ map(
+          .x = data,
+          ~ EnvStats::elnormAlt(
+            x = .x$analysis_result,
+            ci = TRUE,
+            ci.type = ci_type,
+            ci.method = "land",
+            conf.level = conf_level
+          )
+        ),
+        distribution == "Nonparametric" ~ map(
+          .x = data,
+          ~ EnvStats::eqnpar(
+            x = .x$analysis_result,
+            ci = TRUE,
+            ci.type = ci_type,
+            ci.method = "interpolate",
+            approx.conf.level = conf_level
+          )
+        )
       )
     )
-    )
-  
+
   conf_int %>%
-    mutate(distribution = distribution,
-           sample_size = map(.x = conf_int, ~ .x$sample.size),
-           lcl = map(.x = conf_int, ~ round(.x$interval$limits["LCL"], 3)),
-           ucl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
-           conf_level = map(.x = conf_int, ~ .x$interval$conf.level)) %>%
+    mutate(
+      distribution = distribution,
+      sample_size = map(.x = conf_int, ~ .x$sample.size),
+      lcl = map(.x = conf_int, ~ round(.x$interval$limits["LCL"], 3)),
+      ucl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
+      conf_level = map(.x = conf_int, ~ .x$interval$conf.level)
+    ) %>%
     select(-data, -conf_int) %>%
     unnest()
-  
 }
 
 #' Function to calculate prediction interval
@@ -2599,12 +2651,12 @@ conf_int <- function(df,
 #'
 #' @export
 pred_int <- function(
-    df,
-    method = "Bonferroni",
-    n_mean = 1,
-    k = 1,
-    pi_type = "upper",
-    conf_level = 0.95
+  df,
+  method = "Bonferroni",
+  n_mean = 1,
+  k = 1,
+  pi_type = "upper",
+  conf_level = 0.95
 ) {
   .compute_pred_int(
     df = df,
@@ -2665,11 +2717,11 @@ pred_int <- function(
 #' @export
 
 pred_int_sim <- function(
-    df,
-    n_mean = 1,
-    k = 1,
-    pi_type = "upper",
-    conf_level = 0.95
+  df,
+  n_mean = 1,
+  k = 1,
+  pi_type = "upper",
+  conf_level = 0.95
 ) {
   .compute_pred_int(
     df = df,
@@ -2712,50 +2764,126 @@ pred_int_sim <- function(
 #'
 #' @export
 
-tol_int <- function(df,
-                    analysis_result = "analysis_result",
-                    distribution = "distribution",
-                    coverage = 0.95,
-                    cov_type = "content",
-                    ti_type = "two-sided",
-                    method = "exact") {
-  
+tol_int <- function(
+  df,
+  analysis_result = "analysis_result",
+  distribution = "distribution",
+  coverage = 0.95,
+  cov_type = "content",
+  ti_type = "two-sided",
+  method = "exact"
+) {
   tol_int <- df %>%
-    mutate(tol_int = case_when(
-      distribution == "Normal" ~ map(.x = data,
-                                     ~EnvStats::tolIntNorm(
-                                       x = .x$analysis_result,
-                                       coverage = coverage,
-                                       cov.type = cov_type,
-                                       ti.type = ti_type,
-                                       method = method)
-      ),
-      distribution == "Lognormal" ~ map(.x = data,
-                                        ~EnvStats::tolIntLnorm(
-                                          x = .x$analysis_result,
-                                          coverage = coverage,
-                                          cov.type = cov_type,
-                                          ti.type = ti_type,
-                                          method = method)
-      ),
-      distribution == "Nonparametric" ~ map(.x = data,
-                                            ~EnvStats::tolIntNpar(
-                                              x = .x$analysis_result,
-                                              coverage = coverage,
-                                              cov.type = cov_type,
-                                              ti.type = ti_type)
+    mutate(
+      tol_int = case_when(
+        distribution == "Normal" ~ map(
+          .x = data,
+          ~ EnvStats::tolIntNorm(
+            x = .x$analysis_result,
+            coverage = coverage,
+            cov.type = cov_type,
+            ti.type = ti_type,
+            method = method
+          )
+        ),
+        distribution == "Lognormal" ~ map(
+          .x = data,
+          ~ EnvStats::tolIntLnorm(
+            x = .x$analysis_result,
+            coverage = coverage,
+            cov.type = cov_type,
+            ti.type = ti_type,
+            method = method
+          )
+        ),
+        distribution == "Nonparametric" ~ map(
+          .x = data,
+          ~ EnvStats::tolIntNpar(
+            x = .x$analysis_result,
+            coverage = coverage,
+            cov.type = cov_type,
+            ti.type = ti_type
+          )
+        )
       )
     )
-    )
-  
+
   tol_int %>%
-    mutate(distribution = distribution,
-           sample_size = map(.x = tol_int, ~ .x$sample.size),
-           ltl = map(.x = tol_int, ~ .x$interval$limits["LTL"]),
-           utl = map(.x = tol_int, ~ .x$interval$limits["UTL"]),
-           conf_level = map(.x = tol_int, ~ .x$interval$conf.level)) %>%
+    mutate(
+      distribution = distribution,
+      sample_size = map(.x = tol_int, ~ .x$sample.size),
+      ltl = map(.x = tol_int, ~ .x$interval$limits["LTL"]),
+      utl = map(.x = tol_int, ~ .x$interval$limits["UTL"]),
+      conf_level = map(.x = tol_int, ~ .x$interval$conf.level)
+    ) %>%
     select(-data, -tol_int) %>%
     unnest()
-  
 }
 
+#' Function to update background data
+#'
+#' @param df data frame of groundwater data in tidy format
+#' @param well the location to update
+#' @param param the constituent to update
+#' @param start the start date of the background data. IF not provide the
+#' start of the data will be found using @seealso [start_date()]
+#' @param n_end the number of samples in current background. The date will be
+#' found from this sample.
+#' @param n_prop the number of samples to include in the proposed background
+#'
+#' @export
+
+update_background <- function(
+  df,
+  well,
+  param,
+  start = NULL,
+  n_end = 8,
+  n_prop = 4
+) {
+  tmp <- df %>%
+    filter_(~ location_id == well, ~ param_name == param)
+
+  if (is.null(start)) {
+    start <- tmp %>%
+      start_date()
+  }
+
+  end <- tmp %>%
+    nth_date(start = start, n = n_end - 1)
+
+  max <- tmp %>%
+    select_(~sample_date) %>%
+    first() %>%
+    max()
+
+  bkgd <- tmp %>%
+    set_background(start = start, end = end)
+
+  next_date <- tmp %>%
+    nth_date(start = end, n = n_prop)
+
+  next_bkgd <- tmp %>%
+    set_proposed_background(start = end, end = next_date)
+
+  outlier <- EnvStats::rosnerTest(bkgd$analysis_result, k = 1, alpha = 0.01)
+
+  trend <- EnvStats::kendallTrendTest(
+    bkgd$analysis_result ~ bkgd$sample_date,
+    conf.level = 0.99
+  )
+
+  two_sample <- EnvStats::twoSampleLinearRankTest(
+    bkgd$analysis_result,
+    next_bkgd$analysis_result,
+    test = "wilcoxon"
+  )
+
+  output <- list(
+    rosner_test = outlier,
+    kendall_trend = trend,
+    two_sample = two_sample
+  )
+
+  output
+}
