@@ -2,36 +2,120 @@
 % Please edit documentation in R/stats.R
 \name{rosner_test}
 \alias{rosner_test}
-\title{Rosner's test for outliers}
+\alias{rosner_test.data.frame}
+\alias{rosner_test.env_schema}
+\title{Rosner Test}
 \usage{
-rosner_test(
+rosner_test(df, ...)
+
+\method{rosner_test}{data.frame}(
   df,
-  x = "analysis_result",
-  k = 3,
-  alpha = 0.05,
-  warn = TRUE,
-  group_by_location = FALSE,
-  keep_data_object = FALSE
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  ...
 )
+
+\method{rosner_test}{env_schema}(df, k = 3, alpha = 0.05, warn = TRUE, keep_data_object = FALSE)
 }
 \arguments{
-\item{df}{data.frame of groundwater data}
+\item{df}{A data frame or `env_schema` object.}
 
-\item{x}{column of analysis results}
+\item{...}{Additional arguments passed to methods.}
 
-\item{k}{number of suspected outliers. Default is 3.}
+\item{location_id}{Location column name.}
 
-\item{alpha}{numerical scalar bewteen 0 and 1 indicating the Type I error}
+\item{param_name}{Analyte column name.}
 
-\item{warn}{logical scalar indicating whether to issue a warning
-(warn=TRUE; the default) when the number of non-missing, finite values
-in x and the value of k are such that the assumed Type I error level might
-not be maintained.}
+\item{sample_date}{Sample date column.}
 
-\item{group_by_location}{TRUE/FALSE}
+\item{analysis_result}{Analytical result column name.}
 
-\item{keep_data_object}{TRUE/FALSE to return entire gofOutlier object}
+\item{default_unit}{Reporting unit column name.}
+
+\item{k}{Maximum number of candidate outliers evaluated.}
+
+\item{alpha}{Significance level.}
+
+\item{warn}{Logical indicating whether Rosner test warnings
+should be returned.}
+
+\item{keep_data_object}{Logical indicating whether the complete
+Rosner result object should be retained.}
+}
+\value{
+A tibble containing one row per outlier evaluation group.
 }
 \description{
-Rosner's test for outliers
+Performs Rosner's test for one or more potential outliers in
+environmental monitoring data.
+}
+\details{
+`rosner_test()` is an S3 generic supporting both `data.frame`
+and `env_schema` objects.
+
+If the input is grouped using [dplyr::group_by()], Rosner tests
+are performed within the existing groups.
+
+
+Rosner's test evaluates multiple candidate outliers
+simultaneously and is commonly used in environmental and
+groundwater statistical evaluations.
+
+When groups contain insufficient data, no outlier evaluation is
+performed and missing values are returned.
+}
+\section{Groundwater Monitoring}{
+
+
+Rosner's test is often preferred for groundwater monitoring
+datasets because it can evaluate multiple potential outliers and
+generally performs better than Dixon's or Grubbs' tests when
+sample sizes are sufficiently large.
+}
+
+\section{env_schema Method}{
+
+
+For `env_schema` objects, Rosner tests use standardized
+`.analysis_result` values.
+
+Existing `dplyr::group_by()` groups are preserved. When the
+input is not grouped, tests are performed by:
+
+\itemize{
+  \item location
+  \item analyte
+  \item analysis unit
+}
+
+#' @returns
+A tibble containing one row per outlier evaluation group.
+
+The returned table includes:
+\describe{
+  \item{Value}{Observation evaluated by Rosner's procedure.}
+  \item{Outlier}{Logical indicator identifying observations
+  classified as outliers.}
+}
+}
+
+\examples{
+schema <- env_schema(
+  gw_data,
+  location = location_id,
+  date = sample_date,
+  analyte = param_name,
+  result = analysis_result,
+  unit = default_unit
+)
+
+rosner_test(schema)
+
+schema |>
+  dplyr::group_by(location_id) |>
+  rosner_test()
+
 }

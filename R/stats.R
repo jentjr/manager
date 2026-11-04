@@ -612,6 +612,7 @@ trend_summary.env_schema <- function(
     ),
     trend_direction = dplyr::case_when(
       is.na(tr$slope) ~ NA_character_,
+      tr$p_value > alpha ~ "Stable",
       tr$slope > 0 ~ "Increasing",
       tr$slope < 0 ~ "Decreasing",
       TRUE ~ "Stable"
@@ -1536,121 +1537,366 @@ kendall_trend.env_schema <- function(
   )
 }
 
+#' @keywords internal
+.get_outlier_group_cols <- function(df) {
+  if (dplyr::is_grouped_df(df)) {
+    return(
+      dplyr::group_vars(df)
+    )
+  }
 
-#' Dixon test for outliers
+  c(
+    location_var(df),
+    analyte_var(df),
+    ".analysis_unit"
+  )
+}
+
+#' @keywords internal
+.build_outlier_groups <- function(df) {
+  group_cols <- .get_outlier_group_cols(df)
+
+  df |>
+    dplyr::group_by(
+      dplyr::across(
+        dplyr::all_of(group_cols)
+      ),
+      .add = FALSE
+    ) |>
+    tidyr::nest()
+}
+
+#' @keywords internal
+.extract_htest_results <- function(
+  df,
+  test_col
+) {
+  df |>
+    dplyr::mutate(
+      alternative = purrr::map(
+        .data[[test_col]],
+        ~ {
+          if (is.null(.x)) {
+            NA_character_
+          } else {
+            .x$alternative
+          }
+        }
+      ),
+
+      p_value = purrr::map(
+        .data[[test_col]],
+        ~ {
+          if (is.null(.x)) {
+            NA_real_
+          } else {
+            .x$p.value
+          }
+        }
+      )
+    )
+}
+
+#' Dixon Test
 #'
-#' @param df data frame
-#' @param x column of analysis results
-#' @param opposite  logical indicating whether you want to check not the value
-#' with largest difference from the mean, but opposite
-#' (lowest, if most suspicious is highest etc.)
-#' @param type an integer specyfying the variant of test to be performed.
-#' Possible values are compliant with these given by
-#' Dixon (1950): 10, 11, 12, 20, 21. If this value is set to zero, a variant
-#' of the test is chosen according to sample size
-#' (10 for 3-7, 11 for 8-10, 21 for 11-13, 22 for 14 and more).
-#' The lowest or highest value is selected automatically, and can be reversed
-#' used opposite parameter.
-#' @param two_sided treat test as two-sided. Default is TRUE.
-#' @param group_by_location TRUE/FALSE
-#' @param keep_data_object TRUE/FALSE to return entire htest object
+#' Performs Dixon's Q test for potential outliers in environmental
+#' monitoring data.
+#'
+#' `dixon_test()` is an S3 generic that supports both raw
+#' `data.frame` inputs and `env_schema` objects.
+#'
+#' If the input is grouped using [dplyr::group_by()], Dixon tests are
+#' performed within the existing groups. For ungrouped `env_schema`
+#' inputs, tests are performed separately for each:
+#'
+#' \itemize{
+#'   \item location
+#'   \item analyte
+#'   \item analysis unit
+#' }
+#'
+#' Dixon's test is intended for relatively small sample sizes and is
+#' generally appropriate for groups containing between three and
+#' thirty observations.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @returns
+#' A tibble containing one row per outlier evaluation group.
+#'
+#' @details
+#' Dixon's test evaluates whether the most extreme observation is
+#' statistically inconsistent with the remaining observations in the
+#' group.
+#'
+#' The method is most appropriate for small datasets and should be
+#' interpreted cautiously for environmental monitoring programs with
+#' larger sample sizes.
+#'
+#' @section Groundwater Monitoring:
+#'
+#' Dixon's and Grubbs' tests are generally most appropriate
+#' for relatively small datasets and may be sensitive to
+#' distributional assumptions.
+#'
+#' For larger groundwater monitoring datasets,
+#' `rosner_test()` is often preferred.
+#'
+#' @examples
+#' dixon_test(gw_data)
+#'
+#' schema <- env_schema(
+#'   gw_data,
+#'   location = location_id,
+#'   date = sample_date,
+#'   analyte = param_name,
+#'   result = analysis_result,
+#'   unit = default_unit
+#' )
+#'
+#' dixon_test(schema)
+#'
+#' schema |>
+#'   dplyr::group_by(location_id) |>
+#'   dixon_test()
 #'
 #' @export
+dixon_test <- function(df, ...) {
+  UseMethod("dixon_test")
+}
 
-dixon_test <- function(
+#' @rdname dixon_test
+#'
+#' @param location_id Location column name.
+#' @param param_name Analyte column name.
+#' @param sample_date Sample date column name.
+#' @param analysis_result Analytical result column name.
+#' @param default_unit Reporting unit column name.
+#'
+#' @export
+dixon_test.data.frame <- function(
   df,
-  x = "analysis_result",
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  ...
+) {
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location_id),
+    analyte = !!rlang::sym(param_name),
+    date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(analysis_result),
+    unit = !!rlang::sym(default_unit)
+  )
+
+  dixon_test(
+    df,
+    ...
+  )
+}
+
+#' @rdname dixon_test
+#'
+#' @param type Variant of Dixon's test.
+#' @param opposite Logical indicating whether the lowest value
+#' should be tested rather than the highest value.
+#' @param two_sided Logical indicating whether a two-sided test
+#' should be performed.
+#' @param keep_data_object Logical indicating whether the complete
+#' test object should be retained in the output.
+#'
+#' @section env_schema Method:
+#'
+#' For `env_schema` objects, Dixon tests are performed using
+#' standardized analytical results stored in `.analysis_result`.
+#'
+#' Grouping is determined automatically from the current
+#' `dplyr::group_by()` structure or, for ungrouped data, uses:
+#'
+#' \itemize{
+#'   \item location
+#'   \item analyte
+#'   \item analysis unit
+#' }
+#'
+#' @export
+dixon_test.env_schema <- function(
+  df,
   type = 0,
   opposite = FALSE,
   two_sided = TRUE,
-  group_by_location = FALSE,
   keep_data_object = FALSE
 ) {
-  if (isTRUE(group_by_location)) {
-    df <- df %>%
-      group_by(param_name, default_unit) %>%
-      nest()
-  } else {
-    df <- df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      nest()
-  }
+  validate_env_schema(df)
 
-  df <- df %>%
-    mutate(
-      dixon = map(
-        .x = data,
-        ~ outliers::dixon.test(
-          .x$analysis_result,
-          type = type,
-          opposite = opposite,
-          two.sided = two_sided
-        )
+  df <- df |>
+    .build_outlier_groups() |>
+    dplyr::mutate(
+      dixon = purrr::map(
+        data,
+        ~ {
+          x <- stats::na.omit(
+            .x$.analysis_result
+          )
+
+          x <- x[
+            is.finite(x)
+          ]
+
+          if (
+            length(x) < 3 ||
+              length(x) > 30 ||
+              dplyr::n_distinct(x) < 3
+          ) {
+            return(NULL)
+          }
+
+          outliers::dixon.test(
+            x,
+            type = type,
+            opposite = opposite,
+            two.sided = two_sided
+          )
+        }
       )
     )
 
   if (isTRUE(keep_data_object)) {
-    outliers <- df %>%
-      mutate(
-        alternative = map(.x = dixon, ~ .x$alternative),
-        p_value = map(.x = dixon, ~ .x$p.value)
-      ) %>%
-      select(-data)
+    outliers <- df |>
+      .extract_htest_results(
+        test_col = "dixon"
+      ) |>
+      dplyr::select(-data)
   } else {
-    outliers <- df %>%
-      mutate(
-        alternative = map(.x = dixon, ~ .x$alternative),
-        p_value = map(.x = dixon, ~ .x$p.value)
-      ) %>%
-      select(-data, -dixon) %>%
-      unnest()
+    outliers <- df |>
+      .extract_htest_results(
+        test_col = "dixon"
+      ) |>
+      dplyr::select(-data, -dixon) |>
+      tidyr::unnest(
+        cols = c(
+          alternative,
+          p_value
+        )
+      )
   }
 
   return(outliers)
 }
 
-#' Grubb's test for outliers
+#' Grubbs Test
 #'
-#' @param df data frame
-#' @param x column of analysis results
-#' @param type integer value indicating test variant. 10 is a test for one
-#' outlier (side is detected automatically and can be reversed by opposite
-#' parameter). 11 is a test for two outliers on opposite tails, 20 is test
-#' for two outliers in one tail. Default is 10
-#' @param opposite a logical indicating whether you want to check not the
-#' value with largest difference from the mean, but opposite (lowest, if
-#' most suspicious is highest etc.). Default is FALSE
-#' @param two_sided Logical value indicating if there is a need to treat
-#' this test as two-sided. Default is FALSE
-#' @param group_by_location TRUE/FALSE default is FALSE
-#' @param keep_data_object TRUE/FALSE default is FALSE
+#' Performs Grubbs' test for potential outliers in environmental
+#' monitoring data.
+#'
+#' `grubbs_test()` is an S3 generic supporting both `data.frame`
+#' and `env_schema` objects.
+#'
+#' If the input is grouped using [dplyr::group_by()], Grubbs'
+#' tests are performed within the existing groups.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @returns
+#' A tibble containing one row per outlier evaluation group.
+#'
+#' @details
+#' Grubbs' test evaluates whether the most extreme value differs
+#' significantly from the remaining observations.
+#'
+#' Grubbs' test assumes approximately normally distributed data.
+#'
+#' For many environmental datasets, Rosner's test may be more
+#' appropriate when larger sample sizes are available.
+#'
+#' @section Groundwater Monitoring:
+#'
+#' Dixon's and Grubbs' tests are generally most appropriate
+#' for relatively small datasets and may be sensitive to
+#' distributional assumptions.
+#'
+#' For larger groundwater monitoring datasets,
+#' `rosner_test()` is often preferred.
+#'
+#' @examples
+#' grubbs_test(gw_data)
+#'
 #' @export
+grubbs_test <- function(df, ...) {
+  UseMethod("grubbs_test")
+}
 
-grubbs_test <- function(
+#' @rdname grubbs_test
+#'
+#' @param location_id Location column name.
+#' @param param_name Analyte column name.
+#' @param sample_date Sample date column.
+#' @param analysis_result Analytical result column name.
+#' @param default_unit Reporting unit column name.
+#'
+#' @export
+grubbs_test.data.frame <- function(
   df,
-  x = "analysis_result",
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  ...
+) {
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location_id),
+    analyte = !!rlang::sym(param_name),
+    date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(analysis_result),
+    unit = !!rlang::sym(default_unit)
+  )
+
+  grubbs_test(
+    df,
+    ...
+  )
+}
+
+#' @rdname grubbs_test
+#'
+#' @param type Grubbs test variant.
+#' @param opposite Logical indicating whether the lowest value
+#' should be tested rather than the highest value.
+#' @param two_sided Logical indicating whether a two-sided test
+#' should be performed.
+#' @param keep_data_object Logical indicating whether the complete
+#' test object should be retained.
+#'
+#' @section env_schema Method:
+#'
+#' For `env_schema` objects, tests are performed using
+#' `.analysis_result` values and respect existing
+#' `dplyr::group_by()` groups.
+#'
+#' @export
+grubbs_test.env_schema <- function(
+  df,
   type = 10,
   opposite = FALSE,
   two_sided = FALSE,
-  group_by_location = FALSE,
   keep_data_object = FALSE
 ) {
-  if (isTRUE(group_by_location)) {
-    df <- df %>%
-      group_by(param_name, default_unit) %>%
-      nest()
-  } else {
-    df <- df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      nest()
-  }
+  validate_env_schema(df)
 
-  df <- df %>%
-    mutate(
-      grubbs = map(
+  df <- df |>
+    .build_outlier_groups() |>
+    dplyr::mutate(
+      grubbs = purrr::map(
         .x = data,
         ~ outliers::grubbs.test(
-          .x$analysis_result,
+          .x$.analysis_result,
           type = type,
           opposite = opposite,
           two.sided = two_sided
@@ -1659,130 +1905,332 @@ grubbs_test <- function(
     )
 
   if (isTRUE(keep_data_object)) {
-    outliers <- df %>%
-      mutate(
-        alternative = map(.x = grubbs, ~ .x$alternative),
-        p_value = map(.x = grubbs, ~ .x$p.value)
-      ) %>%
-      select(-data)
+    outliers <- df |>
+      .extract_htest_results(
+        test_col = "grubbs"
+      ) |>
+      dplyr::select(-data)
   } else {
-    outliers <- df %>%
-      mutate(
-        alternative = map(.x = grubbs, ~ .x$alternative),
-        p_value = map(.x = grubbs, ~ .x$p.value)
-      ) %>%
-      select(-data, -grubbs) %>%
-      unnest()
+    outliers <- df |>
+      .extract_htest_results(
+        test_col = "grubbs"
+      ) |>
+      dplyr::select(-data, -grubbs) |>
+      tidyr::unnest(
+        cols = c(
+          alternative,
+          p_value
+        )
+      )
   }
 
   return(outliers)
 }
 
-#' Rosner's test for outliers
+#' Rosner Test
 #'
-#' @param df data.frame of groundwater data
-#' @param x column of analysis results
-#' @param k number of suspected outliers. Default is 3.
-#' @param alpha numerical scalar bewteen 0 and 1 indicating the Type I error
-#' @param warn logical scalar indicating whether to issue a warning
-#' (warn=TRUE; the default) when the number of non-missing, finite values
-#' in x and the value of k are such that the assumed Type I error level might
-#' not be maintained.
-#' @param group_by_location TRUE/FALSE
-#' @param keep_data_object TRUE/FALSE to return entire gofOutlier object
+#' Performs Rosner's test for one or more potential outliers in
+#' environmental monitoring data.
+#'
+#' `rosner_test()` is an S3 generic supporting both `data.frame`
+#' and `env_schema` objects.
+#'
+#' If the input is grouped using [dplyr::group_by()], Rosner tests
+#' are performed within the existing groups.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @returns
+#' A tibble containing one row per outlier evaluation group.
+#'
+#' @details
+#' Rosner's test evaluates multiple candidate outliers
+#' simultaneously and is commonly used in environmental and
+#' groundwater statistical evaluations.
+#'
+#' When groups contain insufficient data, no outlier evaluation is
+#' performed and missing values are returned.
+#'
+#' @section Groundwater Monitoring:
+#'
+#' Rosner's test is often preferred for groundwater monitoring
+#' datasets because it can evaluate multiple potential outliers and
+#' generally performs better than Dixon's or Grubbs' tests when
+#' sample sizes are sufficiently large.
+#'
+#' @examples
+#' schema <- env_schema(
+#'   gw_data,
+#'   location = location_id,
+#'   date = sample_date,
+#'   analyte = param_name,
+#'   result = analysis_result,
+#'   unit = default_unit
+#' )
+#'
+#' rosner_test(schema)
+#'
+#' schema |>
+#'   dplyr::group_by(location_id) |>
+#'   rosner_test()
+#'
 #' @export
+rosner_test <- function(df, ...) {
+  UseMethod("rosner_test")
+}
 
-rosner_test <- function(
+#' @rdname rosner_test
+#'
+#' @param location_id Location column name.
+#' @param param_name Analyte column name.
+#' @param sample_date Sample date column.
+#' @param analysis_result Analytical result column name.
+#' @param default_unit Reporting unit column name.
+#'
+#' @export
+rosner_test.data.frame <- function(
   df,
-  x = "analysis_result",
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  ...
+) {
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location_id),
+    analyte = !!rlang::sym(param_name),
+    date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(analysis_result),
+    unit = !!rlang::sym(default_unit)
+  )
+
+  rosner_test(
+    df,
+    ...
+  )
+}
+
+#' @rdname rosner_test
+#'
+#' @param k Maximum number of candidate outliers evaluated.
+#' @param alpha Significance level.
+#' @param warn Logical indicating whether Rosner test warnings
+#' should be returned.
+#' @param keep_data_object Logical indicating whether the complete
+#' Rosner result object should be retained.
+#'
+#' @section env_schema Method:
+#'
+#' For `env_schema` objects, Rosner tests use standardized
+#' `.analysis_result` values.
+#'
+#' Existing `dplyr::group_by()` groups are preserved. When the
+#' input is not grouped, tests are performed by:
+#'
+#' \itemize{
+#'   \item location
+#'   \item analyte
+#'   \item analysis unit
+#' }
+#'
+#'#' @returns
+#' A tibble containing one row per outlier evaluation group.
+#'
+#' The returned table includes:
+#' \describe{
+#'   \item{Value}{Observation evaluated by Rosner's procedure.}
+#'   \item{Outlier}{Logical indicator identifying observations
+#'   classified as outliers.}
+#' }
+#'
+#' @export
+rosner_test.env_schema <- function(
+  df,
   k = 3,
   alpha = 0.05,
   warn = TRUE,
-  group_by_location = FALSE,
   keep_data_object = FALSE
 ) {
-  if (isTRUE(group_by_location)) {
-    df <- df %>%
-      group_by(param_name, default_unit) %>%
-      nest()
-  } else {
-    df <- df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      nest()
-  }
+  validate_env_schema(df)
 
-  df <- df %>%
-    mutate(
-      rosner = map(
-        .x = data,
-        ~ rosnerTest(.x$analysis_result, k = k, alpha = alpha, warn = warn)
+  df <- df |>
+    .build_outlier_groups() |>
+    dplyr::mutate(
+      rosner = purrr::map(
+        data,
+        purrr::possibly(
+          function(.x) {
+            x <- stats::na.omit(
+              .x$.analysis_result
+            )
+
+            x <- x[
+              is.finite(x)
+            ]
+
+            if (length(x) < 3) {
+              return(NULL)
+            }
+
+            if (dplyr::n_distinct(x) < 2) {
+              return(NULL)
+            }
+
+            k_use <- min(
+              k,
+              length(x) - 2
+            )
+
+            if (k_use < 1) {
+              return(NULL)
+            }
+
+            suppressWarnings(
+              EnvStats::rosnerTest(
+                x,
+                k = k_use,
+                alpha = alpha,
+                warn = warn
+              )
+            )
+          },
+          otherwise = NULL
+        )
       )
     )
 
   if (isTRUE(keep_data_object)) {
     outliers <- df %>%
-      mutate(
-        value = map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])
+      dplyr::mutate(
+        value = purrr::map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])
       ) %>%
-      select(-data)
+      dplyr::select(-data)
   } else {
     outliers <- df %>%
-      mutate(
-        value = map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])
+      dplyr::mutate(
+        value = purrr::map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])
       ) %>%
-      select(-data, -rosner) %>%
-      unnest()
+      dplyr::select(-data, -rosner) %>%
+      tidyr::unnest(
+        cols = c(value)
+      )
   }
 
   return(outliers)
 }
 
-#' Tukey's test for outliers
+#' Tukey Outlier Screening
 #'
-#' @param df data.frame of groundwater data
-#' @param x column of analysis results
-#' @param k multiplier for IQR k = 1.5 indicates "outlier", k = 3 indicates
-#' "far out"
-#' @param na.rm logical. Should missing values be removed?
-#' @param type an integer selecting one of the many quantile algorithms.
-#' Default is 6 to match Sanitas
-#' @param combine_locations TRUE/FALSE
+#' Identifies potential outliers using Tukey's interquartile range
+#' (IQR) method.
+#'
+#' Observations greater than:
+#'
+#' \deqn{
+#' Q3 + k \times IQR
+#' }
+#'
+#' or less than:
+#'
+#' \deqn{
+#' Q1 - k \times IQR
+#' }
+#'
+#' are flagged as potential outliers.
+#'
+#' `tukey_outlier()` supports both `data.frame`
+#' and `env_schema` objects.
+#'
+#' If the input is grouped using [dplyr::group_by()], screening is
+#' performed within each group.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @returns
+#' The original observations with an added logical
+#' `outlier` column identifying observations that exceed
+#' the specified Tukey IQR thresholds.
+#'
+#' @section Groundwater Monitoring:
+#'
+#' Tukey's method should generally be considered a screening tool
+#' rather than a formal hypothesis test. Potential outliers
+#' identified using this method should be evaluated further before
+#' exclusion from statistical analyses.
 #'
 #' @export
+tukey_outlier <- function(df, ...) {
+  UseMethod("tukey_outlier")
+}
 
-tukey_outlier <- function(
+#' @rdname tukey_outlier
+#' @export
+tukey_outlier.data.frame <- function(
   df,
-  x = "analysis_result",
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  ...
+) {
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location_id),
+    analyte = !!rlang::sym(param_name),
+    date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(analysis_result),
+    unit = !!rlang::sym(default_unit)
+  )
+
+  tukey_outlier(
+    df,
+    ...
+  )
+}
+
+#' @rdname tukey_outlier
+#'
+#' @param k IQR multiplier.
+#' @param na.rm Logical indicating whether missing values should be
+#' removed.
+#' @param type Quantile algorithm used in the calculation.
+#'
+#' @section env_schema Method:
+#'
+#' For `env_schema` objects, screening is performed using
+#' standardized `.analysis_result` values and respects existing
+#' `dplyr::group_by()` groups.
+#'
+#' @export
+tukey_outlier.env_schema <- function(
+  df,
   k = 3,
   na.rm = FALSE,
-  type = 6,
-  combine_locations = FALSE
+  type = 6
 ) {
-  if (isTRUE(combine_locations)) {
-    df <- df %>%
-      group_by(param_name, default_unit) %>%
-      nest()
-  } else {
-    df <- df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      nest()
-  }
+  validate_env_schema(df)
 
-  df <- df %>%
-    mutate(
-      outlier = map(
+  df <- df |>
+    .build_outlier_groups() |>
+    dplyr::mutate(
+      outlier = purrr::map(
         .x = data,
-        ~ case_when(
-          .x$analysis_result >
+        ~ dplyr::case_when(
+          .x$.analysis_result >
             .tukey_high_cutoff(
-              .x$analysis_result,
+              .x$.analysis_result,
               k = k,
               na.rm = na.rm,
               type = type
             ) ~ TRUE,
-          .x$analysis_result <
+          .x$.analysis_result <
             .tukey_low_cutoff(
-              .x$analysis_result,
+              .x$.analysis_result,
               k = k,
               na.rm = na.rm,
               type = type
@@ -1790,18 +2238,20 @@ tukey_outlier <- function(
           TRUE ~ FALSE
         )
       )
-    ) %>%
-    unnest(cols = c(data, outlier))
+    ) |>
+    tidyr::unnest(cols = c(data, outlier))
 
   return(df)
 }
 
+#' @keywords internal
 .tukey_low_cutoff <- function(x, k = 3, na.rm = FALSE, type = 6) {
   low <- quantile(x, na.rm = na.rm, type = type)[["25%"]] -
     k * IQR(x, na.rm = na.rm, type = type)
   return(low)
 }
 
+#' @keywords internal
 .tukey_high_cutoff <- function(x, k = 3, na.rm = FALSE, type = 6, ...) {
   high <- quantile(x, na.rm = na.rm, type = type)[["75%"]] +
     k * IQR(x, na.rm = na.rm, type = type)

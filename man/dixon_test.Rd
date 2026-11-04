@@ -2,41 +2,133 @@
 % Please edit documentation in R/stats.R
 \name{dixon_test}
 \alias{dixon_test}
-\title{Dixon test for outliers}
+\alias{dixon_test.data.frame}
+\alias{dixon_test.env_schema}
+\title{Dixon Test}
 \usage{
-dixon_test(
+dixon_test(df, ...)
+
+\method{dixon_test}{data.frame}(
   df,
-  x = "analysis_result",
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  ...
+)
+
+\method{dixon_test}{env_schema}(
+  df,
   type = 0,
   opposite = FALSE,
   two_sided = TRUE,
-  group_by_location = FALSE,
   keep_data_object = FALSE
 )
 }
 \arguments{
-\item{df}{data frame}
+\item{df}{A data frame or `env_schema` object.}
 
-\item{x}{column of analysis results}
+\item{...}{Additional arguments passed to methods.}
 
-\item{type}{an integer specyfying the variant of test to be performed.
-Possible values are compliant with these given by
-Dixon (1950): 10, 11, 12, 20, 21. If this value is set to zero, a variant
-of the test is chosen according to sample size
-(10 for 3-7, 11 for 8-10, 21 for 11-13, 22 for 14 and more).
-The lowest or highest value is selected automatically, and can be reversed
-used opposite parameter.}
+\item{location_id}{Location column name.}
 
-\item{opposite}{logical indicating whether you want to check not the value
-with largest difference from the mean, but opposite
-(lowest, if most suspicious is highest etc.)}
+\item{param_name}{Analyte column name.}
 
-\item{two_sided}{treat test as two-sided. Default is TRUE.}
+\item{sample_date}{Sample date column name.}
 
-\item{group_by_location}{TRUE/FALSE}
+\item{analysis_result}{Analytical result column name.}
 
-\item{keep_data_object}{TRUE/FALSE to return entire htest object}
+\item{default_unit}{Reporting unit column name.}
+
+\item{type}{Variant of Dixon's test.}
+
+\item{opposite}{Logical indicating whether the lowest value
+should be tested rather than the highest value.}
+
+\item{two_sided}{Logical indicating whether a two-sided test
+should be performed.}
+
+\item{keep_data_object}{Logical indicating whether the complete
+test object should be retained in the output.}
+}
+\value{
+A tibble containing one row per outlier evaluation group.
 }
 \description{
-Dixon test for outliers
+Performs Dixon's Q test for potential outliers in environmental
+monitoring data.
+}
+\details{
+`dixon_test()` is an S3 generic that supports both raw
+`data.frame` inputs and `env_schema` objects.
+
+If the input is grouped using [dplyr::group_by()], Dixon tests are
+performed within the existing groups. For ungrouped `env_schema`
+inputs, tests are performed separately for each:
+
+\itemize{
+  \item location
+  \item analyte
+  \item analysis unit
+}
+
+Dixon's test is intended for relatively small sample sizes and is
+generally appropriate for groups containing between three and
+thirty observations.
+
+
+Dixon's test evaluates whether the most extreme observation is
+statistically inconsistent with the remaining observations in the
+group.
+
+The method is most appropriate for small datasets and should be
+interpreted cautiously for environmental monitoring programs with
+larger sample sizes.
+}
+\section{Groundwater Monitoring}{
+
+
+Dixon's and Grubbs' tests are generally most appropriate
+for relatively small datasets and may be sensitive to
+distributional assumptions.
+
+For larger groundwater monitoring datasets,
+`rosner_test()` is often preferred.
+}
+
+\section{env_schema Method}{
+
+
+For `env_schema` objects, Dixon tests are performed using
+standardized analytical results stored in `.analysis_result`.
+
+Grouping is determined automatically from the current
+`dplyr::group_by()` structure or, for ungrouped data, uses:
+
+\itemize{
+  \item location
+  \item analyte
+  \item analysis unit
+}
+}
+
+\examples{
+dixon_test(gw_data)
+
+schema <- env_schema(
+  gw_data,
+  location = location_id,
+  date = sample_date,
+  analyte = param_name,
+  result = analysis_result,
+  unit = default_unit
+)
+
+dixon_test(schema)
+
+schema |>
+  dplyr::group_by(location_id) |>
+  dixon_test()
+
 }

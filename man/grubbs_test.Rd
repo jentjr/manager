@@ -2,39 +2,99 @@
 % Please edit documentation in R/stats.R
 \name{grubbs_test}
 \alias{grubbs_test}
-\title{Grubb's test for outliers}
+\alias{grubbs_test.data.frame}
+\alias{grubbs_test.env_schema}
+\title{Grubbs Test}
 \usage{
-grubbs_test(
+grubbs_test(df, ...)
+
+\method{grubbs_test}{data.frame}(
   df,
-  x = "analysis_result",
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  ...
+)
+
+\method{grubbs_test}{env_schema}(
+  df,
   type = 10,
   opposite = FALSE,
   two_sided = FALSE,
-  group_by_location = FALSE,
   keep_data_object = FALSE
 )
 }
 \arguments{
-\item{df}{data frame}
+\item{df}{A data frame or `env_schema` object.}
 
-\item{x}{column of analysis results}
+\item{...}{Additional arguments passed to methods.}
 
-\item{type}{integer value indicating test variant. 10 is a test for one
-outlier (side is detected automatically and can be reversed by opposite
-parameter). 11 is a test for two outliers on opposite tails, 20 is test
-for two outliers in one tail. Default is 10}
+\item{location_id}{Location column name.}
 
-\item{opposite}{a logical indicating whether you want to check not the
-value with largest difference from the mean, but opposite (lowest, if
-most suspicious is highest etc.). Default is FALSE}
+\item{param_name}{Analyte column name.}
 
-\item{two_sided}{Logical value indicating if there is a need to treat
-this test as two-sided. Default is FALSE}
+\item{sample_date}{Sample date column.}
 
-\item{group_by_location}{TRUE/FALSE default is FALSE}
+\item{analysis_result}{Analytical result column name.}
 
-\item{keep_data_object}{TRUE/FALSE default is FALSE}
+\item{default_unit}{Reporting unit column name.}
+
+\item{type}{Grubbs test variant.}
+
+\item{opposite}{Logical indicating whether the lowest value
+should be tested rather than the highest value.}
+
+\item{two_sided}{Logical indicating whether a two-sided test
+should be performed.}
+
+\item{keep_data_object}{Logical indicating whether the complete
+test object should be retained.}
+}
+\value{
+A tibble containing one row per outlier evaluation group.
 }
 \description{
-Grubb's test for outliers
+Performs Grubbs' test for potential outliers in environmental
+monitoring data.
+}
+\details{
+`grubbs_test()` is an S3 generic supporting both `data.frame`
+and `env_schema` objects.
+
+If the input is grouped using [dplyr::group_by()], Grubbs'
+tests are performed within the existing groups.
+
+
+Grubbs' test evaluates whether the most extreme value differs
+significantly from the remaining observations.
+
+Grubbs' test assumes approximately normally distributed data.
+
+For many environmental datasets, Rosner's test may be more
+appropriate when larger sample sizes are available.
+}
+\section{Groundwater Monitoring}{
+
+
+Dixon's and Grubbs' tests are generally most appropriate
+for relatively small datasets and may be sensitive to
+distributional assumptions.
+
+For larger groundwater monitoring datasets,
+`rosner_test()` is often preferred.
+}
+
+\section{env_schema Method}{
+
+
+For `env_schema` objects, tests are performed using
+`.analysis_result` values and respect existing
+`dplyr::group_by()` groups.
+}
+
+\examples{
+grubbs_test(gw_data)
+
 }

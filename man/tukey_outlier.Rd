@@ -2,32 +2,80 @@
 % Please edit documentation in R/stats.R
 \name{tukey_outlier}
 \alias{tukey_outlier}
-\title{Tukey's test for outliers}
+\alias{tukey_outlier.data.frame}
+\alias{tukey_outlier.env_schema}
+\title{Tukey Outlier Screening}
 \usage{
-tukey_outlier(
+tukey_outlier(df, ...)
+
+\method{tukey_outlier}{data.frame}(
   df,
-  x = "analysis_result",
-  k = 3,
-  na.rm = FALSE,
-  type = 6,
-  combine_locations = FALSE
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  ...
 )
+
+\method{tukey_outlier}{env_schema}(df, k = 3, na.rm = FALSE, type = 6)
 }
 \arguments{
-\item{df}{data.frame of groundwater data}
+\item{df}{A data frame or `env_schema` object.}
 
-\item{x}{column of analysis results}
+\item{...}{Additional arguments passed to methods.}
 
-\item{k}{multiplier for IQR k = 1.5 indicates "outlier", k = 3 indicates
-"far out"}
+\item{k}{IQR multiplier.}
 
-\item{na.rm}{logical. Should missing values be removed?}
+\item{na.rm}{Logical indicating whether missing values should be
+removed.}
 
-\item{type}{an integer selecting one of the many quantile algorithms.
-Default is 6 to match Sanitas}
-
-\item{combine_locations}{TRUE/FALSE}
+\item{type}{Quantile algorithm used in the calculation.}
+}
+\value{
+The original observations with an added logical
+`outlier` column identifying observations that exceed
+the specified Tukey IQR thresholds.
 }
 \description{
-Tukey's test for outliers
+Identifies potential outliers using Tukey's interquartile range
+(IQR) method.
 }
+\details{
+Observations greater than:
+
+\deqn{
+Q3 + k \times IQR
+}
+
+or less than:
+
+\deqn{
+Q1 - k \times IQR
+}
+
+are flagged as potential outliers.
+
+`tukey_outlier()` supports both `data.frame`
+and `env_schema` objects.
+
+If the input is grouped using [dplyr::group_by()], screening is
+performed within each group.
+}
+\section{Groundwater Monitoring}{
+
+
+Tukey's method should generally be considered a screening tool
+rather than a formal hypothesis test. Potential outliers
+identified using this method should be evaluated further before
+exclusion from statistical analyses.
+}
+
+\section{env_schema Method}{
+
+
+For `env_schema` objects, screening is performed using
+standardized `.analysis_result` values and respects existing
+`dplyr::group_by()` groups.
+}
+
