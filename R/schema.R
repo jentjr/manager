@@ -297,7 +297,7 @@ env_schema <- function(
         )
     )
   } else {
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
         .result_type = "detect",
         .detected = TRUE,
@@ -313,7 +313,7 @@ env_schema <- function(
 
   result_col <- env_mapping$result
 
-  out <- out %>%
+  out <- out |>
     dplyr::mutate(
       .usable = !.rejected,
 
@@ -325,12 +325,12 @@ env_schema <- function(
   if (!is.null(env_mapping$method)) {
     method_col <- env_mapping$method
 
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
         .analysis_method = .data[[method_col]]
       )
   } else {
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
         .analysis_method = "raw"
       )
@@ -339,14 +339,14 @@ env_schema <- function(
   if (!is.null(env_mapping$unit)) {
     unit_col <- env_mapping$unit
 
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
         .original_lab_unit = .data[[unit_col]],
 
         .analysis_unit = .data[[unit_col]]
       )
   } else {
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
         .original_lab_unit = NA_character_,
         .analysis_unit = NA_character_
@@ -360,7 +360,7 @@ env_schema <- function(
   if (!is.null(env_mapping$measurement_uncertainty)) {
     unc_col <- env_mapping$measurement_uncertainty
 
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
         .relative_uncertainty = dplyr::if_else(
           is.na(.original_lab_result) |
@@ -381,12 +381,12 @@ env_schema <- function(
       analyte_lookup
     )
 
-    out <- out %>%
+    out <- out |>
       .resolve_analyte_metadata(
         analyte_col = env_mapping$analyte,
         alias_lookup = analyte_alias_lookup,
         analyte_lookup = analyte_lookup
-      ) %>%
+      ) |>
       .build_analyte_labels()
   }
 
@@ -481,7 +481,7 @@ env_schema <- function(
     reporting_flag = toupper(flag)
   )
 
-  out <- x %>%
+  out <- x |>
     dplyr::left_join(
       lookup,
       by = "reporting_flag"
@@ -646,7 +646,9 @@ has_env_schema_structure <- function(x) {
     !is.null(required)
   ]
 
-  all(required %in% names(x))
+  all(
+    c(required, .required_env_schema_columns()) %in% names(x)
+  )
 }
 
 #' @export
@@ -1180,7 +1182,7 @@ schema_result_types <- function(x) {
     )
   }
 
-  x %>%
+  x |>
     dplyr::count(
       .result_type,
       sort = TRUE
@@ -2024,10 +2026,10 @@ print.env_schema <- function(x, ...) {
 .normalize_unit <- function(x) {
   x <- as.character(x)
 
-  x %>%
-    stringr::str_trim() %>%
-    stringr::str_replace_all("µg", "ug") %>%
-    stringr::str_replace_all("μg", "ug") %>%
+  x |>
+    stringr::str_trim() |>
+    stringr::str_replace_all("µg", "ug") |>
+    stringr::str_replace_all("μg", "ug") |>
     stringr::str_to_lower()
 }
 

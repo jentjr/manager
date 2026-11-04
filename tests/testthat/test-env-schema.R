@@ -1,19 +1,15 @@
 test_that("unknown analytes generate warning", {
   expect_warning(
-    expect_warning(
-      env_schema(
-        gw_data,
-        location = location_id,
-        date = sample_date,
-        analyte = param_name,
-        result = analysis_result
-      ),
-      "unsupported analytes"
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
     ),
-    "Analyte metadata missing"
+    "not found in analyte metadata"
   )
 })
-
 
 test_that("env_schema constructor creates valid object", {
   x <- suppressWarnings(

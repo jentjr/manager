@@ -2,10 +2,29 @@
 #'
 #' Creates time-series plots for environmental monitoring data.
 #'
-#' ...
+#' `series_plot()` is an S3 generic that supports both raw data
+#' frames and `env_schema` objects.
+#'
+#' For data frames, environmental column mappings must be supplied.
+#' For `env_schema` objects, mapped schema fields are used automatically.
 #'
 #' @param df A data frame or `env_schema` object.
 #' @param ... Additional arguments passed to methods.
+#'
+#' @return
+#' If `plot_type = "split"`, a named list of ggplot objects,
+#' one per analyte.
+#'
+#' If `plot_type = "combined"`, a single ggplot object.
+#'
+#' @examples
+#' data(gw)
+#'
+#' plots <- series_plot(gw)
+#'
+#' names(plots)
+#'
+#' plots[[1]]
 #'
 #' @export
 series_plot <- function(df, ...) {
@@ -13,7 +32,8 @@ series_plot <- function(df, ...) {
 }
 
 #' @rdname series_plot
-#' @param location Location column.
+#'
+#' @param location Location identifier column.
 #' @param date Sample date column.
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
@@ -21,6 +41,12 @@ series_plot <- function(df, ...) {
 #' @param reporting_flag Reporting qualifier column.
 #' @param reporting_limit Reporting limit column.
 #' @param detection_limit Detection limit column.
+#'
+#' @details
+#' For data frames, `series_plot()` first converts the supplied
+#' data to an `env_schema` object using the specified column mappings
+#' and then dispatches to [series_plot.env_schema()].
+#'
 #' @export
 series_plot.data.frame <- function(
   df,
@@ -54,22 +80,186 @@ series_plot.data.frame <- function(
 
 #' @rdname series_plot
 #'
-#' @section env_schema Method:
-#' For `env_schema` objects, `series_plot()` automatically uses
-#' the schema mappings and standardized analytical fields:
+#' @param scale Facet scaling behavior passed to
+#' [ggplot2::facet_wrap()]. One of `"fixed"`, `"free"`,
+#' `"free_x"`, or `"free_y"`.
+#'
+#' @param scale_y_trans Transformation applied to the y-axis.
+#' One of `"identity"`, `"log"`, `"log10"`, `"log2"`,
+#' `"log1p"`, `"sqrt"`, `"reverse"`, `"reciprocal"`,
+#' `"exp"`, `"boxcox"`, `"logit"`, `"probit"`,
+#' `"probability"`, `"atanh"`, or `"asn"`.
+#'
+#' @param trend Trend line method. One of
+#' `"none"`, `"lm"`, `"loess"`, `"gam"`, or `"mann_kendall"`.
+#'
+#' @param trend_ci Logical. If `TRUE`, confidence intervals are
+#' displayed for supported trend models.
+#'
+#' @param trend_conf_level Confidence level used when
+#' `trend_ci = TRUE`.
+#'
+#' @param trend_label Trend annotation format. One of
+#' `"none"`, `"compact"`, or `"full"`.
+#'
+#' @param trend_label_sig_only Logical. If `TRUE`, trend labels
+#' are displayed only for statistically significant trends.
+#'
+#' @param background Optional vector containing a start date and
+#' end date used to shade a background monitoring period.
+#'
+#' @param standards Logical. If `TRUE`, applicable analytical
+#' standards are displayed.
+#'
+#' @param short_name Logical. If `TRUE`, analyte titles use
+#' short analyte labels when available.
+#'
+#' @param pnt Point size for plotted observations.
+#'
+#' @param ncol Number of facet columns.
+#'
+#' @param plot_type Plot layout. One of `"split"` or `"combined"`.
+#'
+#' @details
+#' `series_plot()` produces time-series visualizations of
+#' environmental analytical results.
+#'
+#' Data are grouped by analyte and location and displayed as
+#' chronological sampling records.
+#'
+#' In `"split"` mode, a separate plot is created for each analyte.
+#' In `"combined"` mode, all analytes are displayed on a single plot
+#' using colour to distinguish analytes.
+#'
+#' Non-detect observations are automatically distinguished from
+#' detected observations using symbol shape.
+#'
+#' Optional trend lines, trend annotations, analytical standards,
+#' and background periods may be added to aid interpretation.
+#'
+#' For `env_schema` objects, analyte, result, date, unit,
+#' detection status, and location information are obtained
+#' directly from schema mappings and standardized analytical
+#' fields.
+#'
+#' @section Plot Types:
+#'
+#' \describe{
+#'   \item{split}{
+#'   Produces a separate plot for each analyte.
+#'   }
+#'
+#'   \item{combined}{
+#'   Produces a single plot containing all analytes with
+#'   analytes distinguished by colour.
+#'   }
+#' }
+#'
+#' @section Trend Analysis:
+#'
+#' Several trend-fitting options are available:
+#'
+#' \describe{
+#'
+#'   \item{none}{
+#'   No trend line is added.
+#'   }
+#'
+#'   \item{lm}{
+#'   Linear regression trend.
+#'   }
+#'
+#'   \item{loess}{
+#'   Locally weighted smooth trend.
+#'   }
+#'
+#'   \item{gam}{
+#'   Generalized additive model smooth.
+#'   }
+#'
+#'   \item{mann_kendall}{
+#'   Mann-Kendall trend test with associated annotation.
+#'   }
+#' }
+#'
+#' @section Detection Status:
+#'
+#' Detected and non-detect observations are displayed using
+#' different point symbols. Detection status is obtained from
+#' standardized censoring information contained in the
+#' `env_schema` object.
+#'
+#' @section Schema-aware Plotting:
+#'
+#' For `env_schema` objects, `series_plot()` automatically uses:
 #'
 #' \itemize{
-#'   \item `.analysis_result`
-#'   \item `.analysis_unit`
-#'   \item `.censored`
-#'   \item the mapped date variable returned by `date_var()`
-#'   \item the mapped location variable returned by `location_var()`
-#'   \item the mapped analyte variable returned by `analyte_var()`
+#'   \item the mapped date field;
+#'   \item the mapped location field;
+#'   \item the mapped analyte field;
+#'   \item standardized analysis results;
+#'   \item standardized analysis units;
+#'   \item standardized censoring indicators.
 #' }
 #'
 #' This allows plots to be generated consistently regardless of
-#' the original source column names or schema mappings used by
-#' the input data.
+#' original source column names.
+#'
+#' @section Validation:
+#'
+#' Input arguments are validated for:
+#'
+#' \itemize{
+#'   \item supported facet scaling options;
+#'   \item supported y-axis transformations;
+#'   \item supported trend-fitting methods;
+#'   \item presence of observations available for plotting.
+#' }
+#'
+#' @examples
+#' data(gw)
+#'
+#' plots <- series_plot(gw)
+#'
+#' names(plots)
+#'
+#' plots[[1]]
+#'
+#' series_plot(
+#'   gw,
+#'   trend = "lm"
+#' )
+#'
+#' series_plot(
+#'   gw,
+#'   trend = "mann_kendall",
+#'   trend_label = "compact"
+#' )
+#'
+#' series_plot(
+#'   gw,
+#'   plot_type = "combined"
+#' )
+#'
+#' series_plot(
+#'   gw,
+#'   scale_y_trans = "log10"
+#' )
+#'
+#' series_plot(
+#'   gw,
+#'   background = as.POSIXct(
+#'     c(
+#'       "2010-01-01",
+#'       "2012-12-31"
+#'     )
+#'   )
+#' )
+#'
+#' series_plot(
+#'   gw,
+#'   standards = TRUE
+#' )
 #'
 #' @export
 series_plot.env_schema <- function(
@@ -700,19 +890,17 @@ boxplot.data.frame <- function(
 #'
 #' @section env_schema Method:
 #'
-#' Analyte grouping is determined by the mapped analyte variable
-#' returned by `analyte_var()`, not by internal standardized
-#' analyte metadata columns.
+#' Analyte grouping is determined by the mapped analyte variable,
+#' not by internal standardized analyte metadata columns.
 #'
 #' For `env_schema` objects, `boxplot()` automatically uses the
 #' schema mappings and standardized analytical fields:
 #'
 #' \itemize{
-#'   \item the mapped location variable returned by `location_var()`
-#'   \item the mapped analyte variable returned by `analyte_var()`
-#'   \item the mapped result variable returned by `result_var()`
-#'   \item the mapped reporting flag variable returned by
-#'     `reporting_flag_var()`
+#'   \item the mapped location field
+#'   \item the mapped analyte field
+#'   \item the mapped result field
+#'   \item the mapped reporting flag field
 #'   \item `analysis_unit()` for axis labeling
 #'   \item `analyte_label()` and `short_analyte_label()` for titles
 #' }
@@ -720,14 +908,14 @@ boxplot.data.frame <- function(
 #' This allows boxplots to be generated consistently regardless of
 #' the original source column names used by the underlying dataset.
 #'
-#' @returns
+#' @return
 #' A named list of plot objects. One boxplot is produced for each
 #' analyte in the mapped analyte column.
 #'
 #'
 #' @export
 boxplot.env_schema <- function(
-  x,
+  df,
   coef = 1.5,
   scale_y_trans = "identity",
   show_points = FALSE,
@@ -742,16 +930,16 @@ boxplot.env_schema <- function(
   add_explanation = FALSE,
   ...
 ) {
-  validate_env_schema(x)
+  validate_env_schema(df)
 
-  if (nrow(x) == 0) {
+  if (nrow(df) == 0) {
     rlang::abort(
       "No observations available to plot."
     )
   }
 
   .validate_boxplot_args(
-    df = x,
+    df = df,
     fill = fill,
     scale_y_trans = scale_y_trans,
     coef = coef,
@@ -771,12 +959,12 @@ boxplot.env_schema <- function(
     explanation <- .ggplot_box_legend()
   }
 
-  location <- location_var(x)
-  analyte <- analyte_var(x)
-  result <- result_var(x)
-  reporting_flag <- reporting_flag_var(x)
+  location <- location_var(df)
+  analyte <- analyte_var(df)
+  result <- result_var(df)
+  reporting_flag <- reporting_flag_var(df)
 
-  split(x, as.character(x[[analyte]])) |>
+  split(df, as.character(df[[analyte]])) |>
     purrr::imap(
       ~ .boxplot_build(
         df = .x,
@@ -1512,14 +1700,44 @@ corr_plot <- function(
   return(df)
 }
 
+#' Piper Diagram
+#'
+#' Creates a Piper diagram for hydrochemical facies interpretation
+#' using major-ion chemistry data.
+#'
+#' `piper_plot()` is an S3 generic that supports both raw data frames
+#' and `env_schema` objects.
+#'
+#' For data frames, environmental column mappings must be supplied.
+#' For `env_schema` objects, mapped schema fields are used automatically.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @return
+#' A ggplot object containing a Piper diagram.
+#'
 #' @export
-piper_plot <- function(x, ...) {
+piper_plot <- function(df, ...) {
   UseMethod("piper_plot")
 }
 
+#' @rdname piper_plot
+#'
+#' @param location Location identifier column.
+#' @param analyte Analyte column.
+#' @param result Analytical result column.
+#' @param unit Reporting unit column.
+#' @param date Sample date column.
+#'
+#' @details
+#' For data frames, `piper_plot()` first converts the supplied data
+#' to an `env_schema` object using the specified column mappings and
+#' then dispatches to [piper_plot.env_schema()].
+#'
 #' @export
 piper_plot.data.frame <- function(
-  x,
+  df,
   location,
   analyte,
   result,
@@ -1527,8 +1745,8 @@ piper_plot.data.frame <- function(
   date,
   ...
 ) {
-  x <- env_schema(
-    x,
+  df <- env_schema(
+    df,
     location = {{ location }},
     analyte = {{ analyte }},
     result = {{ result }},
@@ -1536,291 +1754,129 @@ piper_plot.data.frame <- function(
     date = {{ date }}
   )
 
-  piper_plot(x, ...)
+  piper_plot(df, ...)
 }
 
-#' Create a Piper diagram for hydrochemical facies interpretation
+
+#' @rdname piper_plot
 #'
-#' Creates a Piper diagram from major ion chemistry reported in a tidy
-#' groundwater or surface water dataset. Major ions are converted to
-#' milliequivalents per liter (meq/L), normalized to relative ionic
-#' percentages, and plotted in the cation triangle, anion triangle, and
-#' central diamond.
+#' @param analyte_matching Analyte matching strategy used to resolve
+#' analyte names. One of `"exact"`, `"strict"`, or `"normalized"`.
 #'
-#' Labels accept plotmath expressions.
+#' @param x_cation Character vector identifying analytes representing
+#' calcium.
 #'
-#' @param df A data frame containing water quality results in tidy format.
-#'   Must contain one row per parameter result and include the columns
-#'   specified by `location_id`, `sample_date`, `param_name`,
-#'   `analysis_result`, and `default_unit`.
+#' @param y_cation Character vector identifying analytes representing
+#' magnesium.
 #'
-#' @param location_id Character string identifying the column containing
-#'   sample location identifiers.
+#' @param z_cation Character vector identifying analytes representing
+#' sodium and potassium.
 #'
-#' @param sample_date Character string identifying the column containing
-#'   sample dates.
+#' @param x_anion Character vector identifying analytes representing
+#' chloride and fluoride.
 #'
-#' @param param_name Character string identifying the column containing
-#'   analyte or parameter names.
+#' @param y_anion Character vector identifying analytes representing
+#' alkalinity.
 #'
-#' @param analysis_result Character string identifying the column containing
-#'   numeric analytical results.
+#' @param z_anion Character vector identifying analytes representing
+#' sulfate.
 #'
-#' @param default_unit Character string identifying the column containing
-#'   analytical reporting units.
+#' @param x_cation_label Label for the calcium axis.
 #'
-#' @param analyte_matching Character string specifying how analyte names are
-#'   matched. Must be one of `"normalized"`, `"strict"`, or `"exact"`.
-#'   The default is `"normalized"`.
+#' @param y_cation_label Label for the magnesium axis.
 #'
-#'   \describe{
-#'     \item{exact}{
-#'       Uses analyte names exactly as reported. For example,
-#'       `"Calcium, dissolved"` and `"Calcium, total"` are treated as
-#'       separate analytes.
-#'     }
+#' @param z_cation_label Label for the sodium plus potassium axis.
 #'
-#'     \item{strict}{
-#'       Applies text normalization (case, punctuation, and whitespace)
-#'       while preserving distinctions such as dissolved versus total
-#'       fractions. For example, `"Calcium, dissolved"` resolves to
-#'       `"calcium dissolved"` and remains distinct from
-#'       `"calcium total"`.
-#'     }
+#' @param x_anion_label Label for the chloride plus fluoride axis.
 #'
-#'     \item{normalized}{
-#'       Applies text normalization and resolves aliases using the package
-#'       analyte lookup table. For example,
-#'       `"Calcium, dissolved"`, `"Calcium, total"`, and `"Ca"` may all
-#'       resolve to `"calcium"`.
-#'     }
-#'   }
+#' @param y_anion_label Label for the bicarbonate/carbonate axis.
 #'
-#' @param x_cation Character vector of analytes representing the left corner
-#'   cation component of the Piper diagram. Default is
-#'   `"Calcium, dissolved"`.
-#'
-#' @param x_cation_label Label displayed for the left corner cation axis.
-#'   Labels are parsed as plotmath expressions.
-#'
-#' @param y_cation Character vector of analytes representing the upper
-#'   cation component of the Piper diagram. Default is
-#'   `"Magnesium, dissolved"`.
-#'
-#' @param y_cation_label Label displayed for the upper cation axis.
-#'   Labels are parsed as plotmath expressions.
-#'
-#' @param z_cation Character vector of analytes representing the right corner
-#'   cation component of the Piper diagram. Defaults to sodium plus
-#'   potassium:
-#'   `c("Sodium, dissolved", "Potassium, dissolved")`.
-#'
-#' @param z_cation_label Label displayed for the right cation axis.
-#'   Labels are parsed as plotmath expressions.
-#'
-#' @param x_anion Character vector of analytes representing the left corner
-#'   anion component of the Piper diagram. Defaults to chloride plus
-#'   fluoride:
-#'   `c("Chloride, total", "Fluoride, total")`.
-#'
-#' @param x_anion_label Label displayed for the left anion axis.
-#'   Labels are parsed as plotmath expressions.
-#'
-#' @param y_anion Character vector of analytes representing the lower-right
-#'   anion component of the Piper diagram. The default assumes alkalinity is
-#'   reported as `"Alkalinity, total (lab)"` in units of mg/L as CaCO3.
-#'
-#' @param y_anion_label Label displayed for the bicarbonate/carbonate axis.
-#'   Labels are parsed as plotmath expressions.
-#'
-#' @param z_anion Character vector of analytes representing the upper anion
-#'   component of the Piper diagram. Default is `"Sulfate, total"`.
-#'
-#' @param z_anion_label Label displayed for the sulfate axis. Labels are
-#'   parsed as plotmath expressions.
+#' @param z_anion_label Label for the sulfate axis.
 #'
 #' @param x_z_anion_label Label displayed on the upper-left side of the
-#'   central diamond. Labels are parsed as plotmath expressions.
+#' Piper diamond.
 #'
-#' @param x_y_cation_label Label displayed on the upper-right side of the
-#'   central diamond. Labels are parsed as plotmath expressions.
+#' @param x_y_cation_label Label displayed on the upper-right side of
+#' the Piper diamond.
 #'
-#' @param scale_analyte Optional analyte name used to scale point
-#' size within the central diamond.
+#' @param scale_analyte Optional analyte used to scale point size.
 #'
-#' The analyte must be present in the prepared Piper dataset.
-#' If `NULL`, all points are plotted with a constant size.
+#' @param group_col Optional column used to assign point shape.
 #'
-#' @param group_col Optional column name used to assign point shape.
-#'   Each location must correspond to a single grouping value.
+#' @param transparency Point transparency.
 #'
-#' @param transparency Numeric transparency value passed to
-#'   [ggplot2::geom_point()]. Must be between 0 and 1. Default is `0.7`.
+#' @param pnt_size Point size when size scaling is not used.
 #'
-#' @param pnt_size Numeric point size used when
-#'   `scale_analyte = NULL`. Default is `3`.
+#' @param label_size Axis label size.
 #'
-#' @param label_size Numeric text size used for Piper axis labels. Default
-#'   is `3`.
-#'
-#' @param title Optional plot title. Defaults to `NULL`.
-#'
-#' @return
-#' An object of class `"ggplot"` containing a Piper diagram.
+#' @param title Optional plot title.
 #'
 #' @details
-#' Major ion analytes are processed through the package geochemical
-#' preparation pipeline before Piper coordinates are calculated.
+#' Piper diagrams display normalized major-ion chemistry within
+#' cation and anion ternary plots and a central hydrochemical
+#' facies diamond.
 #'
-#' The pipeline performs:
+#' Major ions are converted to milliequivalents per liter (meq/L),
+#' normalized to ionic percentages, and transformed into Piper
+#' coordinates before plotting.
+#'
+#' For `env_schema` objects, analyte, result, unit, date, and
+#' location fields are obtained directly from schema mappings.
+#'
+#' @section Analyte Matching:
+#'
+#' \describe{
+#'   \item{exact}{
+#'   Uses analyte names exactly as reported.
+#'   }
+#'
+#'   \item{strict}{
+#'   Applies text normalization while preserving analytical
+#'   distinctions such as dissolved versus total fractions.
+#'   }
+#'
+#'   \item{normalized}{
+#'   Resolves analyte aliases to canonical analyte names using
+#'   package analyte metadata.
+#'   }
+#' }
+#'
+#' @section Validation:
+#'
+#' Input data are validated for:
 #'
 #' \itemize{
+#'   \item required major ions;
 #'   \item analyte resolution;
-#'   \item analyte validation;
-#'   \item unit validation;
-#'   \item duplicate detection and averaging;
-#'   \item conversion to milliequivalents per liter (meq/L);
-#'   \item construction of a wide-format geochemical dataset.
+#'   \item supported analytical units;
+#'   \item duplicate analyte measurements;
+#'   \item completeness of major-ion chemistry.
 #' }
-#'
-#' The resulting geochemical dataset is transformed into cation,
-#' anion, and central-diamond Piper coordinates for plotting.
-#'
-#' @section Analyte matching:
-#'
-#' The same water chemistry dataset may contain multiple reporting
-#' conventions for a given constituent (for example `"SO4"` versus
-#' `"Sulfate"` or `"Calcium, dissolved"` versus `"Calcium, total"`).
-#'
-#' The `analyte_matching` argument controls whether these values are
-#' treated as distinct analytes or resolved to a common analyte name prior
-#' to ion conversion and Piper coordinate calculation.
-#'
-#' For most hydrochemical applications,
-#' `analyte_matching = "normalized"` is recommended.
-#'
-#' When `analyte_matching = "normalized"`, analyte aliases are resolved
-#' using the package analyte lookup table. This allows multiple laboratory
-#' reporting conventions to be treated as the same chemical constituent.
-#'
-#' Examples include:
-#'
-#' \itemize{
-#'   \item `"Ca"` and `"Calcium"`
-#'   \item `"SO4"` and `"Sulfate"`
-#'   \item `"Alkalinity, total"` and `"Bicarbonate"`
-#'   \item `"Calcium, dissolved"` and `"Calcium, total"`
-#' }
-#'
-#' The `"exact"` option preserves laboratory-reported analyte names and may
-#' be useful for QA/QC, data auditing, or evaluating dissolved versus total
-#' fractions independently. The `"strict"` option provides normalized text
-#' matching while preserving those analytical distinctions.
-#'
-#' @section Validation and error handling:
-#'
-#' The function performs several validation checks before constructing the
-#' Piper diagram.
-#'
-#' \strong{Required columns}
-#'
-#' The input data frame must contain the columns identified by
-#' `location_id`, `sample_date`, `param_name`, `analysis_result`, and
-#' `default_unit`. An error is thrown if any required columns are missing.
-#'
-#' \strong{Analyte resolution}
-#'
-#' Specified Piper ions are resolved according to the selected
-#' `analyte_matching` strategy. Analytes that cannot be resolved are
-#' retained using their normalized names and are not automatically dropped.
-#'
-#' \strong{Unit validation}
-#'
-#' Major ion analytes are validated and converted through the package
-#' geochemical preparation pipeline. Unsupported units generate an error.
-#'
-#' \strong{Duplicate analytes}
-#'
-#' Duplicate analyte measurements within a sample are detected after analyte
-#' resolution. A warning is issued when duplicate analyte/sample
-#' combinations are found. Duplicate results are averaged before
-#' conversion to milliequivalents and Piper coordinate calculation.
-#'
-#' Under `analyte_matching = "normalized"`, analytes such as
-#' `"Calcium, dissolved"` and `"Calcium, total"` may resolve to the same
-#' analyte and therefore be treated as duplicates.
-#'
-#' \strong{Missing major ions}
-#'
-#' A warning is issued when one or more requested Piper analytes are not
-#' present in the input data.
-#'
-#' Samples with missing major ion concentrations are retained during data
-#' preparation but omitted from the corresponding Piper triangle or diamond
-#' when coordinates cannot be calculated.
-#'
-#' Informational messages report the number and percentage of complete
-#' Piper analyses available for plotting.
-#'
-#' \strong{Grouping variables}
-#'
-#' When `group_col` is supplied, each `location_id` must map to exactly one
-#' grouping value. If multiple grouping values are associated with the same
-#' location, an error is thrown.
-#'
-#' @section Warnings:
-#'
-#' The function may generate warnings when:
-#' \itemize{
-#'   \item requested Piper ions are not present in the dataset;
-#'   \item duplicate analyte/sample combinations are detected;
-#'   \item samples are omitted due to incomplete major-ion chemistry.
-#' }
-#'
-#' These warnings are intended to help identify data-quality issues and
-#' unexpected analyte resolution behavior.
 #'
 #' @examples
-#' data(gw_data)
-#' wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5")
+#' data(gw)
 #'
-#' # preserve dissolved and total analytes as separate measurements
-#' gw_data %>%
-#'   dplyr::filter(location_id %in% wells) %>%
-#'   piper_plot(
-#'     analyte_matching = "exact"
-#'   )
+#' piper_plot(gw)
 #'
-#' # normalize analyte aliases to canonical ion names
-#' gw_data %>%
-#'   dplyr::filter(location_id %in% wells) %>%
-#'   piper_plot(
-#'     analyte_matching = "normalized"
-#'   )
-#'
-#' # scaled by analyte
-#' gw_data %>%
-#' dplyr::filter(location_id %in% wells) %>%
 #' piper_plot(
-#' scale_analyte = "Total Dissolved Solids",
-#' title = "Example Piper Diagram"
+#'   gw,
+#'   analyte_matching = "normalized"
 #' )
 #'
-#' # use plotmath expressions for labels
-#' gw_data %>%
-#' dplyr::filter(location_id %in% wells) %>%
-#' piper_plot(x_cation_label = "Ca~phantom()^+2")
+#' piper_plot(
+#'   gw,
+#'   scale_analyte = "Total Dissolved Solids"
+#' )
+#'
+#' piper_plot(
+#'   gw,
+#'   x_cation_label = "Ca~phantom()^+2"
+#' )
 #'
 #' @export
-
 piper_plot.env_schema <- function(
   df,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
-  default_unit = "default_unit",
-  analyte_matching = c("normalized", "strict", "exact"),
+  analyte_matching = c("strict", "exact", "normalized"),
   x_cation = "Calcium, dissolved",
   x_cation_label = "Ca",
   y_cation = "Magnesium, dissolved",
@@ -1848,7 +1904,15 @@ piper_plot.env_schema <- function(
   label_size = 3,
   title = NULL
 ) {
+  validate_env_schema(df)
+
   analyte_matching <- rlang::arg_match(analyte_matching)
+
+  location_col <- location_var(df)
+  date_col <- date_var(df)
+  analyte_col <- analyte_var(df)
+  result_col <- result_var(df)
+  unit_col <- unit_var(df)
 
   scale_col <- NULL
 
@@ -1872,35 +1936,8 @@ piper_plot.env_schema <- function(
     }
   }
 
-  required_cols <- c(
-    location_id,
-    sample_date,
-    param_name,
-    analysis_result,
-    default_unit
-  )
-
-  missing_cols <- setdiff(
-    required_cols,
-    names(df)
-  )
-
-  if (length(missing_cols) > 0) {
-    cli::cli_abort(
-      c(
-        "Missing required columns.",
-        "x" = paste(missing_cols, collapse = ", ")
-      )
-    )
-  }
-
   piper_df <- df %>%
     .transform_piper_data(
-      location_id = location_id,
-      sample_date = sample_date,
-      param_name = param_name,
-      analysis_result = analysis_result,
-      default_unit = default_unit,
       analyte_matching = analyte_matching,
       x_cation = x_cation,
       y_cation = y_cation,
@@ -1914,11 +1951,11 @@ piper_plot.env_schema <- function(
   if (!is.null(group_col)) {
     group_df <- df %>%
       dplyr::distinct(
-        !!rlang::sym(location_id),
-        !!rlang::sym(group_col)
+        .data[[location_col]],
+        .data[[group_col]]
       )
     dup_groups <- group_df %>%
-      dplyr::count(!!rlang::sym(location_id)) %>%
+      dplyr::count(.data[[location_col]]) %>%
       dplyr::filter(n > 1)
 
     if (nrow(dup_groups) > 0) {
@@ -1931,8 +1968,8 @@ piper_plot.env_schema <- function(
     }
 
     join_by <- stats::setNames(
-      location_id,
-      location_id
+      location_col,
+      location_col
     )
 
     piper_df <- piper_df %>%
@@ -1968,7 +2005,7 @@ piper_plot.env_schema <- function(
     data = cation_df,
     x = "cation_x",
     y = "cation_y",
-    location_id = location_id,
+    location_col = location_col,
     group_col = group_col,
     alpha = transparency,
     point_size = pnt_size
@@ -1980,7 +2017,7 @@ piper_plot.env_schema <- function(
     data = anion_df,
     x = "anion_x",
     y = "anion_y",
-    location_id = location_id,
+    location_col = location_col,
     group_col = group_col,
     alpha = transparency,
     point_size = pnt_size
@@ -1992,7 +2029,7 @@ piper_plot.env_schema <- function(
     data = diamond_df,
     x = "diamond_x",
     y = "diamond_y",
-    location_id = location_id,
+    location_col = location_col,
     group_col = group_col,
     scale_col = scale_col,
     alpha = transparency,
@@ -2029,7 +2066,9 @@ piper_plot.env_schema <- function(
   }
 
   guide_args <- list(
-    colour = ggplot2::guide_legend(location_id),
+    colour = ggplot2::guide_legend(
+      title = location_col
+    ),
     alpha = "none"
   )
 
@@ -2055,7 +2094,7 @@ piper_plot.env_schema <- function(
   data,
   x,
   y,
-  location_id = "location_id",
+  location_col,
   group_col = NULL,
   scale_col = NULL,
   alpha = 0.7,
@@ -2064,7 +2103,7 @@ piper_plot.env_schema <- function(
   aes_args <- list(
     x = rlang::sym(x),
     y = rlang::sym(y),
-    colour = rlang::sym(location_id)
+    colour = rlang::sym(location_col)
   )
 
   if (!is.null(group_col)) {
@@ -2150,13 +2189,17 @@ piper_plot.env_schema <- function(
 }
 
 
-#' Function to create an animated Piper plot through time
-#' using the animation package
+#' Animate Piper Diagrams
 #'
-#' @param df data frame of groundwater data transformed using
+#' Creates a frame-by-frame Piper diagram animation through time.
+#'
+#' @param df An `env_schema` object.
+#'
 #' @inheritDotParams piper_plot
+#'
+#' @return Invisibly returns `NULL`.
+#'
 #' @export
-
 piper_time_plot <- function(df, ...) {
   if (!requireNamespace("animation", quietly = TRUE)) {
     stop(
@@ -2165,20 +2208,33 @@ piper_time_plot <- function(df, ...) {
     )
   }
 
-  iter <- unique(df$sample_date)
+  date_col <- date_var(df)
+
+  iter <- unique(df[[date_col]])
 
   for (i in seq_along(iter)) {
-    piper_plot(df[df$sample_date == iter[i], ], title = paste(iter[i]), ...)
+    piper_plot(
+      df[df[[date_col]] == iter[i], ],
+      title = paste(iter[i]),
+      ...
+    )
+
     animation::ani.pause()
   }
 }
 
-#' Function to create an aminated Piper plot and save to html
+#' Save Animated Piper Diagram
 #'
-#' @param df data frame of groundwater data transformed using
+#' Creates a Piper diagram animation through time and saves the
+#' animation as an HTML file.
+#'
+#' @param df An `env_schema` object.
+#'
 #' @inheritDotParams piper_plot
+#'
+#' @return Invisibly returns the output HTML filename.
+#'
 #' @export
-
 piper_time_html <- function(df, ...) {
   if (!requireNamespace("animation", quietly = TRUE)) {
     stop(
@@ -2187,10 +2243,12 @@ piper_time_html <- function(df, ...) {
     )
   }
 
+  date_col <- date_var(df)
+
   animation::saveHTML(
     {
       animation::ani.options(
-        nmax = length(unique(df$sample_date)),
+        nmax = length(unique(df[[date_col]])),
         outdir = getwd()
       )
 
@@ -2474,14 +2532,44 @@ piper_time_html <- function(df, ...) {
   return(p)
 }
 
+#' Schoeller Diagram
+#'
+#' Creates a Schoeller diagram for comparing major-ion chemistry among
+#' groundwater or surface water samples.
+#'
+#' `schoeller_plot()` is an S3 generic that supports both raw data
+#' frames and `env_schema` objects.
+#'
+#' For data frames, environmental column mappings must be supplied.
+#' For `env_schema` objects, mapped schema fields are used automatically.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @return
+#' A ggplot object.
+#'
 #' @export
-schoeller_plot <- function(x, ...) {
+schoeller_plot <- function(df, ...) {
   UseMethod("schoeller_plot")
 }
 
+#' @rdname schoeller_plot
+#'
+#' @param location Location identifier column.
+#' @param analyte Analyte column.
+#' @param result Analytical result column.
+#' @param unit Reporting unit column.
+#' @param date Sample date column.
+#'
+#' @details
+#' For data frames, `schoeller_plot()` first converts the supplied
+#' data to an `env_schema` object using the specified column mappings
+#' and then dispatches to [schoeller_plot.env_schema()].
+#'
 #' @export
 schoeller_plot.data.frame <- function(
-  x,
+  df,
   location,
   analyte,
   result,
@@ -2489,8 +2577,8 @@ schoeller_plot.data.frame <- function(
   date,
   ...
 ) {
-  x <- env_schema(
-    x,
+  df <- env_schema(
+    df,
     location = {{ location }},
     analyte = {{ analyte }},
     result = {{ result }},
@@ -2498,158 +2586,118 @@ schoeller_plot.data.frame <- function(
     date = {{ date }}
   )
 
-  schoeller_plot(x, ...)
+  schoeller_plot(df, ...)
 }
 
 
-#' Schoeller Diagram
+#' @rdname schoeller_plot
 #'
-#' Creates a Schoeller diagram for comparing major ion chemistry among
-#' groundwater or surface water samples.
+#' @param calcium Calcium analyte.
 #'
-#' The function automatically:
+#' @param magnesium Magnesium analyte.
 #'
-#' * Resolves analyte names using the package analyte metadata tables.
-#' * Converts analyte concentrations to milliequivalents per liter (meq/L).
-#' * Aggregates replicate results within each
-#'   location/sample/analyte combination.
-#' * Combines sodium and potassium into a single
-#'   Na + K Schoeller axis.
-#' * Produces a logarithmic concentration profile suitable for
-#'   hydrochemical interpretation.
+#' @param sodium Sodium analyte.
 #'
-#' Analyte names may be supplied using any supported alias when
-#' `analyte_matching = "normalized"` or `"strict"`.
+#' @param potassium Potassium analyte.
 #'
-#' @param df Data frame containing environmental analytical results in
-#'   tidy format.
+#' @param chloride Chloride analyte.
 #'
-#' @param location_id Character. Column containing location identifiers.
+#' @param sulfate Sulfate analyte.
 #'
-#' @param sample_date Character. Column containing sample dates.
+#' @param alkalinity Alkalinity analyte.
 #'
-#' @param param_name Character. Column containing analyte names.
+#' @param analyte_matching Analyte matching strategy. One of
+#' `"exact"`, `"strict"`, or `"normalized"`.
 #'
-#' @param analysis_result Character. Column containing analytical results.
-#'
-#' @param default_unit Character. Column containing analytical units.
-#'
-#' @param calcium Character. Calcium analyte name or alias.
-#'
-#' @param magnesium Character. Magnesium analyte name or alias.
-#'
-#' @param sodium Character. Sodium analyte name or alias.
-#'
-#' @param potassium Character. Potassium analyte name or alias.
-#'
-#' @param chloride Character. Chloride analyte name or alias.
-#'
-#' @param sulfate Character. Sulfate analyte name or alias.
-#'
-#' @param alkalinity Character. Alkalinity analyte name or alias.
-#'
-#' @param analyte_matching Character. Method used to match analyte names.
-#' One of:
-#'
-#' * `"normalized"` (default)
-#' * `"strict"`
-#' * `"exact"`
-#'
-#' See [resolve_analyte_name()] for details.
-#'
-#' @param facet_var Character. Variable used for faceting.
-#' One of:
-#'
-#' * `"location_id"`
-#' * `"sample_date"`
-#'
-#' When `"location_id"` is selected, each location receives its own panel
-#' and individual sample events are plotted as separate lines.
-#'
-#' When `"sample_date"` is selected, each sampling event receives its
-#' own panel and individual locations are plotted as separate lines.
+#' @param facet_var Faceting variable. One of
+#' `"location"` or `"date"`.
 #'
 #' @param title Optional plot title.
 #'
-#' @param lwt Numeric line width.
-#'
-#' @return
-#' A ggplot object.
+#' @param lwt Line width.
 #'
 #' @details
-#' Schoeller diagrams display major ion concentrations on a logarithmic
-#' y-axis and are commonly used to:
+#' Schoeller diagrams display major-ion concentrations on a
+#' logarithmic scale and are commonly used to compare water
+#' chemistry among locations and sampling events.
 #'
-#' * Compare groundwater chemistry between monitoring wells.
-#' * Evaluate temporal geochemical trends.
-#' * Identify mixing relationships.
-#' * Identify hydrochemical facies.
-#' * Screen for anomalous ion signatures.
+#' Major-ion concentrations are converted to milliequivalents
+#' per liter (meq/L) and plotted as connected profiles across
+#' standard hydrochemical ion categories.
 #'
-#' Concentrations are internally converted to milliequivalents per liter
-#' (meq/L) using analyte metadata stored in `analyte_tbl`.
+#' Sodium and potassium are combined into a single
+#' `"Na + K"` axis following conventional Schoeller diagram
+#' practice.
 #'
-#' Missing analytes are permitted and are omitted from the plotted profile.
+#' Missing analytes are permitted and omitted from the
+#' resulting profile.
+#'
+#' For `env_schema` objects, analyte, result, unit, date,
+#' and location fields are determined from schema mappings.
+#'
+#' @section Analyte Matching:
+#'
+#' \describe{
+#'   \item{exact}{
+#'   Uses analyte names exactly as reported.
+#'   }
+#'
+#'   \item{strict}{
+#'   Applies text normalization while preserving analytical
+#'   distinctions such as dissolved versus total fractions.
+#'   }
+#'
+#'   \item{normalized}{
+#'   Resolves analyte aliases to canonical analyte names using
+#'   package analyte metadata.
+#'   }
+#' }
+#'
+#' @section Faceting:
+#'
+#' If `facet_var = "location"`, each location is displayed
+#' in a separate panel and sample events are drawn as individual
+#' profiles.
+#'
+#' If `facet_var = "date"`, each sampling event is
+#' displayed in a separate panel and locations are drawn as
+#' individual profiles.
+#'
+#' @section Validation:
+#'
+#' Input data are validated for:
+#'
+#' \itemize{
+#'   \item analyte resolution;
+#'   \item supported analytical units;
+#'   \item major-ion chemistry availability;
+#'   \item successful conversion to milliequivalents.
+#' }
 #'
 #' @examples
+#' data(gw)
 #'
-#' # Default Schoeller diagram
-#' schoeller_plot(gw_data)
+#' schoeller_plot(gw)
 #'
-#' # Facet by sampling event
 #' schoeller_plot(
-#'   gw_data,
-#'   facet_var = "sample_date"
+#'   gw,
+#'   facet_var = "date"
 #' )
 #'
-#' # Custom analyte aliases using normalized matching
 #' schoeller_plot(
-#'   gw_data,
-#'   calcium = "Ca",
-#'   magnesium = "Mg",
-#'   sodium = "Na",
-#'   potassium = "K",
-#'   chloride = "Cl",
-#'   sulfate = "SO4",
-#'   alkalinity = "HCO3",
+#'   gw,
 #'   analyte_matching = "normalized"
 #' )
 #'
-#' # Restrict to selected monitoring wells
-#' gw_data %>%
-#'   dplyr::filter(
-#'     location_id %in% c(
-#'       "MW-1",
-#'       "MW-2",
-#'       "MW-3"
-#'     )
-#'   ) %>%
-#'   schoeller_plot()
-#'
-#' # Temporal comparison for a single well
-#' gw_data %>%
-#'   dplyr::filter(
-#'     location_id == "MW-1"
-#'   ) %>%
-#'   schoeller_plot(
-#'     facet_var = "location_id"
-#'   )
-#'
-#' # Customized appearance
 #' schoeller_plot(
-#'   gw_data,
+#'   gw,
 #'   title = "Major Ion Chemistry",
 #'   lwt = 1.5
 #' )
 #'
 #' @export
-schoeller_plot.env_schmema <- function(
+schoeller_plot.env_schema <- function(
   df,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
-  default_unit = "default_unit",
   calcium = "Calcium, dissolved",
   magnesium = "Magnesium, dissolved",
   sodium = "Sodium, dissolved",
@@ -2658,17 +2706,21 @@ schoeller_plot.env_schmema <- function(
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
   analyte_matching = c(
-    "normalized",
+    "exact",
     "strict",
-    "exact"
+    "normalized"
   ),
   facet_var = c(
-    "location_id",
-    "sample_date"
+    "location",
+    "date"
   ),
   title = NULL,
   lwt = 1
 ) {
+  location_col <- location_var(df)
+
+  date_col <- date_var(df)
+
   analyte_matching <- rlang::arg_match(
     analyte_matching
   )
@@ -2688,11 +2740,6 @@ schoeller_plot.env_schmema <- function(
       sulfate,
       alkalinity
     ),
-    location_id = location_id,
-    sample_date = sample_date,
-    param_name = param_name,
-    analysis_result = analysis_result,
-    default_unit = default_unit,
     analyte_matching = analyte_matching
   )
 
@@ -2726,6 +2773,8 @@ schoeller_plot.env_schmema <- function(
 
   p <- .add_schoeller_lines(
     p = p,
+    location_col = location_col,
+    date_col = date_col,
     facet_var = facet_var,
     lwt = lwt
   )
@@ -2750,20 +2799,22 @@ schoeller_plot.env_schmema <- function(
 #' @noRd
 .add_schoeller_lines <- function(
   p,
+  location_col,
+  date_col,
   facet_var,
   lwt
 ) {
-  if (facet_var == "sample_date") {
+  if (facet_var == "date") {
     p +
       ggplot2::geom_line(
         ggplot2::aes(
-          group = location_id,
-          colour = location_id
+          group = .data[[location_col]],
+          colour = .data[[location_col]]
         ),
         linewidth = lwt
       ) +
       ggplot2::facet_wrap(
-        ggplot2::vars(sample_date)
+        ggplot2::vars(!!rlang::sym(date_col))
       ) +
       ggplot2::guides(
         colour = ggplot2::guide_legend(
@@ -2774,13 +2825,13 @@ schoeller_plot.env_schmema <- function(
     p +
       ggplot2::geom_line(
         ggplot2::aes(
-          group = sample_date,
-          colour = factor(sample_date)
+          group = .data[[date_col]],
+          colour = factor(.data[[date_col]])
         ),
         linewidth = lwt
       ) +
       ggplot2::facet_wrap(
-        ggplot2::vars(location_id)
+        ggplot2::vars(!!rlang::sym(location_col))
       ) +
       ggplot2::guides(
         colour = ggplot2::guide_legend(
@@ -2790,14 +2841,45 @@ schoeller_plot.env_schmema <- function(
   }
 }
 
+#' Stiff Diagram
+#'
+#' Creates Stiff diagrams for visualization and comparison of
+#' major-ion water chemistry.
+#'
+#' `stiff_plot()` is an S3 generic that supports both raw data
+#' frames and `env_schema` objects.
+#'
+#' For data frames, environmental column mappings must be supplied.
+#' For `env_schema` objects, mapped schema fields are used automatically.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @return
+#' A named list of ggplot objects. One Stiff diagram is produced
+#' for each value of `group_var`.
+#'
 #' @export
-stiff_plot <- function(x, ...) {
-  UseMethod("piper_plot")
+stiff_plot <- function(df, ...) {
+  UseMethod("stiff_plot")
 }
 
+#' @rdname stiff_plot
+#'
+#' @param location Location identifier column.
+#' @param analyte Analyte column.
+#' @param result Analytical result column.
+#' @param unit Reporting unit column.
+#' @param date Sample date column.
+#'
+#' @details
+#' For data frames, `stiff_plot()` first converts the supplied
+#' data to an `env_schema` object using the specified column mappings
+#' and then dispatches to [stiff_plot.env_schema()].
+#'
 #' @export
 stiff_plot.data.frame <- function(
-  x,
+  df,
   location,
   analyte,
   result,
@@ -2805,8 +2887,8 @@ stiff_plot.data.frame <- function(
   date,
   ...
 ) {
-  x <- env_schema(
-    x,
+  df <- env_schema(
+    df,
     location = {{ location }},
     analyte = {{ analyte }},
     result = {{ result }},
@@ -2814,65 +2896,148 @@ stiff_plot.data.frame <- function(
     date = {{ date }}
   )
 
-  stiff_plot(x, ...)
+  stiff_plot(df, ...)
 }
 
-#' @title Stiff Diagram
+#' @rdname stiff_plot
 #'
-#' @description plots a stiff diagram
+#' @param analyte_matching Analyte matching strategy. One of
+#' `"exact"`, `"strict"`, or `"normalized"`.
 #'
-#' @details tidy dataframe of water quality data in mg/L is converted to
-#' meq/L and then transformed to coordinates for Stiff diagram.
+#' @param calcium Calcium analyte.
 #'
-#' @param data data frame of water quality data
-#' @param location_id column for sample locations
-#' @param sample_date column for sample date
-#' @param param_name column for constituent names
-#' @param analysis_result column for analysis result
-#' @param default_unit column for units. Assumes all units are in mg/L and
-#' converts using \code{\link{convert_ions_to_meq}}
-#' @param magnesium name for magnesium
-#' @param calcium name for calcium
-#' @param sodium name for sodium
-#' @param potassium name for potassium
-#' @param chloride name for chloride
-#' @param sulfate name for sulfate
-#' @param alkalinity name for alkalinity
-#' @param scale_analyte name of analyte to scale color of plot.
-#' Default is NULL
-#' @param group_var Character column name used to split the data into
-#' separate Stiff diagrams. One ggplot object is returned for each
-#' unique value. Default is the value supplied to `location_id`.
-#' @param facet_var Character column name used for faceting.
-#' Default is the value supplied to `sample_date`.
-#' @param lines TRUE/FALSE plots lines
-#' @param title Optional plot title. If NULL, the value of the current
-#' grouping variable is used.
-#' @keywords geochemical plots Stiff Diagram
+#' @param magnesium Magnesium analyte.
 #'
-#' @return
-#' A named list of ggplot objects, one element per value of
-#' `group_var`.
+#' @param sodium Sodium analyte.
+#'
+#' @param potassium Potassium analyte.
+#'
+#' @param chloride Chloride analyte.
+#'
+#' @param sulfate Sulfate analyte.
+#'
+#' @param alkalinity Alkalinity analyte.
+#'
+#' @param scale_analyte Optional analyte used to scale polygon fill.
+#'
+#' @param group_var Variable used to split the data into individual
+#' Stiff diagrams.
+#'
+#' @param facet_var Variable used for faceting within each plot.
+#'
+#' @param stiff_limit Maximum absolute x-axis extent expressed in
+#' milliequivalents per liter (meq/L). If `NULL`, the limit is
+#' determined automatically from the data.
+#'
+#' @param stiff_breaks Grid spacing used for x-axis and reference
+#' lines.
+#'
+#' @param lines Logical. If `TRUE`, horizontal reference lines are
+#' drawn through each ion category.
+#'
+#' @param title Optional plot title.
+#'
+#' @details
+#' Stiff diagrams display major-ion chemistry as a polygon whose
+#' shape reflects relative ionic composition.
+#'
+#' Major-ion analytes are converted to milliequivalents per liter
+#' (meq/L) and transformed into standard Stiff-diagram coordinates.
+#'
+#' Cations are plotted on the left side of the diagram and anions
+#' are plotted on the right side.
+#'
+#' Similar polygon shapes generally indicate similar hydrochemical
+#' characteristics, making Stiff diagrams useful for evaluating:
+#'
+#' \itemize{
+#'   \item spatial variability;
+#'   \item temporal trends;
+#'   \item groundwater mixing;
+#'   \item hydrochemical facies;
+#'   \item geochemical evolution.
+#' }
+#'
+#' For `env_schema` objects, analyte, result, unit, date,
+#' and location fields are obtained directly from schema mappings.
+#'
+#' @section Analyte Matching:
+#'
+#' \describe{
+#'   \item{exact}{
+#'   Uses analyte names exactly as reported.
+#'   }
+#'
+#'   \item{strict}{
+#'   Applies text normalization while preserving analytical
+#'   distinctions such as dissolved versus total fractions.
+#'   }
+#'
+#'   \item{normalized}{
+#'   Resolves analyte aliases to canonical analyte names using
+#'   package analyte metadata.
+#'   }
+#' }
+#'
+#' @section Grouping:
+#'
+#' `group_var` controls how data are divided into separate
+#' Stiff diagrams.
+#'
+#' By default, one plot is generated per location.
+#'
+#' If `group_var` is set to the mapped date field, one plot is
+#' generated per sampling event.
+#'
+#' @section Faceting:
+#'
+#' `facet_var` controls the panels displayed within each Stiff
+#' diagram plot.
+#'
+#' By default, individual sampling events are shown as separate
+#' facets.
+#'
+#' @section Scaling:
+#'
+#' When `scale_analyte` is supplied, polygon fill colour is scaled
+#' using values of the selected analyte.
+#'
+#' This is often useful for displaying Total Dissolved Solids (TDS)
+#' or another indicator parameter alongside hydrochemical facies.
 #'
 #' @examples
-#' data(gw_data)
-#' gw_data %>%
-#' filter(location_id == "MW-1", sample_date < lubridate::ymd("2008-01-01")) %>%
-#' stiff_plot()
+#' data(gw)
 #'
-#' gw_data %>%
-#' filter(location_id %in% c("MW-1", "MW-2")) %>%
-#' stiff_plot(scale_analyte = "Total Dissolved Solids")
+#' stiff_plot(gw)
+#'
+#' stiff_plot(
+#'   gw,
+#'   lines = TRUE
+#' )
+#'
+#' stiff_plot(
+#'   gw,
+#'   scale_analyte = "Total Dissolved Solids"
+#' )
+#'
+#' stiff_plot(
+#'   gw,
+#'   group_var = "sample_date"
+#' )
+#'
+#' @return
+#' A named list of ggplot objects. One Stiff diagram is produced
+#' for each value of `group_var`.
 #'
 #' @export
 
 stiff_plot.env_schema <- function(
-  data,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
-  default_unit = "default_unit",
+  df,
+  analyte_matching = c(
+    "exact",
+    "strict",
+    "normalized"
+  ),
   calcium = "Calcium, dissolved",
   magnesium = "Magnesium, dissolved",
   sodium = "Sodium, dissolved",
@@ -2881,19 +3046,38 @@ stiff_plot.env_schema <- function(
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
   scale_analyte = NULL,
-  group_var = location_id,
-  facet_var = sample_date,
+  group_var = NULL,
+  facet_var = NULL,
   stiff_limit = NULL,
   stiff_breaks = 1,
   lines = FALSE,
   title = NULL
 ) {
-  if (!facet_var %in% c(location_id, sample_date)) {
+  location_col <- location_var(df)
+
+  date_col <- date_var(df)
+
+  analyte_col <- analyte_var(df)
+
+  result_col <- result_var(df)
+
+  unit_col <- unit_var(df)
+
+  if (is.null(group_var)) {
+    group_var <- location_col
+  }
+
+  if (is.null(facet_var)) {
+    facet_var <- date_col
+  }
+
+  if (!facet_var %in% c(location_col, date_col)) {
     cli::cli_abort(
       "{.arg facet_var} must be either the location_id or sample_date column."
     )
   }
-  if (!group_var %in% c(location_id, sample_date)) {
+
+  if (!group_var %in% c(location_col, date_col)) {
     cli::cli_abort(
       "{.arg group_var} must be either the location_id or sample_date column."
     )
@@ -2911,7 +3095,7 @@ stiff_plot.env_schema <- function(
 
   missing <- setdiff(
     required_ions,
-    unique(data[[param_name]])
+    unique(df[[analyte_col]])
   )
 
   if (length(missing) == length(required_ions)) {
@@ -2926,16 +3110,14 @@ stiff_plot.env_schema <- function(
     )
   }
 
-  split(data, data[[group_var]]) %>%
+  split(df, df[[group_var]]) %>%
     purrr::imap(
       ~ .stiff_plot(
-        data = .x,
+        df = .x,
         group_name = .y,
-        location_id = location_id,
-        sample_date = sample_date,
-        param_name = param_name,
-        analysis_result = analysis_result,
-        default_unit = default_unit,
+        location_col = location_col,
+        date_col = date_col,
+        analyte_matching = analyte_matching,
         calcium = calcium,
         magnesium = magnesium,
         sodium = sodium,
@@ -2958,13 +3140,11 @@ stiff_plot.env_schema <- function(
 #'
 #' @noRd
 .stiff_plot <- function(
-  data,
+  df,
+  location_col,
+  date_col,
   group_name,
-  location_id,
-  sample_date,
-  param_name,
-  analysis_result,
-  default_unit,
+  analyte_matching,
   calcium,
   magnesium,
   sodium,
@@ -2981,7 +3161,7 @@ stiff_plot.env_schema <- function(
   title
 ) {
   chemistry_df <- .prepare_major_ion_chemistry(
-    df = data,
+    df = df,
     analytes = c(
       calcium,
       magnesium,
@@ -2991,24 +3171,15 @@ stiff_plot.env_schema <- function(
       sulfate,
       alkalinity
     ),
-    location_id = location_id,
-    sample_date = sample_date,
-    param_name = param_name,
-    analysis_result = analysis_result,
-    default_unit = default_unit
+    analyte_matching = analyte_matching
   )
 
   scale_df <- NULL
 
   if (!is.null(scale_analyte)) {
     scale_df <- .prepare_geochemical_data(
-      df = data,
-      analytes = scale_analyte,
-      location_id = location_id,
-      sample_date = sample_date,
-      param_name = param_name,
-      analysis_result = analysis_result,
-      default_unit = default_unit
+      df = df,
+      analytes = scale_analyte
     )
   }
 
@@ -3018,10 +3189,18 @@ stiff_plot.env_schema <- function(
     scale_analyte = scale_analyte
   )
 
+  if (nrow(stiff_data) == 0) {
+    cli::cli_warn(
+      "No valid major-ion chemistry available for plotting."
+    )
+
+    return(NULL)
+  }
+
   .build_stiff_plot(
-    data = stiff_data,
-    location_id = location_id,
-    sample_date = sample_date,
+    df = stiff_data,
+    location_col = location_col,
+    date_col = date_col,
     facet_var = facet_var,
     group_var = group_var,
     group_name = group_name,
@@ -3038,9 +3217,9 @@ stiff_plot.env_schema <- function(
 #' @noRd
 
 .build_stiff_plot <- function(
-  data,
-  location_id,
-  sample_date,
+  df,
+  location_col,
+  date_col,
   facet_var,
   group_var,
   group_name,
@@ -3058,7 +3237,7 @@ stiff_plot.env_schema <- function(
 
   if (is.null(stiff_limit)) {
     stiff_limit <- ceiling(
-      max(abs(data$stiff_x), na.rm = TRUE)
+      max(abs(df$stiff_x), na.rm = TRUE)
     )
 
     stiff_limit <- max(
@@ -3069,20 +3248,20 @@ stiff_plot.env_schema <- function(
 
   grid_breaks <- setdiff(seq(-stiff_limit, stiff_limit, by = stiff_breaks), 0)
 
-  if (max(abs(data$stiff_x), na.rm = TRUE) > stiff_limit) {
+  if (max(abs(df$stiff_x), na.rm = TRUE) > stiff_limit) {
     cli::cli_warn(
       "Some samples exceed {.arg stiff_limit} and will be truncated."
     )
   }
 
   p <- ggplot2::ggplot(
-    data,
+    df,
     ggplot2::aes(
       x = stiff_x,
       y = stiff_y,
       group = interaction(
-        .data[[location_id]],
-        .data[[sample_date]]
+        .data[[location_col]],
+        .data[[date_col]]
       )
     )
   ) +
@@ -3098,8 +3277,8 @@ stiff_plot.env_schema <- function(
         ggplot2::aes(
           fill = scale_value,
           group = interaction(
-            .data[[location_id]],
-            .data[[sample_date]]
+            .data[[location_col]],
+            .data[[date_col]]
           )
         ),
         colour = "black"
@@ -3112,8 +3291,8 @@ stiff_plot.env_schema <- function(
       ggplot2::geom_polygon(
         ggplot2::aes(
           group = interaction(
-            .data[[location_id]],
-            .data[[sample_date]]
+            .data[[location_col]],
+            .data[[date_col]]
           )
         ),
         fill = "white",
@@ -3129,7 +3308,7 @@ stiff_plot.env_schema <- function(
       linewidth = 0.8
     )
 
-  label_data <- data %>%
+  label_data <- df %>%
     dplyr::distinct(
       .data[[facet_var]],
       ion,
@@ -3230,7 +3409,7 @@ stiff_plot.env_schema <- function(
 
 #' Animate Stiff Diagrams
 #'
-#' @param data Data frame of water quality data.
+#' @param df Data frame of water quality data.
 #' @param sample_date Sample date column.
 #' @param pause Delay between frames in seconds.
 #' @param ...
@@ -3239,15 +3418,13 @@ stiff_plot.env_schema <- function(
 #' @export
 
 stiff_time_plot <- function(
-  data,
-  sample_date = "sample_date",
+  df,
   pause = 1,
   ...
 ) {
   .animate_geochemical_plots(
-    data = data,
+    df = df,
     plot_fn = stiff_plot,
-    sample_date = sample_date,
     pause = pause,
     ...
   )
@@ -3255,7 +3432,7 @@ stiff_time_plot <- function(
 
 #' Save animated Stiff Diagram to HTML
 #'
-#' @param data Data frame of water quality data.
+#' @param df Data frame of water quality data.
 #' @param sample_date Sample date column.
 #' @param htmlfile Output HTML file.
 #' @param pause Delay between frames in seconds.
@@ -3267,16 +3444,14 @@ stiff_time_plot <- function(
 #' @export
 
 stiff_time_html <- function(
-  data,
-  sample_date = "sample_date",
+  df,
   htmlfile = "Stiff_plot.html",
   pause = 1,
   ...
 ) {
   .save_geochemical_animation(
-    data = data,
+    df = df,
     plot_fn = stiff_plot,
-    sample_date = sample_date,
     htmlfile = htmlfile,
     title = "Stiff Diagram",
     img.name = "StiffPlot",
@@ -3285,14 +3460,46 @@ stiff_time_html <- function(
   )
 }
 
+#' Durov Diagram
+#'
+#' Creates a Durov diagram for interpretation of hydrochemical
+#' facies, mixing processes, ion exchange, and geochemical
+#' evolution.
+#'
+#' `durov_plot()` is an S3 generic that supports both raw data
+#' frames and `env_schema` objects.
+#'
+#' For data frames, environmental column mappings must be supplied.
+#' For `env_schema` objects, mapped schema fields are used
+#' automatically.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @return
+#' A ggplot object.
+#'
 #' @export
-durov_plot <- function(x, ...) {
+durov_plot <- function(df, ...) {
   UseMethod("durov_plot")
 }
 
+#' @rdname durov_plot
+#'
+#' @param location Location identifier column.
+#' @param analyte Analyte column.
+#' @param result Analytical result column.
+#' @param unit Reporting unit column.
+#' @param date Sample date column.
+#'
+#' @details
+#' For data frames, `durov_plot()` first converts the supplied
+#' data to an `env_schema` object using the specified column
+#' mappings and then dispatches to [durov_plot.env_schema()].
+#'
 #' @export
 durov_plot.data.frame <- function(
-  x,
+  df,
   location,
   analyte,
   result,
@@ -3300,8 +3507,8 @@ durov_plot.data.frame <- function(
   date,
   ...
 ) {
-  x <- env_schema(
-    x,
+  df <- env_schema(
+    df,
     location = {{ location }},
     analyte = {{ analyte }},
     result = {{ result }},
@@ -3309,36 +3516,100 @@ durov_plot.data.frame <- function(
     date = {{ date }}
   )
 
-  durov_plot(x, ...)
+  durov_plot(df, ...)
 }
 
 
-#' Durov Diagram
+#' @rdname durov_plot
 #'
-#' Creates a Durov diagram for interpretation of hydrochemical facies,
-#' mixing processes, ion exchange, and geochemical evolution.
+#' @param analyte_matching Analyte matching strategy. One of
+#' `"exact"`, `"strict"`, or `"normalized"`.
 #'
-#' @param df Data frame containing analytical results.
-#' @param location_id Location identifier column.
-#' @param sample_date Sample date column.
-#' @param param_name Analyte column.
-#' @param analysis_result Result column.
-#' @param default_unit Unit column.
-#' @param analyte_matching Analyte matching method.
-#' @param facet_var Variable used for faceting.
-#' @param title Plot title.
+#' @param title Optional plot title.
 #'
-#' @return
-#' A ggplot object.
+#' @details
+#' Durov diagrams combine cation and anion ternary plots with
+#' a central projection field to aid interpretation of
+#' hydrochemical facies, mixing trends, ion exchange processes,
+#' and geochemical evolution.
+#'
+#' Major-ion concentrations are converted to milliequivalents
+#' per liter (meq/L), normalized to ionic percentages, and
+#' transformed into Durov coordinates before plotting.
+#'
+#' The central Durov field may be used to evaluate:
+#'
+#' \itemize{
+#'   \item groundwater recharge processes;
+#'   \item mixing between water types;
+#'   \item ion exchange reactions;
+#'   \item salinization trends;
+#'   \item hydrochemical evolution.
+#' }
+#'
+#' For `env_schema` objects, analyte, result, unit, date,
+#' and location fields are obtained directly from schema
+#' mappings.
+#'
+#' @section Analyte Matching:
+#'
+#' \describe{
+#'
+#'   \item{exact}{
+#'   Uses analyte names exactly as reported.
+#'   }
+#'
+#'   \item{strict}{
+#'   Applies text normalization while preserving analytical
+#'   distinctions such as dissolved versus total fractions.
+#'   }
+#'
+#'   \item{normalized}{
+#'   Resolves analyte aliases to canonical analyte names using
+#'   package analyte metadata.
+#'   }
+#' }
+#'
+#' @section Interpretation:
+#'
+#' The Durov projection field is divided into nine regions
+#' representing characteristic hydrochemical facies and
+#' geochemical processes.
+#'
+#' These fields should be interpreted as general hydrochemical
+#' indicators and evaluated alongside site-specific geological,
+#' hydrological, and geochemical information.
+#'
+#' @section Validation:
+#'
+#' Input data are validated for:
+#'
+#' \itemize{
+#'   \item major-ion chemistry availability;
+#'   \item analyte resolution;
+#'   \item supported analytical units;
+#'   \item successful conversion to milliequivalents;
+#'   \item completeness of major-ion chemistry.
+#' }
+#'
+#' @examples
+#' data(gw)
+#'
+#' durov_plot(gw)
+#'
+#' durov_plot(
+#'   gw,
+#'   analyte_matching = "normalized"
+#' )
+#'
+#' durov_plot(
+#'   gw,
+#'   title = "Hydrochemical Facies"
+#' )
 #'
 #' @export
 durov_plot.env_schema <- function(
   df,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
-  default_unit = "default_unit",
   analyte_matching = c(
     "normalized",
     "strict",
@@ -3346,39 +3617,24 @@ durov_plot.env_schema <- function(
   ),
   title = NULL
 ) {
+  validate_env_schema(df)
+
+  location_col <- location_var(df)
+
+  date_col <- date_var(df)
+
   analyte_matching <- rlang::arg_match(
     analyte_matching
   )
 
   chemistry_df <- .prepare_major_ion_chemistry(
     df = df,
-    location_id = location_id,
-    sample_date = sample_date,
-    param_name = param_name,
-    analysis_result = analysis_result,
-    default_unit = default_unit,
     analyte_matching = analyte_matching
   )
 
   plot_df <- .transform_durov_data(
     chemistry_df
   )
-
-  if (
-    !all(
-      c(
-        "location_id",
-        "sample_date",
-        "durov_x_plot",
-        "durov_y_plot"
-      ) %in%
-        names(plot_df)
-    )
-  ) {
-    rlang::abort(
-      "Invalid Durov transform output."
-    )
-  }
 
   plot_df <- plot_df %>%
     dplyr::filter(
@@ -3420,7 +3676,7 @@ durov_plot.env_schema <- function(
       ggplot2::aes(
         cation_x,
         cation_y,
-        colour = location_id
+        colour = .data[[location_col]]
       ),
       show.legend = FALSE
     ) +
@@ -3462,7 +3718,7 @@ durov_plot.env_schema <- function(
       ggplot2::aes(
         anion_x,
         anion_y,
-        colour = location_id
+        colour = .data[[location_col]]
       ),
       show.legend = FALSE
     ) +
@@ -3532,7 +3788,7 @@ durov_plot.env_schema <- function(
       ggplot2::aes(
         durov_x_plot,
         durov_y_plot,
-        colour = location_id
+        colour = .data[[location_col]]
       ),
       size = 2
     ) +
@@ -3722,7 +3978,7 @@ durov_plot.env_schema <- function(
 
 #' Animate geochemical plots by date
 #'
-#' @param data Data frame.
+#' @param df Data frame.
 #' @param plot_fn Plotting function.
 #' @param sample_date Sample date column.
 #' @param pause Delay between frames in seconds.
@@ -3733,23 +3989,23 @@ durov_plot.env_schema <- function(
 #'
 #' @noRd
 .animate_geochemical_plots <- function(
-  data,
+  df,
   plot_fn,
-  sample_date = "sample_date",
   pause = 1,
   ...
 ) {
-  dates <- sort(unique(data[[sample_date]]))
+  date_col <- date_var(df)
+
+  dates <- sort(unique(df[[date_col]]))
 
   plots <- purrr::map(
     dates,
     function(date) {
       plot_fn(
-        data = dplyr::filter(
-          data,
-          .data[[sample_date]] == date
+        dplyr::filter(
+          df,
+          .data[[date_col]] == date
         ),
-        sample_date = sample_date,
         ...
       )
     }
@@ -3779,7 +4035,7 @@ durov_plot.env_schema <- function(
 
 #' Save animated geochemical plots to HTML
 #'
-#' @param data Data frame.
+#' @param df Data frame.
 #' @param plot_fn Plotting function.
 #' @param sample_date Sample date column.
 #' @param htmlfile Output HTML file.
@@ -3794,9 +4050,8 @@ durov_plot.env_schema <- function(
 #' @noRd
 
 .save_geochemical_animation <- function(
-  data,
+  df,
   plot_fn,
-  sample_date = "sample_date",
   htmlfile,
   title,
   pause = 1,
@@ -3806,9 +4061,8 @@ durov_plot.env_schema <- function(
   animation::saveHTML(
     expr = {
       .animate_geochemical_plots(
-        data = data,
+        df = df,
         plot_fn = plot_fn,
-        sample_date = sample_date,
         pause = pause,
         ...
       )

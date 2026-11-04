@@ -47,7 +47,9 @@
       .is_general_chemistry = is_general_chemistry,
       .is_field_parameter = is_field_parameter
     ) %>%
-    dplyr::select(-analyte)
+    dplyr::select(
+      -dplyr::any_of("analyte")
+    )
 
   dplyr::left_join(
     df,
@@ -596,16 +598,15 @@
       c(
         "{nrow(unsupported)} analytes were not found in analyte metadata.",
         "i" = paste(
-          utils::head(
-            unsupported[[source_col]],
-            10
-          ),
-          collapse = ", "
+          unsupported[[source_col]] |>
+            sort() |>
+            head(10)
         ),
-        "i" = paste(
-          "Analyte metadata, standard-unit conversion,",
-          "and analyte-specific calculations were skipped."
-        )
+        collapse = ", "
+      ),
+      "i" = paste(
+        "Analyte metadata, standard-unit conversion,",
+        "and analyte-specific calculations were skipped."
       )
     )
   }

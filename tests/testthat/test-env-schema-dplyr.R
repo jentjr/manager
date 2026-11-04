@@ -54,7 +54,7 @@ test_that("filter preserves env_schema", {
 
   y <- x %>%
     dplyr::filter(
-      .location == "MW-1"
+      location == "MW-1"
     )
 
   expect_s3_class(
@@ -88,7 +88,7 @@ test_that("select preserves env_schema subclass", {
 
   y <- x %>%
     dplyr::select(
-      .location,
+      location,
       .analysis_result
     )
 
@@ -103,7 +103,7 @@ test_that("select preserves env_schema subclass", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing required schema columns"
+    "Missing mapped columns"
   )
 })
 
@@ -131,6 +131,91 @@ test_that("rename preserves env_schema subclass", {
     y,
     "env_schema"
   )
+
+  expect_false(
+    has_env_schema_structure(y)
+  )
+
+  expect_error(
+    validate_env_schema(y),
+    "Missing required schema columns"
+  )
+})
+
+test_that("missing .analysis_result invalidates schema", {
+  x <- env_schema(
+    tibble::tibble(
+      location = "MW-1",
+      date = as.Date("2024-01-01"),
+      analyte = "Arsenic",
+      result = 5
+    ),
+    location = location,
+    date = date,
+    analyte = analyte,
+    result = result
+  )
+
+  y <- x %>%
+    dplyr::rename(
+      result_value = .analysis_result
+    )
+
+  expect_false(
+    has_env_schema_structure(y)
+  )
+
+  expect_error(
+    validate_env_schema(y),
+    "Missing required schema columns"
+  )
+})
+
+test_that("missing .analysis_unit invalidates schema", {
+  x <- env_schema(
+    tibble::tibble(
+      location = "MW-1",
+      date = as.Date("2024-01-01"),
+      analyte = "Arsenic",
+      result = 5
+    ),
+    location = location,
+    date = date,
+    analyte = analyte,
+    result = result
+  )
+  y <- x %>%
+    dplyr::select(
+      -.analysis_unit
+    )
+
+  expect_false(
+    has_env_schema_structure(y)
+  )
+
+  expect_error(
+    validate_env_schema(y),
+    "Missing required schema columns"
+  )
+})
+
+test_that("removing .analysis_result invalidates schema", {
+  x <- env_schema(
+    tibble::tibble(
+      location = "MW-1",
+      date = as.Date("2024-01-01"),
+      analyte = "Arsenic",
+      result = 5
+    ),
+    location = location,
+    date = date,
+    analyte = analyte,
+    result = result
+  )
+  y <- x %>%
+    dplyr::rename(
+      result_value = .analysis_result
+    )
 
   expect_false(
     has_env_schema_structure(y)
@@ -196,7 +281,7 @@ test_that("class and validity are distinct concepts", {
 
   y <- x %>%
     dplyr::select(
-      .location,
+      dplyr::all_of(location_var(x)),
       .analysis_result
     )
 

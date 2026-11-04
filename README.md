@@ -1,34 +1,124 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![Build
-Status](https://travis-ci.org/jentjr/manager.svg?branch=master)](https://travis-ci.org/jentjr/manager)
-[![Build
-status](https://ci.appveyor.com/api/projects/status/wmatiqqb5e8v01lp/branch/master?svg=true)](https://ci.appveyor.com/project/jentjr/manager/branch/master)
-[![Coverage
-Status](https://img.shields.io/codecov/c/github/jentjr/manager/master.svg)](https://codecov.io/github/jentjr/manager?branch=master)
+[![R-CMD-check](https://github.com/jentjr/manager/actions/workflows/R-CMD-check.yaml/badge.svg)](...)
+[![Codecov](https://codecov.io/gh/jentjr/manager/branch/main/graph/badge.svg)](...)
+[![CRAN status](https://www.r-pkg.org/badges/version/manager)](...)
 
 ## Overview
 
-The goal of manager is to provide a set of tools to simplify plotting
-and analyzing environmental data that is in a [tidy
-format](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html).
-Manager also provides functions to read data from external sources such
-as MANAGES and gINT.
+`manager` provides a standardized workflow for environmental data
+analysis in R.
 
-## Example
+The package centers around the `env_schema` class, a standardized
+environmental data model built on top of tidy data principles. Once data
+have been converted to `env_schema`, they can be analyzed, summarized,
+visualized, and reported using a consistent workflow.
+
+Key features include:
+
+- Standardized environmental data structure (`env_schema`)
+- Native compatibility with dplyr and the tidyverse
+- Time-series, boxplot, Piper, and spatial visualizations
+- Summary statistics and reporting utilities
+- Importers for MANAGES databases
+
+## Why manager?
+
+Environmental datasets are often distributed across spreadsheets,
+laboratory reports, groundwater databases, and regulatory exports.
+`manager` provides a common data model(`env_schema`) that allows the
+same analysis and plotting tools to work across data sources without
+rewriting workflows for each project.
+
+## Installation
+
+Install the development version from GitHub:
+
+``` r
+install.packages("remotes")
+
+remotes::install_github("jentjr/manager")
+```
+
+## Quick Start
 
 ``` r
 library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
 library(manager)
 
-# reading data from external sources
-data <- read_manages3("C:/path/to/Site.mdb")
+data(gw)
+
+gw %>%
+  filter(location_id == "MW-1",
+         .analyte == "Chloride") %>%
+  stats_summary()
+#> # A tibble: 1 × 16
+#>   location_id param_name      .analysis_unit     n percent_censored  mean median
+#>   <chr>       <chr>           <chr>          <int>            <dbl> <dbl>  <dbl>
+#> 1 MW-1        Chloride, total mg/l              20                0  22.0   21.9
+#> # ℹ 9 more variables: sd <dbl>, var <dbl>, min <dbl>, max <dbl>, cv <dbl>,
+#> #   `25%` <dbl>, `75%` <dbl>, IQR <dbl>, mad <dbl>
 ```
+
+## Environmental Data Standard
+
+Datasets in `manager` use the `env_schema` class:
+
+``` r
+gw
+#> <env_schema>
+#> 5878 rows x 41 columns
+#> Locations: 8 
+#> Analytes: 49 
+#> Valid: TRUE 
+#> Version: 0.5.0
+```
+
+Output:
+
+    12345 rows × 15 columns
+    Locations: 48
+    Analytes: 72
+    Date range: 2015-01-01 to 2024-12-31
+    Class: env_schema
+
+Core environmental variables include:
+
+- location
+- analyte
+- result
+- date
+
+Additional metadata such as units, qualifiers, detection limits,
+coordinates, sample identifiers, and analytical methods can also be
+stored and preserved by the schema.
+
+## Import Data
+
+``` r
+gw <- read_manages3("Site.mdb")
+
+gw <- read_manages4(
+  server = "MY_MANAGES_SERVER",
+  database = "MY_MANAGES_DATABASE",
+  site = "MY_SITE"
+)
+```
+
+## Visualize Data
 
 ``` r
 # load example data and plot time series of selected wells and constituents
-data("gw_data")
+data("gw")
 
 wells <- c("MW-1", "MW-2")
 
@@ -38,69 +128,37 @@ params <- c("Magnesium, dissolved",
             "Sulfate, total", 
             "Potassium, dissolved")
 
-gw_data %>%
+gw %>%
   filter(location_id %in% wells, param_name %in% params) %>%
-  series_plot(facet_var = "param_name", group_var = "location_id")
+  series_plot()
 ```
+
+![](man/figures/README-time-series-1.png)<!-- -->![](man/figures/README-time-series-2.png)<!-- -->![](man/figures/README-time-series-3.png)<!-- -->![](man/figures/README-time-series-4.png)<!-- -->![](man/figures/README-time-series-5.png)<!-- -->
 
 ``` r
 # create boxplots filled by gradient
-gw_data %>%
+gw %>%
   filter(param_name == "Chloride, total", 
          location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5", "MW-6", "MW-7", "MW-8")) %>%
   mutate(gradient = if_else(location_id %in% wells, "upgradient", "downgradient")) %>% 
   boxplot(fill = "gradient")
-#> Warning: The `margin` argument should be constructed using the `margin()` function.
-#> The `margin` argument should be constructed using the `margin()` function.
-#> Warning: No shared levels found between `names(values)` of the manual scale and the
-#> data's shape values.
-#> No shared levels found between `names(values)` of the manual scale and the
-#> data's shape values.
 ```
+
+![](man/figures/README-boxplots-1.png)<!-- -->
 
 Piper Diagrams and more…
 
 ``` r
-gw_data %>%
+gw %>%
   piper_plot()
 ```
 
 ![](man/figures/README-piper-plot-1.png)<!-- -->
 
-## Installation
+## Interactive Exploration
 
-To install the `manager` package you must first make sure you have a
-working development environment.
-
-- **Windows**: Install
-  [Rtools](http://cran.r-project.org/bin/windows/Rtools/).\
-- **Mac**: Install Xcode from the Mac App Store.\
-- **Linux**: Install a compiler and various development libraries
-  (details vary across differnet flavors of Linux).
-
-Then, install the `remotes` package from CRAN with
+manager also includes a Shiny application:
 
 ``` r
-install.packages("remotes")
+manager::manager()
 ```
-
-After you have `remotes` installed you can install `manager` using the
-command
-
-``` r
-remotes::install_github("jentjr/manager")
-```
-
-Eventually, the package might be submitted to CRAN, but until then
-you’ll have to install with `remotes`.
-
-## Shiny App
-
-A [shiny app](http://shiny.rstudio.com) is included with the package. It
-can be launched locally by running `manager::manager()`, or you can
-browse to the [shinyapps.io](http://shinyapps.io) website for
-[manager](http://jentjr.shinyapps.io/manager). In order to read a
-MANAGES, or gINT database you must be running a local server with
-`RODBC` installed. `R` must either be in 32-bit, or 64-bit mode
-depending on which drivers are installed for microsoft access. MANAGER
-has only been tested in 32-bit mode.

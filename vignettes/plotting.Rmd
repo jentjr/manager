@@ -1,0 +1,567 @@
+---
+title: "Environmental Plotting System"
+author: "Package Development Team"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Environmental Plotting System}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+# Introduction
+
+The plotting module provides a unified suite of visualization functions for environmental monitoring datasets.
+
+All plotting functions support both raw data frames and `env_schema` objects through S3 method dispatch. The system is designed to operate independently of source column names by relying on schema mappings and accessor functions.
+
+Supported visualizations include:
+
+- Time-series plots
+- Boxplots
+- Correlation plots
+- Piper diagrams
+- Schoeller diagrams
+- Stiff diagrams
+- Durov diagrams
+- Spatial plots
+- Geochemical animations
+
+# Design Philosophy
+
+## Schema-Aware Architecture
+
+All environmental plotting functions ultimately operate on an `env_schema` object.
+
+When a raw data frame is supplied, it is first converted using user-provided column mappings.
+
+For example:
+
+```r
+series_plot(
+  groundwater_data,
+  location = well_id,
+  date = sample_date,
+  analyte = constituent,
+  result = concentration
+)
+```
+
+internally becomes:
+
+```r
+env_schema(
+  groundwater_data,
+  location = well_id,
+  date = sample_date,
+  analyte = constituent,
+  result = concentration
+)
+```
+
+Internally, plotting methods interact with schema accessors rather than hard-coded column names:
+
+```r
+location_var()
+date_var()
+analyte_var()
+result_var()
+unit_var()
+reporting_flag_var()
+```
+
+This architecture ensures plots remain portable across different environmental datasets.
+
+# Example Datasets
+
+The package includes groundwater monitoring datasets that can be used to demonstrate plotting functionality.
+
+## Standardized Example Dataset
+
+The `gw` dataset is an `env_schema` object and can be used directly with plotting functions.
+
+```{r data-gw}
+library(dplyr)
+library(manager)
+
+data(gw)
+
+gw
+```
+
+Because `gw` is already an `env_schema`, no additional mapping is required.
+
+```{r gw-series}
+plots <- series_plot(gw)
+
+plots[[1]]
+```
+
+## Raw Groundwater Dataset
+
+The `gw_data` dataset contains environmental monitoring data in tabular format.
+
+```{r data-gw-data}
+data(gw_data)
+
+glimpse(gw_data)
+```
+
+Create a smaller subset for examples.
+
+```{r subset-data}
+example_wells <- c(
+  "MW-1",
+  "MW-2",
+  "MW-3"
+)
+
+gw_subset <- gw_data %>%
+  dplyr::filter(
+    location_id %in% example_wells
+  )
+```
+
+## Creating an env_schema Object
+
+Raw datasets can be converted into an `env_schema` object.
+
+```{r env-schema}
+gw_schema <- env_schema(
+  gw_subset,
+  location = location_id,
+  date = sample_date,
+  analyte = param_name,
+  result = analysis_result,
+  unit = default_unit,
+  reporting_flag = lt_measure
+)
+
+gw_schema
+```
+
+# Time Series Plots
+
+## Basic Example
+
+```{r series-basic}
+plots <- series_plot(gw)
+
+plots[[1]]
+```
+
+## Linear Trend
+
+```{r series-lm}
+plots <- series_plot(
+  gw,
+  trend = "lm"
+)
+
+plots[[1]]
+```
+
+## Mann-Kendall Trend
+
+```{r series-mk, eval=FALSE}
+plots <- series_plot(
+  gw,
+  trend = "mann_kendall",
+  trend_label = "compact"
+)
+
+plots[[1]]
+```
+
+## Combined Plot
+
+```{r series-combined}
+series_plot(
+  gw,
+  plot_type = "combined"
+)
+```
+
+## Standards Overlay
+
+```{r series-standards}
+plots <- series_plot(
+  gw,
+  standards = TRUE
+)
+
+plots[[1]]
+```
+
+# Boxplots
+
+## Basic Boxplot
+
+```{r boxplot-basic}
+plots <- boxplot(gw)
+
+plots[[1]]
+```
+
+## Display Individual Observations
+
+```{r boxplot-points}
+plots <- boxplot(
+  gw,
+  show_points = TRUE
+)
+
+plots[[1]]
+```
+
+## Bootstrap Confidence Intervals
+
+```{r boxplot-ci}
+plots <- boxplot(
+  gw,
+  show_points = TRUE,
+  plot_ci = TRUE
+)
+
+plots[[1]]
+```
+
+## Standards Overlay
+
+```{r boxplot-standards}
+plots <- boxplot(
+  gw,
+  standards = TRUE
+)
+
+plots[[1]]
+```
+
+## Add Explanation Panel
+
+```{r boxplot-explanation}
+plots <- boxplot(
+  gw,
+  add_explanation = TRUE
+)
+
+plots[[1]]
+```
+
+# Correlation Plots
+
+Correlation plots require the optional `GGally` package.
+
+```{r corr-plot, eval=FALSE}
+corr_plot(
+  gw_data,
+  constituents = c(
+    "Iron, dissolved",
+    "Manganese, dissolved",
+    "Sulfate, total"
+  ),
+  sample_locations = c(
+    "MW-1",
+    "MW-2"
+  )
+)
+```
+
+# Piper Diagrams
+
+## Basic Piper Diagram
+
+```{r piper-basic}
+piper_plot(gw)
+```
+
+## Normalized Analyte Matching
+
+```{r piper-normalized}
+piper_plot(
+  gw,
+  analyte_matching = "normalized"
+)
+```
+
+## Exact Analyte Matching
+
+```{r piper-exact}
+piper_plot(
+  gw,
+  analyte_matching = "exact"
+)
+```
+
+## Scale Point Size by TDS
+
+```{r piper-tds, eval=FALSE}
+piper_plot(
+  gw,
+  scale_analyte = "Total Dissolved Solids"
+)
+```
+
+## Group by Category
+
+```{r piper-group, eval=FALSE}
+piper_plot(
+  gw,
+  group_col = "aquifer_unit"
+)
+```
+
+# Piper Animations
+
+Create an interactive animation:
+
+```{r piper-animation, eval=FALSE}
+piper_time_plot(gw)
+```
+
+Export animation:
+
+```{r piper-html, eval=FALSE}
+piper_time_html(gw)
+```
+
+# Schoeller Diagrams
+
+## Basic Schoeller Plot
+
+```{r schoeller-basic}
+schoeller_plot(gw)
+```
+
+## Facet by Location
+
+```{r schoeller-location}
+schoeller_plot(
+  gw,
+  facet_var = "location"
+)
+```
+
+## Facet by Date
+
+```{r schoeller-date}
+schoeller_plot(
+  gw,
+  facet_var = "date"
+)
+```
+
+## Custom Title
+
+```{r schoeller-title}
+schoeller_plot(
+  gw,
+  title = "Groundwater Major-Ion Chemistry"
+)
+```
+
+# Stiff Diagrams
+
+## Basic Stiff Diagram
+
+```{r stiff-basic}
+plots <- stiff_plot(gw)
+
+plots[[1]]
+```
+
+## Scale Fill by TDS
+
+```{r stiff-scaled, eval=FALSE}
+plots <- stiff_plot(
+  gw,
+  scale_analyte = "Total Dissolved Solids"
+)
+
+plots[[1]]
+```
+
+## Group by Sampling Date
+
+```{r stiff-date}
+plots <- stiff_plot(
+  gw,
+  group_var = "sample_date"
+)
+
+plots[[1]]
+```
+
+## Add Reference Lines
+
+```{r stiff-lines}
+plots <- stiff_plot(
+  gw,
+  lines = TRUE
+)
+
+plots[[1]]
+```
+
+# Stiff Diagram Animations
+
+Interactive display:
+
+```{r stiff-animation, eval=FALSE}
+stiff_time_plot(gw)
+```
+
+HTML export:
+
+```{r stiff-html, eval=FALSE}
+stiff_time_html(gw)
+```
+
+# Durov Diagrams
+
+## Basic Durov Diagram
+
+```{r durov-basic}
+durov_plot(gw)
+```
+
+## Normalized Matching
+
+```{r durov-normalized}
+durov_plot(
+  gw,
+  analyte_matching = "normalized"
+)
+```
+
+## Exact Matching
+
+```{r durov-exact}
+durov_plot(
+  gw,
+  analyte_matching = "exact"
+)
+```
+
+# Regulatory Standards
+
+Several plotting functions support standards overlays.
+
+Time-series example:
+
+```{r standards-series}
+plots <- series_plot(
+  gw,
+  standards = TRUE
+)
+
+plots[[1]]
+```
+
+Boxplot example:
+
+```{r standards-boxplot}
+plots <- boxplot(
+  gw,
+  standards = TRUE
+)
+
+plots[[1]]
+```
+
+# Animation Framework
+
+The package includes shared animation helpers for geochemical plotting.
+
+Animated workflows:
+
+- `piper_time_plot()`
+- `piper_time_html()`
+- `stiff_time_plot()`
+- `stiff_time_html()`
+
+All animation utilities automatically determine the mapped date field from the schema metadata.
+
+# Extending the Plotting Framework
+
+New visualization functions should follow the same S3 design pattern used throughout the package.
+
+## data.frame Method
+
+```{r extension-dataframe, eval=FALSE}
+my_plot.data.frame <- function(
+  df,
+  location,
+  date,
+  analyte,
+  result,
+  ...
+) {
+
+  df <- env_schema(
+    df,
+    location = {{ location }},
+    date = {{ date }},
+    analyte = {{ analyte }},
+    result = {{ result }}
+  )
+
+  my_plot(df, ...)
+}
+```
+
+## env_schema Method
+
+```{r extension-schema, eval=FALSE}
+my_plot.env_schema <- function(
+  df,
+  ...
+) {
+
+  location_col <- location_var(df)
+
+  date_col <- date_var(df)
+
+  analyte_col <- analyte_var(df)
+
+  result_col <- result_var(df)
+
+  ...
+}
+```
+
+Following this pattern ensures all future visualizations remain independent of source column names while remaining fully compatible with the package schema system.
+
+# Summary
+
+The environmental plotting framework provides:
+
+- Schema-aware plotting
+- Support for raw data frames and `env_schema` objects
+- Consistent handling of analytical metadata
+- Hydrochemical interpretation tools
+- Animation support
+- Extensible S3-based architecture
+
+By leveraging schema accessors rather than hard-coded field names, plots remain portable, reusable, and robust across diverse environmental datasets.
+
+# Session Information
+
+```{r session-info}
+sessionInfo()
+```
+

@@ -51,12 +51,12 @@ test_that("meq output columns are created", {
     convert_analytes_to_meq()
 
   expect_true(
-    "analysis_result_meq" %in%
+    ".analysis_result_meq" %in%
       names(out)
   )
 
   expect_true(
-    "default_unit_meq" %in%
+    ".analysis_unit_meq" %in%
       names(out)
   )
 })
@@ -66,7 +66,7 @@ test_that("meq unit is assigned", {
     convert_analytes_to_meq()
 
   expect_equal(
-    out$default_unit_meq,
+    out$.analysis_unit_meq,
     "meq/L"
   )
 })
@@ -84,7 +84,7 @@ test_that("meq conversion uses analyte metadata", {
   out <- convert_analytes_to_meq(x)
 
   expect_equal(
-    out$analysis_result_meq,
+    out$.analysis_result_meq,
     x$.analysis_result * factor
   )
 })
@@ -103,7 +103,7 @@ test_that("known calcium meq value is correct", {
     )
 
   expect_equal(
-    out$analysis_result_meq,
+    out$.analysis_result_meq,
     expected
   )
 })
@@ -122,7 +122,7 @@ test_that("known magnesium meq value is correct", {
     )
 
   expect_equal(
-    out$analysis_result_meq,
+    out$.analysis_result_meq,
     expected
   )
 })
@@ -135,7 +135,7 @@ test_that("zero concentrations produce zero meq", {
     convert_analytes_to_meq()
 
   expect_equal(
-    out$analysis_result_meq,
+    out$.analysis_result_meq,
     0
   )
 })
@@ -149,13 +149,13 @@ test_that("missing concentrations remain missing", {
 
   expect_true(
     is.na(
-      out$analysis_result_meq
+      out$.analysis_result_meq
     )
   )
 
   expect_true(
     is.na(
-      out$default_unit_meq
+      out$.analysis_unit_meq
     )
   )
 })
@@ -174,13 +174,13 @@ test_that("unsupported analytes return missing meq values", {
 
   expect_true(
     is.na(
-      out$analysis_result_meq
+      out$.analysis_result_meq
     )
   )
 
   expect_true(
     is.na(
-      out$default_unit_meq
+      out$.analysis_unit_meq
     )
   )
 })
@@ -227,8 +227,8 @@ test_that("equivalent concentrations produce identical meq values", {
   out <- convert_analytes_to_meq(x)
 
   expect_equal(
-    out$analysis_result_meq[1],
-    out$analysis_result_meq[2]
+    out$.analysis_result_meq[1],
+    out$.analysis_result_meq[2]
   )
 })
 

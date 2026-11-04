@@ -1,3 +1,50 @@
+#' Validate required columns
+#'
+#' Internal helper used throughout the package to check that
+#' required columns are present.
+#'
+#' @param data A data frame.
+#' @param cols Character vector of required column names.
+#'
+#' @return Invisibly returns TRUE.
+#'
+#' @noRd
+.validate_required_cols <- function(
+  data,
+  cols
+) {
+  missing_cols <- setdiff(
+    cols,
+    names(data)
+  )
+
+  if (length(missing_cols) > 0) {
+    rlang::abort(
+      paste(
+        "Missing required column(s):",
+        paste(missing_cols, collapse = ", ")
+      )
+    )
+  }
+}
+
+#' Required derived env_schema columns
+#'
+#' @keywords internal
+.required_env_schema_columns <- function() {
+  c(
+    ".analysis_result",
+    ".analysis_unit",
+    ".detected",
+    ".censored",
+    ".estimated",
+    ".rejected",
+    ".usable",
+    ".original_lab_result",
+    ".analyte_id"
+  )
+}
+
 #' Validate an environmental schema
 #'
 #' @param x Object to validate.
@@ -37,15 +84,26 @@ validate_env_schema <- function(x) {
     )
   }
 
+  missing_standard <- setdiff(
+    .required_env_schema_columns(),
+    names(x)
+  )
+
+  if (length(missing_standard) > 0) {
+    rlang::abort(
+      paste(
+        "Missing required schema columns:",
+        paste(
+          missing_standard,
+          collapse = ", "
+        )
+      )
+    )
+  }
+
   # ------------------------------------------------------------
   # Required column types
   # ------------------------------------------------------------
-
-  if (!".analyte_id" %in% names(x)) {
-    rlang::abort(
-      "Missing '.analyte_id'."
-    )
-  }
 
   if (!".analyte_id" %in% names(x)) {
     rlang::abort(
@@ -236,13 +294,16 @@ validate_env_schema_structure <- function(x) {
   }
 
   required <- c(
-    mapping$location,
-    mapping$date,
-    mapping$analyte,
-    mapping$result
+    stats::na.omit(
+      c(
+        mapping$location,
+        mapping$date,
+        mapping$analyte,
+        mapping$result
+      )
+    ),
+    .required_env_schema_columns()
   )
-
-  required <- stats::na.omit(required)
 
   missing <- setdiff(
     required,
@@ -252,7 +313,7 @@ validate_env_schema_structure <- function(x) {
   if (length(missing) > 0) {
     rlang::abort(
       paste(
-        "Missing mapped columns:",
+        "Missing required schema columns:",
         paste(missing, collapse = ", ")
       )
     )
@@ -1007,6 +1068,88 @@ validate_analyte_alias_tbl <- function(
   invisible(alias_lookup)
 }
 
+#' Validate a standards schema
+#'
+#' @param x Object to validate.
+#'
+#' @returns Invisibly returns TRUE.
+#'
+#' @export
+validate_standards_schema <- function(x) {
+  if (!is_standards_schema(x)) {
+    rlang::abort(
+      "Object is not a standards_schema."
+    )
+  }
+
+  required_cols <- c(
+    ".analyte",
+    ".standard_type",
+    ".standard_value",
+    ".standard_unit",
+    ".location",
+    ".medium",
+    ".source",
+    ".provenance",
+    ".reference",
+    ".effective_date",
+    ".notes",
+    ".priority"
+  )
+
+  missing_cols <- setdiff(
+    required_cols,
+    names(x)
+  )
+
+  if (length(missing_cols) > 0) {
+    rlang::abort(
+      paste(
+        "Missing columns:",
+        paste(missing_cols, collapse = ", ")
+      )
+    )
+  }
+
+  if (!is.numeric(x$.standard_value)) {
+    rlang::abort(
+      "`.standard_value` must be numeric."
+    )
+  }
+
+  if (!is.numeric(x$.priority)) {
+    rlang::abort(
+      "`.priority` must be numeric."
+    )
+  }
+
+  if (any(is.na(x$.analyte))) {
+    rlang::abort(
+      "`.analyte` contains missing values."
+    )
+  }
+
+  if (any(is.na(x$.standard_value))) {
+    rlang::abort(
+      "`.standard_value` contains missing values."
+    )
+  }
+
+  if (any(is.na(x$.standard_unit))) {
+    rlang::abort(
+      "`.standard_unit` contains missing values."
+    )
+  }
+
+  if (any(is.na(x$.priority))) {
+    rlang::abort(
+      "`.priority` contains missing values."
+    )
+  }
+
+  invisible(TRUE)
+}
+
 #' Validate est_dist arguments
 #'
 #' Internal helper for validating distribution estimation arguments.
@@ -1145,7 +1288,9 @@ validate_analyte_alias_tbl <- function(
   valid_distributions <- c(
     "Normal",
     "Lognormal",
-    "Nonparametric"
+    "Nonparametric",
+    "insufficient_data",
+    "estimation_failed"
   )
 
   invalid_distributions <- setdiff(

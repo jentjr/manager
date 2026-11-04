@@ -188,7 +188,7 @@ standards_schema <- function(
   notes_quo <- rlang::enquo(notes)
   priority_quo <- rlang::enquo(priority)
 
-  out <- data %>%
+  out <- data |>
     dplyr::mutate(
       .analyte = {{ analyte }},
       .standard_value = {{ standard_value }},
@@ -239,7 +239,7 @@ standards_schema <- function(
     )
 
   if (rlang::quo_is_null(priority_quo)) {
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
         .priority = dplyr::if_else(
           !is.na(.data$.location),
@@ -248,13 +248,13 @@ standards_schema <- function(
         )
       )
   } else {
-    out <- out %>%
+    out <- out |>
       dplyr::mutate(
         .priority = as.integer({{ priority }})
       )
   }
 
-  out <- out %>%
+  out <- out |>
     dplyr::select(
       .analyte,
       .standard_type,
@@ -307,19 +307,19 @@ as_standards_schema <- function(x) {
   if (is_standards_schema(x)) {
     return(x)
   }
-  
+
   required_cols <- c(
     ".analyte",
     ".standard_type",
     ".standard_value",
     ".standard_unit"
   )
-  
+
   missing_cols <- setdiff(
     required_cols,
     names(x)
   )
-  
+
   if (length(missing_cols) > 0) {
     rlang::abort(
       paste(
@@ -328,19 +328,19 @@ as_standards_schema <- function(x) {
       )
     )
   }
-  
+
   if (!".location" %in% names(x)) {
     x$.location <- NA_character_
   }
-  
+
   if (!".medium" %in% names(x)) {
     x$.medium <- NA_character_
   }
-  
+
   if (!".source" %in% names(x)) {
     x$.source <- NA_character_
   }
-  
+
   if (!".priority" %in% names(x)) {
     x$.priority <- ifelse(
       is.na(x$.location),
@@ -348,97 +348,15 @@ as_standards_schema <- function(x) {
       1L
     )
   }
-  
+
   class(x) <- c(
     "standards_schema",
     class(x)
   )
-  
-  validate_standards_schema(x)
-  
-  x
-}
 
-#' Validate a standards schema
-#'
-#' @param x Object to validate.
-#'
-#' @returns Invisibly returns TRUE.
-#'
-#' @export
-validate_standards_schema <- function(x) {
-  if (!is_standards_schema(x)) {
-    rlang::abort(
-      "Object is not a standards_schema."
-    )
-  }
-  
-  required_cols <- c(
-    ".analyte",
-    ".standard_type",
-    ".standard_value",
-    ".standard_unit",
-    ".location",
-    ".medium",
-    ".source",
-    ".provenance",
-    ".reference",
-    ".effective_date",
-    ".notes",
-    ".priority"
-  )
-  
-  missing_cols <- setdiff(
-    required_cols,
-    names(x)
-  )
-  
-  if (length(missing_cols) > 0) {
-    rlang::abort(
-      paste(
-        "Missing columns:",
-        paste(missing_cols, collapse = ", ")
-      )
-    )
-  }
-  
-  if (!is.numeric(x$.standard_value)) {
-    rlang::abort(
-      "`.standard_value` must be numeric."
-    )
-  }
-  
-  if (!is.numeric(x$.priority)) {
-    rlang::abort(
-      "`.priority` must be numeric."
-    )
-  }
-  
-  if (any(is.na(x$.analyte))) {
-    rlang::abort(
-      "`.analyte` contains missing values."
-    )
-  }
-  
-  if (any(is.na(x$.standard_value))) {
-    rlang::abort(
-      "`.standard_value` contains missing values."
-    )
-  }
-  
-  if (any(is.na(x$.standard_unit))) {
-    rlang::abort(
-      "`.standard_unit` contains missing values."
-    )
-  }
-  
-  if (any(is.na(x$.priority))) {
-    rlang::abort(
-      "`.priority` contains missing values."
-    )
-  }
-  
-  invisible(TRUE)
+  validate_standards_schema(x)
+
+  x
 }
 
 #' Test if object is a standards schema
@@ -461,16 +379,16 @@ is_standards_schema <- function(x) {
 #' @noRd
 
 .prepare_standards_data <- function(df) {
-  assign_standards(df) %>%
+  assign_standards(df) |>
     dplyr::select(
       .standard_type,
       .standard_value
-    ) %>%
+    ) |>
     dplyr::filter(
       !is.na(.standard_type),
       !is.na(.standard_value),
       .standard_value > 0
-    ) %>%
+    ) |>
     dplyr::distinct()
 }
 
@@ -523,28 +441,28 @@ is_standards_schema <- function(x) {
 #'
 #' @export
 assign_standards <- function(
-    df,
-    standards = standards_tbl
+  df,
+  standards = standards_tbl
 ) {
   validate_env_schema(df)
-  
+
   standards <- as_standards_schema(
     standards
   )
-  
+
   out <- .match_standards(
     df,
     standards
-  ) %>%
+  ) |>
     .convert_standard_units(
       data_unit_col = ".analysis_unit"
     )
-  
+
   out <- .copy_env_schema_attributes(
     from = df,
     to = out
   )
-  
+
   out
 }
 
@@ -592,10 +510,10 @@ assign_standards <- function(
 #'
 #' @keywords internal
 .match_standards <- function(
-    df,
-    standards
+  df,
+  standards
 ) {
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(
       .row_id = dplyr::row_number(),
       .param_base = sub(
@@ -604,8 +522,8 @@ assign_standards <- function(
         .data$.analyte
       )
     )
-  
-  candidates <- df %>%
+
+  candidates <- df |>
     dplyr::left_join(
       standards,
       by = c(
@@ -613,37 +531,37 @@ assign_standards <- function(
       ),
       relationship = "many-to-many"
     )
-  
+
   if (
     ".location.x" %in% names(candidates) && ".location.y" %in% names(candidates)
   ) {
-    candidates <- candidates %>%
+    candidates <- candidates |>
       dplyr::filter(
         is.na(.data$.location.y) |
           .data$.location.x == .data$.location.y
       )
   }
-  
-  out <- candidates %>%
-    dplyr::group_by(.data$.row_id) %>%
+
+  out <- candidates |>
+    dplyr::group_by(.data$.row_id) |>
     dplyr::slice_min(
       .data$.priority,
       n = 1,
       with_ties = FALSE
-    ) %>%
+    ) |>
     dplyr::ungroup()
-  
+
   if (".location.x" %in% names(out) && ".location.y" %in% names(out)) {
-    out <- out %>%
+    out <- out |>
       dplyr::rename(
         .location = ".location.x"
-      ) %>%
+      ) |>
       dplyr::select(
         -".location.y"
       )
   }
-  
-  out %>%
+
+  out |>
     dplyr::select(
       -.row_id,
       -.param_base

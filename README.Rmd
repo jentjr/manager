@@ -35,7 +35,7 @@ Key features include:
 - Native compatibility with dplyr and the tidyverse
 - Time-series, boxplot, Piper, and spatial visualizations
 - Summary statistics and reporting utilities
-- Importers for MANAGES and gINT databases
+- Importers for MANAGES databases
 
 ## Why manager? 
 Environmental datasets are often distributed across spreadsheets, laboratory 

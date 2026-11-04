@@ -1593,7 +1593,7 @@ dixon_test <- function(
     outliers <- df %>%
       mutate(
         alternative = map(.x = dixon, ~ .x$alternative),
-        p_value = map(.x = dixon, ~ .X$p.value)
+        p_value = map(.x = dixon, ~ .x$p.value)
       ) %>%
       select(-data)
   } else {
@@ -1662,7 +1662,7 @@ grubbs_test <- function(
     outliers <- df %>%
       mutate(
         alternative = map(.x = grubbs, ~ .x$alternative),
-        p_value = map(.x = grubbs, ~ .X$p.value)
+        p_value = map(.x = grubbs, ~ .x$p.value)
       ) %>%
       select(-data)
   } else {

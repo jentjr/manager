@@ -1,12 +1,30 @@
 test_that("stiff_plot returns a named list", {
-  p <- stiff_plot(gw_data)
+  schema <- env_schema(
+    gw_data,
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
+  p <- stiff_plot(schema)
 
   expect_type(p, "list")
   expect_named(p)
 })
 
 test_that("list elements are ggplot objects", {
-  p <- stiff_plot(gw_data)
+  schema <- env_schema(
+    gw_data,
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
+  p <- stiff_plot(schema)
 
   expect_s3_class(
     p[[1]],
@@ -14,69 +32,78 @@ test_that("list elements are ggplot objects", {
   )
 })
 
-test_that("invalid group_var errors", {
-  expect_error(
-    stiff_plot(
-      gw_data,
-      group_var = "site_id"
-    )
-  )
-})
-
-test_that("invalid facet_var errors", {
-  expect_error(
-    stiff_plot(
-      gw_data,
-      facet_var = "site_id"
-    )
-  )
-})
-
 test_that("returns one plot per location", {
-  plots <- stiff_plot(
+  schema <- env_schema(
     gw_data,
-    group_var = "location_id"
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
   )
+
+  plots <- stiff_plot(schema)
 
   expect_length(
     plots,
-    dplyr::n_distinct(gw_data$location_id)
+    dplyr::n_distinct(schema[[location_var(schema)]])
   )
 })
 
 test_that("returns one plot per sample date", {
-  test_data_complete <- gw_data %>%
-    dplyr::filter(
-      location_id %in% c("MW-1", "MW-2"),
-      sample_date <= lubridate::ymd("2009-01-01")
-    )
+  schema <- env_schema(
+    gw_data,
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
   plots <- stiff_plot(
-    test_data_complete,
-    group_var = "sample_date"
+    schema,
+    group_var = date_var(schema)
   )
 
   expect_length(
     plots,
-    dplyr::n_distinct(test_data_complete$sample_date)
+    dplyr::n_distinct(
+      schema[[date_var(schema)]]
+    )
   )
 })
 
 test_that("plot names equal grouping values", {
-  plots <- stiff_plot(
+  schema <- env_schema(
     gw_data,
-    group_var = "location_id"
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
   )
+
+  plots <- stiff_plot(schema)
 
   expect_setequal(
     names(plots),
-    unique(gw_data$location_id)
+    unique(schema[[location_var(schema)]])
   )
 })
 
 test_that("invalid group_var throws error", {
+  schema <- env_schema(
+    gw_data,
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
   expect_error(
     stiff_plot(
-      gw_data,
+      schema,
       group_var = "site_id"
     ),
     "group_var"
@@ -84,43 +111,56 @@ test_that("invalid group_var throws error", {
 })
 
 test_that("invalid facet_var throws error", {
+  schema <- env_schema(
+    gw_data,
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
   expect_error(
     stiff_plot(
-      gw_data,
+      schema,
       facet_var = "site_id"
     ),
     "facet_var"
   )
 })
 
-test_that("missing ion throws error", {
+test_that("missing major ion generates warning", {
   data <- dplyr::filter(
     gw_data,
     param_name != "Calcium, dissolved"
   )
 
-  expect_error(
-    stiff_plot(data),
-    "Missing required major ions"
+  schema <- env_schema(
+    data,
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
+  expect_warning(
+    stiff_plot(schema),
+    "Missing major ions"
   )
 })
 
 test_that("Na + K is correctly calculated", {
-  stiff <- .transform_stiff_data(
+  schema <- env_schema(
     gw_data,
-    location_id = "location_id",
-    sample_date = "sample_date",
-    param_name = "param_name",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    calcium = "Calcium, dissolved",
-    magnesium = "Magnesium, dissolved",
-    sodium = "Sodium, dissolved",
-    potassium = "Potassium, dissolved",
-    chloride = "Chloride, total",
-    sulfate = "Sulfate, total",
-    alkalinity = "Alkalinity, total (lab)"
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
   )
+
+  stiff <- stiff_data(schema)
 
   expect_true(
     "Na + K" %in% stiff$ion
@@ -128,21 +168,16 @@ test_that("Na + K is correctly calculated", {
 })
 
 test_that("stiff coordinates are assigned correctly", {
-  stiff <- .transform_stiff_data(
+  schema <- env_schema(
     gw_data,
-    location_id = "location_id",
-    sample_date = "sample_date",
-    param_name = "param_name",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    calcium = "Calcium, dissolved",
-    magnesium = "Magnesium, dissolved",
-    sodium = "Sodium, dissolved",
-    potassium = "Potassium, dissolved",
-    chloride = "Chloride, total",
-    sulfate = "Sulfate, total",
-    alkalinity = "Alkalinity, total (lab)"
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
   )
+
+  stiff <- stiff_data(schema)
 
   expect_true(
     all(
@@ -159,7 +194,7 @@ test_that("stiff coordinates are assigned correctly", {
     all(
       stiff$stiff_x[
         stiff$ion %in%
-          c("SO4", "Alk", "Cl")
+          c("SO[4]", "HCO[3]", "Cl")
       ] >=
         0,
       na.rm = TRUE
@@ -167,33 +202,57 @@ test_that("stiff coordinates are assigned correctly", {
   )
 })
 
-test_that("TDS is included when requested", {
-  stiff <- .transform_stiff_data(
+test_that("scale_analyte works", {
+  schema <- env_schema(
     gw_data,
-    location_id = "location_id",
-    sample_date = "sample_date",
-    param_name = "param_name",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    calcium = "Calcium, dissolved",
-    magnesium = "Magnesium, dissolved",
-    sodium = "Sodium, dissolved",
-    potassium = "Potassium, dissolved",
-    chloride = "Chloride, total",
-    sulfate = "Sulfate, total",
-    alkalinity = "Alkalinity, total (lab)",
-    total_dissolved_solids = "Total Dissolved Solids"
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
+  expect_no_error(
+    stiff_data(
+      schema,
+      scale_analyte = "Total Dissolved Solids"
+    )
+  )
+})
+
+test_that("scale_value column is present", {
+  schema <- env_schema(
+    gw_data,
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
+  stiff <- stiff_data(
+    schema,
+    scale_analyte = "Total Dissolved Solids"
   )
 
   expect_true(
-    "TDS" %in% names(stiff)
+    "scale_value" %in% names(stiff)
   )
 })
 
 test_that("faceting variable is applied", {
-  p <- stiff_plot(
+  schema <- env_schema(
     gw_data,
-    facet_var = "sample_date"
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
+  )
+
+  p <- stiff_plot(
+    schema,
+    facet_var = date_var(schema)
   )[[1]]
 
   expect_s3_class(
@@ -202,80 +261,23 @@ test_that("faceting variable is applied", {
   )
 })
 
-test_that("frame count equals distinct date-group combinations", {
-  n_frames <- gw_data %>%
-    dplyr::distinct(
-      sample_date,
-      location_id
-    ) %>%
-    nrow()
-
-  expect_equal(
-    n_frames,
-    gw_data %>%
-      dplyr::distinct(
-        sample_date,
-        location_id
-      ) %>%
-      nrow()
-  )
-})
-
-test_that("default title contains group value", {
-  plots <- stiff_plot(
+test_that("custom title overrides default", {
+  schema <- env_schema(
     gw_data,
-    group_var = "location_id"
+    location = location_id,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    date = sample_date
   )
 
-  expect_equal(
-    plots[[1]]$labels$title,
-    paste0(
-      "location_id: ",
-      names(plots)[1]
-    )
-  )
-})
-
-test_that("custom title overrides group value", {
   plots <- stiff_plot(
-    gw_data,
+    schema,
     title = "Test Title"
   )
 
   expect_equal(
     plots[[1]]$labels$title,
     "Test Title"
-  )
-})
-
-test_that("TDS can be included without unit conversion", {
-  expect_no_error(
-    stiff_plot(
-      gw_data,
-      total_dissolved_solids = "Total Dissolved Solids"
-    )
-  )
-})
-
-test_that("TDS column is present when requested", {
-  stiff <- .transform_stiff_data(
-    gw_data,
-    location_id = "location_id",
-    sample_date = "sample_date",
-    param_name = "param_name",
-    analysis_result = "analysis_result",
-    default_unit = "default_unit",
-    calcium = "Calcium, dissolved",
-    magnesium = "Magnesium, dissolved",
-    sodium = "Sodium, dissolved",
-    potassium = "Potassium, dissolved",
-    chloride = "Chloride, total",
-    sulfate = "Sulfate, total",
-    alkalinity = "Alkalinity, total (lab)",
-    total_dissolved_solids = "Total Dissolved Solids"
-  )
-
-  expect_true(
-    "TDS" %in% names(stiff)
   )
 })

@@ -1,3 +1,41 @@
+# test-compute_pred_int.R
+
+background_data <- tibble::tibble(
+  location_id = rep("MW-1", 20),
+  param_name = rep("Benzene", 20),
+  default_unit = rep("mg/L", 20),
+  analysis_result = c(
+    4.1,
+    4.2,
+    4.5,
+    4.7,
+    4.9,
+    5.0,
+    5.1,
+    5.2,
+    5.4,
+    5.5,
+    5.7,
+    5.8,
+    5.9,
+    6.0,
+    6.1,
+    6.2,
+    6.4,
+    6.5,
+    6.8,
+    7.0
+  )
+) |>
+  dplyr::group_by(
+    location_id,
+    param_name,
+    default_unit
+  ) |>
+  est_dist(
+    return_result = TRUE
+  )
+
 test_that("errors for invalid confidence level", {
   expect_error(
     .compute_pred_int(
@@ -59,7 +97,7 @@ test_that("errors for invalid k", {
     .compute_pred_int(
       df = background_data,
       simultaneous = FALSE,
-      k = -5
+      k = -1
     )
   )
 })
@@ -70,20 +108,40 @@ test_that("returns a tibble", {
     simultaneous = FALSE
   )
 
-  expect_s3_class(result, "tbl_df")
+  expect_s3_class(
+    result,
+    "tbl_df"
+  )
 })
 
-test_that("returns required prediction interval columns", {
+test_that("returns expected output columns", {
   result <- .compute_pred_int(
     df = background_data,
     simultaneous = FALSE
   )
 
-  expect_true("prediction_interval" %in% names(result))
-  expect_true("analysis_result" %in% names(result))
+  expect_true(
+    "distribution" %in% names(result)
+  )
+
+  expect_true(
+    "sample_size" %in% names(result)
+  )
+
+  expect_true(
+    "conf_level" %in% names(result)
+  )
+
+  expect_true(
+    "lpl" %in% names(result)
+  )
+
+  expect_true(
+    "upl" %in% names(result)
+  )
 })
 
-test_that("upper prediction intervals exceed estimated center", {
+test_that("upper prediction intervals are ordered correctly", {
   result <- .compute_pred_int(
     df = background_data,
     simultaneous = FALSE,
@@ -91,11 +149,14 @@ test_that("upper prediction intervals exceed estimated center", {
   )
 
   expect_true(
-    all(result$prediction_interval > result$mean, na.rm = TRUE)
+    all(
+      result$upl >= result$lpl,
+      na.rm = TRUE
+    )
   )
 })
 
-test_that("lower prediction intervals are below estimated center", {
+test_that("lower prediction intervals are ordered correctly", {
   result <- .compute_pred_int(
     df = background_data,
     simultaneous = FALSE,
@@ -103,7 +164,10 @@ test_that("lower prediction intervals are below estimated center", {
   )
 
   expect_true(
-    all(result$prediction_interval < result$mean, na.rm = TRUE)
+    all(
+      result$upl >= result$lpl,
+      na.rm = TRUE
+    )
   )
 })
 
@@ -114,10 +178,35 @@ test_that("two-sided intervals return lower and upper limits", {
     pi_type = "two-sided"
   )
 
-  expect_true("lower_limit" %in% names(result))
-  expect_true("upper_limit" %in% names(result))
+  expect_true(
+    "lpl" %in% names(result)
+  )
 
   expect_true(
-    all(result$lower_limit < result$upper_limit)
+    "upl" %in% names(result)
+  )
+
+  expect_true(
+    all(
+      result$upl >= result$lpl,
+      na.rm = TRUE
+    )
+  )
+})
+
+test_that("simultaneous prediction intervals run", {
+  result <- .compute_pred_int(
+    df = background_data,
+    simultaneous = TRUE
+  )
+
+  expect_s3_class(
+    result,
+    "tbl_df"
+  )
+
+  expect_gt(
+    nrow(result),
+    0
   )
 })

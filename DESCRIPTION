@@ -1,49 +1,65 @@
 Package: manager
-Title: Tools for plotting and analyzing environmental data
-Description: Tools for plotting and analyzing environmental
-    data as well as for reading data from external sources such as 
-    MANAGES and gINT.
-Version: 0.1.0.9000
+Title: Tools for Environmental Monitoring Data Analysis and Visualization
+Version: 0.5.0.9000
 Authors@R:
-    person(
-      given = "Justin",
-      family = "Jent",
-      email = "jentjr@gmail.com",
-      role = c("aut", "cre")
-    )
-URL: http://github.com/jentjr/manager
+    person("Justin", "Jent", , "jentjr@gmail.com", role = c("aut", "cre"))
+Description: Provides tools for managing, analyzing, and visualizing
+    environmental monitoring data. Includes a schema-based data model for
+    standardized environmental datasets, statistical summaries, trend
+    analysis, censored-data methods, prediction and tolerance intervals,
+    groundwater monitoring workflows, and hydrochemical visualizations
+    including Piper, Durov, Schoeller, and Stiff diagrams. Supports
+    integration with external environmental data sources such as MANAGES.
+License: MIT + file LICENSE
+URL:https://github.com/jentjr/manager, https://jentjr.github.io/manager
 BugReports: https://github.com/jentjr/manager/issues
 Depends:
-    R (>= 4.1)
+    R (>= 4.2)
 Imports:
-    EnvStats,
-    scales,
-    grid,
-    outliers,
-    tidyverse,
-    ggplot2,
-    mgcv,
-    vctrs
+  cli,
+  dplyr,
+  EnvStats,
+  ggplot2,
+  grid,
+  mgcv,
+  NADA2,
+  odbc,
+  openxlsx,
+  outliers,
+  plyr,
+  purrr,
+  readr,
+  readxl,
+  rlang,
+  scales,
+  stringi,
+  stringr,
+  tibble,
+  tidyr,
+  tidyselect,
+  units,
+  vctrs,
+  DBI
 Suggests: 
     animation,
     lubridate,
-    ggbeeswarm,
-    viridis,
-    openxlsx,
+    cowplot,
     GGally,
-    readxl,
-    DBI,
-    odbc,
-    shiny,
-    testthat,
+    ggbeeswarm,
     knitr,
+    mockery,
     rmarkdown,
+    shiny,
+    sf,
+    testthat,
     covr,
-    udunits2
+    pkgdown,
+    vdiffr,
+    viridis
+VignetteBuilder: 
+    knitr
 Remotes: 
     jentjr/EnvStats
-License: MIT + file LICENSE
-LazyData: true
-VignetteBuilder: knitr
-Encoding: UTF-8
 Config/roxygen2/version: 8.1.0
+Encoding: UTF-8
+LazyData: true

@@ -251,37 +251,6 @@ simplify_param_name <- function(df, param_name) {
     )
 }
 
-
-#' Validate required columns
-#'
-#' Internal helper used throughout the package to check that
-#' required columns are present.
-#'
-#' @param data A data frame.
-#' @param cols Character vector of required column names.
-#'
-#' @return Invisibly returns TRUE.
-#'
-#' @noRd
-.validate_required_cols <- function(
-  data,
-  cols
-) {
-  missing_cols <- setdiff(
-    cols,
-    names(data)
-  )
-
-  if (length(missing_cols) > 0) {
-    rlang::abort(
-      paste(
-        "Missing required column(s):",
-        paste(missing_cols, collapse = ", ")
-      )
-    )
-  }
-}
-
 #' Standardize ion names
 #'
 #' @param x Character vector.

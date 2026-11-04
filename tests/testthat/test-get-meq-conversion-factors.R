@@ -4,7 +4,7 @@ test_that(".get_meq_conversion_factors returns expected columns", {
   expect_true(
     all(
       c(
-        "analyte",
+        "analyte_id",
         "std_unit",
         "meq_factor"
       ) %in%
@@ -15,7 +15,11 @@ test_that(".get_meq_conversion_factors returns expected columns", {
 
 test_that(".get_meq_conversion_factors normalizes units", {
   lookup <- tibble::tibble(
-    analyte = "test ion",
+    analyte_id = "test ion",
+    analyte = "Test ION",
+    normalized_analyte = "test ion",
+    short_name = "TI",
+    analyte_group = "Major Ion",
     aliases = list(character()),
     std_unit = " MG/L ",
     ion_class = "cation",
@@ -31,5 +35,26 @@ test_that(".get_meq_conversion_factors normalizes units", {
   expect_equal(
     result$std_unit,
     "mg/l"
+  )
+})
+
+test_that(".get_meq_conversion_factors normalizes std_unit", {
+  lookup <- tibble::tibble(
+    analyte_id = "test_ion",
+    analyte = "Test Ion",
+    normalized_analyte = "test ion",
+    short_name = "TI",
+    analyte_group = "Major Ion",
+    std_unit = " MG/L ",
+    meq_factor = 1
+  )
+
+  result <- .get_meq_conversion_factors(
+    lookup = lookup
+  )
+
+  expect_equal(
+    result$std_unit,
+    .normalize_unit(" MG/L ")
   )
 })

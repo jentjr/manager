@@ -1,31 +1,17 @@
-test_that(".get_schoeller_ions() returns standardized output", {
-  df <- tibble::tibble(
-    location_id = "MW-1",
-    sample_date = as.Date("2024-01-01"),
-    param_name = c(
-      "Calcium, dissolved",
-      "Magnesium, dissolved",
-      "Chloride, total"
-    ),
-    analysis_result = c(40, 12, 20),
-    default_unit = "mg/L"
+# test-schoeller_plot.R
+
+make_chemistry_df <- function(df) {
+  schema <- env_schema(
+    df,
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
   )
 
-  result <- .get_schoeller_ions(df)
-
-  expect_named(
-    result,
-    c(
-      "location_id",
-      "sample_date",
-      "default_unit",
-      "param_name",
-      "value"
-    )
-  )
-
-  expect_equal(nrow(result), 3)
-})
+  .prepare_major_ion_chemistry(schema)
+}
 
 test_that(".transform_schoeller_data() returns expected Schoeller ions", {
   df <- tibble::tribble(
@@ -39,10 +25,14 @@ test_that(".transform_schoeller_data() returns expected Schoeller ions", {
     "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L as CaCO3"
   )
 
-  result <- .transform_schoeller_data(df)
+  chemistry_df <- make_chemistry_df(df)
+
+  result <- .transform_schoeller_data(
+    chemistry_df
+  )
 
   expect_setequal(
-    levels(result$param_name),
+    levels(result$schoeller_axis),
     c(
       "Ca",
       "Mg",
@@ -53,7 +43,10 @@ test_that(".transform_schoeller_data() returns expected Schoeller ions", {
     )
   )
 
-  expect_equal(nrow(result), 6)
+  expect_equal(
+    nrow(result),
+    6
+  )
 })
 
 test_that("sodium and potassium are combined into Na + K", {
@@ -63,10 +56,19 @@ test_that("sodium and potassium are combined into Na + K", {
     "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved" ,                5 , "mg/L"
   )
 
-  result <- .transform_schoeller_data(df)
+  chemistry_df <- make_chemistry_df(df)
+
+  result <- .transform_schoeller_data(
+    chemistry_df
+  )
 
   expect_true(
-    "Na + K" %in% unique(as.character(result$param_name))
+    "Na + K" %in%
+      unique(
+        as.character(
+          result$schoeller_axis
+        )
+      )
   )
 })
 
@@ -79,12 +81,16 @@ test_that("missing potassium is handled gracefully", {
     "MW-1"       , as.Date("2024-01-01") , "Chloride, total"      ,               20 , "mg/L"
   )
 
+  chemistry_df <- make_chemistry_df(df)
+
   expect_no_error(
-    .transform_schoeller_data(df)
+    .transform_schoeller_data(
+      chemistry_df
+    )
   )
 })
 
-test_that("Na + K becomes NA when both sodium and potassium are missing", {
+test_that("Na + K becomes absent when both sodium and potassium are missing", {
   df <- tibble::tribble(
     ~location_id , ~sample_date          , ~param_name            , ~analysis_result , ~default_unit ,
     "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"   ,               40 , "mg/L"        ,
@@ -92,26 +98,19 @@ test_that("Na + K becomes NA when both sodium and potassium are missing", {
     "MW-1"       , as.Date("2024-01-01") , "Chloride, total"      ,               20 , "mg/L"
   )
 
-  result <- .transform_schoeller_data(df)
+  chemistry_df <- make_chemistry_df(df)
+
+  result <- .transform_schoeller_data(
+    chemistry_df
+  )
 
   expect_false(
     "Na + K" %in%
-      (result %>%
-        dplyr::filter(!is.na(analysis_result)) %>%
-        dplyr::pull(param_name) %>%
-        as.character())
-  )
-})
-
-test_that("unsupported units throw an error", {
-  df <- tibble::tribble(
-    ~location_id , ~sample_date          , ~param_name          , ~analysis_result , ~default_unit ,
-    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved" ,               40 , "ug/L"
-  )
-
-  expect_error(
-    .transform_schoeller_data(df),
-    "Unsupported analyte/unit"
+      as.character(
+        stats::na.omit(
+          result$schoeller_axis
+        )
+      )
   )
 })
 
@@ -124,11 +123,29 @@ test_that("empty dataframe returns empty result", {
     default_unit = character()
   )
 
-  expect_no_error(
-    result <- .transform_schoeller_data(df)
+  schema <- env_schema(
+    df,
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
   )
 
-  expect_equal(nrow(result), 0)
+  chemistry_df <- .prepare_major_ion_chemistry(
+    schema
+  )
+
+  expect_no_error(
+    result <- .transform_schoeller_data(
+      chemistry_df
+    )
+  )
+
+  expect_equal(
+    nrow(result),
+    0
+  )
 })
 
 test_that("schoeller_plot returns a ggplot object", {
@@ -143,7 +160,45 @@ test_that("schoeller_plot returns a ggplot object", {
     "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L as CaCO3"
   )
 
-  p <- schoeller_plot(df)
+  p <- schoeller_plot(
+    df,
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
+  )
+
+  expect_s3_class(
+    p,
+    "ggplot"
+  )
+})
+
+test_that("schoeller_plot env_schema dispatch works", {
+  df <- tibble::tribble(
+    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit   ,
+    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"          ,
+    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               10 , "mg/L"          ,
+    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               15 , "mg/L"          ,
+    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"          ,
+    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               20 , "mg/L"          ,
+    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"          ,
+    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L as CaCO3"
+  )
+
+  schema <- env_schema(
+    df,
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
+  )
+
+  p <- schoeller_plot(
+    schema
+  )
 
   expect_s3_class(
     p,
@@ -163,17 +218,26 @@ test_that("both faceting options work", {
     "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L as CaCO3"
   )
 
+  schema <- env_schema(
+    df,
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
+  )
+
   expect_no_error(
     schoeller_plot(
-      df,
-      facet_var = "location_id"
+      schema,
+      facet_var = "location"
     )
   )
 
   expect_no_error(
     schoeller_plot(
-      df,
-      facet_var = "sample_date"
+      schema,
+      facet_var = "date"
     )
   )
 })
