@@ -1,0 +1,57 @@
+# .github/workflows/R-CMD-check.yaml
+
+name: R-CMD-check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        r-version:
+          - oldrel
+          - release
+          - devel
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.r-version }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            unixodbc-dev \
+            libudunits2-dev
+
+      - name: Set up R package cache
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            github::jentjr/EnvStats
+            github::tidyverse/tidyverse
+            github::rstats-db/odbc
+            github::jimhester/covr
+          needs: check
+
+      - name: Check package
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          error-on: "never"
+
+      - name: Upload coverage to Codecov
+        if: matrix.r-version == 'release'
+        run: Rscript -e 'covr::codecov()'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
