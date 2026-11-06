@@ -2,24 +2,81 @@
 % Please edit documentation in R/utils.R
 \name{to_wide}
 \alias{to_wide}
-\title{Helper function to cast data frame to wide format}
+\alias{to_wide.data.frame}
+\alias{to_wide.env_schema}
+\title{Convert Long Data to Wide Format}
 \usage{
-to_wide(df, lab_id = FALSE, join_lt = TRUE)
+to_wide(df, ...)
+
+\method{to_wide}{data.frame}(
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  lab_id = NULL
+)
+
+\method{to_wide}{env_schema}(df, label = TRUE, result = c("analysis", "display"))
 }
 \arguments{
-\item{df}{data frame in long format}
+\item{df}{A data frame or `env_schema` object.}
 
-\item{lab_id}{logical to include lab_id. Default is FALSE.}
+\item{...}{Additional information.}
 
-\item{join_lt}{logical to join the non-detect colum with analysis result.}
+\item{location_id}{Location column name.}
+
+\item{sample_date}{Sample date column name.}
+
+\item{param_name}{Analyte column name.}
+
+\item{analysis_result}{Analytical result column name.}
+
+\item{lab_id}{Optional laboratory identifier column.}
+
+\item{label}{Use analyte display labels as column names.}
+
+\item{result}{Result representation to use.
+Defaults to `"analysis"`.
+
+\describe{
+  \item{"analysis"}{
+    Uses standardized analytical values stored in
+    `.analysis_result`.
+  }
+
+  \item{"display"}{
+    Uses display-ready reporting values stored in
+    `.display_result`.
+  }
+}}
+}
+\value{
+A data frame in wide format.
 }
 \description{
-Helper function to cast data frame to wide format
+Converts environmental monitoring data from long format to
+wide format using analytes as columns.
 }
-\examples{
-data(gw_data)
+\details{
+`to_wide()` is an S3 generic supporting both `data.frame`
+and `env_schema` objects.
 
-gw_data \%>\%
-  filter(param_name \%in\% c("Arsenic, dissolved", "Boron, dissolved")) \%>\%
-  to_wide()
+
+When `result = "display"`, analyte columns contain
+display-ready character values derived from
+`.display_result`, making them suitable for reporting
+tables and exports.
+
+When `result = "analysis"`, analyte columns contain
+standardized numeric values from `.analysis_result`
+suitable for statistical and geochemical calculations.
 }
+\section{env_schema Method}{
+
+
+For `env_schema` objects, location, date, analyte,
+and result fields are obtained automatically from
+schema mappings.
+}
+

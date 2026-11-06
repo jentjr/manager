@@ -41,9 +41,35 @@
 #' The returned object retains all original source columns and stores
 #' environmental column mappings in object metadata.
 #'
-#' Additional manager-generated columns may be added, including
-#' result-classification fields, normalized analyte metadata,
-#' analytical labels, uncertainty metrics, and reporting attributes.
+#' Additional manager-generated columns may include:
+#'
+#' \describe{
+#'   \item{.analysis_result}{
+#'   Standardized analytical value used for calculations.
+#'   }
+#'
+#'   \item{.censored}{
+#'   Logical censoring indicator.
+#'   }
+#'
+#'   \item{.display_threshold}{
+#'   Threshold used when constructing display-ready censored values.
+#'   Reporting limits are preferred, followed by quantitation limits,
+#'   detection limits, and finally the analytical result itself.
+#'   }
+#'
+#'   \item{.display_threshold_type}{
+#'   Source of the display threshold. One of
+#'   `"reporting_limit"`,
+#'   `"quantitation_limit"`,
+#'   `"detection_limit"`, or
+#'   `"analysis_result"`.
+#'   }
+#'
+#'   \item{.display_result}{
+#'   Display-ready reporting result suitable for tables and exports.
+#'   }
+#' }
 #'
 #' @details
 #' `env_schema()` does not rename or modify source data columns.
@@ -115,9 +141,16 @@ env_schema <- function(
 
   metadata = NULL,
   qualifier_table = NULL,
+
+  display_options = default_display_options(),
+
   analyte_lookup = analyte_tbl
 ) {
-  stopifnot(is.data.frame(df))
+  if (!is.data.frame(df)) {
+    rlang::abort(
+      "`df` must be a data frame."
+    )
+  }
 
   metadata <- rlang::enquo(metadata)
 
@@ -137,6 +170,10 @@ env_schema <- function(
       "location, date, analyte, and result mappings are required."
     )
   }
+
+  .validate_display_options(
+    display_options
+  )
 
   column_mapping <- rlang::enquos(
     .location = location,
@@ -398,6 +435,21 @@ env_schema <- function(
     .standardize_schema_results()
 
   # --------------------------------------------------------------
+  # Display standardization
+  # --------------------------------------------------------------
+  display_metadata <-
+    .create_display_metadata(
+      df = out,
+      env_mapping = env_mapping,
+      display_options = display_options
+    )
+
+  out <- dplyr::bind_cols(
+    out,
+    display_metadata
+  )
+
+  # --------------------------------------------------------------
   # Metadata columns
   # --------------------------------------------------------------
 
@@ -441,6 +493,7 @@ env_schema <- function(
     measurement_metadata = metadata_cols,
     threshold_metadata = threshold_metadata,
     schema_metadata = names(env_mapping),
+    display_options = display_options,
     schema_version = "0.5.0",
     analyte_lookup = analyte_lookup
   )
@@ -448,6 +501,185 @@ env_schema <- function(
   validate_env_schema(out)
 
   out
+}
+
+#' @export
+default_display_options <- function() {
+  list(
+    digits = 6,
+
+    scientific = FALSE,
+
+    trim_trailing_zeros = TRUE,
+
+    censor_prefix = "<",
+
+    report_style = "standard"
+  )
+}
+
+#' @keywords internal
+.display_threshold_types <- c(
+  reporting_limit = "reporting_limit",
+  quantitation_limit = "quantitation_limit",
+  detection_limit = "detection_limit",
+  analysis_result = "analysis_result"
+)
+
+#' @keywords internal
+.display_threshold_labels <- c(
+  reporting_limit = "RL",
+  quantitation_limit = "PQL",
+  detection_limit = "DL",
+  analysis_result = "Result"
+)
+
+
+#' @keywords internal
+.format_display_threshold <- function(
+  x,
+  options = default_display_options()
+) {
+  x <- as.numeric(x)
+
+  out <- format(
+    signif(
+      x,
+      digits = options$digits
+    ),
+    scientific = options$scientific,
+    trim = TRUE
+  )
+
+  if (
+    isTRUE(
+      options$trim_trailing_zeros
+    )
+  ) {
+    out <- stringr::str_replace(
+      out,
+      "\\.$",
+      ""
+    )
+
+    out <- stringr::str_replace(
+      out,
+      "(\\.[0-9]*?)0+$",
+      "\\1"
+    )
+  }
+
+  out
+}
+
+#' Build display-ready analytical results and metadata
+#'
+#' @param df Data frame.
+#' @param env_mapping Schema mapping list.
+#' @param display_options description
+#'
+#' @returns
+#' A tibble containing:
+#' \describe{
+#'   \item{.display_threshold}{Display threshold value.}
+#'   \item{.display_threshold_type}{Source of the threshold.}
+#'   \item{.display_result}{Display-ready result string.}
+#' }
+#'
+#' @keywords internal
+.create_display_metadata <- function(
+  df,
+  env_mapping,
+  display_options = default_display_options()
+) {
+  reporting_limit <- if (!is.null(env_mapping$reporting_limit)) {
+    df[[env_mapping$reporting_limit]]
+  } else {
+    rep(NA_real_, nrow(df))
+  }
+
+  quantitation_limit <- if (!is.null(env_mapping$quantitation_limit)) {
+    df[[env_mapping$quantitation_limit]]
+  } else {
+    rep(NA_real_, nrow(df))
+  }
+
+  detection_limit <- if (!is.null(env_mapping$detection_limit)) {
+    df[[env_mapping$detection_limit]]
+  } else {
+    rep(NA_real_, nrow(df))
+  }
+
+  display_threshold <- dplyr::coalesce(
+    reporting_limit,
+    quantitation_limit,
+    detection_limit,
+    df$.analysis_result
+  )
+
+  display_threshold_type <- dplyr::case_when(
+    !is.na(reporting_limit) ~
+      unname(.display_threshold_types["reporting_limit"]),
+
+    is.na(reporting_limit) &
+      !is.na(quantitation_limit) ~
+      unname(.display_threshold_types["quantitation_limit"]),
+
+    is.na(reporting_limit) &
+      is.na(quantitation_limit) &
+      !is.na(detection_limit) ~
+      unname(.display_threshold_types["detection_limit"]),
+
+    TRUE ~
+      unname(.display_threshold_types["analysis_result"])
+  )
+
+  formatted_threshold <- .format_display_threshold(
+    display_threshold,
+    options = display_options
+  )
+
+  formatted_result <- .format_display_threshold(
+    df$.analysis_result,
+    options = display_options
+  )
+
+  tibble::tibble(
+    .display_threshold = display_threshold,
+
+    .display_threshold_type = display_threshold_type,
+
+    .display_result = dplyr::case_when(
+      is.na(display_threshold) ~
+        NA_character_,
+
+      !df$.censored ~
+        formatted_result,
+
+      display_options$report_style == "standard" ~
+        paste0(
+          display_options$censor_prefix,
+          formatted_threshold
+        ),
+
+      display_options$report_style == "verbose" ~
+        paste0(
+          display_options$censor_prefix,
+          " ",
+          .display_threshold_labels[
+            display_threshold_type
+          ],
+          " ",
+          formatted_threshold
+        ),
+
+      TRUE ~
+        paste0(
+          display_options$censor_prefix,
+          formatted_threshold
+        )
+    )
+  )
 }
 
 #' Classify reporting qualifiers
@@ -623,31 +855,12 @@ is_env_schema <- function(x) {
 #'
 #' @keywords internal
 has_env_schema_structure <- function(x) {
-  mapping <- attr(
-    x,
-    "env_mapping",
-    exact = TRUE
-  )
-
-  if (is.null(mapping)) {
-    return(FALSE)
-  }
-
-  required <- stats::na.omit(
-    c(
-      mapping$location,
-      mapping$date,
-      mapping$analyte,
-      mapping$result
-    )
-  )
-
-  required <- required[
-    !is.null(required)
-  ]
-
-  all(
-    c(required, .required_env_schema_columns()) %in% names(x)
+  tryCatch(
+    {
+      validate_env_schema_structure(x)
+      TRUE
+    },
+    error = function(e) FALSE
   )
 }
 
@@ -764,6 +977,12 @@ restore_env_schema <- function(
       metadata_names
     ),
 
+    display_options = attr(
+      to,
+      "display_options",
+      exact = TRUE
+    ),
+
     schema_version = attr(
       to,
       "env_schema_version",
@@ -831,6 +1050,9 @@ new_env_schema <- function(
   threshold_metadata = character(),
   schema_metadata = character(),
   analyte_metadata = NULL,
+
+  display_options = default_display_options(),
+
   schema_version = "0.5.0",
   schema_created = Sys.time(),
 
@@ -930,6 +1152,8 @@ new_env_schema <- function(
     analyte_lookup_cols <- names(analyte_lookup)
   }
 
+  .validate_display_options(display_options)
+
   structure(
     x,
 
@@ -939,6 +1163,8 @@ new_env_schema <- function(
     threshold_metadata = threshold_metadata,
     schema_metadata = schema_metadata,
     analyte_metadata = analyte_metadata,
+
+    display_options = display_options,
 
     env_schema_version = schema_version,
     env_schema_created = schema_created,
@@ -985,6 +1211,73 @@ known_analyte_metadata <- function() {
     ".is_field_parameter",
     ".analyte_label",
     ".short_analyte_label"
+  )
+}
+
+#' @export
+set_display_options <- function(
+  x,
+  digits = NULL,
+  scientific = NULL,
+  trim_trailing_zeros = NULL,
+  censor_prefix = NULL,
+  report_style = NULL
+) {
+  validate_env_schema(x)
+
+  opts <- display_options(x)
+
+  if (!is.null(digits)) {
+    opts$digits <- digits
+  }
+
+  if (!is.null(scientific)) {
+    opts$scientific <- scientific
+  }
+
+  if (!is.null(trim_trailing_zeros)) {
+    opts$trim_trailing_zeros <- trim_trailing_zeros
+  }
+
+  if (!is.null(censor_prefix)) {
+    opts$censor_prefix <- censor_prefix
+  }
+
+  if (!is.null(report_style)) {
+    opts$report_style <- report_style
+  }
+
+  attr(
+    x,
+    "display_options"
+  ) <- opts
+
+  refresh_display_results(x)
+}
+
+#' @keywords internal
+refresh_display_results <- function(x) {
+  validate_env_schema(x)
+
+  display_meta <- .create_display_metadata(
+    df = x,
+    env_mapping = schema_mapping(x),
+    display_options = display_options(x)
+  )
+
+  x$.display_threshold <-
+    display_meta$.display_threshold
+
+  x$.display_threshold_type <-
+    display_meta$.display_threshold_type
+
+  x$.display_result <-
+    display_meta$.display_result
+
+  restore_env_schema(
+    x,
+    x,
+    validate = FALSE
   )
 }
 
@@ -1128,6 +1421,30 @@ measurement_metadata <- function(x) {
   }
 
   meta
+}
+
+#' Return display formatting options
+#'
+#' Returns display and reporting formatting settings attached
+#' to an env_schema object.
+#'
+#' @param x An env_schema object.
+#'
+#' @returns Named list.
+#'
+#' @export
+display_options <- function(x) {
+  if (!inherits(x, "env_schema")) {
+    rlang::abort(
+      "Object must inherit from 'env_schema'."
+    )
+  }
+
+  attr(
+    x,
+    "display_options",
+    exact = TRUE
+  )
 }
 
 #' Return schema column mappings
@@ -1531,6 +1848,33 @@ short_analyte_label <- function(x) {
   UseMethod("short_analyte_label")
 }
 
+#' Return display-ready analytical results
+#'
+#' @param x Object.
+#'
+#' @export
+display_result <- function(x) {
+  UseMethod("display_result")
+}
+
+#' Return display-ready analytical threshold
+#'
+#' @param x Object.
+#'
+#' @export
+display_threshold <- function(x) {
+  UseMethod("display_threshold")
+}
+
+#' Return display-ready analytical threshold type
+#'
+#' @param x Object.
+#'
+#' @export
+display_threshold_type <- function(x) {
+  UseMethod("display_threshold_type")
+}
+
 # -------------------------------------------------------------------------
 # env_schema source-column methods
 # -------------------------------------------------------------------------
@@ -1646,6 +1990,21 @@ method.env_schema <- function(x) {
     x,
     method_var(x)
   )
+}
+
+#' @export
+display_result.env_schema <- function(x) {
+  x$.display_result
+}
+
+#' @export
+display_threshold.env_schema <- function(x) {
+  x$.display_threshold
+}
+
+#' @export
+display_threshold_type.env_schema <- function(x) {
+  x$.display_threshold_type
 }
 
 # -------------------------------------------------------------------------
@@ -1895,6 +2254,30 @@ short_analyte_label.default <- function(x) {
 }
 
 #' @export
+display_result.default <- function(x) {
+  .accessor_not_implemented(
+    "display_result",
+    x
+  )
+}
+
+#' @export
+display_threshold.default <- function(x) {
+  .accessor_not_implemented(
+    "display_threshold",
+    x
+  )
+}
+
+#' @export
+display_threshold_type.default <- function(x) {
+  .accessor_not_implemented(
+    "display_threshold_type",
+    x
+  )
+}
+
+#' @export
 group_by.env_schema <- function(
   .data,
   ...,
@@ -2091,8 +2474,8 @@ print.env_schema <- function(x, ...) {
   reporting_flag = NULL,
   reporting_limit = NULL,
   detection_limit = NULL,
-  detection_threshold = NULL,
-  detection_threshold_type = NULL,
+  quantitation_limit = NULL,
+  achieved_mdc = NULL,
   measurement_uncertainty = NULL,
   method = NULL,
   analysis_date = NULL,
@@ -2118,8 +2501,8 @@ print.env_schema <- function(x, ...) {
     reporting_flag = rlang::enquo(reporting_flag),
     reporting_limit = rlang::enquo(reporting_limit),
     detection_limit = rlang::enquo(detection_limit),
-    detection_threshold = rlang::enquo(detection_threshold),
-    detection_threshold_type = rlang::enquo(detection_threshold_type),
+    quantitation_limit = rlang::enquo(quantitation_limit),
+    achieved_mdc = rlang::enquo(achieved_mdc),
     measurement_uncertainty = rlang::enquo(measurement_uncertainty),
     method = rlang::enquo(method),
     analysis_date = rlang::enquo(analysis_date),

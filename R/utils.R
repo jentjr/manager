@@ -12,131 +12,6 @@
   result
 }
 
-#' Function to return a sorted list of all the location IDs
-#'
-#' @param df data frame of groundwater data in the format with column names
-#' @param location_id column for the sample location id
-#'
-#' @export
-
-sample_locations <- function(df, location_id = "location_id") {
-  sort(unique(as.character(df[[location_id]])))
-}
-
-#' Function to return a sorted list of all the constituents
-#'
-#' @param df data frame of groundwater data in the format with column names
-#' @param param_name the column for the constituents
-#'
-#' @export
-
-constituents <- function(df, param_name = "param_name") {
-  sort(unique(as.character(df[[param_name]])))
-}
-
-#' Calculate the percentage of left censored data
-#'
-#' @param df df data frame of groundwater monitoring data in long format
-#' @param lt_measure lt_measure column of less than detection limit symbol.
-#'
-#' @export
-
-percent_lt <- function(df, lt_measure) {
-  df %>%
-    dplyr::mutate(
-      percent_lt = sum({{ lt_measure }} == "<", na.rm = TRUE) /
-        dplyr::n() *
-        100
-    )
-}
-
-#' Calculate the percentage of right censored data
-#'
-#' @param df df data frame of groundwater monitoring data in long format
-#' @param lt_measure lt_measure column of greater than detection limit symbol.
-#' @param percent_gt percent_gt new column name
-#'
-#' @export
-
-percent_gt <- function(
-  df,
-  lt_measure = "lt_measure",
-  percent_gt = "percent_gt"
-) {
-  mutate_call <- lazyeval::interp(
-    ~ sum(x == ">") / n() * 100,
-    x = as.name(lt_measure)
-  )
-
-  df %>%
-    mutate_(.dots = setNames(list(mutate_call), percent_gt))
-}
-
-#' Function to remove duplicate samples
-#' Example: If you have wells named MW-1 and another named MW-1 Duplicate
-#' this function will remove the MW-1 Duplicate sample
-#'
-#' @param df groundwater data frame
-#' @export
-
-remove_dup <- function(df) {
-  dplyr::filter(
-    df,
-    !stringr::str_detect(location_id, "\\bDup$")
-  )
-}
-
-#' Function to include duplicate samples
-#'
-#' @param df groundwater data frame
-#' @param wells list of wells to included duplicates for
-#'
-#' @export
-
-include_dup <- function(df, wells) {
-  dup_pattern <- paste0(
-    "^(",
-    paste(wells, collapse = "|"),
-    ")\\s*Dup$"
-  )
-
-  dups <- unique(
-    df$location_id[
-      stringr::str_detect(df$location_id, dup_pattern)
-    ]
-  )
-}
-
-#' Function to replace missing values
-#'
-#' @param df groundwater data frame
-#' @param analysis_result column containing the analysis results
-#' @param value value to replace missing value with
-#'
-#' @export
-
-replace_missing <- function(df, analysis_result, value) {
-  df %>%
-    mutate(
-      {{ analysis_result }} := dplyr::na_if({{ analysis_result }}, value)
-    )
-}
-
-
-#' Function to join columns of lt_measure and sample results
-#'
-#' @param df groundwater data frame
-#' @param lt_measure column name for non-detect symbol
-#' @param analysis_result column name for analysis results
-#'
-#' @export
-
-join_lt <- function(df, lt_measure, analysis_result) {
-  df %>%
-    tidyr::replace_na(list(lt_measure = "")) %>%
-    tidyr::unite(analysis_result, lt_measure, analysis_result, sep = " ")
-}
-
 #' Return analyte display labels
 #'
 #' @param df env_schema object.
@@ -161,55 +36,164 @@ name_units <- function(
   df$.analyte_label
 }
 
-#' Helper function to cast data frame to wide format
+#' Convert Long Data to Wide Format
 #'
-#' @param df data frame in long format
-#' @param lab_id logical to include lab_id. Default is FALSE.
-#' @param join_lt logical to join the non-detect colum with analysis result.
+#' Converts environmental monitoring data from long format to
+#' wide format using analytes as columns.
+#'
+#' `to_wide()` is an S3 generic supporting both `data.frame`
+#' and `env_schema` objects.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional information.
+
+#' @returns
+#' A data frame in wide format.
+#'
+#' @details
+#' When `result = "display"`, analyte columns contain
+#' display-ready character values derived from
+#' `.display_result`, making them suitable for reporting
+#' tables and exports.
+#'
+#' When `result = "analysis"`, analyte columns contain
+#' standardized numeric values from `.analysis_result`
+#' suitable for statistical and geochemical calculations.
 #'
 #' @export
-#'
-#' @examples
-#' data(gw_data)
-#'
-#' gw_data %>%
-#'   filter(param_name %in% c("Arsenic, dissolved", "Boron, dissolved")) %>%
-#'   to_wide()
+to_wide <- function(df, ...) {
+  UseMethod("to_wide")
+}
 
-to_wide <- function(df, lab_id = FALSE, join_lt = TRUE) {
-  if (isTRUE(join_lt)) {
-    if (isTRUE(lab_id)) {
-      df <- df %>%
-        join_lt() %>%
-        name_units() %>%
-        dplyr::group_by(location_id, lab_id, sample_date, param_name) %>%
-        dplyr::summarise(analysis_result) %>%
-        tidyr::spread(param_name, analysis_result)
-    } else {
-      df <- df %>%
-        join_lt() %>%
-        name_units() %>%
-        dplyr::group_by(location_id, sample_date, param_name) %>%
-        dplyr::summarise(analysis_result) %>%
-        tidyr::spread(param_name, analysis_result)
-    }
-  } else {
-    if (isTRUE(lab_id)) {
-      df <- df %>%
-        name_units() %>%
-        dplyr::group_by(location_id, lab_id, sample_date, param_name) %>%
-        dplyr::summarise(analysis_result) %>%
-        tidyr::spread(param_name, analysis_result)
-    } else {
-      df <- df %>%
-        name_units() %>%
-        dplyr::group_by(location_id, sample_date, param_name) %>%
-        dplyr::summarise(analysis_result) %>%
-        tidyr::spread(param_name, analysis_result)
-    }
+#' @rdname to_wide
+#'
+#' @param location_id Location column name.
+#' @param sample_date Sample date column name.
+#' @param param_name Analyte column name.
+#' @param analysis_result Analytical result column name.
+#' @param lab_id Optional laboratory identifier column.
+#'
+#' @export
+to_wide.data.frame <- function(
+  df,
+  location_id = "location_id",
+  sample_date = "sample_date",
+  param_name = "param_name",
+  analysis_result = "analysis_result",
+  lab_id = NULL
+) {
+  id_cols <- c(
+    location_id,
+    sample_date
+  )
+
+  if (!is.null(lab_id)) {
+    id_cols <- c(
+      id_cols,
+      lab_id
+    )
   }
 
-  df
+  .to_wide_core(
+    df = df,
+    id_cols = id_cols,
+    names_from = param_name,
+    values_from = analysis_result
+  )
+}
+
+#' @rdname to_wide
+#'
+#' @param label Use analyte display labels as column names.
+#' @param result Result representation to use.
+#' Defaults to `"analysis"`.
+#'
+#' \describe{
+#'   \item{"analysis"}{
+#'     Uses standardized analytical values stored in
+#'     `.analysis_result`.
+#'   }
+#'
+#'   \item{"display"}{
+#'     Uses display-ready reporting values stored in
+#'     `.display_result`.
+#'   }
+#' }
+#'
+#' @section env_schema Method:
+#'
+#' For `env_schema` objects, location, date, analyte,
+#' and result fields are obtained automatically from
+#' schema mappings.
+#'
+#' @export
+to_wide.env_schema <- function(
+  df,
+  label = TRUE,
+  result = c(
+    "analysis",
+    "display"
+  )
+) {
+  validate_env_schema(df)
+
+  result <- rlang::arg_match(
+    result
+  )
+
+  names_from <- if (
+    label &&
+      ".analyte_label" %in% names(df)
+  ) {
+    ".analyte_label"
+  } else {
+    analyte_var(df)
+  }
+
+  values_from <- switch(
+    result,
+
+    analysis = ".analysis_result",
+
+    display = ".display_result"
+  )
+
+  .to_wide_core(
+    df = df,
+    id_cols = c(
+      location_var(df),
+      date_var(df)
+    ),
+    names_from = names_from,
+    values_from = values_from
+  )
+}
+
+#' @keywords internal
+.to_wide_core <- function(
+  df,
+  id_cols,
+  names_from,
+  values_from
+) {
+  df |>
+    dplyr::group_by(
+      dplyr::across(
+        dplyr::all_of(
+          c(id_cols, names_from)
+        )
+      )
+    ) |>
+    dplyr::summarise(
+      value = dplyr::first(
+        .data[[values_from]]
+      ),
+      .groups = "drop"
+    ) |>
+    tidyr::pivot_wider(
+      names_from = dplyr::all_of(names_from),
+      values_from = value
+    )
 }
 
 #' function to convert data to sf object
@@ -300,45 +284,6 @@ simplify_param_name <- function(df, param_name) {
 
     TRUE ~ NA_character_
   )
-}
-
-#' Validate choices
-#'
-#' @param x Character vector.
-#' @param choices Character vector
-#' @param arg Character vector
-#'
-#' @keywords internal
-.validate_choice <- function(x, choices, arg) {
-  if (!x %in% choices) {
-    stop(
-      sprintf(
-        "`%s` must be one of: %s",
-        arg,
-        paste(choices, collapse = ", ")
-      ),
-      call. = FALSE
-    )
-  }
-
-  invisible(x)
-}
-
-#' @keywords internal
-.check_flag <- function(x, name) {
-  if (
-    !is.logical(x) ||
-      length(x) != 1 ||
-      is.na(x)
-  ) {
-    stop(
-      name,
-      " must be TRUE or FALSE.",
-      call. = FALSE
-    )
-  }
-
-  invisible(TRUE)
 }
 
 #' Return the first sample date

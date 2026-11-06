@@ -11,6 +11,7 @@ new_env_schema(
   threshold_metadata = character(),
   schema_metadata = character(),
   analyte_metadata = NULL,
+  display_options = default_display_options(),
   schema_version = "0.5.0",
   schema_created = Sys.time(),
   analyte_lookup = NULL,

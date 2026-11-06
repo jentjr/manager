@@ -2,7 +2,8 @@
 % Please edit documentation in R/validation.R
 \name{validate_env_schema_structure}
 \alias{validate_env_schema_structure}
-\title{Validate minimum env_schema structure}
+\title{Minimal structural validation used during restoration.
+Does not validate analytical content.}
 \usage{
 validate_env_schema_structure(x)
 }

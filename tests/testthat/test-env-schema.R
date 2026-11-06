@@ -532,3 +532,355 @@ test_that("as_env_schema preserves metadata", {
     schema_mapping(x)
   )
 })
+
+
+# -------------------------------------------------------------------------
+# Display metadata
+# -------------------------------------------------------------------------
+
+test_that("display metadata columns are created", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  expect_true(
+    all(
+      c(
+        ".display_result",
+        ".display_threshold",
+        ".display_threshold_type"
+      ) %in%
+        names(x)
+    )
+  )
+})
+
+test_that("default display options are attached", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  opts <- display_options(x)
+
+  expect_true(is.list(opts))
+
+  expect_equal(opts$digits, 6)
+  expect_false(opts$scientific)
+  expect_true(opts$trim_trailing_zeros)
+  expect_equal(opts$censor_prefix, "<")
+  expect_equal(opts$report_style, "standard")
+})
+
+test_that("display_options accessor returns stored options", {
+  opts <- list(
+    digits = 3,
+    scientific = TRUE,
+    trim_trailing_zeros = FALSE,
+    censor_prefix = "ND",
+    report_style = "verbose"
+  )
+
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result,
+      display_options = opts
+    )
+  )
+
+  expect_identical(
+    display_options(x),
+    opts
+  )
+})
+
+test_that("invalid display options fail validation", {
+  expect_error(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result,
+      display_options = list()
+    )
+  )
+
+  expect_error(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result,
+      display_options = modifyList(
+        default_display_options(),
+        list(digits = 0)
+      )
+    ),
+    "positive integer"
+  )
+
+  expect_error(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result,
+      display_options = modifyList(
+        default_display_options(),
+        list(report_style = "invalid")
+      )
+    ),
+    "standard.*verbose"
+  )
+})
+
+test_that("set_display_options updates schema display options", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  y <- set_display_options(
+    x,
+    digits = 3,
+    report_style = "verbose"
+  )
+
+  expect_equal(
+    display_options(y)$digits,
+    3
+  )
+
+  expect_equal(
+    display_options(y)$report_style,
+    "verbose"
+  )
+
+  expect_s3_class(
+    y,
+    "env_schema"
+  )
+
+  expect_no_error(
+    validate_env_schema(y)
+  )
+})
+
+test_that("display options survive dplyr operations", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  x <- set_display_options(
+    x,
+    digits = 3,
+    report_style = "verbose"
+  )
+
+  y <- dplyr::filter(
+    x,
+    !is.na(.analysis_result)
+  )
+
+  expect_identical(
+    display_options(y),
+    display_options(x)
+  )
+})
+
+test_that("display threshold type values are valid", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  valid <- c(
+    "reporting_limit",
+    "quantitation_limit",
+    "detection_limit",
+    "analysis_result"
+  )
+
+  expect_true(
+    all(
+      stats::na.omit(
+        x$.display_threshold_type
+      ) %in%
+        valid
+    )
+  )
+})
+
+test_that("corrupt display options fail schema validation", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  attr(
+    x,
+    "display_options"
+  ) <- list()
+
+  expect_error(
+    validate_env_schema(x),
+    "Missing display options"
+  )
+})
+
+test_that("corrupt display threshold type fails validation", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  x$.display_threshold_type <- "bad_type"
+
+  expect_error(
+    validate_env_schema(x),
+    "Invalid display threshold type"
+  )
+})
+
+test_that("refresh_display_results regenerates display output", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  x$.display_result <- NA_character_
+
+  expect_true(
+    all(is.na(x$.display_result))
+  )
+
+  x <- refresh_display_results(x)
+
+  expect_false(
+    all(is.na(x$.display_result))
+  )
+})
+
+test_that("reporting limit is preferred for display threshold", {
+  dat <- tibble::tibble(
+    location_id = "MW-1",
+    sample_date = as.Date("2024-01-01"),
+    param_name = "Arsenic",
+    analysis_result = 0.001,
+    reporting_limit = 0.005,
+    lt_measure = "U"
+  )
+
+  x <- env_schema(
+    dat,
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    reporting_limit = reporting_limit,
+    reporting_flag = lt_measure
+  )
+
+  expect_equal(
+    x$.display_threshold,
+    0.005
+  )
+
+  expect_equal(
+    x$.display_threshold_type,
+    "reporting_limit"
+  )
+
+  expect_equal(
+    x$.display_result,
+    "<0.005"
+  )
+})
+
+test_that("to_wide returns analysis results by default", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result
+    )
+  )
+
+  expect_no_error(
+    to_wide(x)
+  )
+})
+
+test_that("to_wide supports display results", {
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      date = sample_date,
+      analyte = param_name,
+      result = analysis_result,
+      reporting_flag = lt_measure
+    )
+  )
+
+  y <- to_wide(
+    x,
+    result = "display"
+  )
+
+  expect_s3_class(
+    y,
+    "tbl_df"
+  )
+})

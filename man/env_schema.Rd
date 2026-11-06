@@ -24,6 +24,7 @@ env_schema(
   lab_name = NULL,
   metadata = NULL,
   qualifier_table = NULL,
+  display_options = default_display_options(),
   analyte_lookup = analyte_tbl
 )
 }
@@ -79,9 +80,35 @@ A tibble with class `env_schema`.
 The returned object retains all original source columns and stores
 environmental column mappings in object metadata.
 
-Additional manager-generated columns may be added, including
-result-classification fields, normalized analyte metadata,
-analytical labels, uncertainty metrics, and reporting attributes.
+Additional manager-generated columns may include:
+
+\describe{
+  \item{.analysis_result}{
+  Standardized analytical value used for calculations.
+  }
+
+  \item{.censored}{
+  Logical censoring indicator.
+  }
+
+  \item{.display_threshold}{
+  Threshold used when constructing display-ready censored values.
+  Reporting limits are preferred, followed by quantitation limits,
+  detection limits, and finally the analytical result itself.
+  }
+
+  \item{.display_threshold_type}{
+  Source of the display threshold. One of
+  `"reporting_limit"`,
+  `"quantitation_limit"`,
+  `"detection_limit"`, or
+  `"analysis_result"`.
+  }
+
+  \item{.display_result}{
+  Display-ready reporting result suitable for tables and exports.
+  }
+}
 }
 \description{
 Creates an `env_schema` object by attaching environmental column

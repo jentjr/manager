@@ -1,3 +1,41 @@
+#' Validate choices
+#'
+#' @param x Character vector.
+#' @param choices Character vector
+#' @param arg Character vector
+#'
+#' @keywords internal
+.validate_choice <- function(x, choices, arg) {
+  if (!x %in% choices) {
+    stop(
+      sprintf(
+        "`%s` must be one of: %s",
+        arg,
+        paste(choices, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
+  invisible(x)
+}
+
+#' @keywords internal
+.check_flag <- function(x, name) {
+  if (
+    !is.logical(x) ||
+      length(x) != 1 ||
+      is.na(x)
+  ) {
+    stop(
+      name,
+      " must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  invisible(TRUE)
+}
+
 #' Validate required columns
 #'
 #' Internal helper used throughout the package to check that
@@ -28,6 +66,96 @@
   }
 }
 
+#' Validate display options
+#'
+#' @keywords internal
+.validate_display_options <- function(x) {
+  if (!is.list(x)) {
+    rlang::abort(
+      "display_options must be a list."
+    )
+  }
+
+  required <- c(
+    "digits",
+    "scientific",
+    "trim_trailing_zeros",
+    "censor_prefix",
+    "report_style"
+  )
+
+  missing <- setdiff(
+    required,
+    names(x)
+  )
+
+  if (length(missing) > 0) {
+    rlang::abort(
+      paste(
+        "Missing display options:",
+        paste(missing, collapse = ", ")
+      )
+    )
+  }
+
+  if (
+    !is.numeric(x$digits) ||
+      length(x$digits) != 1 ||
+      x$digits < 1 ||
+      x$digits != as.integer(x$digits)
+  ) {
+    rlang::abort(
+      "'digits' must be a positive integer."
+    )
+  }
+
+  if (
+    !is.logical(x$scientific) ||
+      length(x$scientific) != 1
+  ) {
+    rlang::abort(
+      "'scientific' must be TRUE or FALSE."
+    )
+  }
+
+  if (
+    !is.logical(x$trim_trailing_zeros) ||
+      length(x$trim_trailing_zeros) != 1
+  ) {
+    rlang::abort(
+      "'trim_trailing_zeros' must be TRUE or FALSE."
+    )
+  }
+
+  if (
+    !is.character(x$censor_prefix) ||
+      length(x$censor_prefix) != 1
+  ) {
+    rlang::abort(
+      "'censor_prefix' must be character."
+    )
+  }
+
+  if (!nzchar(x$censor_prefix)) {
+    rlang::abort(
+      "'censor_prefix' cannot be empty."
+    )
+  }
+
+  if (
+    !is.character(x$report_style) ||
+      length(x$report_style) != 1 ||
+      !x$report_style %in%
+        c("standard", "verbose")
+  ) {
+    rlang::abort(
+      "'report_style' must be 'standard' or 'verbose'."
+    )
+  }
+
+  invisible(TRUE)
+}
+
 #' Required derived env_schema columns
 #'
 #' @keywords internal
@@ -41,7 +169,10 @@
     ".rejected",
     ".usable",
     ".original_lab_result",
-    ".analyte_id"
+    ".analyte_id",
+    ".display_result",
+    ".display_threshold",
+    ".display_threshold_type"
   )
 }
 
@@ -185,6 +316,48 @@ validate_env_schema <- function(x) {
       "'.achieved_mdc' must be numeric."
     )
   }
+  # ------------------------------------------------------------
+  # Display columns
+  # ------------------------------------------------------------
+
+  if (!is.character(x$.display_result)) {
+    rlang::abort(
+      "'.display_result' must be character."
+    )
+  }
+
+  if (!is.character(x$.display_threshold_type)) {
+    rlang::abort(
+      "'.display_threshold_type' must be character."
+    )
+  }
+
+  valid_threshold_types <-
+    unname(.display_threshold_types)
+
+  bad_types <- setdiff(
+    unique(
+      stats::na.omit(
+        x$.display_threshold_type
+      )
+    ),
+    valid_threshold_types
+  )
+
+  if (length(bad_types) > 0) {
+    rlang::abort(
+      paste(
+        "Invalid display threshold type(s):",
+        paste(bad_types, collapse = ", ")
+      )
+    )
+  }
+
+  if (!is.numeric(x$.display_threshold)) {
+    rlang::abort(
+      "'.display_threshold' must be numeric."
+    )
+  }
 
   # ------------------------------------------------------------
   # Result classification columns
@@ -263,6 +436,23 @@ validate_env_schema <- function(x) {
     is.null(
       attr(
         x,
+        "display_options"
+      )
+    )
+  ) {
+    rlang::abort(
+      "Missing display_options attribute."
+    )
+  }
+
+  .validate_display_options(
+    display_options(x)
+  )
+
+  if (
+    is.null(
+      attr(
+        x,
         "env_schema_version"
       )
     )
@@ -275,7 +465,8 @@ validate_env_schema <- function(x) {
   invisible(TRUE)
 }
 
-#' Validate minimum env_schema structure
+#' Minimal structural validation used during restoration.
+#' Does not validate analytical content.
 #'
 #' Used internally by vec_restore() and dplyr reconstruction.
 #'
@@ -318,6 +509,28 @@ validate_env_schema_structure <- function(x) {
       )
     )
   }
+  if (
+    is.null(
+      attr(
+        x,
+        "display_options",
+        exact = TRUE
+      )
+    )
+  ) {
+    rlang::abort(
+      "Missing display_options attribute."
+    )
+  }
+
+  .validate_display_options(
+    attr(
+      x,
+      "display_options",
+      exact = TRUE
+    )
+  )
+
   invisible(TRUE)
 }
 
