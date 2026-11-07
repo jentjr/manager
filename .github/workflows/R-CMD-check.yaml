@@ -47,7 +47,7 @@ jobs:
       - name: Check package
         uses: r-lib/actions/check-r-package@v2
         with:
-          error-on: "never"
+          error-on: "'never'"
 
       - name: Upload check results
         if: failure()
