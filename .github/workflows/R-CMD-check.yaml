@@ -39,7 +39,9 @@ jobs:
       - name: Install package dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr
+          extra-packages: |
+            any::covr
+            any::rcmdcheck
           needs: check
 
       - name: Check package
