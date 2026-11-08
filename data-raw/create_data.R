@@ -1,7 +1,6 @@
 source("data-raw/analyte_tbl.R")
 source("data-raw/analyte_alias_tbl.R")
 source("data-raw/standards_tbl.R")
-source("data-raw/build-lookups.R")
 source("data-raw/data-gw.R")
 
 validate_analyte_tbl(analyte_tbl)
