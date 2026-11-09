@@ -10,6 +10,7 @@
 #' a consistent environmental data model.
 #'
 #' @param df Data frame.
+#' @param site Site identifier column.
 #' @param location Location identifier column.
 #' @param date Sample date column.
 #' @param analyte Analyte column.
@@ -119,6 +120,7 @@
 #' @export
 env_schema <- function(
   df,
+  site = NULL,
   location,
   date,
   analyte,
@@ -176,6 +178,7 @@ env_schema <- function(
   )
 
   column_mapping <- rlang::enquos(
+    .site = site,
     .location = location,
     .date = date,
     .analyte = analyte,
@@ -233,6 +236,7 @@ env_schema <- function(
   )
 
   env_mapping <- list(
+    site = unname(source_cols[".site"]),
     location = unname(source_cols[".location"]),
     date = unname(source_cols[".date"]),
     analyte = unname(source_cols[".analyte"]),
@@ -900,14 +904,26 @@ as_env_schema.default <- function(x, ...) {
 
 #' @export
 tbl_sum.env_schema <- function(x) {
-  c(
+  out <- c(
     "env_schema",
-    Rows = nrow(x),
+    Rows = nrow(x)
+  )
+
+  if (!is.null(site_var(x))) {
+    out <- c(
+      out,
+      Sites = dplyr::n_distinct(site(x))
+    )
+  }
+
+  c(
+    out,
     Locations = dplyr::n_distinct(location(x)),
     Analytes = dplyr::n_distinct(analyte(x)),
     Version = schema_version(x)
   )
 }
+
 
 #' Restore env_schema attributes
 #'
@@ -1530,6 +1546,10 @@ analyte_id_var <- function(x) {
   ".analyte_id"
 }
 
+site_var <- function(x) {
+  get_env_mapping(x)$site
+}
+
 location_var <- function(x) {
   get_env_mapping(x)$location
 }
@@ -1644,6 +1664,15 @@ analysis_analyte <- function(
   )
 ) {
   UseMethod("analysis_analyte")
+}
+
+#' Return site values
+#'
+#' @param x Object.
+#'
+#' @export
+site <- function(x) {
+  UseMethod("site")
 }
 
 #' Return location values
@@ -1897,6 +1926,14 @@ analysis_analyte.env_schema <- function(
 }
 
 #' @export
+site.env_schema <- function(x) {
+  .get_mapped_column(
+    x,
+    site_var(x)
+  )
+}
+
+#' @export
 location.env_schema <- function(x) {
   .get_mapped_column(
     x,
@@ -2138,6 +2175,14 @@ analysis_analyte.default <- function(
 }
 
 #' @export
+site.default <- function(x) {
+  .accessor_not_implemented(
+    "site",
+    x
+  )
+}
+
+#' @export
 location.default <- function(x) {
   .accessor_not_implemented("location", x)
 }
@@ -2350,6 +2395,14 @@ print.env_schema <- function(x, ...) {
     "columns\n"
   )
 
+  if (!is.null(site_var(x))) {
+    cat(
+      "Sites:",
+      dplyr::n_distinct(site(x)),
+      "\n"
+    )
+  }
+
   cat(
     "Locations:",
     dplyr::n_distinct(location(x)),
@@ -2465,6 +2518,7 @@ print.env_schema <- function(x, ...) {
 #' @keywords internal
 .build_env_schema_call <- function(
   data,
+  site = NULL,
   location,
   date,
   analyte,
@@ -2496,6 +2550,7 @@ print.env_schema <- function(x, ...) {
   )
 
   optional_args <- list(
+    site = rlang::enquo(site),
     unit = rlang::enquo(unit),
     sample_id = rlang::enquo(sample_id),
     reporting_flag = rlang::enquo(reporting_flag),

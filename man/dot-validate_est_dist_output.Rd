@@ -2,31 +2,19 @@
 % Please edit documentation in R/validation.R
 \name{.validate_est_dist_output}
 \alias{.validate_est_dist_output}
-\title{Validate est_dist Output}
+\title{Validate estimate_distribution Output}
 \usage{
 .validate_est_dist_output(df)
 }
-\arguments{
-\item{df}{A data frame returned by `est_dist()`.}
-}
-\value{
-Invisibly returns `df`.
-}
 \description{
-Checks that a data frame contains the required structure produced by
-`est_dist()`, including:
+Checks that a data frame contains the required structure produced
+by estimate_distribution(), including:
 }
 \details{
-* a `distribution` column
-* a `data` list-column
-* nested data frames containing `analysis_result`
+* a distribution column
+* an n_used column
+* a data list-column
+* nested data frames containing analysis_result
 * supported distribution values
-
-This validator ensures compatibility with downstream functions such
-as:
-
-* `pred_int()`
-* `tol_int()`
-* control chart calculations
 }
 \keyword{internal}

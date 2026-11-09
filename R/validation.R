@@ -169,7 +169,15 @@
     ".rejected",
     ".usable",
     ".original_lab_result",
-    ".analyte_id",
+    ".analyte_id"
+  )
+}
+
+#' Optional derived env_schema columns
+#'
+#' @keywords internal
+.optional_env_schema_columns <- function() {
+  c(
     ".display_result",
     ".display_threshold",
     ".display_threshold_type"
@@ -316,49 +324,55 @@ validate_env_schema <- function(x) {
       "'.achieved_mdc' must be numeric."
     )
   }
+
   # ------------------------------------------------------------
-  # Display columns
+  # Optional display columns
   # ------------------------------------------------------------
 
-  if (!is.character(x$.display_result)) {
-    rlang::abort(
-      "'.display_result' must be character."
-    )
-  }
-
-  if (!is.character(x$.display_threshold_type)) {
-    rlang::abort(
-      "'.display_threshold_type' must be character."
-    )
-  }
-
-  valid_threshold_types <-
-    unname(.display_threshold_types)
-
-  bad_types <- setdiff(
-    unique(
-      stats::na.omit(
-        x$.display_threshold_type
+  if (".display_result" %in% names(x)) {
+    if (!is.character(x$.display_result)) {
+      rlang::abort(
+        "'.display_result' must be character."
       )
-    ),
-    valid_threshold_types
-  )
+    }
+  }
 
-  if (length(bad_types) > 0) {
-    rlang::abort(
-      paste(
-        "Invalid display threshold type(s):",
-        paste(bad_types, collapse = ", ")
+  if (".display_threshold_type" %in% names(x)) {
+    if (!is.character(x$.display_threshold_type)) {
+      rlang::abort(
+        "'.display_threshold_type' must be character."
       )
+    }
+
+    valid_threshold_types <-
+      unname(.display_threshold_types)
+
+    bad_types <- setdiff(
+      unique(
+        stats::na.omit(
+          x$.display_threshold_type
+        )
+      ),
+      valid_threshold_types
     )
+
+    if (length(bad_types) > 0) {
+      rlang::abort(
+        paste(
+          "Invalid display threshold type(s):",
+          paste(bad_types, collapse = ", ")
+        )
+      )
+    }
   }
 
-  if (!is.numeric(x$.display_threshold)) {
-    rlang::abort(
-      "'.display_threshold' must be numeric."
-    )
+  if (".display_threshold" %in% names(x)) {
+    if (!is.numeric(x$.display_threshold)) {
+      rlang::abort(
+        "'.display_threshold' must be numeric."
+      )
+    }
   }
-
   # ------------------------------------------------------------
   # Result classification columns
   # ------------------------------------------------------------
@@ -1414,33 +1428,22 @@ validate_standards_schema <- function(x) {
   invisible(TRUE)
 }
 
-#' Validate est_dist Output
+#' Validate estimate_distribution Output
 #'
-#' Checks that a data frame contains the required structure produced by
-#' `est_dist()`, including:
+#' Checks that a data frame contains the required structure produced
+#' by estimate_distribution(), including:
 #'
-#' * a `distribution` column
-#' * a `data` list-column
-#' * nested data frames containing `analysis_result`
+#' * a distribution column
+#' * an n_used column
+#' * a data list-column
+#' * nested data frames containing analysis_result
 #' * supported distribution values
 #'
-#' This validator ensures compatibility with downstream functions such
-#' as:
-#'
-#' * `pred_int()`
-#' * `tol_int()`
-#' * control chart calculations
-#'
-#' @param df A data frame returned by `est_dist()`.
-#'
-#' @return Invisibly returns `df`.
-#'
 #' @keywords internal
-
 .validate_est_dist_output <- function(df) {
   required_cols <- c(
     "distribution",
-    "n",
+    "n_used",
     "data"
   )
 
@@ -1452,7 +1455,7 @@ validate_standards_schema <- function(x) {
   if (length(missing_cols) > 0) {
     cli::cli_abort(
       c(
-        "Input must be the output of {.fn est_dist}.",
+        "Input must be the output of {.fn estimate_distribution}.",
         "x" = "Missing column(s): {.val {missing_cols}}."
       )
     )
@@ -1461,7 +1464,7 @@ validate_standards_schema <- function(x) {
   if (!inherits(df$data, "list")) {
     cli::cli_abort(
       c(
-        "Input must be the output of {.fn est_dist}.",
+        "Input must be the output of {.fn estimate_distribution}.",
         "x" = "Column {.field data} must be a list-column."
       )
     )
@@ -1483,17 +1486,14 @@ validate_standards_schema <- function(x) {
 
   has_analysis_result <- purrr::map_lgl(
     df$data,
-    ~ "analysis_result" %in% names(.x)
+    ~ ".analysis_result" %in% names(.x)
   )
 
   if (!all(has_analysis_result)) {
     cli::cli_abort(
       c(
         "Invalid nested data detected.",
-        "x" = paste(
-          "Each nested data frame must contain",
-          "{.field analysis_result}."
-        )
+        "x" = "Each nested data frame must contain {.field .analysis_result}."
       )
     )
   }
@@ -1503,7 +1503,8 @@ validate_standards_schema <- function(x) {
     "Lognormal",
     "Nonparametric",
     "insufficient_data",
-    "estimation_failed"
+    "estimation_failed",
+    "Descriptive Only"
   )
 
   invalid_distributions <- setdiff(

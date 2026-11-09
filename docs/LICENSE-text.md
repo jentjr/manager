@@ -1,0 +1,4 @@
+# License
+
+    YEAR: 2014 -- 2017
+    COPYRIGHT HOLDER: Justin Jent

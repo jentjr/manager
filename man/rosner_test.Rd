@@ -47,6 +47,15 @@ Rosner result object should be retained.}
 }
 \value{
 A tibble containing one row per outlier evaluation group.
+
+A tibble containing one row per outlier evaluation group.
+
+The returned table includes:
+\describe{
+  \item{Value}{Observation evaluated by Rosner's procedure.}
+  \item{Outlier}{Logical indicator identifying observations
+  classified as outliers.}
+}
 }
 \description{
 Performs Rosner's test for one or more potential outliers in
@@ -89,16 +98,6 @@ input is not grouped, tests are performed by:
   \item location
   \item analyte
   \item analysis unit
-}
-
-#' @returns
-A tibble containing one row per outlier evaluation group.
-
-The returned table includes:
-\describe{
-  \item{Value}{Observation evaluated by Rosner's procedure.}
-  \item{Outlier}{Logical indicator identifying observations
-  classified as outliers.}
 }
 }
 

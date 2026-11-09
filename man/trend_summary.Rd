@@ -15,14 +15,14 @@ trend_summary(df, ...)
   sample_date = "sample_date",
   analysis_result = "analysis_result",
   method = "mann_kendall",
-  censored_method = "cenken",
+  censored_method = "auto",
   conf.level = 0.95
 )
 
 \method{trend_summary}{env_schema}(
   df,
   method = "mann_kendall",
-  censored_method = "cenken",
+  censored_method = "auto",
   conf.level = 0.95
 )
 }

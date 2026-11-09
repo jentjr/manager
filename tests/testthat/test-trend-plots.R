@@ -19,6 +19,36 @@ make_plot_trend_data <- function() {
   )
 }
 
+make_censored_trend <- function() {
+  x <- tibble::tibble(
+    location = "MW-1",
+    analyte = "Arsenic",
+    sample_date = seq.Date(
+      as.Date("2020-01-01"),
+      by = "month",
+      length.out = 24
+    ),
+    result = c(
+      rep(1, 8),
+      seq(2, 17)
+    ),
+    reporting_limit = 2,
+    censored = c(
+      rep(TRUE, 8),
+      rep(FALSE, 16)
+    )
+  )
+
+  env_schema(
+    x,
+    location = location,
+    date = sample_date,
+    analyte = analyte,
+    result = result,
+    reporting_limit = reporting_limit,
+  )
+}
+
 test_that("add_trend returns unchanged plot when trend is none", {
   x <- make_plot_trend_data()
 
@@ -139,13 +169,21 @@ test_that("full labels add additional layer", {
 test_that("cenken plotting succeeds", {
   x <- make_censored_trend()
 
-  expect_silent(
-    manager:::.add_trend(
-      p = ggplot2::ggplot(),
-      df = x,
-      trend = "mann_kendall",
-      censored_method = "cenken"
-    )
+  p <- manager:::.add_trend(
+    p = ggplot2::ggplot(),
+    df = x,
+    trend = "mann_kendall",
+    censored_method = "cenken"
+  )
+
+  expect_s3_class(
+    p,
+    "ggplot"
+  )
+
+  expect_gt(
+    length(p$layers),
+    0
   )
 })
 

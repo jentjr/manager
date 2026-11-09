@@ -1572,6 +1572,15 @@ stiff_data.env_schema <- function(
 #' A data frame containing Piper plotting coordinates and optional
 #' scaling variables.
 #'
+#'
+#' @details
+#' Requested analytes are resolved according to the selected
+#' analyte-matching strategy during chemistry preparation.
+#' Geochemical component aggregation and Piper-coordinate
+#' calculations are subsequently performed using canonical
+#' analyte identifiers (`analyte_id`) to ensure consistent
+#' behavior across matching modes.
+#'
 #' @noRd
 .transform_piper_data <- function(
   df,
@@ -1591,50 +1600,153 @@ stiff_data.env_schema <- function(
   validate_env_schema(df)
 
   location_col <- location_var(df)
-
   date_col <- date_var(df)
 
   analyte_matching <- rlang::arg_match(
     analyte_matching
   )
 
+  # ---------------------------------------------------
+  # Resolve requested analytes
+  # ---------------------------------------------------
+
+  x_cation_resolved <- .resolve_geochemical_analytes(
+    x_cation,
+    analyte_matching
+  )
+
+  y_cation_resolved <- .resolve_geochemical_analytes(
+    y_cation,
+    analyte_matching
+  )
+
+  z_cation_resolved <- .resolve_geochemical_analytes(
+    z_cation,
+    analyte_matching
+  )
+
+  x_anion_resolved <- .resolve_geochemical_analytes(
+    x_anion,
+    analyte_matching
+  )
+
+  y_anion_resolved <- .resolve_geochemical_analytes(
+    y_anion,
+    analyte_matching
+  )
+
+  z_anion_resolved <- .resolve_geochemical_analytes(
+    z_anion,
+    analyte_matching
+  )
+
+  requested_analytes <- unique(c(
+    x_cation_resolved,
+    y_cation_resolved,
+    z_cation_resolved,
+    x_anion_resolved,
+    y_anion_resolved,
+    z_anion_resolved
+  ))
+
+  # ---------------------------------------------------
+  # Build chemistry data
+  # ---------------------------------------------------
+
   chemistry_df <- .prepare_major_ion_chemistry(
     df = df,
+    analytes = requested_analytes,
     analyte_matching = analyte_matching
-  ) |>
-    .create_geochemical_components(
-      list(
-        piper_x_cation = .resolve_geochemical_analytes(
-          x_cation,
-          analyte_matching
-        ),
+  )
 
-        piper_y_cation = .resolve_geochemical_analytes(
-          y_cation,
-          analyte_matching
-        ),
+  analyte_col <- analyte_var(
+    chemistry_df
+  )
 
-        piper_z_cation = .resolve_geochemical_analytes(
-          z_cation,
-          analyte_matching
-        ),
+  analyte_id_col <- analyte_id_var(
+    chemistry_df
+  )
 
-        piper_x_anion = .resolve_geochemical_analytes(
-          x_anion,
-          analyte_matching
-        ),
+  # ---------------------------------------------------
+  # Resolve plotting components to analyte IDs
+  # ---------------------------------------------------
+  #
+  # Geochemical preprocessing uses analyte matching to
+  # identify and retain the requested analytical results.
+  #
+  # Subsequent Piper calculations operate on canonical
+  # analyte identifiers rather than matched analyte names.
+  #
+  # This separation is important because analyte matching
+  # may resolve user-supplied analytes to names such as:
+  #
+  #   calcium::dissolved
+  #   chloride::total
+  #
+  # whereas geochemical component aggregation operates on
+  # analyte_id values such as:
+  #
+  #   calcium
+  #   chloride
+  #   bicarbonate
+  #
+  # Converting resolved analytes to analyte_id values
+  # ensures that Piper calculations remain consistent
+  # across exact, strict, and normalized matching modes
+  # and prevents component aggregation failures caused by
+  # mismatched analyte namespaces.
 
-        piper_y_anion = .resolve_geochemical_analytes(
-          y_anion,
-          analyte_matching
-        ),
+  analyte_ids <- chemistry_df |>
+    dplyr::distinct(
+      .data[[analyte_col]],
+      .data[[analyte_id_col]]
+    )
 
-        piper_z_anion = .resolve_geochemical_analytes(
-          z_anion,
-          analyte_matching
-        )
+  # Return unique analyte_id values corresponding to the
+  # resolved analytes retained in the chemistry data set.
+  component_ids <- function(analytes) {
+    analyte_ids |>
+      dplyr::filter(
+        .data[[analyte_col]] %in% analytes
+      ) |>
+      dplyr::pull(
+        .data[[analyte_id_col]]
+      ) |>
+      unique()
+  }
+
+  chemistry_df <- .create_geochemical_components(
+    chemistry_df,
+    list(
+      piper_x_cation = component_ids(
+        x_cation_resolved
+      ),
+
+      piper_y_cation = component_ids(
+        y_cation_resolved
+      ),
+
+      piper_z_cation = component_ids(
+        z_cation_resolved
+      ),
+
+      piper_x_anion = component_ids(
+        x_anion_resolved
+      ),
+
+      piper_y_anion = component_ids(
+        y_anion_resolved
+      ),
+
+      piper_z_anion = component_ids(
+        z_anion_resolved
       )
     )
+  )
+
+  # ---------------------------------------------------
+  # Optional scaling analyte
+  # ---------------------------------------------------
 
   scale_df <- NULL
   scale_col <- NULL
@@ -1653,7 +1765,7 @@ stiff_data.env_schema <- function(
   }
 
   # ---------------------------------------------------
-  # CATION TRIANGLE
+  # Cation triangle
   # ---------------------------------------------------
 
   cations <- .calculate_cation_triangle(
@@ -1663,7 +1775,7 @@ stiff_data.env_schema <- function(
   )
 
   # ---------------------------------------------------
-  # ANION TRIANGLE
+  # Anion triangle
   # ---------------------------------------------------
 
   anions <- .calculate_anion_triangle(
@@ -1673,7 +1785,7 @@ stiff_data.env_schema <- function(
   )
 
   # ---------------------------------------------------
-  # DIAMOND
+  # Diamond
   # ---------------------------------------------------
 
   slope <- sqrt(3)
@@ -1684,12 +1796,10 @@ stiff_data.env_schema <- function(
   b2 <- anions$anion_y +
     slope * anions$anion_x
 
-  diamond_x <-
-    (b2 - b1) /
+  diamond_x <- (b2 - b1) /
     (2 * slope)
 
-  diamond_y <-
-    slope * diamond_x + b1
+  diamond_y <- slope * diamond_x + b1
 
   diamond <- tibble::tibble(
     diamond_x = diamond_x,
@@ -1706,7 +1816,9 @@ stiff_data.env_schema <- function(
   if (!is.null(scale_df)) {
     scale_values <- scale_df |>
       dplyr::mutate(
-        .analysis_result = analysis_result(scale_df)
+        .analysis_result = analysis_result(
+          scale_df
+        )
       ) |>
       dplyr::select(
         dplyr::all_of(

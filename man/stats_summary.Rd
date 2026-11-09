@@ -44,6 +44,9 @@ A tibble containing one row per summary group.
 The returned table includes:
 \describe{
   \item{n}{Number of records in the group, including records with missing result values.}
+  \item{n_used}{ Number of non-missing analytical results used in statistical
+  evaluations and decision selection.}
+  \item{n_detect}{Number of non-censored analytical results.}
   \item{percent_censored}{Percentage of records in the group classified as censored.}
   \item{mean}{Arithmetic mean concentration.}
   \item{median}{Median concentration.}
@@ -56,6 +59,34 @@ The returned table includes:
   \item{75\%}{75th percentile.}
   \item{IQR}{Interquartile range.}
   \item{mad}{Median absolute deviation.}
+  \item{censoring_class}{
+        EPA Unified Guidance style censoring classification:
+       low_censoring, moderate_censoring, high_censoring, or extreme_censoring.
+}
+   \item{distribution_method}{
+         Recommended distributional approach based on the degree of censoring.
+}
+    \item{trend_method}{
+         Recommended trend method.
+}
+    \item{trend_guidance}{
+         Recommended interpretation of trend results.
+           "formal_trend_test" indicates trend inference is generally
+            supported. "screening_only" indicates trend results should
+            be considered exploratory because of extensive censoring.
+}
+     \item{censored_method}{
+         Recommended censored-data handling method for trend analyses.
+}
+     \item{decision_basis}{
+         Basis for the statistical recommendation.
+           Examples include:
+             fewer_than_4_observations,
+             low_censoring,
+             moderate_censoring,
+             high_censoring,
+             and extreme_censoring.
+}
 }
 }
 \description{

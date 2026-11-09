@@ -1,3 +1,782 @@
+#' Statistical Decision Guidance
+#'
+#' Selects recommended statistical methods based on sample size and
+#' the degree of censoring.
+#'
+#' This function implements a rule-based statistical decision framework
+#' for environmental monitoring data. Recommendations are based on the
+#' percentage of censored observations and the number of observations
+#' available for evaluation.
+#'
+#' Returned guidance can be used to select:
+#'
+#' \itemize{
+#'   \item distribution estimation methods
+#'   \item trend analysis approaches
+#'   \item censored-data handling methods
+#'   \item interval estimation settings
+#' }
+#'
+#' The default profile follows EPA-style guidance in which
+#' parametric methods are preferred for low censoring, regression-on-order
+#' statistics (ROS) is preferred for moderate censoring, and
+#' nonparametric methods are preferred when censoring becomes extensive.
+#'
+#' @param percent_censored Numeric percentage of censored observations.
+#' @param n_used Number of non-missing observations available for
+#'   statistical evaluation.
+#' @param n_detect Number of detected (non-censored) observations.
+#' @param profile A guidance profile created by
+#'   [guidance_profile()].
+#'
+#' @returns
+#' A tibble with class `"statistical_decision"`.
+#'
+#' The returned object contains:
+#'
+#' \describe{
+#'   \item{n_used}{
+#'     Number of analytical results used in evaluation.
+#'   }
+#'
+#'   \item{n_detect}{
+#'     Number of uncensored observations.
+#'   }
+#'
+#'   \item{percent_censored}{
+#'     Percentage of observations classified as censored.
+#'   }
+#'
+#'   \item{censoring_class}{
+#'     Censoring category:
+#'     `"low_censoring"`,
+#'     `"moderate_censoring"`,
+#'     `"high_censoring"`,
+#'     or `"extreme_censoring"`.
+#'   }
+#'
+#'   \item{distribution_method}{
+#'     Recommended distributional analysis approach.
+#'   }
+#'
+#'   \item{trend_method}{
+#'     Recommended trend evaluation method.
+#'   }
+#'
+#'   \item{trend_guidance}{
+#'     Recommended interpretation of trend results.
+#'   }
+#'
+#'   \item{censored_method}{
+#'     Recommended censored-data treatment method for trend analyses.
+#'   }
+#'
+#'   \item{distribution_config}{
+#'     Configuration list suitable for
+#'     [estimate_distribution()].
+#'   }
+#'
+#'   \item{interval_config}{
+#'     Configuration list suitable for interval estimation
+#'     functions.
+#'   }
+#'
+#'   \item{decision_basis}{
+#'     Primary basis for the recommendation.
+#'   }
+#' }
+#'
+#' @details
+#' Distribution recommendations are assigned as follows:
+#'
+#' \tabular{lll}{
+#' Condition \tab Recommendation \tab Method \cr
+#' n_used < 4 \tab insufficient_data \tab no distribution fit \cr
+#' low censoring \tab parametric \tab normal/lognormal evaluation \cr
+#' moderate censoring \tab ros_censored \tab censored distribution fitting \cr
+#' high censoring \tab nonparametric \tab nonparametric methods \cr
+#' extreme censoring \tab descriptive_only \tab descriptive summaries only
+#' }
+#'
+#' Trend recommendations always use a Mann-Kendall framework,
+#' although interpretation guidance may recommend screening-level
+#' evaluation when censoring is extensive.
+#'
+#' @seealso
+#' [derive_decision()],
+#' [estimate_distribution()],
+#' [guidance_profile()],
+#' [guidance_options()]
+#'
+#' @examples
+#' statistical_decision(
+#'   percent_censored = 12,
+#'   n_used = 20,
+#'   n_detect = 18
+#' )
+#'
+#' statistical_decision(
+#'   percent_censored = 75,
+#'   n_used = 16,
+#'   n_detect = 4
+#' )
+#'
+#' statistical_decision(
+#'   percent_censored = c(5, 25, 80),
+#'   n_used = c(10, 10, 10),
+#'   n_detect = c(9, 7, 2)
+#' )
+#'
+#' @export
+statistical_decision <- function(
+  percent_censored,
+  n_used,
+  n_detect,
+  profile = guidance_profile("epa_unified")
+) {
+  low_threshold <- profile$low_threshold
+  moderate_threshold <- profile$moderate_threshold
+  high_threshold <- profile$high_threshold
+
+  out <- tibble::tibble(
+    n_used = n_used,
+    n_detect = n_detect,
+    percent_censored = percent_censored,
+
+    censoring_class = dplyr::case_when(
+      is.na(percent_censored) ~ NA_character_,
+      percent_censored < low_threshold ~
+        "low_censoring",
+      percent_censored < moderate_threshold ~
+        "moderate_censoring",
+      percent_censored < high_threshold ~
+        "high_censoring",
+      TRUE ~
+        "extreme_censoring"
+    ),
+
+    distribution_method = dplyr::case_when(
+      n_used < 4 ~
+        "insufficient_data",
+
+      percent_censored < low_threshold ~
+        "parametric",
+
+      percent_censored < moderate_threshold ~
+        "ros_censored",
+
+      percent_censored < high_threshold ~
+        "nonparametric",
+
+      TRUE ~
+        "descriptive_only"
+    ),
+
+    trend_method = "mann_kendall",
+
+    trend_guidance = dplyr::case_when(
+      is.na(percent_censored) ~
+        NA_character_,
+
+      n_detect < 4 ~
+        "insufficient_detects",
+
+      percent_censored < high_threshold ~
+        "formal_trend_test",
+
+      TRUE ~
+        "screening_only"
+    ),
+
+    censored_method = dplyr::case_when(
+      is.na(percent_censored) ~ NA_character_,
+      percent_censored < low_threshold ~
+        "as_reported",
+      TRUE ~
+        "cenken"
+    ),
+
+    distribution_config = purrr::map(
+      percent_censored,
+      ~ list(
+        method = "sf",
+        choices = c("norm", "lnorm")
+      )
+    ),
+
+    interval_config = purrr::map(
+      percent_censored,
+      ~ list(
+        conf_level = 0.95,
+        method = "Bonferroni",
+        k = 1,
+        n_mean = 1
+      )
+    ),
+    decision_basis = dplyr::case_when(
+      is.na(percent_censored) ~ NA_character_,
+      n_used < 4 ~
+        "fewer_than_4_observations",
+
+      percent_censored < low_threshold ~
+        "low_censoring",
+
+      percent_censored < moderate_threshold ~
+        "moderate_censoring",
+
+      percent_censored < high_threshold ~
+        "high_censoring",
+
+      TRUE ~
+        "extreme_censoring"
+    )
+  )
+
+  class(out) <- c(
+    "statistical_decision",
+    class(out)
+  )
+
+  out
+}
+
+#' Derive Statistical Decision Guidance from Data
+#'
+#' Calculates censoring metrics from a dataset and returns a
+#' corresponding [statistical_decision()] object.
+#'
+#' The input must contain standardized analytical fields:
+#'
+#' \itemize{
+#'   \item `.analysis_result`
+#'   \item `.censored`
+#' }
+#'
+#' @param df Data frame containing analytical results.
+#'
+#' @returns
+#' A `"statistical_decision"` object.
+#'
+#' @details
+#' The following quantities are calculated automatically:
+#'
+#' \describe{
+#'   \item{n_used}{
+#'     Number of non-missing analytical results.
+#'   }
+#'
+#'   \item{n_detect}{
+#'     Number of detected observations.
+#'   }
+#'
+#'   \item{percent_censored}{
+#'     Percentage of observations flagged as censored.
+#'   }
+#' }
+#'
+#' These values are supplied to [statistical_decision()]
+#' to obtain method-selection guidance.
+#'
+#' @seealso
+#' [statistical_decision()],
+#' [estimate_distribution()]
+#'
+#' @examples
+#' derive_decision(gw_schema)
+#'
+#' gw_schema |>
+#'   dplyr::filter(param_name == "Arsenic, dissolved") |>
+#'   derive_decision()
+#'
+#' @export
+derive_decision <- function(df) {
+  n_used <- sum(
+    !is.na(df$.analysis_result)
+  )
+
+  n_detect <- sum(
+    !df$.censored &
+      !is.na(df$.analysis_result),
+    na.rm = TRUE
+  )
+
+  pct <- mean(
+    df$.censored,
+    na.rm = TRUE
+  ) *
+    100
+
+  statistical_decision(
+    percent_censored = pct,
+    n_used = n_used,
+    n_detect = n_detect
+  )
+}
+
+
+#' Print Statistical Decision Object
+#'
+#' Prints a compact summary of a
+#' `"statistical_decision"` object.
+#'
+#' @param x A `"statistical_decision"` object.
+#' @param ... Unused.
+#'
+#' @returns
+#' The input object, invisibly.
+#'
+#' @examples
+#' decision <- statistical_decision(
+#'   percent_censored = 25,
+#'   n_used = 12,
+#'   n_detect = 9
+#' )
+#'
+#' print(decision)
+#'
+#' @export
+print.statistical_decision <- function(
+  x,
+  ...
+) {
+  cat(
+    "<statistical_decision>\n"
+  )
+
+  print(
+    tibble::as_tibble(x)
+  )
+
+  invisible(x)
+}
+
+#' Guidance Options
+#'
+#' Retrieves the active statistical guidance options used to classify
+#' censoring severity and select recommended analytical methods.
+#'
+#' Guidance options are read from the global package option
+#' `"manager.guidance"`. If no option has been set, EPA-style default
+#' thresholds are returned.
+#'
+#' These thresholds are used by [statistical_decision()] to classify
+#' censoring as low, moderate, high, or extreme and to determine
+#' recommended distribution fitting, trend analysis, and censored-data
+#' handling approaches.
+#'
+#' @returns
+#' A named list containing:
+#'
+#' \describe{
+#'   \item{low_threshold}{
+#'     Threshold separating low and moderate censoring.
+#'   }
+#'
+#'   \item{moderate_threshold}{
+#'     Threshold separating moderate and high censoring.
+#'   }
+#'
+#'   \item{high_threshold}{
+#'     Threshold separating high and extreme censoring.
+#'   }
+#' }
+#'
+#' @details
+#' The default values are:
+#'
+#' \itemize{
+#'   \item `low_threshold = 15`
+#'   \item `moderate_threshold = 50`
+#'   \item `high_threshold = 90`
+#' }
+#'
+#' These defaults correspond to the thresholds used by the
+#' `"epa_unified"` [guidance_profile()].
+#'
+#' Users may override the defaults using [options()]:
+#'
+#' \preformatted{
+#' options(
+#'   manager.guidance = list(
+#'     low_threshold = 10,
+#'     moderate_threshold = 25,
+#'     high_threshold = 75
+#'   )
+#' )
+#' }
+#'
+#' @examples
+#' guidance_options()
+#'
+#' options(
+#'   manager.guidance = list(
+#'     low_threshold = 10,
+#'     moderate_threshold = 25,
+#'     high_threshold = 75
+#'   )
+#' )
+#'
+#' guidance_options()
+#'
+#' @seealso
+#' [guidance_profile()],
+#' [statistical_decision()]
+#'
+#' @export
+guidance_options <- function() {
+  getOption(
+    "manager.guidance",
+    guidance_profile("epa_unified")
+  )
+}
+
+#' Guidance Profiles
+#'
+#' Returns predefined statistical decision thresholds used by
+#' [statistical_decision()].
+#'
+#' Guidance profiles control the censoring levels used to distinguish
+#' between low, moderate, high, and extreme censoring conditions.
+#'
+#' @param profile Character value specifying the profile.
+#' One of:
+#'
+#' \itemize{
+#'   \item `"epa_unified"`
+#'   \item `"conservative"`
+#'   \item `"site_specific"`
+#' }
+#'
+#' @returns
+#' A named list containing:
+#'
+#' \describe{
+#'   \item{low_threshold}{
+#'     Boundary between low and moderate censoring.
+#'   }
+#'
+#'   \item{moderate_threshold}{
+#'     Boundary between moderate and high censoring.
+#'   }
+#'
+#'   \item{high_threshold}{
+#'     Boundary between high and extreme censoring.
+#'   }
+#' }
+#'
+#' @details
+#' The built-in profiles are:
+#'
+#' \describe{
+#'   \item{epa_unified}{
+#'     15%, 50%, 90%
+#'   }
+#'
+#'   \item{conservative}{
+#'     10%, 25%, 75%
+#'   }
+#'
+#'   \item{site_specific}{
+#'     20%, 60%, 90%
+#'   }
+#' }
+#'
+#' These profiles influence recommended distribution fitting,
+#' trend interpretation, and censored-data handling methods.
+#'
+#' @seealso
+#' [guidance_options()],
+#' [statistical_decision()]
+#'
+#' @examples
+#' guidance_profile()
+#'
+#' guidance_profile("conservative")
+#'
+#' @export
+guidance_profile <- function(
+  profile = c(
+    "epa_unified",
+    "conservative",
+    "site_specific"
+  )
+) {
+  profile <- match.arg(profile)
+
+  switch(
+    profile,
+
+    epa_unified = list(
+      low_threshold = 15,
+      moderate_threshold = 50,
+      high_threshold = 90
+    ),
+
+    conservative = list(
+      low_threshold = 10,
+      moderate_threshold = 25,
+      high_threshold = 75
+    ),
+
+    site_specific = list(
+      low_threshold = 20,
+      moderate_threshold = 60,
+      high_threshold = 90
+    )
+  )
+}
+
+#' Estimate Distributions Using Statistical Decision Guidance
+#'
+#' Estimates an appropriate distributional model for each group using
+#' censoring-aware statistical decision rules.
+#'
+#' `estimate_distribution()` automatically evaluates the percentage of
+#' censored observations and available sample size using
+#' [derive_decision()]. A [statistical_decision()] object is then used
+#' to select the recommended distribution estimation pathway for each
+#' group.
+#'
+#' Depending on the degree of censoring, groups are evaluated using:
+#'
+#' \itemize{
+#'   \item `"parametric"` distribution fitting
+#'   \item `"ros_censored"` censored distribution fitting
+#'   \item `"nonparametric"` distribution classification
+#'   \item `"descriptive_only"` evaluation
+#'   \item `"insufficient_data"` when too few observations are available
+#' }
+#'
+#' Distribution fitting is performed independently within each group and
+#' requires the input data to already be grouped using
+#' [dplyr::group_by()].
+#'
+#' @param df Grouped data frame or `env_schema` object.
+#'
+#' @param distribution_config Configuration list supplied to
+#' distribution fitting functions.
+#'
+#' If `"auto"` (the default), configuration settings are obtained from
+#' the group's [statistical_decision()] object.
+#'
+#' @returns
+#' A tibble containing one row per group.
+#'
+#' The returned table includes statistical decision metadata together
+#' with the distribution evaluation result.
+#'
+#' \describe{
+#'   \item{n_detect}{
+#'     Number of non-censored observations.
+#'   }
+#'
+#'   \item{percent_censored}{
+#'     Percentage of observations classified as censored.
+#'   }
+#'
+#'   \item{censoring_class}{
+#'     Censoring classification used for method selection.
+#'   }
+#'
+#'   \item{distribution_method}{
+#'     Recommended distribution estimation approach.
+#'   }
+#'
+#'   \item{trend_method}{
+#'     Recommended trend evaluation method.
+#'   }
+#'
+#'   \item{trend_guidance}{
+#'     Recommended interpretation of trend analyses.
+#'   }
+#'
+#'   \item{censored_method}{
+#'     Recommended censored-data handling method.
+#'   }
+#'
+#'   \item{distribution_config}{
+#'     Distribution-fitting configuration used during evaluation.
+#'     This is a named list of arguments passed to
+#'     [EnvStats::distChoose()] or
+#'     [EnvStats::distChooseCensored()].
+#'   }
+#'
+#'   \item{interval_config}{
+#'     Recommended interval estimation settings.
+#'   }
+#'
+#'   \item{decision_basis}{
+#'     Basis used to select the statistical approach.
+#'   }
+#'
+#'   \item{distribution}{
+#'     Selected distribution or recommended distributional approach.
+#'   }
+#'
+#'   \item{n_used}{
+#'     Number of observations used during evaluation.
+#'   }
+#'
+#'   \item{result}{
+#'     Distribution fitting result object.
+#'   }
+#' }
+#'
+#' @details
+#' Method selection follows the active guidance profile used by
+#' [statistical_decision()].
+#'
+#' Under the default EPA-style guidance:
+#'
+#' \tabular{lll}{
+#' Condition \tab Recommendation \tab Action \cr
+#' n_used < 4 \tab insufficient_data \tab no distribution fitting \cr
+#' <15\% censored \tab parametric \tab fit candidate distributions \cr
+#' 15-50\% censored \tab ros_censored \tab censored distribution fitting \cr
+#' 50-90\% censored \tab nonparametric \tab classify as nonparametric \cr
+#' >=90\% censored \tab descriptive_only \tab descriptive evaluation only
+#' }
+#'
+#' Parametric evaluations use candidate distributions specified by
+#' `distribution_config`, typically through
+#' [EnvStats::distChoose()]. By default, distribution fitting evaluates
+#' normal and lognormal candidate distributions using the `"sf"` selection method.
+#'
+#' Censored evaluations use
+#' [EnvStats::distChooseCensored()] with left-censoring assumptions.
+#'
+#' Nonparametric and descriptive-only groups do not perform formal
+#' distribution fitting and instead return recommendation metadata for
+#' downstream analyses.
+#'
+#' @examples
+#' gw |>
+#'   dplyr::group_by(
+#'     location_id,
+#'     param_name,
+#'     default_unit
+#'   ) |>
+#'   estimate_distribution()
+#'
+#' gw |>
+#'   dplyr::group_by(param_name) |>
+#'   estimate_distribution()
+#'
+#' estimate_distribution(
+#'   gw |>
+#'     dplyr::group_by(
+#'       location_id,
+#'       param_name
+#'     )
+#' )
+#'
+#' @seealso
+#' [statistical_decision()],
+#' [derive_decision()],
+#' [guidance_profile()],
+#' [guidance_options()]
+#'
+#' @export
+estimate_distribution <- function(
+  df,
+  distribution_config = "auto"
+) {
+  if (!dplyr::is_grouped_df(df)) {
+    rlang::abort(
+      paste(
+        "estimate_distribution() requires grouped data.",
+        "Use group_by() before calling this function."
+      )
+    )
+  }
+
+  df %>%
+    dplyr::group_modify(
+      ~ .estimate_distribution_group(
+        .x,
+        distribution_config = distribution_config
+      )
+    ) %>%
+    dplyr::ungroup()
+}
+
+#' @keywords internal
+.estimate_distribution_group <- function(
+  df,
+  distribution_config
+) {
+  decision_obj <- derive_decision(df)
+
+  if (identical(distribution_config, "auto")) {
+    distribution_config <-
+      decision_obj$distribution_config[[1]]
+  }
+
+  method <-
+    decision_obj$distribution_method[[1]]
+
+  out <- switch(
+    method,
+
+    insufficient_data = {
+      .attach_nested_data(
+        result = .make_dist_result(
+          distribution = "insufficient_data",
+          n_used = sum(!is.na(df$.analysis_result)),
+          return_result = TRUE
+        ),
+        data = df
+      )
+    },
+
+    parametric = {
+      .est_dist_group(
+        df,
+        return_result = TRUE,
+        distribution_config = distribution_config
+      )
+    },
+
+    ros_censored = {
+      .est_dist_censored_group(
+        df,
+        return_result = TRUE,
+        distribution_config = distribution_config
+      )
+    },
+
+    nonparametric = {
+      .attach_nested_data(
+        result = .make_dist_result(
+          distribution = "Nonparametric",
+          n_used = sum(!is.na(df$.analysis_result)),
+          return_result = TRUE
+        ),
+        data = df
+      )
+    },
+
+    descriptive_only = {
+      .attach_nested_data(
+        result = .make_dist_result(
+          distribution = "Descriptive Only",
+          n_used = sum(!is.na(df$.analysis_result)),
+          return_result = TRUE
+        ),
+        data = df
+      )
+    }
+  )
+
+  dplyr::bind_cols(
+    dplyr::select(
+      decision_obj,
+      -n_used
+    ),
+    out
+  )
+}
+
 #' Summary Statistics
 #'
 #' Calculates descriptive statistics for environmental monitoring
@@ -25,6 +804,9 @@
 #' The returned table includes:
 #' \describe{
 #'   \item{n}{Number of records in the group, including records with missing result values.}
+#'   \item{n_used}{ Number of non-missing analytical results used in statistical
+#'   evaluations and decision selection.}
+#'   \item{n_detect}{Number of non-censored analytical results.}
 #'   \item{percent_censored}{Percentage of records in the group classified as censored.}
 #'   \item{mean}{Arithmetic mean concentration.}
 #'   \item{median}{Median concentration.}
@@ -37,6 +819,34 @@
 #'   \item{75\%}{75th percentile.}
 #'   \item{IQR}{Interquartile range.}
 #'   \item{mad}{Median absolute deviation.}
+#'   \item{censoring_class}{
+#'         EPA Unified Guidance style censoring classification:
+#'        low_censoring, moderate_censoring, high_censoring, or extreme_censoring.
+#' }
+#'    \item{distribution_method}{
+#'          Recommended distributional approach based on the degree of censoring.
+#' }
+#'     \item{trend_method}{
+#'          Recommended trend method.
+#' }
+#'     \item{trend_guidance}{
+#'          Recommended interpretation of trend results.
+#'            "formal_trend_test" indicates trend inference is generally
+#'             supported. "screening_only" indicates trend results should
+#'             be considered exploratory because of extensive censoring.
+#' }
+#'      \item{censored_method}{
+#'          Recommended censored-data handling method for trend analyses.
+#' }
+#'      \item{decision_basis}{
+#'          Basis for the statistical recommendation.
+#'            Examples include:
+#'              fewer_than_4_observations,
+#'              low_censoring,
+#'              moderate_censoring,
+#'              high_censoring,
+#'              and extreme_censoring.
+#'}
 #' }
 #'
 #' @details
@@ -204,6 +1014,8 @@ stats_summary.env_schema <- function(
     return(
       tibble::tibble(
         n = integer(),
+        n_used = integer(),
+        n_detect = integer(),
         percent_censored = numeric(),
         mean = numeric(),
         median = numeric(),
@@ -215,7 +1027,15 @@ stats_summary.env_schema <- function(
         `25%` = numeric(),
         `75%` = numeric(),
         IQR = numeric(),
-        mad = numeric()
+        mad = numeric(),
+        censoring_class = character(),
+        distribution_method = character(),
+        trend_method = character(),
+        trend_guidance = character(),
+        censored_method = character(),
+        distribution_config = list(),
+        interval_config = list(),
+        decision_basis = character()
       )
     )
   }
@@ -223,6 +1043,16 @@ stats_summary.env_schema <- function(
   df |>
     dplyr::summarise(
       n = dplyr::n(),
+
+      n_used = sum(
+        !is.na(.data[[result_col]])
+      ),
+
+      n_detect = sum(
+        !.data[[censored_col]] &
+          !is.na(.data[[result_col]]),
+        na.rm = TRUE
+      ),
 
       percent_censored = mean(
         .data[[censored_col]],
@@ -292,7 +1122,22 @@ stats_summary.env_schema <- function(
       ),
 
       .groups = "drop"
-    )
+    ) |>
+    (\(x) {
+      decision <- statistical_decision(
+        n_used = x$n_used,
+        n_detect = x$n_detect,
+        percent_censored = x$percent_censored
+      )
+
+      dplyr::bind_cols(
+        x,
+        dplyr::select(
+          decision,
+          -c(n_used, n_detect, percent_censored)
+        )
+      )
+    })()
 }
 
 #' Trend Summary Statistics
@@ -410,7 +1255,7 @@ trend_summary.data.frame <- function(
   sample_date = "sample_date",
   analysis_result = "analysis_result",
   method = "mann_kendall",
-  censored_method = "cenken",
+  censored_method = "auto",
   conf.level = 0.95
 ) {
   env_schema(
@@ -448,7 +1293,7 @@ trend_summary.data.frame <- function(
 trend_summary.env_schema <- function(
   df,
   method = "mann_kendall",
-  censored_method = "cenken",
+  censored_method = "auto",
   conf.level = 0.95
 ) {
   validate_env_schema(df)
@@ -601,7 +1446,7 @@ trend_summary.env_schema <- function(
     standard_deviation = standard_deviation,
     coefficient_of_variation = coefficient_of_variation,
     trend_method = method,
-    censored_method = censored_method,
+    censored_method = tr$censored_method,
     slope = tr$slope,
     p_value = tr$p_value,
     conf_low = tr$conf_low,
@@ -621,6 +1466,7 @@ trend_summary.env_schema <- function(
 }
 
 #' @keywords internal
+#' @noRd
 .prepare_trend_data <- function(
   df,
   date_col,
@@ -756,6 +1602,8 @@ kendall_trend.env_schema <- function(
 #'
 #' Internal helper used by plotting functions.
 #'
+#' @keywords internal
+#'
 #' @noRd
 .extract_lm_stats <- function(
   fit,
@@ -816,12 +1664,14 @@ kendall_trend.env_schema <- function(
 #' @param method Trend method
 #' @param conf.level Confidence level
 #'
+#' @keywords internal
+#'
 #' @noRd
 .compute_trend <- function(
   df,
   date_col,
   method = "mann_kendall",
-  censored_method = "cenken",
+  censored_method = "auto",
   conf.level = 0.95
 ) {
   df <- .prepare_trend_data(
@@ -848,10 +1698,17 @@ kendall_trend.env_schema <- function(
   censored_method <- rlang::arg_match(
     censored_method,
     c(
+      "auto",
       "cenken",
       "as_reported"
     )
   )
+  if (censored_method == "auto") {
+    decision <- derive_decision(df)
+
+    censored_method <-
+      decision$censored_method[[1]]
+  }
 
   if (method == "none") {
     return(NULL)
@@ -890,6 +1747,7 @@ kendall_trend.env_schema <- function(
     return(
       list(
         method = method,
+        censored_method = censored_method,
         model = fit,
         slope = trend_stats$slope,
         p_value = trend_stats$p_value,
@@ -926,6 +1784,7 @@ kendall_trend.env_schema <- function(
     return(
       list(
         method = method,
+        censored_method = censored_method,
         model = fit,
         trend_df = trend_df
       )
@@ -965,6 +1824,7 @@ kendall_trend.env_schema <- function(
     return(
       list(
         method = method,
+        censored_method = censored_method,
         model = fit,
         trend_df = trend_df
       )
@@ -1017,6 +1877,7 @@ kendall_trend.env_schema <- function(
     return(
       list(
         method = method,
+        censored_method = censored_method,
         slope = slope,
         p_value = fit$p.value,
         conf_low = conf_low,
@@ -1066,6 +1927,7 @@ kendall_trend.env_schema <- function(
     return(
       list(
         method = method,
+        censored_method = censored_method,
         slope = slope,
         p_value = p_value,
         conf_low = NA_real_,
@@ -1303,6 +2165,7 @@ kendall_trend.env_schema <- function(
 
 #' Compute trend models for grouped series
 #'
+#' @keywords internal
 #' @noRd
 .compute_group_trends <- function(
   df,
@@ -1370,7 +2233,7 @@ kendall_trend.env_schema <- function(
 }
 
 #' Compute trend labels
-#'
+#' @keywords internal
 #' @noRd
 .compute_group_labels <- function(
   trend_df,
@@ -1424,6 +2287,7 @@ kendall_trend.env_schema <- function(
 }
 
 #' @keywords internal
+#' @noRd
 .format_trend_label <- function(
   slope,
   p_value,
@@ -1524,6 +2388,7 @@ kendall_trend.env_schema <- function(
 }
 
 #' @keywords internal
+#' @noRd
 .get_trend_group_cols <- function(df) {
   if (dplyr::is_grouped_df(df)) {
     return(
@@ -1538,6 +2403,7 @@ kendall_trend.env_schema <- function(
 }
 
 #' @keywords internal
+#' @noRd
 .get_outlier_group_cols <- function(df) {
   if (dplyr::is_grouped_df(df)) {
     return(
@@ -1553,6 +2419,7 @@ kendall_trend.env_schema <- function(
 }
 
 #' @keywords internal
+#' @noRd
 .build_outlier_groups <- function(df) {
   group_cols <- .get_outlier_group_cols(df)
 
@@ -1567,6 +2434,7 @@ kendall_trend.env_schema <- function(
 }
 
 #' @keywords internal
+#' @noRd
 .extract_htest_results <- function(
   df,
   test_col
@@ -2036,7 +2904,7 @@ rosner_test.data.frame <- function(
 #'   \item analysis unit
 #' }
 #'
-#'#' @returns
+#' @returns
 #' A tibble containing one row per outlier evaluation group.
 #'
 #' The returned table includes:
@@ -2400,168 +3268,122 @@ anova <- function(df, keep_data_object = FALSE) {
   }
 }
 
-#' Estimate statistical distribution
-#'
-#' Determines whether grouped data are best represented by a
-#' normal, lognormal, or other candidate distribution.
-#'
-#' The returned object retains the original grouped observations in a
-#' nested `data` list-column. This allows downstream functions such as
-#' prediction interval, tolerance interval, and control chart
-#' calculations to access the observations used for distribution
-#' estimation.
-#'
-#' @param df Tidy groundwater data frame. Grouping determines the
-#'   level at which distributions are estimated.
-#' @param return_result TRUE/FALSE.
-#' @param alpha Significance level.
-#' @param method Goodness-of-fit method passed to EnvStats::distChoose().
-#' @param choices Candidate distributions.
-#' @param min_n Minimum sample size required for estimation.
-#'
-#' @return A tibble with one row per group containing:
-#' \describe{
-#'   \item{distribution}{Selected distribution.}
-#'   \item{n}{Number of non-missing observations used in estimation.}
-#'   \item{data}{Nested data frame containing the observations
-#'   used for the group.}
-#'   \item{result}{EnvStats result object stored as a
-#'   list-column when return_result = TRUE.}
-#' }
-#'
-#' @examples
-#' data("gw_data")
-#'
-#' gw_data %>%
-#'   dplyr::group_by(
-#'     location_id,
-#'     param_name,
-#'     default_unit
-#'   ) %>%
-#'   percent_lt() %>%
-#'   est_dist()
-#'
-#' @export
 
-est_dist <- function(
+#' @keywords internal
+.est_dist_group <- function(
   df,
   return_result = FALSE,
-  alpha = 0.05,
-  method = "sw",
-  choices = c("norm", "lnorm"),
-  min_n = 4
+  distribution_config
 ) {
-  required_cols <- "analysis_result"
-
-  missing_cols <- setdiff(
-    required_cols,
-    names(df)
+  x <- stats::na.omit(
+    df$.analysis_result
   )
 
-  if (length(missing_cols) > 0) {
-    rlang::abort(
-      paste(
-        "Missing required column(s):",
-        paste(missing_cols, collapse = ", ")
-      )
-    )
-  }
+  n <- length(x)
 
-  .validate_est_dist_args(
-    alpha = alpha,
-    method = method,
-    choices = choices,
+  fit_result <- purrr::possibly(
+    .fit_dist,
+    otherwise = NULL
+  )(
+    x = x,
+    distribution_config = distribution_config
+  )
+
+  result <- .handle_dist_result(
+    result = fit_result,
+    n = n,
     return_result = return_result
   )
 
-  .est_dist_worker(
-    df = df,
-    return_result = return_result,
-    min_n = min_n,
-    alpha = alpha,
-    method = method,
-    choices = choices
+  .attach_nested_data(
+    result = result,
+    data = df
   )
 }
 
-#' Function to return either normal, lognormal, gamma, or non-parametric
-#' distribution estimate
-#'
-#' @param df groundwater data frame in tidy format
-#' @param left_censored logical vector.
-#' @param alpha alpha
-#' @param choices vector of distributions to check. Default is c("norm, "lnorm")
-#' @param method default is "sf"
-#' @param combine_locations TRUE/FALSE to estimate distribution by individual
-#' location, or grouped together. Default is FALSE.
-#' @param keep_data_object Default is FALSE
-#'
-#' @examples
-#' data("gw_data")
-#' wells <- c("MW-1", "MW-2", "MW-3")
-#' params <- c("Fluoride, total",
-#'             "Arsenic, dissolved",
-#'             "Nickel, dissolved")
-#'
-#' gw_data <- gw_data %>%
-#' to_censored() %>%
-#' filter(location_id %in% wells, param_name %in% params) %>%
-#' percent_lt() %>%
-#' filter(percent_lt >=15, percent_lt <= 50)
-#'
-#' gw_data %>%
-#' group_by(location_id, param_name, default_unit) %>%
-#' est_dist_censored()
-#'
-#'
-#' gw_data %>%
-#' group_by(param_name, default_unit) %>%
-#' est_dist_censored()
-#'
-#' @export
+#' @keywords internal
+.est_dist_worker <- function(
+  df,
+  return_result,
+  distribution_config
+) {
+  df %>%
+    dplyr::group_modify(
+      ~ .est_dist_group(
+        df = .x,
+        return_result = return_result,
+        distribution_config = distribution_config
+      )
+    )
+}
 
-est_dist_censored <- function(
+#' @keywords internal
+.est_dist_censored_group <- function(
   df,
   return_result = FALSE,
-  alpha = 0.05,
-  method = "sf",
-  choices = c("norm", "lnorm"),
-  min_n = 4
+  distribution_config
 ) {
-  required_cols <- c(
-    "analysis_result",
-    "left_censored"
-  )
+  x <- df$.analysis_result
+  censored <- df$.censored
 
-  missing_cols <- setdiff(
-    required_cols,
-    names(df)
-  )
+  keep <- !is.na(x)
 
-  if (length(missing_cols) > 0) {
+  x <- x[keep]
+  censored <- censored[keep]
+
+  n <- length(x)
+
+  if (any(is.na(censored))) {
     rlang::abort(
-      paste(
-        "Missing required column(s):",
-        paste(missing_cols, collapse = ", ")
-      )
+      ".censored cannot contain missing values."
     )
   }
 
-  .validate_est_dist_args(
-    alpha = alpha,
-    method = method,
-    choices = choices,
+  fit_result <- if (!any(censored)) {
+    purrr::possibly(
+      .fit_dist,
+      otherwise = NULL
+    )(
+      x = x,
+      distribution_config = distribution_config
+    )
+  } else {
+    purrr::possibly(
+      .fit_dist_censored,
+      otherwise = NULL
+    )(
+      x = x,
+      censored = censored,
+      distribution_config = distribution_config
+    )
+  }
+
+  result <- .handle_dist_result(
+    result = fit_result,
+    n = n,
     return_result = return_result
   )
 
-  .est_dist_censored_worker(
-    df = df,
-    return_result = return_result,
-    min_n = min_n,
-    alpha = alpha,
-    method = method,
-    choices = choices
+  .attach_nested_data(
+    result = result,
+    data = df
   )
+}
+
+#' @keywords internal
+.est_dist_censored_worker <- function(
+  df,
+  return_result,
+  distribution_config
+) {
+  df %>%
+    dplyr::group_modify(
+      ~ .est_dist_censored_group(
+        df = .x,
+        return_result = return_result,
+        distribution_config = distribution_config
+      )
+    )
 }
 
 #' Fit candidate distributions
@@ -2573,18 +3395,18 @@ est_dist_censored <- function(
 #'
 #' @return An EnvStats distChoose object.
 #'
+#' @keywords internal
 #' @noRd
 .fit_dist <- function(
   x,
-  alpha,
-  method,
-  choices
+  distribution_config
 ) {
-  EnvStats::distChoose(
-    y = x,
-    alpha = alpha,
-    method = method,
-    choices = choices
+  do.call(
+    EnvStats::distChoose,
+    c(
+      list(y = x),
+      distribution_config
+    )
   )
 }
 
@@ -2600,182 +3422,25 @@ est_dist_censored <- function(
 #'
 #' @return An EnvStats distChooseCensored object.
 #'
+#' @keywords internal
+#'
 #' @noRd
 .fit_dist_censored <- function(
   x,
   censored,
-  alpha,
-  method,
-  choices
+  distribution_config
 ) {
-  EnvStats::distChooseCensored(
-    x = x,
-    censored = censored,
-    censoring.side = "left",
-    alpha = alpha,
-    method = method,
-    choices = choices
+  do.call(
+    EnvStats::distChooseCensored,
+    c(
+      list(
+        x = x,
+        censored = censored,
+        censoring.side = "left"
+      ),
+      distribution_config
+    )
   )
-}
-
-#' Estimate distributions by group
-#'
-#' Internal worker for est_dist().
-#'
-#' @inheritParams est_dist
-#' @param min_n Minimum sample size required for estimation.
-#'
-#' @return A tibble with one row per group.
-#'
-#' @noRd
-#' @noRd
-.est_dist_worker <- function(
-  df,
-  return_result,
-  min_n,
-  alpha,
-  method,
-  choices
-) {
-  df %>%
-    dplyr::group_modify(
-      ~ {
-        group_data <- .x
-
-        x <- stats::na.omit(
-          .x$analysis_result
-        )
-
-        n <- length(x)
-
-        if (n < min_n) {
-          result <- .make_dist_result(
-            distribution = "insufficient_data",
-            n = n,
-            return_result = return_result
-          )
-
-          return(
-            .attach_nested_data(
-              result = result,
-              data = group_data
-            )
-          )
-        }
-
-        fit_result <- purrr::possibly(
-          .fit_dist,
-          otherwise = NULL
-        )(
-          x = x,
-          alpha = alpha,
-          method = method,
-          choices = choices
-        )
-
-        result <- .handle_dist_result(
-          result = fit_result,
-          n = n,
-          return_result = return_result
-        )
-
-        .attach_nested_data(
-          result = result,
-          data = group_data
-        )
-      }
-    )
-}
-
-#' Estimate distributions for censored data by group
-#'
-#' Internal worker for est_dist_censored().
-#'
-#' @inheritParams .est_dist_worker
-#'
-#' @return A tibble with one row per group.
-#'
-#' @noRd
-#' @noRd
-.est_dist_censored_worker <- function(
-  df,
-  return_result,
-  min_n,
-  alpha,
-  method,
-  choices
-) {
-  df %>%
-    dplyr::group_modify(
-      ~ {
-        group_data <- .x
-
-        x <- .x$analysis_result
-        censored <- .x$left_censored
-
-        keep <- !is.na(x)
-
-        x <- x[keep]
-        censored <- censored[keep]
-
-        n <- length(x)
-
-        if (n < min_n) {
-          result <- .make_dist_result(
-            distribution = "insufficient_data",
-            n = n,
-            return_result = return_result
-          )
-
-          return(
-            .attach_nested_data(
-              result = result,
-              data = group_data
-            )
-          )
-        }
-
-        if (any(is.na(censored))) {
-          rlang::abort(
-            "left_censored cannot contain missing values."
-          )
-        }
-
-        fit_result <- if (!any(censored)) {
-          purrr::possibly(
-            .fit_dist,
-            otherwise = NULL
-          )(
-            x = x,
-            alpha = alpha,
-            method = method,
-            choices = choices
-          )
-        } else {
-          purrr::possibly(
-            .fit_dist_censored,
-            otherwise = NULL
-          )(
-            x = x,
-            censored = censored,
-            alpha = alpha,
-            method = method,
-            choices = choices
-          )
-        }
-
-        result <- .handle_dist_result(
-          result = fit_result,
-          n = n,
-          return_result = return_result
-        )
-
-        .attach_nested_data(
-          result = result,
-          data = group_data
-        )
-      }
-    )
 }
 
 #' Construct distribution estimation result
@@ -2790,16 +3455,18 @@ est_dist_censored <- function(
 #'
 #' @return A tibble with distribution metadata.
 #'
+#' @keywords internal
+#'
 #' @noRd
 .make_dist_result <- function(
   distribution,
-  n,
+  n_used,
   result = NULL,
   return_result = FALSE
 ) {
   out <- tibble::tibble(
     distribution = distribution,
-    n = n
+    n_used = n_used
   )
 
   if (return_result) {
@@ -2811,6 +3478,8 @@ est_dist_censored <- function(
 
 #' Helper function for est_dist() and est_dist_censored()
 #'
+#' @keywords internal
+#'
 #' @noRd
 .handle_dist_result <- function(
   result,
@@ -2821,7 +3490,7 @@ est_dist_censored <- function(
     return(
       .make_dist_result(
         "estimation_failed",
-        n,
+        n_used = n,
         return_result = return_result
       )
     )
@@ -2832,7 +3501,7 @@ est_dist_censored <- function(
       result$decision,
       collapse = ", "
     ),
-    n = n,
+    n_used = n,
     result = result,
     return_result = return_result
   )
@@ -2841,6 +3510,8 @@ est_dist_censored <- function(
 #' Compute prediction intervals
 #'
 #' @keywords internal
+#'
+#' @noRd
 .compute_pred_int <- function(
   df,
   simultaneous = FALSE,
@@ -2850,6 +3521,7 @@ est_dist_censored <- function(
   pi_type = "upper",
   conf_level = 0.95
 ) {
+  .validate_interval_distribution(df$distribution)
   .validate_est_dist_output(df)
 
   rlang::arg_match0(
@@ -2866,7 +3538,7 @@ est_dist_censored <- function(
   )
 
   pred_fun <- function(data, distribution) {
-    values <- data$analysis_result
+    values <- data$.analysis_result
 
     switch(
       distribution,
@@ -3006,6 +3678,10 @@ conf_int <- function(
   ci_type = "two-sided",
   conf_level = 0.95
 ) {
+  .validate_interval_distribution(
+    df$distribution
+  )
+
   conf_int <- df %>%
     mutate(
       conf_int = case_when(
@@ -3108,6 +3784,10 @@ pred_int <- function(
   pi_type = "upper",
   conf_level = 0.95
 ) {
+  .validate_interval_distribution(
+    df$distribution
+  )
+
   .compute_pred_int(
     df = df,
     simultaneous = FALSE,
@@ -3173,6 +3853,10 @@ pred_int_sim <- function(
   pi_type = "upper",
   conf_level = 0.95
 ) {
+  .validate_interval_distribution(
+    df$distribution
+  )
+
   .compute_pred_int(
     df = df,
     simultaneous = TRUE,
@@ -3223,6 +3907,10 @@ tol_int <- function(
   ti_type = "two-sided",
   method = "exact"
 ) {
+  .validate_interval_distribution(
+    df$distribution
+  )
+
   tol_int <- df %>%
     mutate(
       tol_int = case_when(
@@ -3336,4 +4024,31 @@ update_background <- function(
   )
 
   output
+}
+
+#' @keywords internal
+.validate_interval_distribution <- function(distribution) {
+  supported <- c(
+    "Normal",
+    "Lognormal",
+    "Nonparametric"
+  )
+
+  bad <- setdiff(
+    unique(stats::na.omit(distribution)),
+    supported
+  )
+
+  if (length(bad) > 0) {
+    rlang::abort(
+      paste(
+        "Intervals are only available for:",
+        paste(supported, collapse = ", "),
+        "\nUnsupported distribution(s):",
+        paste(bad, collapse = ", ")
+      )
+    )
+  }
+
+  invisible(distribution)
 }

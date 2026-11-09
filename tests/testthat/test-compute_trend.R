@@ -151,12 +151,14 @@ test_that("mann kendall as_reported returns trend statistics", {
     tr,
     c(
       "method",
+      "censored_method",
       "slope",
       "p_value",
       "conf_low",
       "conf_high",
       "trend_df"
-    )
+    ),
+    ignore.order = TRUE
   )
 
   expect_length(tr$conf_low, 1)

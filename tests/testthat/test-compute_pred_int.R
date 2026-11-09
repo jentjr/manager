@@ -2,7 +2,12 @@
 
 background_data <- tibble::tibble(
   location_id = rep("MW-1", 20),
-  param_name = rep("Benzene", 20),
+  sample_date = seq.Date(
+    as.Date("2020-01-01"),
+    by = "quarter",
+    length.out = 20
+  ),
+  param_name = rep("Chloride", 20),
   default_unit = rep("mg/L", 20),
   analysis_result = c(
     4.1,
@@ -25,16 +30,23 @@ background_data <- tibble::tibble(
     6.5,
     6.8,
     7.0
-  )
+  ),
+  censored = FALSE
 ) |>
+  env_schema(
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
+  ) |>
   dplyr::group_by(
     location_id,
     param_name,
     default_unit
   ) |>
-  est_dist(
-    return_result = TRUE
-  )
+  estimate_distribution()
+
 
 test_that("errors for invalid confidence level", {
   expect_error(
@@ -208,5 +220,23 @@ test_that("simultaneous prediction intervals run", {
   expect_gt(
     nrow(result),
     0
+  )
+})
+
+test_that("estimate_distribution includes decision metadata", {
+  expect_true(
+    "distribution_method" %in% names(background_data)
+  )
+
+  expect_true(
+    "percent_censored" %in% names(background_data)
+  )
+
+  expect_true(
+    "distribution_config" %in% names(background_data)
+  )
+
+  expect_true(
+    "interval_config" %in% names(background_data)
   )
 })

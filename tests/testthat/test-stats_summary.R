@@ -521,3 +521,71 @@ test_that("stats_summary handles a single observation", {
     1
   )
 })
+
+test_that("stats_summary adds censoring decision metadata", {
+  df <- env_schema(
+    tibble::tibble(
+      location_id = "MW-1",
+      sample_date = as.Date(c(
+        "2020-01-01",
+        "2020-02-01",
+        "2020-03-01"
+      )),
+      param_name = "Arsenic",
+      analysis_result = c(1, 2, 3),
+      censored = c(FALSE, FALSE, FALSE)
+    ),
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result
+  )
+
+  result <- stats_summary(df)
+
+  expect_true(
+    all(
+      c(
+        "censoring_class",
+        "distribution_method",
+        "trend_method",
+        "trend_guidance",
+        "censored_method",
+        "distribution_config",
+        "interval_config",
+        "decision_basis"
+      ) %in%
+        names(result)
+    )
+  )
+})
+
+test_that("statistical_decision classifications are correct", {
+  result <- statistical_decision(
+    percent_censored = c(0, 10, 25, 75, 95),
+    n_used = c(20, 20, 20, 20, 20),
+    n_detect = c(20, 18, 15, 5, 1)
+  )
+
+  expect_equal(
+    result$censoring_class,
+    c(
+      "low_censoring",
+      "low_censoring",
+      "moderate_censoring",
+      "high_censoring",
+      "extreme_censoring"
+    )
+  )
+
+  expect_equal(
+    result$distribution_method,
+    c(
+      "parametric",
+      "parametric",
+      "ros_censored",
+      "nonparametric",
+      "descriptive_only"
+    )
+  )
+})

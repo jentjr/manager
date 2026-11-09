@@ -1,92 +1,35 @@
-test_analyte_tbl <- tibble::tibble(
-  analyte = c(
-    "calcium",
-    "magnesium",
-    "sodium",
-    "bicarbonate",
-    "benzene"
-  ),
+# ------------------------------------------------------------------------------
+# Test fixture
+# ------------------------------------------------------------------------------
 
-  aliases = list(
-    c("ca", "calcium"),
-    c("mg", "magnesium"),
-    c("na", "sodium"),
-    c("alkalinity", "hco3"),
-    "benzene"
-  ),
+gw_piper <- tibble::tribble(
+  ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit ,
 
-  std_unit = c(
-    "mg/L",
-    "mg/L",
-    "mg/L",
-    "mg/L as CaCO3",
-    "ug/L"
-  ),
+  "MW-1"       , as.Date("2020-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"        ,
+  "MW-1"       , as.Date("2020-01-01") , "Magnesium, dissolved"    ,               12 , "mg/L"        ,
+  "MW-1"       , as.Date("2020-01-01") , "Sodium, dissolved"       ,               25 , "mg/L"        ,
+  "MW-1"       , as.Date("2020-01-01") , "Potassium, dissolved"    ,                3 , "mg/L"        ,
+  "MW-1"       , as.Date("2020-01-01") , "Chloride, total"         ,               18 , "mg/L"        ,
+  "MW-1"       , as.Date("2020-01-01") , "Sulfate, total"          ,               30 , "mg/L"        ,
+  "MW-1"       , as.Date("2020-01-01") , "Alkalinity, total (lab)" ,              110 , "mg/L"        ,
 
-  ion_class = c(
-    "cation",
-    "cation",
-    "cation",
-    "anion",
-    NA_character_
-  ),
-
-  charge = c(
-    2,
-    2,
-    1,
-    -1,
-    NA
-  ),
-
-  molecular_weight = c(
-    40.078,
-    24.305,
-    22.990,
-    61.017,
-    NA
-  ),
-
-  meq_factor = c(
-    0.0499,
-    0.0823,
-    0.0435,
-    0.0200,
-    NA_real_
-  )
+  "MW-2"       , as.Date("2020-01-01") , "Calcium, dissolved"      ,               55 , "mg/L"        ,
+  "MW-2"       , as.Date("2020-01-01") , "Magnesium, dissolved"    ,               14 , "mg/L"        ,
+  "MW-2"       , as.Date("2020-01-01") , "Sodium, dissolved"       ,               20 , "mg/L"        ,
+  "MW-2"       , as.Date("2020-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"        ,
+  "MW-2"       , as.Date("2020-01-01") , "Chloride, total"         ,               12 , "mg/L"        ,
+  "MW-2"       , as.Date("2020-01-01") , "Sulfate, total"          ,               22 , "mg/L"        ,
+  "MW-2"       , as.Date("2020-01-01") , "Alkalinity, total (lab)" ,              135 , "mg/L"
 )
 
-make_schema <- function() {
+
+build_schema <- function(df = gw_piper) {
   env_schema(
-    tibble::tibble(
-      location = c(
-        "MW-1",
-        "MW-1",
-        "MW-2",
-        "MW-2"
-      ),
-      date = as.Date(c(
-        "2024-01-01",
-        "2024-01-02",
-        "2024-01-03",
-        "2024-01-04"
-      )),
-      analyte = c(
-        "Arsenic",
-        "Arsenic",
-        "Arsenic",
-        "Arsenic"
-      ),
-      result = c(
-        1,
-        2,
-        3,
-        4
-      )
-    ),
-    location = location,
-    date = date,
-    analyte = analyte,
-    result = result
+    df,
+    location = location_id,
+    date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit
   )
 }

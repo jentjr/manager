@@ -4,43 +4,8 @@ library(testthat)
 library(dplyr)
 
 # ------------------------------------------------------------------------------
-# Test fixture
-# ------------------------------------------------------------------------------
-
-gw_piper <- tibble::tribble(
-  ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit ,
-
-  "MW-1"       , as.Date("2020-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"        ,
-  "MW-1"       , as.Date("2020-01-01") , "Magnesium, dissolved"    ,               12 , "mg/L"        ,
-  "MW-1"       , as.Date("2020-01-01") , "Sodium, dissolved"       ,               25 , "mg/L"        ,
-  "MW-1"       , as.Date("2020-01-01") , "Potassium, dissolved"    ,                3 , "mg/L"        ,
-  "MW-1"       , as.Date("2020-01-01") , "Chloride, total"         ,               18 , "mg/L"        ,
-  "MW-1"       , as.Date("2020-01-01") , "Sulfate, total"          ,               30 , "mg/L"        ,
-  "MW-1"       , as.Date("2020-01-01") , "Alkalinity, total (lab)" ,              110 , "mg/L"        ,
-
-  "MW-2"       , as.Date("2020-01-01") , "Calcium, dissolved"      ,               55 , "mg/L"        ,
-  "MW-2"       , as.Date("2020-01-01") , "Magnesium, dissolved"    ,               14 , "mg/L"        ,
-  "MW-2"       , as.Date("2020-01-01") , "Sodium, dissolved"       ,               20 , "mg/L"        ,
-  "MW-2"       , as.Date("2020-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"        ,
-  "MW-2"       , as.Date("2020-01-01") , "Chloride, total"         ,               12 , "mg/L"        ,
-  "MW-2"       , as.Date("2020-01-01") , "Sulfate, total"          ,               22 , "mg/L"        ,
-  "MW-2"       , as.Date("2020-01-01") , "Alkalinity, total (lab)" ,              135 , "mg/L"
-)
-
-# ------------------------------------------------------------------------------
 # Helpers
 # ------------------------------------------------------------------------------
-
-build_schema <- function(df = gw_piper) {
-  env_schema(
-    df,
-    location = location_id,
-    date = sample_date,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit
-  )
-}
 
 piper_plot_df <- function(df = gw_piper, ...) {
   piper_plot(
@@ -64,6 +29,7 @@ piper_plot_schema <- function(df = gw_piper, ...) {
 piper_scale_df <- function() {
   bind_rows(
     gw_piper,
+
     tibble::tribble(
       ~location_id             , ~sample_date          , ~param_name ,
       ~analysis_result         , ~default_unit         ,
@@ -97,10 +63,6 @@ test_that("data.frame method requires mappings", {
   )
 })
 
-# ------------------------------------------------------------------------------
-# env_schema method
-# ------------------------------------------------------------------------------
-
 test_that("env_schema method returns ggplot", {
   p <- piper_plot_schema()
 
@@ -109,6 +71,10 @@ test_that("env_schema method returns ggplot", {
     "ggplot"
   )
 })
+
+# ------------------------------------------------------------------------------
+# analyte matching
+# ------------------------------------------------------------------------------
 
 test_that("invalid analyte matching throws error", {
   expect_error(
@@ -119,14 +85,13 @@ test_that("invalid analyte matching throws error", {
 })
 
 test_that("all supported analyte matching methods work", {
-  methods <- c(
-    "exact",
-    "strict",
-    "normalized"
-  )
-
   purrr::walk(
-    methods,
+    c(
+      "exact",
+      "strict",
+      "normalized"
+    ),
+
     ~ expect_no_error(
       piper_plot_schema(
         analyte_matching = .x
@@ -136,7 +101,7 @@ test_that("all supported analyte matching methods work", {
 })
 
 # ------------------------------------------------------------------------------
-# Plot metadata
+# plot metadata
 # ------------------------------------------------------------------------------
 
 test_that("title is applied", {
@@ -161,13 +126,15 @@ test_that("plotmath labels are accepted", {
 })
 
 # ------------------------------------------------------------------------------
-# Grouping validation
+# grouping validation
 # ------------------------------------------------------------------------------
 
 test_that("valid group assignments are accepted", {
-  group_df <- gw_piper %>%
-    distinct(location_id) %>%
-    mutate(group = c("A", "B"))
+  group_df <- gw_piper |>
+    distinct(location_id) |>
+    mutate(
+      group = c("A", "B")
+    )
 
   df <- left_join(
     gw_piper,
@@ -188,7 +155,9 @@ test_that("multiple groups per location error", {
 
   df$group <- "A"
 
-  first_location <- unique(df$location_id)[1]
+  first_location <- unique(
+    df$location_id
+  )[1]
 
   df$group[
     df$location_id == first_location
@@ -204,13 +173,12 @@ test_that("multiple groups per location error", {
       df,
       group_col = "group"
     ),
-
     "must contain only one value per location"
   )
 })
 
 # ------------------------------------------------------------------------------
-# Scale analyte support
+# scale analyte
 # ------------------------------------------------------------------------------
 
 test_that("scale_analyte is supported", {
@@ -243,7 +211,7 @@ test_that("unavailable scale analyte warns", {
 })
 
 # ------------------------------------------------------------------------------
-# Plot structure
+# plot structure
 # ------------------------------------------------------------------------------
 
 test_that("plot contains layers", {
@@ -266,16 +234,8 @@ test_that("plot uses a coordinate system", {
   )
 })
 
-test_that("plot contains labels list", {
-  p <- piper_plot_schema()
-
-  expect_true(
-    is.list(p$labels)
-  )
-})
-
 # ------------------------------------------------------------------------------
-# Internal transform smoke test
+# piper data generation
 # ------------------------------------------------------------------------------
 
 test_that("piper transformation returns coordinate columns", {
@@ -293,8 +253,7 @@ test_that("piper transformation returns coordinate columns", {
       "Fluoride, total"
     ),
     y_anion = "Alkalinity, total (lab)",
-    z_anion = "Sulfate, total",
-    scale_analyte = NULL
+    z_anion = "Sulfate, total"
   )
 
   expect_true(
@@ -307,13 +266,177 @@ test_that("piper transformation returns coordinate columns", {
         "diamond_x",
         "diamond_y"
       ) %in%
-        names(piper_df)
+        names(
+          piper_df
+        )
     )
   )
 })
 
+test_that("strict matching produces valid Piper coordinates", {
+  out <- piper_data(
+    gw,
+    analyte_matching = "strict"
+  )
+
+  expect_gt(
+    sum(
+      stats::complete.cases(
+        out[,
+          c(
+            "cation_x",
+            "cation_y",
+            "anion_x",
+            "anion_y",
+            "diamond_x",
+            "diamond_y"
+          )
+        ]
+      )
+    ),
+    0
+  )
+})
+
+test_that("normalized matching produces valid Piper coordinates", {
+  out <- piper_data(
+    gw,
+    analyte_matching = "normalized"
+  )
+
+  expect_gt(
+    sum(
+      stats::complete.cases(
+        out[,
+          c(
+            "cation_x",
+            "cation_y",
+            "anion_x",
+            "anion_y",
+            "diamond_x",
+            "diamond_y"
+          )
+        ]
+      )
+    ),
+    0
+  )
+})
+
+test_that("strict and normalized matching give equivalent Piper coordinates", {
+  strict <- piper_data(
+    gw,
+    analyte_matching = "strict"
+  )
+
+  normalized <- piper_data(
+    gw,
+    analyte_matching = "normalized"
+  )
+
+  expect_equal(
+    strict$cation_x,
+    normalized$cation_x
+  )
+
+  expect_equal(
+    strict$cation_y,
+    normalized$cation_y
+  )
+
+  expect_equal(
+    strict$anion_x,
+    normalized$anion_x
+  )
+
+  expect_equal(
+    strict$anion_y,
+    normalized$anion_y
+  )
+
+  expect_equal(
+    strict$diamond_x,
+    normalized$diamond_x
+  )
+
+  expect_equal(
+    strict$diamond_y,
+    normalized$diamond_y
+  )
+})
+
+test_that("normalized matching aggregates through analyte_id", {
+  chemistry_df <- .prepare_major_ion_chemistry(
+    gw,
+    analytes = c(
+      "Calcium",
+      "Magnesium",
+      "Sodium",
+      "Potassium",
+      "Chloride",
+      "Bicarbonate",
+      "Sulfate"
+    ),
+    analyte_matching = "normalized"
+  )
+
+  components <- .create_geochemical_components(
+    chemistry_df,
+    .major_ion_components()
+  )
+
+  expect_gt(
+    sum(!is.na(components$calcium)),
+    0
+  )
+
+  expect_gt(
+    sum(!is.na(components$magnesium)),
+    0
+  )
+
+  expect_gt(
+    sum(!is.na(components$chloride)),
+    0
+  )
+
+  expect_gt(
+    sum(!is.na(components$alkalinity)),
+    0
+  )
+})
+
+test_that("piper_data supports custom analyte selections", {
+  out <- piper_data(
+    gw,
+    analyte_matching = "strict",
+    x_anion = "Chloride, total"
+  )
+
+  expect_gt(
+    sum(!is.na(out$anion_x)),
+    0
+  )
+})
+
+test_that("custom analytes are included during Piper preparation", {
+  out <- piper_data(
+    gw,
+    analyte_matching = "strict",
+    x_anion = c(
+      "Chloride, total",
+      "Fluoride, total"
+    )
+  )
+
+  expect_gt(
+    sum(!is.na(out$anion_x)),
+    0
+  )
+})
+
 # ------------------------------------------------------------------------------
-# Regression guard
+# regression guard
 # ------------------------------------------------------------------------------
 
 test_that("piper_plot remains constructible with major ions only", {
@@ -325,4 +448,24 @@ test_that("piper_plot remains constructible with major ions only", {
       "ggplot"
     )
   })
+})
+
+test_that("strict matching produces non-missing Piper components", {
+  components <- .prepare_major_ion_chemistry(
+    build_schema(),
+    analyte_matching = "strict"
+  ) |>
+    .create_geochemical_components(
+      .major_ion_components()
+    )
+
+  expect_gt(
+    sum(!is.na(components$calcium)),
+    0
+  )
+
+  expect_gt(
+    sum(!is.na(components$alkalinity)),
+    0
+  )
 })

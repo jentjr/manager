@@ -6,6 +6,7 @@
 \usage{
 env_schema(
   df,
+  site = NULL,
   location,
   date,
   analyte,
@@ -30,6 +31,8 @@ env_schema(
 }
 \arguments{
 \item{df}{Data frame.}
+
+\item{site}{Site identifier column.}
 
 \item{location}{Location identifier column.}
 
