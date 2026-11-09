@@ -12,7 +12,7 @@
 #' @param df Data frame.
 #' @param site Site identifier column.
 #' @param location Location identifier column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Unit column.
@@ -84,7 +84,7 @@
 #' env_schema(
 #'   data,
 #'   location = location_id,
-#'   date = sample_date,
+#'   sample_date = sample_date,
 #'   analyte = parameter,
 #'   result = concentration
 #' )
@@ -108,7 +108,7 @@
 #' gw <- env_schema(
 #'   my_data,
 #'   location = location_id,
-#'   date = sample_date,
+#'   sample_date = sample_date,
 #'   analyte = param_name,
 #'   result = analysis_result,
 #'   unit = default_unit
@@ -122,7 +122,7 @@ env_schema <- function(
   df,
   site = NULL,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,
@@ -162,14 +162,14 @@ env_schema <- function(
 
   required_mapping <- rlang::enquos(
     location,
-    date,
+    sample_date,
     analyte,
     result
   )
 
   if (any(vapply(required_mapping, rlang::quo_is_missing, logical(1)))) {
     rlang::abort(
-      "location, date, analyte, and result mappings are required."
+      "location, sample_date, analyte, and result mappings are required."
     )
   }
 
@@ -180,7 +180,7 @@ env_schema <- function(
   column_mapping <- rlang::enquos(
     .site = site,
     .location = location,
-    .date = date,
+    .sample_date = sample_date,
     .analyte = analyte,
 
     .result = result,
@@ -238,7 +238,7 @@ env_schema <- function(
   env_mapping <- list(
     site = unname(source_cols[".site"]),
     location = unname(source_cols[".location"]),
-    date = unname(source_cols[".date"]),
+    sample_date = unname(source_cols[".sample_date"]),
     analyte = unname(source_cols[".analyte"]),
     result = unname(source_cols[".result"]),
 
@@ -1554,8 +1554,12 @@ location_var <- function(x) {
   get_env_mapping(x)$location
 }
 
-date_var <- function(x) {
-  get_env_mapping(x)$date
+sample_date_var <- function(x) {
+  get_env_mapping(x)$sample_date
+}
+
+analysis_date_var <- function(x) {
+  get_env_mapping(x)$analysis_date
 }
 
 analyte_var <- function(x) {
@@ -1689,8 +1693,17 @@ location <- function(x) {
 #' @param x Object.
 #'
 #' @export
-date <- function(x) {
-  UseMethod("date")
+sample_date <- function(x) {
+  UseMethod("sample_date")
+}
+
+#' Return sample analysis dates
+#'
+#' @param x Object.
+#'
+#' @export
+analysis_date <- function(x) {
+  UseMethod("analysis_date")
 }
 
 #' Return analyte values
@@ -1942,10 +1955,18 @@ location.env_schema <- function(x) {
 }
 
 #' @export
-date.env_schema <- function(x) {
+sample_date.env_schema <- function(x) {
   .get_mapped_column(
     x,
-    date_var(x)
+    sample_date_var(x)
+  )
+}
+
+#' @export
+analysis_date.env_schema <- function(x) {
+  .get_mapped_column(
+    x,
+    analysis_date_var(x)
   )
 }
 
@@ -2188,8 +2209,16 @@ location.default <- function(x) {
 }
 
 #' @export
-date.default <- function(x) {
-  .accessor_not_implemented("date", x)
+sample_date.default <- function(x) {
+  .accessor_not_implemented("sample_date", x)
+}
+
+#' @export
+analysis_date.default <- function(x) {
+  .accessor_not_implemented(
+    "analysis_date",
+    x
+  )
 }
 
 #' @export
@@ -2520,7 +2549,7 @@ print.env_schema <- function(x, ...) {
   data,
   site = NULL,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,
@@ -2542,7 +2571,7 @@ print.env_schema <- function(x, ...) {
   args <- list(
     df = data,
     location = rlang::enquo(location),
-    date = rlang::enquo(date),
+    sample_date = rlang::enquo(sample_date),
     analyte = rlang::enquo(analyte),
     result = rlang::enquo(result),
     qualifier_table = qualifier_table,

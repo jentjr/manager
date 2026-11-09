@@ -8,7 +8,7 @@
 \usage{
 schoeller_plot(df, ...)
 
-\method{schoeller_plot}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{schoeller_plot}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{schoeller_plot}{env_schema}(
   df,
@@ -20,7 +20,7 @@ schoeller_plot(df, ...)
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
   analyte_matching = c("exact", "strict", "normalized"),
-  facet_var = c("location", "date"),
+  facet_var = NULL,
   title = NULL,
   lwt = 1
 )
@@ -38,7 +38,7 @@ schoeller_plot(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{calcium}{Calcium analyte.}
 
@@ -57,8 +57,8 @@ schoeller_plot(df, ...)
 \item{analyte_matching}{Analyte matching strategy. One of
 `"exact"`, `"strict"`, or `"normalized"`.}
 
-\item{facet_var}{Faceting variable. One of
-`"location"` or `"date"`.}
+\item{facet_var}{Column used for faceting. Must be either the mapped
+location field or mapped sample_date field. Defaults to the mapped location field.}
 
 \item{title}{Optional plot title.}
 
@@ -97,7 +97,7 @@ practice.
 Missing analytes are permitted and omitted from the
 resulting profile.
 
-For `env_schema` objects, analyte, result, unit, date,
+For `env_schema` objects, analyte, result, unit, sample_date,
 and location fields are determined from schema mappings.
 }
 \section{Analyte Matching}{
@@ -123,13 +123,13 @@ and location fields are determined from schema mappings.
 \section{Faceting}{
 
 
-If `facet_var = "location"`, each location is displayed
-in a separate panel and sample events are drawn as individual
-profiles.
+If `facet_var` is the mapped location field,
+each location is displayed in a separate panel and
+sample events are drawn as individual profiles.
 
-If `facet_var = "date"`, each sampling event is
-displayed in a separate panel and locations are drawn as
-individual profiles.
+If `facet_var` is the mapped sample_date field,
+each sampling event is displayed in a separate panel and
+locations are drawn as individual profiles.
 }
 
 \section{Validation}{
@@ -150,9 +150,10 @@ data(gw)
 
 schoeller_plot(gw)
 
+
 schoeller_plot(
   gw,
-  facet_var = "date"
+  facet_var = sample_date_var(gw)
 )
 
 schoeller_plot(

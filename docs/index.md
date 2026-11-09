@@ -120,20 +120,18 @@ gw <- read_manages4(
 # load example data and plot time series of selected wells and constituents
 data("gw")
 
-wells <- c("MW-1", "MW-2")
+wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5", "MW-6")
 
-params <- c("Magnesium, dissolved", 
-            "Sodium, dissolved", 
-            "Chloride, total", 
-            "Sulfate, total", 
-            "Potassium, dissolved")
+params <- c("Arsenic, dissolved",
+            "Chloride, total"
+            )
 
 gw %>%
   filter(location_id %in% wells, param_name %in% params) %>%
   series_plot()
 ```
 
-![](reference/figures/README-time-series-1.png)![](reference/figures/README-time-series-2.png)![](reference/figures/README-time-series-3.png)![](reference/figures/README-time-series-4.png)![](reference/figures/README-time-series-5.png)
+![](reference/figures/README-time-series-1.png)![](reference/figures/README-time-series-2.png)
 
 ``` r
 
@@ -152,7 +150,16 @@ Piper Diagrams and more…
 ``` r
 
 gw %>%
-  piper_plot()
+  piper_plot(
+    x_cation = "Calcium, dissolved",
+    y_cation = "Magnesium, dissolved",
+    z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
+    x_anion = c("Chloride, total", "Fluoride, total"),
+    x_anion_label = "Cl + F",
+    y_anion = "Alkalinity, total (lab)",
+    z_anion = "Sulfate, total",
+    title = "Example Piper Diagram"
+    )
 ```
 
 ![](reference/figures/README-piper-plot-1.png)

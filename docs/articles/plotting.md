@@ -93,7 +93,7 @@ data(gw)
 
 gw
 #> <env_schema>
-#> 5878 rows x 41 columns
+#> 5878 rows x 44 columns
 #> Locations: 8 
 #> Analytes: 49 
 #> Valid: TRUE 
@@ -166,7 +166,7 @@ gw_schema <- env_schema(
 
 gw_schema
 #> <env_schema>
-#> 2372 rows x 41 columns
+#> 2372 rows x 44 columns
 #> Locations: 3 
 #> Analytes: 49 
 #> Valid: TRUE 

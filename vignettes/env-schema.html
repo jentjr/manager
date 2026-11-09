@@ -12,7 +12,7 @@
 
 <meta name="author" content="manager package" />
 
-<meta name="date" content="2026-10-27" />
+<meta name="date" content="2026-11-09" />
 
 <title>Working with env_schema</title>
 
@@ -341,7 +341,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Working with env_schema</h1>
 <h4 class="author">manager package</h4>
-<h4 class="date">2026-10-27</h4>
+<h4 class="date">2026-11-09</h4>
 
 
 <div id="TOC">
@@ -497,7 +497,14 @@ consistent interface.</p>
 env_schema</h1>
 <p>Datasets are typically converted using
 <code>as_env_schema()</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>gw <span class="ot">&lt;-</span> <span class="fu">as_env_schema</span>(raw_data)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>gw <span class="ot">&lt;-</span> <span class="fu">as_env_schema</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  gw_data,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">location =</span> location_id,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">date =</span> sample_date,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">analyte =</span> param_name,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">result =</span> analysis_result,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">unit =</span> default_unit</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  )</span></code></pre></div>
 <p>The constructor:</p>
 <ul>
 <li>Validates schema structure.</li>
@@ -687,7 +694,7 @@ API.</p>
 <p>A typical analysis workflow might look like:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>gw <span class="sc">%&gt;%</span></span>
 <span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>    <span class="fu">analyte</span>(.) <span class="sc">==</span> <span class="st">&quot;Benzene&quot;</span></span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>    <span class="fu">analyte</span>(.) <span class="sc">==</span> <span class="st">&quot;Chloride, total&quot;</span></span>
 <span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>    <span class="at">result_ug_l =</span> <span class="fu">result</span>(.)</span>

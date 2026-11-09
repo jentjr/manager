@@ -16,7 +16,7 @@ piper_time_html(df, ...)
     \item{\code{analyte}}{Analyte column.}
     \item{\code{result}}{Analytical result column.}
     \item{\code{unit}}{Reporting unit column.}
-    \item{\code{date}}{Sample date column.}
+    \item{\code{sample_date}}{Sample date column.}
     \item{\code{analyte_matching}}{Analyte matching strategy used to resolve
 analyte names. One of `"exact"`, `"strict"`, or `"normalized"`.}
     \item{\code{x_cation}}{Character vector identifying analytes representing

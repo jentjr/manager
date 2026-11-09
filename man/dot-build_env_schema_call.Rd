@@ -8,7 +8,7 @@
   data,
   site = NULL,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,

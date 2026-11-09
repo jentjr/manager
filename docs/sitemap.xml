@@ -30,6 +30,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/convert_analytes_to_meq.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/corr_plot.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/date.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/derive_decision.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/detected.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/detection_limit.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/display_options.html</loc></url>
@@ -37,7 +38,9 @@
 <url><loc>https://jentjr.github.io/manager/reference/display_threshold.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/display_threshold_type.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dixon_test.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-add_fraction_aliases.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-attach_analyte_metadata.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-build_alias_lookup.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-build_analyte_labels.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-build_env_schema_call.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-censoring_decision_metadata.html</loc></url>
@@ -68,11 +71,14 @@
 <url><loc>https://jentjr.github.io/manager/reference/durov_plot.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/env_schema.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/estimated.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/estimate_distribution.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/est_dist.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/est_dist_censored.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/from_csv.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/from_excel.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/grubbs_test.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/guidance_options.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/guidance_profile.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/gw_data.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/has_env_schema_structure.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/index.html</loc></url>
@@ -97,6 +103,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/piper_time_plot.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/pred_int.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/pred_int_sim.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/print.statistical_decision.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/qualifier_table.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/quantitation_limit.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/read_manages3.html</loc></url>
@@ -120,10 +127,12 @@
 <url><loc>https://jentjr.github.io/manager/reference/set_proposed_background.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/short_analyte_label.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/simplify_param_name.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/site.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/sp_plot.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/standards_schema.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/standards_tbl.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/start_date.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/statistical_decision.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/stats_summary.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/stiff_data.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/stiff_plot.html</loc></url>

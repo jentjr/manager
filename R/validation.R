@@ -198,13 +198,11 @@ validate_env_schema <- function(x) {
     )
   }
 
-  mapping <- get_env_mapping(x)
-
   required <- c(
-    mapping$location,
-    mapping$date,
-    mapping$analyte,
-    mapping$result
+    location_var(x),
+    sample_date_var(x),
+    analyte_var(x),
+    result_var(x)
   )
 
   required <- stats::na.omit(required)
@@ -270,7 +268,7 @@ validate_env_schema <- function(x) {
 
   if (
     !inherits(
-      date(x),
+      sample_date(x),
       c(
         "Date",
         "POSIXct",
@@ -279,8 +277,25 @@ validate_env_schema <- function(x) {
     )
   ) {
     rlang::abort(
-      "'date' must be a Date or POSIXct column."
+      "'sample_date' must be a Date or POSIXct column."
     )
+  }
+
+  if (!is.null(analysis_date_var(x))) {
+    if (
+      !inherits(
+        analysis_date(x),
+        c(
+          "Date",
+          "POSIXct",
+          "POSIXt"
+        )
+      )
+    ) {
+      rlang::abort(
+        "'analysis_date' must be a Date or POSIXct column."
+      )
+    }
   }
 
   if (!is.numeric(x$.original_lab_result)) {
@@ -502,7 +517,7 @@ validate_env_schema_structure <- function(x) {
     stats::na.omit(
       c(
         mapping$location,
-        mapping$date,
+        mapping$sample_date,
         mapping$analyte,
         mapping$result
       )

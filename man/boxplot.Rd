@@ -13,7 +13,7 @@ boxplot(df, ...)
   location,
   analyte,
   result,
-  date = NULL,
+  sample_date = NULL,
   reporting_flag = NULL,
   unit = NULL,
   ...
@@ -47,7 +47,7 @@ boxplot(df, ...)
 
 \item{result}{Analytical result column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{reporting_flag}{Reporting qualifier column.}
 

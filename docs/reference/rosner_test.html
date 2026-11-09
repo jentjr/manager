@@ -116,7 +116,16 @@ Rosner result object should be retained.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble containing one row per outlier evaluation group.</p>
-    </div>
+<p>A tibble containing one row per outlier evaluation group.</p>
+<p>The returned table includes:</p><dl><dt>Value</dt>
+<dd><p>Observation evaluated by Rosner's procedure.</p></dd>
+
+  <dt>Outlier</dt>
+<dd><p>Logical indicator identifying observations
+  classified as outliers.</p></dd>
+
+
+</dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>`rosner_test()` is an S3 generic supporting both `data.frame`
@@ -152,17 +161,7 @@ input is not grouped, tests are performed by:</p>
 <ul><li><p>location</p></li>
 <li><p>analyte</p></li>
 <li><p>analysis unit</p></li>
-</ul><p>#' @returns
-A tibble containing one row per outlier evaluation group.</p>
-<p>The returned table includes:</p><dl><dt>Value</dt>
-<dd><p>Observation evaluated by Rosner's procedure.</p></dd>
-
-  <dt>Outlier</dt>
-<dd><p>Logical indicator identifying observations
-  classified as outliers.</p></dd>
-
-
-</dl></div>
+</ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

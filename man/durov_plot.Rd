@@ -8,7 +8,7 @@
 \usage{
 durov_plot(df, ...)
 
-\method{durov_plot}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{durov_plot}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{durov_plot}{env_schema}(
   df,
@@ -29,7 +29,7 @@ durov_plot(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte_matching}{Analyte matching strategy. One of
 `"exact"`, `"strict"`, or `"normalized"`.}
@@ -75,7 +75,7 @@ The central Durov field may be used to evaluate:
   \item hydrochemical evolution.
 }
 
-For `env_schema` objects, analyte, result, unit, date,
+For `env_schema` objects, analyte, result, unit, sample_date,
 and location fields are obtained directly from schema
 mappings.
 }

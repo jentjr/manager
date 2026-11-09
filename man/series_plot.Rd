@@ -11,7 +11,7 @@ series_plot(df, ...)
 \method{series_plot}{data.frame}(
   df,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,
@@ -45,7 +45,7 @@ series_plot(df, ...)
 
 \item{location}{Location identifier column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte}{Analyte column.}
 
@@ -135,7 +135,7 @@ detected observations using symbol shape.
 Optional trend lines, trend annotations, analytical standards,
 and background periods may be added to aid interpretation.
 
-For `env_schema` objects, analyte, result, date, unit,
+For `env_schema` objects, analyte, result, sample_date, unit,
 detection status, and location information are obtained
 directly from schema mappings and standardized analytical
 fields.
@@ -199,7 +199,7 @@ standardized censoring information contained in the
 For `env_schema` objects, `series_plot()` automatically uses:
 
 \itemize{
-  \item the mapped date field;
+  \item the mapped sample_date field;
   \item the mapped location field;
   \item the mapped analyte field;
   \item standardized analysis results;

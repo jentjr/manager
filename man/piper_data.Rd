@@ -8,7 +8,7 @@
 \usage{
 piper_data(df, ...)
 
-\method{piper_data}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{piper_data}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{piper_data}{env_schema}(
   df,
@@ -35,7 +35,7 @@ piper_data(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte_matching}{Analyte matching strategy used to resolve
 analyte names. One of `"exact"`, `"strict"`, or `"normalized"`.}

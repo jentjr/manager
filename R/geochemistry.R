@@ -39,7 +39,7 @@ major_ion_chemistry <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @details
 #' For data frames, `major_ion_chemistry()` first converts the
@@ -54,7 +54,7 @@ major_ion_chemistry.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -63,7 +63,7 @@ major_ion_chemistry.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   major_ion_chemistry(
@@ -192,7 +192,7 @@ major_ions <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @details
 #' For data frames, `major_ions()` first converts the supplied data
@@ -206,7 +206,7 @@ major_ions.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -215,7 +215,7 @@ major_ions.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   major_ions(
@@ -326,7 +326,7 @@ charge_balance <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @details
 #' For data frames, `charge_balance()` first converts the supplied
@@ -340,7 +340,7 @@ charge_balance.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -349,7 +349,7 @@ charge_balance.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   charge_balance(df, ...)
@@ -390,7 +390,7 @@ charge_balance.data.frame <- function(
 #' indicate analytical error, missing constituents, transcription
 #' errors, or unit-conversion problems.
 #'
-#' For `env_schema` objects, analyte, result, unit, date, and
+#' For `env_schema` objects, analyte, result, unit, sample_date, and
 #' location fields are obtained directly from schema mappings.
 #'
 #' @section Analyte Matching:
@@ -516,7 +516,7 @@ piper_data <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @export
 piper_data.data.frame <- function(
@@ -525,7 +525,7 @@ piper_data.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -534,7 +534,7 @@ piper_data.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   piper_data(
@@ -632,7 +632,7 @@ durov_data <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @export
 durov_data.data.frame <- function(
@@ -641,7 +641,7 @@ durov_data.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -650,7 +650,7 @@ durov_data.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   durov_data(
@@ -736,7 +736,7 @@ schoeller_data <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @details
 #' For data frames, `schoeller_data()` first converts the supplied
@@ -750,7 +750,7 @@ schoeller_data.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -759,7 +759,7 @@ schoeller_data.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   schoeller_data(
@@ -870,7 +870,7 @@ stiff_data <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @export
 stiff_data.data.frame <- function(
@@ -879,7 +879,7 @@ stiff_data.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -888,7 +888,7 @@ stiff_data.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   stiff_data(
@@ -1042,7 +1042,7 @@ stiff_data.env_schema <- function(
     chemistry_df
   )
 
-  date_col <- date_var(
+  sample_date_col <- sample_date_var(
     chemistry_df
   )
 
@@ -1053,7 +1053,7 @@ stiff_data.env_schema <- function(
   keys <- chemistry_df |>
     dplyr::distinct(
       .data[[location_col]],
-      .data[[date_col]]
+      .data[[sample_date_col]]
     )
 
   component_dfs <- purrr::imap(
@@ -1065,7 +1065,7 @@ stiff_data.env_schema <- function(
         ) |>
         dplyr::group_by(
           .data[[location_col]],
-          .data[[date_col]]
+          .data[[sample_date_col]]
         ) |>
         dplyr::summarise(
           value = {
@@ -1096,7 +1096,7 @@ stiff_data.env_schema <- function(
         component_df,
         by = c(
           location_col,
-          date_col
+          sample_date_col
         )
       )
   }
@@ -1385,7 +1385,7 @@ stiff_data.env_schema <- function(
   validate_env_schema(df)
 
   location_col <- location_var(df)
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
   analyte_id_col <- analyte_id_var(
     df
   )
@@ -1419,7 +1419,7 @@ stiff_data.env_schema <- function(
     ) |>
     dplyr::group_by(
       .data[[location_col]],
-      .data[[date_col]],
+      .data[[sample_date_col]],
       analyte,
       .data[[analyte_id_col]]
     ) |>
@@ -1600,7 +1600,7 @@ stiff_data.env_schema <- function(
   validate_env_schema(df)
 
   location_col <- location_var(df)
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   analyte_matching <- rlang::arg_match(
     analyte_matching
@@ -1824,7 +1824,7 @@ stiff_data.env_schema <- function(
         dplyr::all_of(
           c(
             location_col,
-            date_col
+            sample_date_col
           )
         ),
         analyte,
@@ -1840,7 +1840,7 @@ stiff_data.env_schema <- function(
         scale_values,
         by = c(
           location_col,
-          date_col
+          sample_date_col
         )
       )
   }
@@ -1850,7 +1850,7 @@ stiff_data.env_schema <- function(
       dplyr::all_of(
         c(
           location_col,
-          date_col
+          sample_date_col
         )
       ),
       cation_x,
@@ -1885,7 +1885,7 @@ stiff_data.env_schema <- function(
     chemistry_df
   )
 
-  date_col <- date_var(
+  sample_date_col <- sample_date_var(
     chemistry_df
   )
   analyte_id_col <- analyte_id_var(
@@ -1900,7 +1900,7 @@ stiff_data.env_schema <- function(
     chemistry_df,
     c(
       location_col,
-      date_col,
+      sample_date_col,
       analyte_id_var(chemistry_df),
       analysis_result_meq_var(chemistry_df)
     )
@@ -1927,7 +1927,7 @@ stiff_data.env_schema <- function(
     ) |>
     dplyr::group_by(
       .data[[location_col]],
-      .data[[date_col]],
+      .data[[sample_date_col]],
       schoeller_axis
     ) |>
     dplyr::summarise(
@@ -1978,13 +1978,13 @@ stiff_data.env_schema <- function(
 ) {
   location_col <- location_var(chemistry_df)
 
-  date_col <- date_var(chemistry_df)
+  sample_date_col <- sample_date_var(chemistry_df)
 
   .validate_required_cols(
     chemistry_df,
     c(
       location_col,
-      date_col,
+      sample_date_col,
       analyte_id_var(chemistry_df),
       analysis_result_meq_var(chemistry_df)
     )
@@ -2005,7 +2005,7 @@ stiff_data.env_schema <- function(
         vals <- list(...)
 
         loc_value <- vals[[location_col]]
-        date_value <- vals[[date_col]]
+        date_value <- vals[[sample_date_col]]
 
         calcium <- vals$calcium
         magnesium <- vals$magnesium
@@ -2084,7 +2084,7 @@ stiff_data.env_schema <- function(
         dplyr::all_of(
           c(
             location_col,
-            date_col
+            sample_date_col
           )
         ),
         scale_value = .analysis_result
@@ -2095,7 +2095,7 @@ stiff_data.env_schema <- function(
         scale_values,
         by = c(
           location_col,
-          date_col
+          sample_date_col
         )
       )
   }
@@ -2103,7 +2103,7 @@ stiff_data.env_schema <- function(
   results |>
     dplyr::arrange(
       .data[[location_col]],
-      .data[[date_col]],
+      .data[[sample_date_col]],
       vertex
     )
 }
@@ -2194,7 +2194,7 @@ stiff_data.env_schema <- function(
 
   required_cols <- c(
     location_var(chemistry_df),
-    date_var(chemistry_df),
+    sample_date_var(chemistry_df),
     "durov_x_plot",
     "durov_y_plot"
   )

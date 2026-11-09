@@ -8,7 +8,7 @@ env_schema(
   df,
   site = NULL,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,
@@ -36,7 +36,7 @@ env_schema(
 
 \item{location}{Location identifier column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte}{Analyte column.}
 
@@ -136,7 +136,7 @@ For example:
 env_schema(
   data,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = parameter,
   result = concentration
 )
@@ -160,7 +160,7 @@ Stored schema mappings can be inspected using
 gw <- env_schema(
   my_data,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit

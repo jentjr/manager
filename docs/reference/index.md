@@ -50,6 +50,8 @@
   : Create a correlation plot
 - [`date()`](https://jentjr.github.io/manager/reference/date.md) :
   Return sample dates
+- [`derive_decision()`](https://jentjr.github.io/manager/reference/derive_decision.md)
+  : Derive Statistical Decision Guidance from Data
 - [`detected()`](https://jentjr.github.io/manager/reference/detected.md)
   : Return detection flags
 - [`detection_limit()`](https://jentjr.github.io/manager/reference/detection_limit.md)
@@ -72,17 +74,18 @@
   : Construct an environmental data schema
 - [`estimated()`](https://jentjr.github.io/manager/reference/estimated.md)
   : Return estimation flags
-- [`est_dist()`](https://jentjr.github.io/manager/reference/est_dist.md)
-  : Estimate statistical distribution
-- [`est_dist_censored()`](https://jentjr.github.io/manager/reference/est_dist_censored.md)
-  : Function to return either normal, lognormal, gamma, or
-  non-parametric distribution estimate
+- [`estimate_distribution()`](https://jentjr.github.io/manager/reference/estimate_distribution.md)
+  : Estimate Distributions Using Statistical Decision Guidance
 - [`from_csv()`](https://jentjr.github.io/manager/reference/from_csv.md)
   : Import environmental data from CSV
 - [`from_excel()`](https://jentjr.github.io/manager/reference/from_excel.md)
   : Import environmental data from Excel
 - [`grubbs_test()`](https://jentjr.github.io/manager/reference/grubbs_test.md)
   : Grubbs Test
+- [`guidance_options()`](https://jentjr.github.io/manager/reference/guidance_options.md)
+  : Guidance Options
+- [`guidance_profile()`](https://jentjr.github.io/manager/reference/guidance_profile.md)
+  : Guidance Profiles
 - [`gw_data`](https://jentjr.github.io/manager/reference/gw_data.md) :
   Example Groundwater Raw Data
 - [`indiana_data`](https://jentjr.github.io/manager/reference/indiana_data.md)
@@ -121,6 +124,8 @@
   : Function to calculate prediction interval
 - [`pred_int_sim()`](https://jentjr.github.io/manager/reference/pred_int_sim.md)
   : Function to calculate simultaneous prediction interval
+- [`print(`*`<statistical_decision>`*`)`](https://jentjr.github.io/manager/reference/print.statistical_decision.md)
+  : Print Statistical Decision Object
 - [`qualifier_table()`](https://jentjr.github.io/manager/reference/qualifier_table.md)
   : Return qualifier lookup table
 - [`quantitation_limit()`](https://jentjr.github.io/manager/reference/quantitation_limit.md)
@@ -165,6 +170,8 @@
   : Return short analyte labels
 - [`simplify_param_name()`](https://jentjr.github.io/manager/reference/simplify_param_name.md)
   : Helper function to split parameter names
+- [`site()`](https://jentjr.github.io/manager/reference/site.md) :
+  Return site values
 - [`sp_plot()`](https://jentjr.github.io/manager/reference/sp_plot.md) :
   Spatial Plot
 - [`standards_schema()`](https://jentjr.github.io/manager/reference/standards_schema.md)
@@ -173,6 +180,8 @@
   : Environmental Standards Lookup Table
 - [`start_date()`](https://jentjr.github.io/manager/reference/start_date.md)
   : Return the first sample date
+- [`statistical_decision()`](https://jentjr.github.io/manager/reference/statistical_decision.md)
+  : Statistical Decision Guidance
 - [`stats_summary()`](https://jentjr.github.io/manager/reference/stats_summary.md)
   : Summary Statistics
 - [`stiff_data()`](https://jentjr.github.io/manager/reference/stiff_data.md)

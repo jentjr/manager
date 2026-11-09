@@ -128,7 +128,14 @@ consistent interface.
 Datasets are typically converted using `as_env_schema()`.
 
 ```{r eval = FALSE}
-gw <- as_env_schema(raw_data)
+gw <- as_env_schema(
+  gw_data,
+  location = location_id,
+  date = sample_date,
+  analyte = param_name,
+  result = analysis_result,
+  unit = default_unit
+  )
 ```
 
 The constructor:
@@ -397,7 +404,7 @@ A typical analysis workflow might look like:
 ```{r eval = FALSE}
 gw %>%
   filter(
-    analyte(.) == "Benzene"
+    analyte(.) == "Chloride, total"
   ) %>%
   mutate(
     result_ug_l = result(.)

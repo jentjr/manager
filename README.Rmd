@@ -75,16 +75,6 @@ Datasets in `manager` use the `env_schema` class:
 gw
 ```
 
-Output:
-
-```
-12345 rows × 15 columns
-Locations: 48
-Analytes: 72
-Date range: 2015-01-01 to 2024-12-31
-Class: env_schema
-```
-
 Core environmental variables include:
 
 - location
@@ -112,13 +102,11 @@ gw <- read_manages4(
 # load example data and plot time series of selected wells and constituents
 data("gw")
 
-wells <- c("MW-1", "MW-2")
+wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5", "MW-6")
 
-params <- c("Magnesium, dissolved", 
-            "Sodium, dissolved", 
-            "Chloride, total", 
-            "Sulfate, total", 
-            "Potassium, dissolved")
+params <- c("Arsenic, dissolved",
+            "Chloride, total"
+            )
 
 gw %>%
   filter(location_id %in% wells, param_name %in% params) %>%
@@ -137,7 +125,16 @@ gw %>%
 Piper Diagrams and more...
 ```{r, piper-plot, fig.height=6, fig.width=9, results='hide', warning=FALSE}
 gw %>%
-  piper_plot()
+  piper_plot(
+    x_cation = "Calcium, dissolved",
+    y_cation = "Magnesium, dissolved",
+    z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
+    x_anion = c("Chloride, total", "Fluoride, total"),
+    x_anion_label = "Cl + F",
+    y_anion = "Alkalinity, total (lab)",
+    z_anion = "Sulfate, total",
+    title = "Example Piper Diagram"
+    )
 ```
 
 ## Interactive Exploration

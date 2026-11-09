@@ -74,6 +74,18 @@ rosner_test(df, k = 3, alpha = 0.05, warn = TRUE, keep_data_object = FALSE)
 
 A tibble containing one row per outlier evaluation group.
 
+A tibble containing one row per outlier evaluation group.
+
+The returned table includes:
+
+- Value:
+
+  Observation evaluated by Rosner's procedure.
+
+- Outlier:
+
+  Logical indicator identifying observations classified as outliers.
+
 ## Details
 
 \`rosner_test()\` is an S3 generic supporting both \`data.frame\` and
@@ -109,18 +121,6 @@ not grouped, tests are performed by:
 - analyte
 
 - analysis unit
-
-\#' @returns A tibble containing one row per outlier evaluation group.
-
-The returned table includes:
-
-- Value:
-
-  Observation evaluated by Rosner's procedure.
-
-- Outlier:
-
-  Logical indicator identifying observations classified as outliers.
 
 ## Examples
 

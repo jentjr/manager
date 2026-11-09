@@ -427,7 +427,7 @@ test_that("boxplot.data.frame dispatch works", {
     gw_data,
     location = location_id,
     analyte = param_name,
-    date = sample_date,
+    sample_date = sample_date,
     result = analysis_result
   )
 
@@ -445,7 +445,12 @@ test_that("boxplot honors custom schema mappings", {
       "Sulfate",
       "Sulfate"
     ),
-    date = as.Date(c("2020-10-10", "2021-10-10", "2020-10-10", "2021-10-10")),
+    sample_date = as.Date(c(
+      "2020-10-10",
+      "2021-10-10",
+      "2020-10-10",
+      "2021-10-10"
+    )),
     value = c(1, 2, 3, 4)
   )
 
@@ -453,7 +458,7 @@ test_that("boxplot honors custom schema mappings", {
     df,
     location = site,
     analyte = chem,
-    date = date,
+    sample_date = sample_date,
     result = value
   )
 
@@ -477,12 +482,11 @@ test_that("short_name uses short analyte labels", {
     plt$labels$title,
     "Cl"
   )
-  
+
   expect_false(
     grepl(
       "Chloride, total",
       plt$labels$title
     )
   )
-  
 })

@@ -11,7 +11,14 @@ library(dplyr)
 # names(gw)
 
 ## ----eval = FALSE-------------------------------------------------------------
-# gw <- as_env_schema(raw_data)
+# gw <- as_env_schema(
+#   gw_data,
+#   location = location_id,
+#   date = sample_date,
+#   analyte = param_name,
+#   result = analysis_result,
+#   unit = default_unit
+#   )
 
 ## ----eval = FALSE-------------------------------------------------------------
 # class(gw)
@@ -111,7 +118,7 @@ library(dplyr)
 ## ----eval = FALSE-------------------------------------------------------------
 # gw %>%
 #   filter(
-#     analyte(.) == "Benzene"
+#     analyte(.) == "Chloride, total"
 #   ) %>%
 #   mutate(
 #     result_ug_l = result(.)

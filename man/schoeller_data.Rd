@@ -8,7 +8,7 @@
 \usage{
 schoeller_data(df, ...)
 
-\method{schoeller_data}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{schoeller_data}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{schoeller_data}{env_schema}(df, analyte_matching = c("exact", "strict", "normalized"))
 }
@@ -25,7 +25,7 @@ schoeller_data(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte_matching}{Analyte matching strategy. One of
 `"exact"`, `"strict"`, or `"normalized"`.}

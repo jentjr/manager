@@ -8,6 +8,7 @@ mappings and schema metadata to a data frame.
 ``` r
 env_schema(
   df,
+  site = NULL,
   location,
   date,
   analyte,
@@ -36,6 +37,10 @@ env_schema(
 - df:
 
   Data frame.
+
+- site:
+
+  Site identifier column.
 
 - location:
 

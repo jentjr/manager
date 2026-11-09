@@ -8,7 +8,7 @@
 \usage{
 stiff_plot(df, ...)
 
-\method{stiff_plot}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{stiff_plot}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{stiff_plot}{env_schema}(
   df,
@@ -42,7 +42,7 @@ stiff_plot(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte_matching}{Analyte matching strategy. One of
 `"exact"`, `"strict"`, or `"normalized"`.}
@@ -122,7 +122,7 @@ characteristics, making Stiff diagrams useful for evaluating:
   \item geochemical evolution.
 }
 
-For `env_schema` objects, analyte, result, unit, date,
+For `env_schema` objects, analyte, result, unit, sample_date,
 and location fields are obtained directly from schema mappings.
 }
 \section{Analyte Matching}{
@@ -153,7 +153,7 @@ Stiff diagrams.
 
 By default, one plot is generated per location.
 
-If `group_var` is set to the mapped date field, one plot is
+If `group_var` is set to the mapped sample_date field, one plot is
 generated per sampling event.
 }
 
@@ -194,7 +194,7 @@ stiff_plot(
 
 stiff_plot(
   gw,
-  group_var = "sample_date"
+  group_var = sample_date_var(gw)
 )
 
 }

@@ -34,7 +34,7 @@ series_plot <- function(df, ...) {
 #' @rdname series_plot
 #'
 #' @param location Location identifier column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
@@ -51,7 +51,7 @@ series_plot <- function(df, ...) {
 series_plot.data.frame <- function(
   df,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,
@@ -63,7 +63,7 @@ series_plot.data.frame <- function(
   df <- env_schema(
     df,
     location = {{ location }},
-    date = {{ date }},
+    sample_date = {{ sample_date }},
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
@@ -137,7 +137,7 @@ series_plot.data.frame <- function(
 #' Optional trend lines, trend annotations, analytical standards,
 #' and background periods may be added to aid interpretation.
 #'
-#' For `env_schema` objects, analyte, result, date, unit,
+#' For `env_schema` objects, analyte, result, sample_date, unit,
 #' detection status, and location information are obtained
 #' directly from schema mappings and standardized analytical
 #' fields.
@@ -194,7 +194,7 @@ series_plot.data.frame <- function(
 #' For `env_schema` objects, `series_plot()` automatically uses:
 #'
 #' \itemize{
-#'   \item the mapped date field;
+#'   \item the mapped sample_date field;
 #'   \item the mapped location field;
 #'   \item the mapped analyte field;
 #'   \item standardized analysis results;
@@ -293,7 +293,7 @@ series_plot.env_schema <- function(
     )
   }
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   location_col <- location_var(df)
 
@@ -410,7 +410,7 @@ series_plot.env_schema <- function(
   ncol = NULL,
   plot_type = "split"
 ) {
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   location_col <- location_var(df)
 
@@ -423,7 +423,7 @@ series_plot.env_schema <- function(
   }
 
   df <- df |>
-    dplyr::arrange(.data[[date_col]]) |>
+    dplyr::arrange(.data[[sample_date_col]]) |>
     dplyr::mutate(
       non_detect = factor(
         dplyr::if_else(
@@ -474,14 +474,14 @@ series_plot.env_schema <- function(
   mapping <-
     if (plot_type == "combined") {
       ggplot2::aes(
-        x = .data[[date_col]],
+        x = .data[[sample_date_col]],
         y = .analysis_result,
         colour = .data[[analyte_col]],
         group = .trend_group
       )
     } else {
       ggplot2::aes(
-        x = .data[[date_col]],
+        x = .data[[sample_date_col]],
         y = .analysis_result
       )
     }
@@ -697,7 +697,7 @@ boxplot <- function(df, ...) {
 #' @param location Location column.
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #' @param reporting_flag Reporting qualifier column.
 #' @param unit Reporting unit column.
 #'
@@ -712,7 +712,7 @@ boxplot.data.frame <- function(
   location,
   analyte,
   result,
-  date = NULL,
+  sample_date = NULL,
   reporting_flag = NULL,
   unit = NULL,
   ...
@@ -722,7 +722,7 @@ boxplot.data.frame <- function(
     location = {{ location }},
     analyte = {{ analyte }},
     result = {{ result }},
-    date = {{ date }},
+    sample_date = {{ sample_date }},
     reporting_flag = {{ reporting_flag }},
     unit = {{ unit }}
   )
@@ -1728,7 +1728,7 @@ piper_plot <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @details
 #' For data frames, `piper_plot()` first converts the supplied data
@@ -1742,7 +1742,7 @@ piper_plot.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -1751,7 +1751,7 @@ piper_plot.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   piper_plot(df, ...)
@@ -1820,7 +1820,7 @@ piper_plot.data.frame <- function(
 #' normalized to ionic percentages, and transformed into Piper
 #' coordinates before plotting.
 #'
-#' For `env_schema` objects, analyte, result, unit, date, and
+#' For `env_schema` objects, analyte, result, unit, sample_date, and
 #' location fields are obtained directly from schema mappings.
 #'
 #' @section Analyte Matching:
@@ -1909,7 +1909,7 @@ piper_plot.env_schema <- function(
   analyte_matching <- rlang::arg_match(analyte_matching)
 
   location_col <- location_var(df)
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
   analyte_col <- analyte_var(df)
   result_col <- result_var(df)
   unit_col <- unit_var(df)
@@ -2208,13 +2208,13 @@ piper_time_plot <- function(df, ...) {
     )
   }
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
-  iter <- unique(df[[date_col]])
+  iter <- unique(df[[sample_date_col]])
 
   for (i in seq_along(iter)) {
     piper_plot(
-      df[df[[date_col]] == iter[i], ],
+      df[df[[sample_date_col]] == iter[i], ],
       title = paste(iter[i]),
       ...
     )
@@ -2243,12 +2243,12 @@ piper_time_html <- function(df, ...) {
     )
   }
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   animation::saveHTML(
     {
       animation::ani.options(
-        nmax = length(unique(df[[date_col]])),
+        nmax = length(unique(df[[sample_date_col]])),
         outdir = getwd()
       )
 
@@ -2560,7 +2560,7 @@ schoeller_plot <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @details
 #' For data frames, `schoeller_plot()` first converts the supplied
@@ -2574,7 +2574,7 @@ schoeller_plot.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -2583,7 +2583,7 @@ schoeller_plot.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   schoeller_plot(df, ...)
@@ -2609,8 +2609,8 @@ schoeller_plot.data.frame <- function(
 #' @param analyte_matching Analyte matching strategy. One of
 #' `"exact"`, `"strict"`, or `"normalized"`.
 #'
-#' @param facet_var Faceting variable. One of
-#' `"location"` or `"date"`.
+#' @param facet_var Column used for faceting. Must be either the mapped
+#' location field or mapped sample_date field. Defaults to the mapped location field.
 #'
 #' @param title Optional plot title.
 #'
@@ -2632,7 +2632,7 @@ schoeller_plot.data.frame <- function(
 #' Missing analytes are permitted and omitted from the
 #' resulting profile.
 #'
-#' For `env_schema` objects, analyte, result, unit, date,
+#' For `env_schema` objects, analyte, result, unit, sample_date,
 #' and location fields are determined from schema mappings.
 #'
 #' @section Analyte Matching:
@@ -2655,13 +2655,13 @@ schoeller_plot.data.frame <- function(
 #'
 #' @section Faceting:
 #'
-#' If `facet_var = "location"`, each location is displayed
-#' in a separate panel and sample events are drawn as individual
-#' profiles.
+#' If `facet_var` is the mapped location field,
+#' each location is displayed in a separate panel and
+#' sample events are drawn as individual profiles.
 #'
-#' If `facet_var = "date"`, each sampling event is
-#' displayed in a separate panel and locations are drawn as
-#' individual profiles.
+#' If `facet_var` is the mapped sample_date field,
+#' each sampling event is displayed in a separate panel and
+#' locations are drawn as individual profiles.
 #'
 #' @section Validation:
 #'
@@ -2679,9 +2679,10 @@ schoeller_plot.data.frame <- function(
 #'
 #' schoeller_plot(gw)
 #'
+#'
 #' schoeller_plot(
 #'   gw,
-#'   facet_var = "date"
+#'   facet_var = sample_date_var(gw)
 #' )
 #'
 #' schoeller_plot(
@@ -2710,25 +2711,37 @@ schoeller_plot.env_schema <- function(
     "strict",
     "normalized"
   ),
-  facet_var = c(
-    "location",
-    "date"
-  ),
+  facet_var = NULL,
   title = NULL,
   lwt = 1
 ) {
   location_col <- location_var(df)
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   analyte_matching <- rlang::arg_match(
     analyte_matching
   )
 
-  facet_var <- rlang::arg_match(
-    facet_var
-  )
+  if (is.null(facet_var)) {
+    facet_var <- location_col
+  }
 
+  if (!facet_var %in% names(df)) {
+    cli::cli_abort(
+      "{.field {facet_var}} not found in {.arg df}."
+    )
+  }
+
+  if (!facet_var %in% c(location_col, sample_date_col)) {
+    cli::cli_abort(
+      c(
+        "{.arg facet_var} must be either",
+        "{.val {location_col}} or",
+        "{.val {sample_date_col}}."
+      )
+    )
+  }
   chemistry_df <- .prepare_major_ion_chemistry(
     df = df,
     analytes = c(
@@ -2774,7 +2787,7 @@ schoeller_plot.env_schema <- function(
   p <- .add_schoeller_lines(
     p = p,
     location_col = location_col,
-    date_col = date_col,
+    sample_date_col = sample_date_col,
     facet_var = facet_var,
     lwt = lwt
   )
@@ -2800,45 +2813,34 @@ schoeller_plot.env_schema <- function(
 .add_schoeller_lines <- function(
   p,
   location_col,
-  date_col,
+  sample_date_col,
   facet_var,
   lwt
 ) {
-  if (facet_var == "date") {
-    p +
-      ggplot2::geom_line(
-        ggplot2::aes(
-          group = .data[[location_col]],
-          colour = .data[[location_col]]
-        ),
-        linewidth = lwt
-      ) +
-      ggplot2::facet_wrap(
-        ggplot2::vars(!!rlang::sym(date_col))
-      ) +
-      ggplot2::guides(
-        colour = ggplot2::guide_legend(
-          title = "Location ID"
-        )
-      )
+  group_col <- if (identical(facet_var, location_col)) {
+    sample_date_col
   } else {
-    p +
-      ggplot2::geom_line(
-        ggplot2::aes(
-          group = .data[[date_col]],
-          colour = factor(.data[[date_col]])
-        ),
-        linewidth = lwt
-      ) +
-      ggplot2::facet_wrap(
-        ggplot2::vars(!!rlang::sym(location_col))
-      ) +
-      ggplot2::guides(
-        colour = ggplot2::guide_legend(
-          title = "Sample Date"
+    location_col
+  }
+
+  p +
+    ggplot2::geom_line(
+      ggplot2::aes(
+        group = .data[[group_col]],
+        colour = factor(.data[[group_col]])
+      ),
+      linewidth = lwt
+    ) +
+    ggplot2::facet_wrap(
+      ggplot2::vars(!!rlang::sym(facet_var))
+    ) +
+    ggplot2::guides(
+      colour = ggplot2::guide_legend(
+        title = tools::toTitleCase(
+          gsub("_", " ", group_col)
         )
       )
-  }
+    )
 }
 
 #' Stiff Diagram
@@ -2870,7 +2872,7 @@ stiff_plot <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @details
 #' For data frames, `stiff_plot()` first converts the supplied
@@ -2884,7 +2886,7 @@ stiff_plot.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -2893,7 +2895,7 @@ stiff_plot.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   stiff_plot(df, ...)
@@ -2958,7 +2960,7 @@ stiff_plot.data.frame <- function(
 #'   \item geochemical evolution.
 #' }
 #'
-#' For `env_schema` objects, analyte, result, unit, date,
+#' For `env_schema` objects, analyte, result, unit, sample_date,
 #' and location fields are obtained directly from schema mappings.
 #'
 #' @section Analyte Matching:
@@ -2986,7 +2988,7 @@ stiff_plot.data.frame <- function(
 #'
 #' By default, one plot is generated per location.
 #'
-#' If `group_var` is set to the mapped date field, one plot is
+#' If `group_var` is set to the mapped sample_date field, one plot is
 #' generated per sampling event.
 #'
 #' @section Faceting:
@@ -3022,7 +3024,7 @@ stiff_plot.data.frame <- function(
 #'
 #' stiff_plot(
 #'   gw,
-#'   group_var = "sample_date"
+#'   group_var = sample_date_var(gw)
 #' )
 #'
 #' @return
@@ -3055,7 +3057,7 @@ stiff_plot.env_schema <- function(
 ) {
   location_col <- location_var(df)
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   analyte_col <- analyte_var(df)
 
@@ -3068,45 +3070,38 @@ stiff_plot.env_schema <- function(
   }
 
   if (is.null(facet_var)) {
-    facet_var <- date_col
+    facet_var <- sample_date_col
   }
 
-  if (!facet_var %in% c(location_col, date_col)) {
+  if (!facet_var %in% names(df)) {
     cli::cli_abort(
-      "{.arg facet_var} must be either the location_id or sample_date column."
+      "{.field {facet_var}} not found in {.arg df}."
     )
   }
 
-  if (!group_var %in% c(location_col, date_col)) {
+  if (!group_var %in% names(df)) {
     cli::cli_abort(
-      "{.arg group_var} must be either the location_id or sample_date column."
+      "{.field {group_var}} not found in {.arg df}."
     )
   }
 
-  required_ions <- c(
-    calcium,
-    magnesium,
-    sodium,
-    potassium,
-    chloride,
-    sulfate,
-    alkalinity
-  )
-
-  missing <- setdiff(
-    required_ions,
-    unique(df[[analyte_col]])
-  )
-
-  if (length(missing) == length(required_ions)) {
+  if (!facet_var %in% c(location_col, sample_date_col)) {
     cli::cli_abort(
-      "No required major ions were found in the data."
+      c(
+        "{.arg facet_var} must be either",
+        "{.val {location_col}} or",
+        "{.val {sample_date_col}}."
+      )
     )
   }
 
-  if (length(missing) > 0) {
-    cli::cli_warn(
-      "Missing major ions: {paste(missing, collapse = ', ')}"
+  if (!group_var %in% c(location_col, sample_date_col)) {
+    cli::cli_abort(
+      c(
+        "{.arg group_var} must be either",
+        "{.val {location_col}} or",
+        "{.val {sample_date_col}}."
+      )
     )
   }
 
@@ -3116,7 +3111,7 @@ stiff_plot.env_schema <- function(
         df = .x,
         group_name = .y,
         location_col = location_col,
-        date_col = date_col,
+        sample_date_col = sample_date_col,
         analyte_matching = analyte_matching,
         calcium = calcium,
         magnesium = magnesium,
@@ -3142,7 +3137,7 @@ stiff_plot.env_schema <- function(
 .stiff_plot <- function(
   df,
   location_col,
-  date_col,
+  sample_date_col,
   group_name,
   analyte_matching,
   calcium,
@@ -3200,7 +3195,7 @@ stiff_plot.env_schema <- function(
   .build_stiff_plot(
     df = stiff_data,
     location_col = location_col,
-    date_col = date_col,
+    sample_date_col = sample_date_col,
     facet_var = facet_var,
     group_var = group_var,
     group_name = group_name,
@@ -3219,7 +3214,7 @@ stiff_plot.env_schema <- function(
 .build_stiff_plot <- function(
   df,
   location_col,
-  date_col,
+  sample_date_col,
   facet_var,
   group_var,
   group_name,
@@ -3261,7 +3256,7 @@ stiff_plot.env_schema <- function(
       y = stiff_y,
       group = interaction(
         .data[[location_col]],
-        .data[[date_col]]
+        .data[[sample_date_col]]
       )
     )
   ) +
@@ -3278,7 +3273,7 @@ stiff_plot.env_schema <- function(
           fill = scale_value,
           group = interaction(
             .data[[location_col]],
-            .data[[date_col]]
+            .data[[sample_date_col]]
           )
         ),
         colour = "black"
@@ -3292,7 +3287,7 @@ stiff_plot.env_schema <- function(
         ggplot2::aes(
           group = interaction(
             .data[[location_col]],
-            .data[[date_col]]
+            .data[[sample_date_col]]
           )
         ),
         fill = "white",
@@ -3490,7 +3485,7 @@ durov_plot <- function(df, ...) {
 #' @param analyte Analyte column.
 #' @param result Analytical result column.
 #' @param unit Reporting unit column.
-#' @param date Sample date column.
+#' @param sample_date Sample date column.
 #'
 #' @details
 #' For data frames, `durov_plot()` first converts the supplied
@@ -3504,7 +3499,7 @@ durov_plot.data.frame <- function(
   analyte,
   result,
   unit,
-  date,
+  sample_date,
   ...
 ) {
   df <- env_schema(
@@ -3513,7 +3508,7 @@ durov_plot.data.frame <- function(
     analyte = {{ analyte }},
     result = {{ result }},
     unit = {{ unit }},
-    date = {{ date }}
+    sample_date = {{ sample_date }}
   )
 
   durov_plot(df, ...)
@@ -3547,7 +3542,7 @@ durov_plot.data.frame <- function(
 #'   \item hydrochemical evolution.
 #' }
 #'
-#' For `env_schema` objects, analyte, result, unit, date,
+#' For `env_schema` objects, analyte, result, unit, sample_date,
 #' and location fields are obtained directly from schema
 #' mappings.
 #'
@@ -3620,8 +3615,6 @@ durov_plot.env_schema <- function(
   validate_env_schema(df)
 
   location_col <- location_var(df)
-
-  date_col <- date_var(df)
 
   analyte_matching <- rlang::arg_match(
     analyte_matching
@@ -3994,9 +3987,9 @@ durov_plot.env_schema <- function(
   pause = 1,
   ...
 ) {
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
-  dates <- sort(unique(df[[date_col]]))
+  dates <- sort(unique(df[[sample_date_col]]))
 
   plots <- purrr::map(
     dates,
@@ -4004,7 +3997,7 @@ durov_plot.env_schema <- function(
       plot_fn(
         dplyr::filter(
           df,
-          .data[[date_col]] == date
+          .data[[sample_date_col]] == date
         ),
         ...
       )

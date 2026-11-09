@@ -8,7 +8,7 @@ test_that("as_env_schema returns env_schema unchanged", {
         result = 1
       ),
       location = location,
-      date = date,
+      sample_date = date,
       analyte = analyte,
       result = result
     )
@@ -25,7 +25,7 @@ test_that("as_env_schema coerces raw data frame", {
     as_env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -47,7 +47,7 @@ test_that("as_env_schema stores mappings correctly", {
     as_env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -61,7 +61,7 @@ test_that("as_env_schema stores mappings correctly", {
   )
 
   expect_equal(
-    mapping$date,
+    mapping$sample_date,
     "sample_date"
   )
 
@@ -82,7 +82,7 @@ test_that("as_env_schema creates required manager columns", {
     as_env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -110,7 +110,7 @@ test_that("as_env_schema preserves source columns", {
     as_env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -135,7 +135,7 @@ test_that("accessors work after coercion", {
     as_env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -147,7 +147,7 @@ test_that("accessors work after coercion", {
   )
 
   expect_identical(
-    date(y),
+    sample_date(y),
     y$sample_date
   )
 
@@ -168,7 +168,7 @@ test_that("coerced data validates", {
     as_env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -189,7 +189,7 @@ test_that("as_env_schema attaches analyte metadata", {
     as_env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -213,7 +213,7 @@ test_that("as_env_schema creates analyte labels", {
     as_env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -233,7 +233,7 @@ test_that("validation fails when location mapping points to missing column", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -253,13 +253,13 @@ test_that("validation fails when date mapping points to missing column", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
   )
 
-  attr(x, "env_mapping")$date <- "does_not_exist"
+  attr(x, "env_mapping")$sample_date <- "does_not_exist"
 
   expect_error(
     validate_env_schema(x),
@@ -273,7 +273,7 @@ test_that("validation fails when analyte mapping points to missing column", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -293,7 +293,7 @@ test_that("validation fails when location mapping points to missing column", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -313,13 +313,13 @@ test_that("validation fails when date mapping points to missing column", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
   )
 
-  attr(x, "env_mapping")$date <- "does_not_exist"
+  attr(x, "env_mapping")$sample_date <- "does_not_exist"
 
   expect_error(
     validate_env_schema(x),
@@ -333,7 +333,7 @@ test_that("validation fails when analyte mapping points to missing column", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -353,7 +353,7 @@ test_that("validation fails when result mapping points to missing column", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -372,7 +372,7 @@ test_that("corrupted location mapping fails validation", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -395,7 +395,7 @@ test_that("optional accessors return NULL when mapped column is missing", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit
@@ -414,7 +414,7 @@ test_that("validation fails when env_mapping attribute is removed", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -433,7 +433,7 @@ test_that("location column must be character", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -452,7 +452,7 @@ test_that("analyte column must be character", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -471,7 +471,7 @@ test_that("date column must be Date or POSIXct", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -481,7 +481,7 @@ test_that("date column must be Date or POSIXct", {
 
   expect_error(
     validate_env_schema(x),
-    "'date' must be a Date or POSIXct column"
+    "'sample_date' must be a Date or POSIXct column"
   )
 })
 
@@ -490,7 +490,7 @@ test_that("result column must be numeric", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -509,7 +509,7 @@ test_that(".analyte_id must be character", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -528,7 +528,7 @@ test_that(".original_lab_result must be numeric", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -549,7 +549,7 @@ test_that("classification columns must be logical", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -568,7 +568,7 @@ test_that(".censored must be logical", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -587,7 +587,7 @@ test_that(".estimated must be logical", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -606,7 +606,7 @@ test_that(".rejected must be logical", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -625,7 +625,7 @@ test_that(".usable must be logical", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -644,7 +644,7 @@ test_that("optional numeric columns must be numeric", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )

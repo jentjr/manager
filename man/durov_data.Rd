@@ -8,7 +8,7 @@
 \usage{
 durov_data(df, ...)
 
-\method{durov_data}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{durov_data}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{durov_data}{env_schema}(df, analyte_matching = c("normalized", "strict", "exact"))
 }
@@ -25,7 +25,7 @@ durov_data(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte_matching}{Analyte matching strategy. One of
 `"exact"`, `"strict"`, or `"normalized"`.}

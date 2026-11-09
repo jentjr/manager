@@ -106,6 +106,13 @@ be removed when calculating summary statistics.</p></dd>
 <p>The returned table includes:</p><dl><dt>n</dt>
 <dd><p>Number of records in the group, including records with missing result values.</p></dd>
 
+  <dt>n_used</dt>
+<dd><p>Number of non-missing analytical results used in statistical
+  evaluations and decision selection.</p></dd>
+
+  <dt>n_detect</dt>
+<dd><p>Number of non-censored analytical results.</p></dd>
+
   <dt>percent_censored</dt>
 <dd><p>Percentage of records in the group classified as censored.</p></dd>
 
@@ -146,12 +153,29 @@ be removed when calculating summary statistics.</p></dd>
 <dd><p>EPA Unified Guidance style censoring classification:
        low_censoring, moderate_censoring, high_censoring, or extreme_censoring.</p></dd>
 
-   <dt>recommended_distribution_method</dt>
+   <dt>distribution_method</dt>
 <dd><p>Recommended distributional approach based on the degree of censoring.</p></dd>
 
-    <dt>recommended_trend_method</dt>
-<dd><p>Recommended trend test based on censoring.</p></dd>
+    <dt>trend_method</dt>
+<dd><p>Recommended trend method.</p></dd>
 
+    <dt>trend_guidance</dt>
+<dd><p>Recommended interpretation of trend results.
+           "formal_trend_test" indicates trend inference is generally
+            supported. "screening_only" indicates trend results should
+            be considered exploratory because of extensive censoring.</p></dd>
+
+     <dt>censored_method</dt>
+<dd><p>Recommended censored-data handling method for trend analyses.</p></dd>
+
+     <dt>decision_basis</dt>
+<dd><p>Basis for the statistical recommendation.
+           Examples include:
+             fewer_than_4_observations,
+             low_censoring,
+             moderate_censoring,
+             high_censoring,
+             and extreme_censoring.</p></dd>
 
 
 </dl></div>
@@ -197,22 +221,25 @@ original source column names or schema mappings used by the input data.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">stats_summary</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 16</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    location_id param_name  .analysis_unit     n percent_censored    mean  median</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> MW-1        Alkalinity… mg/l              20              0   290.     338.  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> MW-1        Aluminum, … ug/l              19             68.4  33.1     20   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> MW-1        Antimony, … ug/l              20             85     5.76     5   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> MW-1        Arsenic, d… ug/l              21             19.0   3.69     1.93</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> MW-1        Barium, di… ug/l              20              0   124.     115   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> MW-1        Beryllium,… ug/l              20            100     0.525    0.5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> MW-1        Boron, dis… ug/l              20              0   905.    <span style="text-decoration: underline;">1</span>115   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> MW-1        Cadmium, d… ug/l              20             95     0.992    1   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> MW-1        Calcium, d… mg/l              20              0   106.     116.  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MW-1        Chloride, … mg/l              20              0    22.0     21.9 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 26</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    location_id param_name  .analysis_unit     n n_used n_detect percent_censored</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> MW-1        Alkalinity… mg/l              20     20       20              0  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> MW-1        Aluminum, … ug/l              19     19        6             68.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> MW-1        Antimony, … ug/l              20     20        3             85  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> MW-1        Arsenic, d… ug/l              21     21       17             19.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> MW-1        Barium, di… ug/l              20     20       20              0  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> MW-1        Beryllium,… ug/l              20     20        0            100  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> MW-1        Boron, dis… ug/l              20     20       20              0  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> MW-1        Cadmium, d… ug/l              20     20        1             95  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> MW-1        Calcium, d… mg/l              20     20       20              0  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MW-1        Chloride, … mg/l              20     20       20              0  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 377 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 9 more variables: sd &lt;dbl&gt;, var &lt;dbl&gt;, min &lt;dbl&gt;, max &lt;dbl&gt;, cv &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `25%` &lt;dbl&gt;, `75%` &lt;dbl&gt;, IQR &lt;dbl&gt;, mad &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 19 more variables: mean &lt;dbl&gt;, median &lt;dbl&gt;, sd &lt;dbl&gt;, var &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   min &lt;dbl&gt;, max &lt;dbl&gt;, cv &lt;dbl&gt;, `25%` &lt;dbl&gt;, `75%` &lt;dbl&gt;, IQR &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   mad &lt;dbl&gt;, censoring_class &lt;chr&gt;, distribution_method &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;, censored_method &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   distribution_config &lt;list&gt;, interval_config &lt;list&gt;, decision_basis &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gw</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">location_id</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>

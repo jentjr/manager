@@ -8,7 +8,7 @@
 \usage{
 charge_balance(df, ...)
 
-\method{charge_balance}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{charge_balance}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{charge_balance}{env_schema}(df, analyte_matching = c("exact", "strict", "normalized"))
 }
@@ -25,7 +25,7 @@ charge_balance(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte_matching}{Analyte matching strategy. One of
 `"exact"`, `"strict"`, or `"normalized"`.}
@@ -89,7 +89,7 @@ analytical results, whereas large positive or negative values may
 indicate analytical error, missing constituents, transcription
 errors, or unit-conversion problems.
 
-For `env_schema` objects, analyte, result, unit, date, and
+For `env_schema` objects, analyte, result, unit, sample_date, and
 location fields are obtained directly from schema mappings.
 }
 \section{Analyte Matching}{

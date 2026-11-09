@@ -8,7 +8,7 @@
 \usage{
 major_ion_chemistry(df, ...)
 
-\method{major_ion_chemistry}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{major_ion_chemistry}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{major_ion_chemistry}{env_schema}(
   df,
@@ -31,7 +31,7 @@ major_ion_chemistry(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analytes}{Major-ion analytes to retain.}
 

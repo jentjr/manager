@@ -61,12 +61,15 @@ gw %>%
   filter(location_id == "MW-1",
          .analyte == "Chloride") %>%
   stats_summary()
-#> # A tibble: 1 × 16
-#>   location_id param_name      .analysis_unit     n percent_censored  mean median
-#>   <chr>       <chr>           <chr>          <int>            <dbl> <dbl>  <dbl>
-#> 1 MW-1        Chloride, total mg/l              20                0  22.0   21.9
-#> # ℹ 9 more variables: sd <dbl>, var <dbl>, min <dbl>, max <dbl>, cv <dbl>,
-#> #   `25%` <dbl>, `75%` <dbl>, IQR <dbl>, mad <dbl>
+#> # A tibble: 1 × 26
+#>   location_id param_name   .analysis_unit     n n_used n_detect percent_censored
+#>   <chr>       <chr>        <chr>          <int>  <int>    <int>            <dbl>
+#> 1 MW-1        Chloride, t… mg/l              20     20       20                0
+#> # ℹ 19 more variables: mean <dbl>, median <dbl>, sd <dbl>, var <dbl>,
+#> #   min <dbl>, max <dbl>, cv <dbl>, `25%` <dbl>, `75%` <dbl>, IQR <dbl>,
+#> #   mad <dbl>, censoring_class <chr>, distribution_method <chr>,
+#> #   trend_method <chr>, trend_guidance <chr>, censored_method <chr>,
+#> #   distribution_config <list>, interval_config <list>, decision_basis <chr>
 ```
 
 ## Environmental Data Standard
@@ -76,20 +79,12 @@ Datasets in `manager` use the `env_schema` class:
 ``` r
 gw
 #> <env_schema>
-#> 5878 rows x 41 columns
+#> 5878 rows x 44 columns
 #> Locations: 8 
 #> Analytes: 49 
 #> Valid: TRUE 
 #> Version: 0.5.0
 ```
-
-Output:
-
-    12345 rows × 15 columns
-    Locations: 48
-    Analytes: 72
-    Date range: 2015-01-01 to 2024-12-31
-    Class: env_schema
 
 Core environmental variables include:
 
@@ -120,20 +115,18 @@ gw <- read_manages4(
 # load example data and plot time series of selected wells and constituents
 data("gw")
 
-wells <- c("MW-1", "MW-2")
+wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5", "MW-6")
 
-params <- c("Magnesium, dissolved", 
-            "Sodium, dissolved", 
-            "Chloride, total", 
-            "Sulfate, total", 
-            "Potassium, dissolved")
+params <- c("Arsenic, dissolved",
+            "Chloride, total"
+            )
 
 gw %>%
   filter(location_id %in% wells, param_name %in% params) %>%
   series_plot()
 ```
 
-![](man/figures/README-time-series-1.png)<!-- -->![](man/figures/README-time-series-2.png)<!-- -->![](man/figures/README-time-series-3.png)<!-- -->![](man/figures/README-time-series-4.png)<!-- -->![](man/figures/README-time-series-5.png)<!-- -->
+![](man/figures/README-time-series-1.png)<!-- -->![](man/figures/README-time-series-2.png)<!-- -->
 
 ``` r
 # create boxplots filled by gradient
@@ -150,7 +143,16 @@ Piper Diagrams and more…
 
 ``` r
 gw %>%
-  piper_plot()
+  piper_plot(
+    x_cation = "Calcium, dissolved",
+    y_cation = "Magnesium, dissolved",
+    z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
+    x_anion = c("Chloride, total", "Fluoride, total"),
+    x_anion_label = "Cl + F",
+    y_anion = "Alkalinity, total (lab)",
+    z_anion = "Sulfate, total",
+    title = "Example Piper Diagram"
+    )
 ```
 
 ![](man/figures/README-piper-plot-1.png)<!-- -->

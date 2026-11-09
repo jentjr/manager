@@ -7,6 +7,7 @@ Build env_schema call safely
 ``` r
 .build_env_schema_call(
   data,
+  site = NULL,
   location,
   date,
   analyte,

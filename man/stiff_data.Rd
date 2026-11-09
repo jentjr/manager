@@ -8,7 +8,7 @@
 \usage{
 stiff_data(df, ...)
 
-\method{stiff_data}{data.frame}(df, location, analyte, result, unit, date, ...)
+\method{stiff_data}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
 \method{stiff_data}{env_schema}(
   df,
@@ -36,7 +36,7 @@ stiff_data(df, ...)
 
 \item{unit}{Reporting unit column.}
 
-\item{date}{Sample date column.}
+\item{sample_date}{Sample date column.}
 
 \item{analyte_matching}{Analyte matching strategy. One of
 `"exact"`, `"strict"`, or `"normalized"`.}

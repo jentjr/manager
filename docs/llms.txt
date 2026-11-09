@@ -120,20 +120,18 @@ gw <- read_manages4(
 # load example data and plot time series of selected wells and constituents
 data("gw")
 
-wells <- c("MW-1", "MW-2")
+wells <- c("MW-1", "MW-2", "MW-3", "MW-4", "MW-5", "MW-6")
 
-params <- c("Magnesium, dissolved", 
-            "Sodium, dissolved", 
-            "Chloride, total", 
-            "Sulfate, total", 
-            "Potassium, dissolved")
+params <- c("Arsenic, dissolved",
+            "Chloride, total"
+            )
 
 gw %>%
   filter(location_id %in% wells, param_name %in% params) %>%
   series_plot()
 ```
 
-![](reference/figures/README-time-series-1.png)![](reference/figures/README-time-series-2.png)![](reference/figures/README-time-series-3.png)![](reference/figures/README-time-series-4.png)![](reference/figures/README-time-series-5.png)
+![](reference/figures/README-time-series-1.png)![](reference/figures/README-time-series-2.png)
 
 ``` r
 
@@ -152,7 +150,16 @@ Piper Diagrams and more…
 ``` r
 
 gw %>%
-  piper_plot()
+  piper_plot(
+    x_cation = "Calcium, dissolved",
+    y_cation = "Magnesium, dissolved",
+    z_cation = c("Sodium, dissolved", "Potassium, dissolved"),
+    x_anion = c("Chloride, total", "Fluoride, total"),
+    x_anion_label = "Cl + F",
+    y_anion = "Alkalinity, total (lab)",
+    z_anion = "Sulfate, total",
+    title = "Example Piper Diagram"
+    )
 ```
 
 ![](reference/figures/README-piper-plot-1.png)
@@ -218,6 +225,8 @@ manager::manager()
   : Create a correlation plot
 - [`date()`](https://jentjr.github.io/manager/reference/date.md) :
   Return sample dates
+- [`derive_decision()`](https://jentjr.github.io/manager/reference/derive_decision.md)
+  : Derive Statistical Decision Guidance from Data
 - [`detected()`](https://jentjr.github.io/manager/reference/detected.md)
   : Return detection flags
 - [`detection_limit()`](https://jentjr.github.io/manager/reference/detection_limit.md)
@@ -240,17 +249,18 @@ manager::manager()
   : Construct an environmental data schema
 - [`estimated()`](https://jentjr.github.io/manager/reference/estimated.md)
   : Return estimation flags
-- [`est_dist()`](https://jentjr.github.io/manager/reference/est_dist.md)
-  : Estimate statistical distribution
-- [`est_dist_censored()`](https://jentjr.github.io/manager/reference/est_dist_censored.md)
-  : Function to return either normal, lognormal, gamma, or
-  non-parametric distribution estimate
+- [`estimate_distribution()`](https://jentjr.github.io/manager/reference/estimate_distribution.md)
+  : Estimate Distributions Using Statistical Decision Guidance
 - [`from_csv()`](https://jentjr.github.io/manager/reference/from_csv.md)
   : Import environmental data from CSV
 - [`from_excel()`](https://jentjr.github.io/manager/reference/from_excel.md)
   : Import environmental data from Excel
 - [`grubbs_test()`](https://jentjr.github.io/manager/reference/grubbs_test.md)
   : Grubbs Test
+- [`guidance_options()`](https://jentjr.github.io/manager/reference/guidance_options.md)
+  : Guidance Options
+- [`guidance_profile()`](https://jentjr.github.io/manager/reference/guidance_profile.md)
+  : Guidance Profiles
 - [`gw_data`](https://jentjr.github.io/manager/reference/gw_data.md) :
   Example Groundwater Raw Data
 - [`indiana_data`](https://jentjr.github.io/manager/reference/indiana_data.md)
@@ -289,6 +299,8 @@ manager::manager()
   : Function to calculate prediction interval
 - [`pred_int_sim()`](https://jentjr.github.io/manager/reference/pred_int_sim.md)
   : Function to calculate simultaneous prediction interval
+- [`print(`*`<statistical_decision>`*`)`](https://jentjr.github.io/manager/reference/print.statistical_decision.md)
+  : Print Statistical Decision Object
 - [`qualifier_table()`](https://jentjr.github.io/manager/reference/qualifier_table.md)
   : Return qualifier lookup table
 - [`quantitation_limit()`](https://jentjr.github.io/manager/reference/quantitation_limit.md)
@@ -333,6 +345,8 @@ manager::manager()
   : Return short analyte labels
 - [`simplify_param_name()`](https://jentjr.github.io/manager/reference/simplify_param_name.md)
   : Helper function to split parameter names
+- [`site()`](https://jentjr.github.io/manager/reference/site.md) :
+  Return site values
 - [`sp_plot()`](https://jentjr.github.io/manager/reference/sp_plot.md) :
   Spatial Plot
 - [`standards_schema()`](https://jentjr.github.io/manager/reference/standards_schema.md)
@@ -341,6 +355,8 @@ manager::manager()
   : Environmental Standards Lookup Table
 - [`start_date()`](https://jentjr.github.io/manager/reference/start_date.md)
   : Return the first sample date
+- [`statistical_decision()`](https://jentjr.github.io/manager/reference/statistical_decision.md)
+  : Statistical Decision Guidance
 - [`stats_summary()`](https://jentjr.github.io/manager/reference/stats_summary.md)
   : Summary Statistics
 - [`stiff_data()`](https://jentjr.github.io/manager/reference/stiff_data.md)
