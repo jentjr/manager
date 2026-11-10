@@ -2,12 +2,12 @@ make_schema <- function() {
   env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -54,8 +54,8 @@ test_that("schema_mapping returns stored mappings", {
   )
 
   expect_identical(
-    mapping$date,
-    "date"
+    mapping$sample_date,
+    "sample_date"
   )
 
   expect_identical(
@@ -106,7 +106,7 @@ test_that("schema_version works on reconstructed schema objects", {
   y <- dplyr::select(
     x,
     location,
-    date,
+    sample_date,
     analyte,
     result,
     .analysis_result
@@ -130,7 +130,7 @@ test_that("schema_mapping survives select", {
   y <- dplyr::select(
     x,
     location,
-    date,
+    sample_date,
     analyte,
     result
   )
@@ -153,7 +153,7 @@ test_that("schema_created survives select", {
   y <- dplyr::select(
     x,
     location,
-    date,
+    sample_date,
     analyte,
     result
   )
@@ -171,7 +171,7 @@ test_that("schema_metadata survives select", {
   y <- dplyr::select(
     x,
     location,
-    date,
+    sample_date,
     analyte,
     result
   )
@@ -221,7 +221,7 @@ test_that("validate_env_schema remains strict for required mapped columns", {
 
   y <- dplyr::select(
     x,
-    -date
+    -sample_date
   )
 
   expect_error(

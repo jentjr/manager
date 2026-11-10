@@ -19,7 +19,7 @@ test_that("charge_balance returns near zero for balanced chemistry", {
   out <- charge_balance(
     df,
     location = site,
-    date = dt,
+    sample_date = dt,
     analyte = chem,
     result = value,
     unit = unit
@@ -49,7 +49,7 @@ test_that("charge_balance detects cation excess", {
   out <- charge_balance(
     df,
     location = site,
-    date = dt,
+    sample_date = dt,
     analyte = chem,
     result = value,
     unit = unit
@@ -79,7 +79,7 @@ test_that("charge_balance detects anion excess", {
   out <- charge_balance(
     df,
     location = site,
-    date = dt,
+    sample_date = dt,
     analyte = chem,
     result = value,
     unit = unit
@@ -95,7 +95,7 @@ test_that("charge_balance preserves env_schema dispatch", {
   x <- env_schema(
     gw_data,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -117,7 +117,7 @@ test_that("charge_balance.data.frame dispatch works", {
   out <- charge_balance(
     gw_data,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -150,7 +150,7 @@ test_that("charge_balance reproduces known answer", {
   out <- charge_balance(
     df,
     location = site,
-    date = dt,
+    sample_date = dt,
     analyte = chem,
     result = value,
     unit = unit
@@ -190,7 +190,7 @@ test_that("charge_balance reproduces exact 10 percent imbalance", {
   out <- charge_balance(
     df,
     location = site,
-    date = dt,
+    sample_date = dt,
     analyte = chem,
     result = value,
     unit = unit
@@ -230,7 +230,7 @@ test_that("charge_balance reproduces exact negative 10 percent imbalance", {
   out <- charge_balance(
     df,
     location = site,
-    date = dt,
+    sample_date = dt,
     analyte = chem,
     result = value,
     unit = unit

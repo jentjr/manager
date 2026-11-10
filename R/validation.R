@@ -173,15 +173,31 @@
   )
 }
 
-#' Optional derived env_schema columns
-#'
 #' @keywords internal
-.optional_env_schema_columns <- function() {
-  c(
-    ".display_result",
-    ".display_threshold",
-    ".display_threshold_type"
+.check_metadata_overlap <- function(...) {
+  metadata <- list(...)
+
+  names_found <- unlist(
+    metadata,
+    use.names = FALSE
   )
+
+  dupes <- unique(
+    names_found[
+      duplicated(names_found)
+    ]
+  )
+
+  if (length(dupes) > 0) {
+    rlang::abort(
+      paste(
+        "Metadata columns assigned to multiple metadata categories:",
+        paste(dupes, collapse = ", ")
+      )
+    )
+  }
+
+  invisible(TRUE)
 }
 
 #' Validate an environmental schema
@@ -198,14 +214,41 @@ validate_env_schema <- function(x) {
     )
   }
 
-  required <- c(
-    location_var(x),
-    sample_date_var(x),
-    analyte_var(x),
-    result_var(x)
+  mapping <- schema_mapping(x)
+
+  required_mappings <- c(
+    "location",
+    "sample_date",
+    "analyte",
+    "result"
   )
 
-  required <- stats::na.omit(required)
+  missing_mappings <- setdiff(
+    required_mappings,
+    names(mapping)
+  )
+
+  if (length(missing_mappings) > 0) {
+    rlang::abort(
+      paste(
+        "Missing mapped columns:",
+        paste(missing_mappings, collapse = ", ")
+      )
+    )
+  }
+
+  # ------------------------------------------------------------------
+  # Required mapped columns
+  # ------------------------------------------------------------------
+
+  required <- stats::na.omit(
+    c(
+      location_var(x),
+      sample_date_var(x),
+      analyte_var(x),
+      result_var(x)
+    )
+  )
 
   missing <- setdiff(
     required,
@@ -220,6 +263,10 @@ validate_env_schema <- function(x) {
       )
     )
   }
+
+  # ------------------------------------------------------------------
+  # Required manager-generated columns
+  # ------------------------------------------------------------------
 
   missing_standard <- setdiff(
     .required_env_schema_columns(),
@@ -238,21 +285,84 @@ validate_env_schema <- function(x) {
     )
   }
 
-  # ------------------------------------------------------------
-  # Required column types
-  # ------------------------------------------------------------
+  # ------------------------------------------------------------------
+  # Metadata column references
+  # ------------------------------------------------------------------
 
-  if (!".analyte_id" %in% names(x)) {
+  analysis_missing <- setdiff(
+    analysis_metadata(x),
+    names(x)
+  )
+
+  if (length(analysis_missing) > 0) {
     rlang::abort(
-      "Missing required derived column '.analyte_id'."
+      paste(
+        "Analysis metadata columns not found:",
+        paste(analysis_missing, collapse = ", ")
+      )
     )
   }
 
-  if (!is.character(x$.analyte_id)) {
+  threshold_missing <- setdiff(
+    threshold_metadata(x),
+    names(x)
+  )
+
+  if (length(threshold_missing) > 0) {
     rlang::abort(
-      "'.analyte_id' must be character."
+      paste(
+        "Threshold metadata columns not found:",
+        paste(threshold_missing, collapse = ", ")
+      )
     )
   }
+
+  source_missing <- setdiff(
+    source_metadata(x),
+    names(x)
+  )
+
+  if (length(source_missing) > 0) {
+    rlang::abort(
+      paste(
+        "Source metadata columns not found:",
+        paste(source_missing, collapse = ", ")
+      )
+    )
+  }
+
+  .check_metadata_overlap(
+    analysis_metadata(x),
+    threshold_metadata(x),
+    source_metadata(x)
+  )
+
+  # ------------------------------------------------------------------
+  # Metadata uniqueness
+  # ------------------------------------------------------------------
+
+  metadata_sets <- list(
+    analysis_metadata = analysis_metadata(x),
+    threshold_metadata = threshold_metadata(x),
+    source_metadata = source_metadata(x)
+  )
+
+  for (nm in names(metadata_sets)) {
+    vals <- metadata_sets[[nm]]
+
+    if (anyDuplicated(vals)) {
+      rlang::abort(
+        paste(
+          "Duplicate entries found in",
+          nm
+        )
+      )
+    }
+  }
+
+  # ------------------------------------------------------------------
+  # Core column types
+  # ------------------------------------------------------------------
 
   if (!is.character(location(x))) {
     rlang::abort(
@@ -263,6 +373,12 @@ validate_env_schema <- function(x) {
   if (!is.character(analyte(x))) {
     rlang::abort(
       "'Analyte' must be character."
+    )
+  }
+
+  if (!is.character(x$.analyte_id)) {
+    rlang::abort(
+      "'.analyte_id' must be character."
     )
   }
 
@@ -298,58 +414,74 @@ validate_env_schema <- function(x) {
     }
   }
 
-  if (!is.numeric(x$.original_lab_result)) {
-    rlang::abort(
-      "'.original_lab_result' must be numeric."
-    )
-  }
-
   if (!is.numeric(result(x))) {
     rlang::abort(
       "Result column must be numeric."
     )
   }
 
-  # ------------------------------------------------------------
-  # Optional environmental thresholds
-  # ------------------------------------------------------------
-
-  if (".reporting_limit" %in% names(x) && !is.numeric(x$.reporting_limit)) {
+  if (!is.numeric(x$.original_lab_result)) {
     rlang::abort(
-      "'.reporting_limit' must be numeric."
+      "'.original_lab_result' must be numeric."
     )
   }
 
-  if (".detection_limit" %in% names(x) && !is.numeric(x$.detection_limit)) {
+  if (!is.numeric(x$.analysis_result)) {
     rlang::abort(
-      "'.detection_limit' must be numeric."
+      "'.analysis_result' must be numeric."
     )
   }
 
-  if (
-    ".quantitation_limit" %in% names(x) && !is.numeric(x$.quantitation_limit)
-  ) {
-    rlang::abort(
-      "'.quantitation_limit' must be numeric."
-    )
-  }
+  # ------------------------------------------------------------------
+  # Threshold columns
+  # ------------------------------------------------------------------
 
-  if (".achieved_mdc" %in% names(x) && !is.numeric(x$.achieved_mdc)) {
-    rlang::abort(
-      "'.achieved_mdc' must be numeric."
-    )
-  }
-
-  # ------------------------------------------------------------
-  # Optional display columns
-  # ------------------------------------------------------------
-
-  if (".display_result" %in% names(x)) {
-    if (!is.character(x$.display_result)) {
+  if (!is.null(reporting_limit_var(x))) {
+    if (!is.numeric(reporting_limit(x))) {
       rlang::abort(
-        "'.display_result' must be character."
+        "Reporting limit column must be numeric."
       )
     }
+  }
+
+  if (!is.null(detection_limit_var(x))) {
+    if (!is.numeric(detection_limit(x))) {
+      rlang::abort(
+        "Detection limit column must be numeric."
+      )
+    }
+  }
+
+  if (!is.null(quantitation_limit_var(x))) {
+    if (!is.numeric(quantitation_limit(x))) {
+      rlang::abort(
+        "Quantitation limit column must be numeric."
+      )
+    }
+  }
+
+  if (!is.null(achieved_mdc_var(x))) {
+    if (!is.numeric(achieved_mdc(x))) {
+      rlang::abort(
+        "Achieved MDC column must be numeric."
+      )
+    }
+  }
+
+  # ------------------------------------------------------------------
+  # Display metadata
+  # ------------------------------------------------------------------
+
+  if (".display_result" %in% names(x) && !is.character(x$.display_result)) {
+    rlang::abort(
+      "'.display_result' must be character."
+    )
+  }
+
+  if (".display_threshold" %in% names(x) && !is.numeric(x$.display_threshold)) {
+    rlang::abort(
+      "'.display_threshold' must be numeric."
+    )
   }
 
   if (".display_threshold_type" %in% names(x)) {
@@ -359,16 +491,13 @@ validate_env_schema <- function(x) {
       )
     }
 
-    valid_threshold_types <-
-      unname(.display_threshold_types)
-
     bad_types <- setdiff(
       unique(
         stats::na.omit(
           x$.display_threshold_type
         )
       ),
-      valid_threshold_types
+      unname(.display_threshold_types)
     )
 
     if (length(bad_types) > 0) {
@@ -381,50 +510,27 @@ validate_env_schema <- function(x) {
     }
   }
 
-  if (".display_threshold" %in% names(x)) {
-    if (!is.numeric(x$.display_threshold)) {
+  # ------------------------------------------------------------------
+  # Result classification
+  # ------------------------------------------------------------------
+
+  for (col in c(
+    ".detected",
+    ".censored",
+    ".estimated",
+    ".rejected",
+    ".usable"
+  )) {
+    if (col %in% names(x) && !is.logical(x[[col]])) {
       rlang::abort(
-        "'.display_threshold' must be numeric."
+        paste0("'", col, "' must be logical.")
       )
     }
   }
-  # ------------------------------------------------------------
-  # Result classification columns
-  # ------------------------------------------------------------
 
-  if (".detected" %in% names(x) && !is.logical(x$.detected)) {
-    rlang::abort(
-      "'.detected' must be logical."
-    )
-  }
-
-  if (".censored" %in% names(x) && !is.logical(x$.censored)) {
-    rlang::abort(
-      "'.censored' must be logical."
-    )
-  }
-
-  if (".estimated" %in% names(x) && !is.logical(x$.estimated)) {
-    rlang::abort(
-      "'.estimated' must be logical."
-    )
-  }
-
-  if (".rejected" %in% names(x) && !is.logical(x$.rejected)) {
-    rlang::abort(
-      "'.rejected' must be logical."
-    )
-  }
-
-  if (".usable" %in% names(x) && !is.logical(x$.usable)) {
-    rlang::abort(
-      "'.usable' must be logical."
-    )
-  }
-
-  # ------------------------------------------------------------
+  # ------------------------------------------------------------------
   # Analyte metadata
-  # ------------------------------------------------------------
+  # ------------------------------------------------------------------
 
   if (".charge" %in% names(x) && !is.numeric(x$.charge)) {
     rlang::abort(
@@ -444,31 +550,11 @@ validate_env_schema <- function(x) {
     )
   }
 
-  # ------------------------------------------------------------
+  # ------------------------------------------------------------------
   # Required attributes
-  # ------------------------------------------------------------
+  # ------------------------------------------------------------------
 
-  if (
-    is.null(
-      attr(
-        x,
-        "threshold_metadata"
-      )
-    )
-  ) {
-    rlang::abort(
-      "Missing threshold_metadata attribute."
-    )
-  }
-
-  if (
-    is.null(
-      attr(
-        x,
-        "display_options"
-      )
-    )
-  ) {
+  if (is.null(display_options(x))) {
     rlang::abort(
       "Missing display_options attribute."
     )
@@ -480,10 +566,7 @@ validate_env_schema <- function(x) {
 
   if (
     is.null(
-      attr(
-        x,
-        "env_schema_version"
-      )
+      schema_version(x)
     )
   ) {
     rlang::abort(
@@ -493,6 +576,7 @@ validate_env_schema <- function(x) {
 
   invisible(TRUE)
 }
+
 
 #' Minimal structural validation used during restoration.
 #' Does not validate analytical content.
@@ -538,18 +622,26 @@ validate_env_schema_structure <- function(x) {
       )
     )
   }
-  if (
-    is.null(
-      attr(
-        x,
-        "display_options",
-        exact = TRUE
+
+  # ------------------------------------------------------------
+  # Required attributes
+  # ------------------------------------------------------------
+
+  required_attributes <- c(
+    "display_options",
+    "env_schema_version"
+  )
+
+  for (att in required_attributes) {
+    if (is.null(attr(x, att, exact = TRUE))) {
+      rlang::abort(
+        paste(
+          "Missing",
+          att,
+          "attribute."
+        )
       )
-    )
-  ) {
-    rlang::abort(
-      "Missing display_options attribute."
-    )
+    }
   }
 
   .validate_display_options(

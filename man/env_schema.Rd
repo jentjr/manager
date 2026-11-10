@@ -23,7 +23,8 @@ env_schema(
   analysis_date = NULL,
   matrix = NULL,
   lab_name = NULL,
-  metadata = NULL,
+  analysis_metadata = NULL,
+  source_metadata = NULL,
   qualifier_table = NULL,
   display_options = default_display_options(),
   analyte_lookup = analyte_tbl
@@ -68,8 +69,13 @@ env_schema(
 
 \item{lab_name}{Laboratory column.}
 
-\item{metadata}{Optional tidyselect specification identifying
-columns containing method-specific metadata.}
+\item{analysis_metadata}{Optional tidyselect specification identifying
+analysis-context metadata columns (for example analytical methods,
+laboratories, matrices, measurement uncertainty,
+or other analytical metadata).}
+
+\item{source_metadata}{Optional tidyselect specification
+identifying source-system-specific metadata columns.}
 
 \item{qualifier_table}{Optional qualifier lookup table.}
 

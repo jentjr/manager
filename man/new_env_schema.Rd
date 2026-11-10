@@ -7,10 +7,11 @@
 new_env_schema(
   x,
   env_mapping = NULL,
-  measurement_metadata = character(),
+  analysis_metadata = character(),
   threshold_metadata = character(),
   schema_metadata = character(),
   analyte_metadata = NULL,
+  source_metadata = character(),
   display_options = default_display_options(),
   schema_version = "0.5.0",
   schema_created = Sys.time(),

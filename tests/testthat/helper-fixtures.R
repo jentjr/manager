@@ -27,7 +27,7 @@ build_schema <- function(df = gw_piper) {
   env_schema(
     df,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit

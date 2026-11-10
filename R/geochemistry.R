@@ -1033,9 +1033,7 @@ stiff_data.env_schema <- function(
   value_col = NULL
 ) {
   if (is.null(value_col)) {
-    value_col <- analysis_result_meq_var(
-      chemistry_df
-    )
+    value_col <- analysis_result_meq_var()
   }
 
   location_col <- location_var(
@@ -1046,9 +1044,7 @@ stiff_data.env_schema <- function(
     chemistry_df
   )
 
-  analyte_id_col <- analyte_id_var(
-    chemistry_df
-  )
+  analyte_id_col <- analyte_id_var()
 
   keys <- chemistry_df |>
     dplyr::distinct(
@@ -1163,9 +1159,7 @@ stiff_data.env_schema <- function(
       )
     ),
 
-    value_col = analysis_result_meq_var(
-      chemistry_df
-    )
+    value_col = analysis_result_meq_var()
   )
 
   totals |>
@@ -1197,9 +1191,7 @@ stiff_data.env_schema <- function(
   .create_geochemical_components(
     chemistry_df,
     .major_ion_components(),
-    value_col = analysis_result_meq_var(
-      chemistry_df
-    )
+    value_col = analysis_result_meq_var()
   )
 }
 
@@ -1386,9 +1378,7 @@ stiff_data.env_schema <- function(
 
   location_col <- location_var(df)
   sample_date_col <- sample_date_var(df)
-  analyte_id_col <- analyte_id_var(
-    df
-  )
+  analyte_id_col <- analyte_id_var()
 
   analytes <- unique(
     c(
@@ -1663,9 +1653,7 @@ stiff_data.env_schema <- function(
     chemistry_df
   )
 
-  analyte_id_col <- analyte_id_var(
-    chemistry_df
-  )
+  analyte_id_col <- analyte_id_var()
 
   # ---------------------------------------------------
   # Resolve plotting components to analyte IDs
@@ -1888,21 +1876,17 @@ stiff_data.env_schema <- function(
   sample_date_col <- sample_date_var(
     chemistry_df
   )
-  analyte_id_col <- analyte_id_var(
-    chemistry_df
-  )
+  analyte_id_col <- analyte_id_var()
 
-  analysis_result_meq_col <- analysis_result_meq_var(
-    chemistry_df
-  )
+  analysis_result_meq_col <- analysis_result_meq_var()
 
   .validate_required_cols(
     chemistry_df,
     c(
       location_col,
       sample_date_col,
-      analyte_id_var(chemistry_df),
-      analysis_result_meq_var(chemistry_df)
+      analyte_id_var(),
+      analysis_result_meq_var()
     )
   )
 
@@ -1985,8 +1969,8 @@ stiff_data.env_schema <- function(
     c(
       location_col,
       sample_date_col,
-      analyte_id_var(chemistry_df),
-      analysis_result_meq_var(chemistry_df)
+      analyte_id_var(),
+      analysis_result_meq_var()
     )
   )
 
@@ -2016,7 +2000,7 @@ stiff_data.env_schema <- function(
 
         tibble::tibble(
           !!location_col := loc_value,
-          !!date_col := date_value,
+          !!sample_date_col := date_value,
 
           vertex = c(
             1,

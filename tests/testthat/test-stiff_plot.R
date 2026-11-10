@@ -5,7 +5,7 @@ test_that("stiff_plot returns a named list", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   p <- stiff_plot(schema)
@@ -21,7 +21,7 @@ test_that("list elements are ggplot objects", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   p <- stiff_plot(schema)
@@ -39,7 +39,7 @@ test_that("returns one plot per location", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   plots <- stiff_plot(schema)
@@ -57,18 +57,18 @@ test_that("returns one plot per sample date", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   plots <- stiff_plot(
     schema,
-    group_var = date_var(schema)
+    group_var = sample_date_var(schema)
   )
 
   expect_length(
     plots,
     dplyr::n_distinct(
-      schema[[date_var(schema)]]
+      schema[[sample_date_var(schema)]]
     )
   )
 })
@@ -80,7 +80,7 @@ test_that("plot names equal grouping values", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   plots <- stiff_plot(schema)
@@ -98,7 +98,7 @@ test_that("invalid group_var throws error", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_error(
@@ -117,7 +117,7 @@ test_that("invalid facet_var throws error", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_error(
@@ -141,7 +141,7 @@ test_that("missing major ion generates warning", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_warning(
@@ -157,7 +157,7 @@ test_that("Na + K is correctly calculated", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   stiff <- stiff_data(schema)
@@ -174,7 +174,7 @@ test_that("stiff coordinates are assigned correctly", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   stiff <- stiff_data(schema)
@@ -209,7 +209,7 @@ test_that("scale_analyte works", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_no_error(
@@ -227,7 +227,7 @@ test_that("scale_value column is present", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   stiff <- stiff_data(
@@ -247,12 +247,12 @@ test_that("faceting variable is applied", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   p <- stiff_plot(
     schema,
-    facet_var = date_var(schema)
+    facet_var = sample_date_var(schema)
   )[[1]]
 
   expect_s3_class(
@@ -268,7 +268,7 @@ test_that("custom title overrides default", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   plots <- stiff_plot(

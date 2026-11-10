@@ -50,7 +50,7 @@ make_geo_schema <- function() {
   env_schema(
     make_geo_data(),
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -145,7 +145,7 @@ test_that("aggregation occurs within location and date", {
   x <- env_schema(
     x,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit

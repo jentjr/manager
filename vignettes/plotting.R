@@ -42,7 +42,7 @@ gw_subset <- gw_data %>%
 gw_schema <- env_schema(
   gw_subset,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit,
@@ -178,13 +178,13 @@ schoeller_plot(gw)
 ## ----schoeller-location-------------------------------------------------------
 schoeller_plot(
   gw,
-  facet_var = "location"
+  facet_var = location_var(gw)
 )
 
 ## ----schoeller-date-----------------------------------------------------------
 schoeller_plot(
   gw,
-  facet_var = "date"
+  facet_var = sample_date_var(gw)
 )
 
 ## ----schoeller-title----------------------------------------------------------
@@ -209,7 +209,7 @@ plots[[1]]
 ## ----stiff-date---------------------------------------------------------------
 plots <- stiff_plot(
   gw,
-  group_var = "sample_date"
+  group_var = sample_date_var(gw)
 )
 
 plots[[1]]
@@ -263,7 +263,7 @@ plots[[1]]
 # my_plot.data.frame <- function(
 #   df,
 #   location,
-#   date,
+#   sample_date,
 #   analyte,
 #   result,
 #   ...
@@ -272,7 +272,7 @@ plots[[1]]
 #   df <- env_schema(
 #     df,
 #     location = {{ location }},
-#     date = {{ date }},
+#     sample_date = {{ sample_date }},
 #     analyte = {{ analyte }},
 #     result = {{ result }}
 #   )
@@ -288,7 +288,7 @@ plots[[1]]
 # 
 #   location_col <- location_var(df)
 # 
-#   date_col <- date_var(df)
+#   sample_date_col <- sample_date_var(df)
 # 
 #   analyte_col <- analyte_var(df)
 # 

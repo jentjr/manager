@@ -44,7 +44,7 @@ test_that("series_plot accepts raw data", {
       series_plot(
         gw_data,
         location = location_id,
-        date = sample_date,
+        sample_date = sample_date,
         analyte = param_name,
         result = analysis_result,
         unit = default_unit,
@@ -59,7 +59,7 @@ test_that("combined plot works with raw data", {
     series_plot(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       plot_type = "combined"
@@ -165,13 +165,13 @@ test_that("non-detect values are handled", {
   df <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = Sys.Date() + 1:4,
+      sample_date = Sys.Date() + 1:4,
       analyte = "Chloride",
       result = c(1, 1, 1, 1),
       qualifier = c("<", "ND", "U", NA)
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result,
     reporting_flag = qualifier
@@ -269,7 +269,7 @@ test_that("series_plot respects custom column mappings", {
     env_schema(
       df,
       location = monitoring_well,
-      date = collected_on,
+      sample_date = collected_on,
       analyte = constituent,
       result = concentration
     )

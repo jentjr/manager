@@ -2,12 +2,12 @@ test_that("mutate preserves env_schema", {
   x <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -36,7 +36,7 @@ test_that("filter preserves env_schema", {
   x <- env_schema(
     tibble::tibble(
       location = c("MW-1", "MW-2"),
-      date = as.Date(c(
+      sample_date = as.Date(c(
         "2024-01-01",
         "2024-01-01"
       )),
@@ -47,7 +47,7 @@ test_that("filter preserves env_schema", {
       result = c(1, 2)
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -76,12 +76,12 @@ test_that("select preserves env_schema subclass", {
   x <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -112,12 +112,12 @@ test_that("rename preserves env_schema subclass", {
   x <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -146,12 +146,12 @@ test_that("missing .analysis_result invalidates schema", {
   x <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -175,12 +175,12 @@ test_that("missing .analysis_unit invalidates schema", {
   x <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -203,12 +203,12 @@ test_that("removing .analysis_result invalidates schema", {
   x <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -232,7 +232,7 @@ test_that("arrange preserves env_schema", {
   x <- env_schema(
     tibble::tibble(
       location = c("MW-2", "MW-1"),
-      date = as.Date(c(
+      sample_date = as.Date(c(
         "2024-01-02",
         "2024-01-01"
       )),
@@ -240,7 +240,7 @@ test_that("arrange preserves env_schema", {
       result = c(2, 1)
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -269,12 +269,12 @@ test_that("class and validity are distinct concepts", {
   x <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -303,12 +303,12 @@ test_that("env_schema metadata survives dplyr operations", {
   x <- env_schema(
     tibble::tibble(
       location = "MW-1",
-      date = as.Date("2024-01-01"),
+      sample_date = as.Date("2024-01-01"),
       analyte = "Arsenic",
       result = 5
     ),
     location = location,
-    date = date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )

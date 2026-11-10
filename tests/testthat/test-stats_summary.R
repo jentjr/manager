@@ -38,7 +38,7 @@ make_env_schema <- function() {
       )
     ),
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
@@ -469,7 +469,7 @@ test_that("stats_summary works with custom column mappings", {
   x <- env_schema(
     x,
     location = site,
-    date = collected,
+    sample_date = collected,
     analyte = chemical,
     result = value
   )
@@ -536,7 +536,7 @@ test_that("stats_summary adds censoring decision metadata", {
       censored = c(FALSE, FALSE, FALSE)
     ),
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result
   )

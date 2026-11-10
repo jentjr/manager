@@ -26,7 +26,7 @@ make_meq_schema <- function(
       unit = unit
     ),
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -218,7 +218,7 @@ test_that("equivalent concentrations produce identical meq values", {
   x <- env_schema(
     x,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit

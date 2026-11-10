@@ -41,7 +41,7 @@ make_major_ion_schema <- function() {
   env_schema(
     make_major_ion_data(),
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -160,7 +160,7 @@ test_that("duplicate analytes are averaged before MEQ conversion", {
   x <- env_schema(
     x,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit

@@ -4,10 +4,7 @@
 \alias{analysis_result_meq_var}
 \title{MEQ result column}
 \usage{
-analysis_result_meq_var(x)
-}
-\arguments{
-\item{x}{An env_schema object.}
+analysis_result_meq_var()
 }
 \value{
 Character scalar.

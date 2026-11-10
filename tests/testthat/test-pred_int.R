@@ -60,7 +60,7 @@ background_data <- tibble::tibble(
 ) |>
   env_schema(
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit

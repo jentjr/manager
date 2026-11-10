@@ -14,7 +14,7 @@ library(dplyr)
 # gw <- as_env_schema(
 #   gw_data,
 #   location = location_id,
-#   date = sample_date,
+#   sample_date = sample_date,
 #   analyte = param_name,
 #   result = analysis_result,
 #   unit = default_unit
@@ -27,8 +27,8 @@ library(dplyr)
 # location(gw)
 # sample_date(gw)
 # analyte(gw)
-# result(gw)
-# unit(gw)
+# analysis_result(gw)
+# analysis_unit(gw)
 # detect(gw)
 # limit(gw)
 # method(gw)
@@ -36,12 +36,12 @@ library(dplyr)
 ## ----eval = FALSE-------------------------------------------------------------
 # dplyr::n_distinct(location(gw))
 # 
-# mean(result(gw), na.rm = TRUE)
+# mean(analysis_result(gw), na.rm = TRUE)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # dplyr::n_distinct(gw$.location)
 # 
-# mean(gw$.result, na.rm = TRUE)
+# mean(gw$.analysis_result, na.rm = TRUE)
 
 ## ----eval = FALSE-------------------------------------------------------------
 # method(gw)
@@ -72,16 +72,16 @@ library(dplyr)
 # inherits(gw_small, "env_schema")
 
 ## ----eval = FALSE-------------------------------------------------------------
-# benzene <- gw %>%
-#   filter(.analyte == "Benzene")
+# chloride <- gw %>%
+#   filter(.analyte == "Chloride, total")
 
 ## ----eval = FALSE-------------------------------------------------------------
-# inherits(benzene, "env_schema")
+# inherits(chloride, "env_schema")
 
 ## ----eval = FALSE-------------------------------------------------------------
 # gw2 <- gw %>%
 #   mutate(
-#     result_log = log(.result)
+#     result_log = log(.analysis_result)
 #   )
 
 ## ----eval = FALSE-------------------------------------------------------------
@@ -102,17 +102,17 @@ library(dplyr)
 # gw %>%
 #   group_by(.analyte) %>%
 #   summarize(
-#     mean_result = mean(.result, na.rm = TRUE)
+#     mean_result = mean(.analysis_result, na.rm = TRUE)
 #   )
 
 ## ----eval = FALSE-------------------------------------------------------------
 # function(x) {
-#   mean(result(x), na.rm = TRUE)
+#   mean(analysis_result(x), na.rm = TRUE)
 # }
 
 ## ----eval = FALSE-------------------------------------------------------------
 # function(x) {
-#   mean(x$.result, na.rm = TRUE)
+#   mean(x$.analysis_result, na.rm = TRUE)
 # }
 
 ## ----eval = FALSE-------------------------------------------------------------
@@ -121,7 +121,7 @@ library(dplyr)
 #     analyte(.) == "Chloride, total"
 #   ) %>%
 #   mutate(
-#     result_ug_l = result(.)
+#     result_ug_l = analysis_result(.)
 #   ) %>%
 #   arrange(
 #     sample_date(.)

@@ -13,14 +13,14 @@ test_that("lm trend returns expected fields", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
 
   tr <- manager:::.compute_trend(
     df = x,
-    date_col = date_var(x),
+    sample_date_col = sample_date_var(x),
     method = "lm"
   )
 
@@ -55,14 +55,14 @@ test_that("loess trend returns fitted values", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
 
   tr <- manager:::.compute_trend(
     df = x,
-    date_col = date_var(x),
+    sample_date_col = sample_date_var(x),
     method = "loess"
   )
 
@@ -90,14 +90,14 @@ test_that("gam trend returns fitted values", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
 
   tr <- manager:::.compute_trend(
     df = x,
-    date_col = date_var(x),
+    sample_date_col = sample_date_var(x),
     method = "gam"
   )
 
@@ -125,14 +125,14 @@ test_that("mann kendall as_reported returns trend statistics", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
 
   tr <- manager:::.compute_trend(
     df = x,
-    date_col = date_var(x),
+    sample_date_col = sample_date_var(x),
     method = "mann_kendall",
     censored_method = "as_reported"
   )
@@ -203,7 +203,7 @@ test_that("mann kendall cenken returns trend statistics", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result,
     reporting_flag = flag
@@ -211,7 +211,7 @@ test_that("mann kendall cenken returns trend statistics", {
 
   tr <- manager:::.compute_trend(
     df = x,
-    date_col = date_var(x),
+    sample_date_col = sample_date_var(x),
     method = "mann_kendall",
     censored_method = "cenken"
   )
@@ -235,7 +235,7 @@ test_that("none method returns NULL", {
 
   tr <- manager:::.compute_trend(
     df = x,
-    date_col = date_var(x),
+    sample_date_col = sample_date_var(x),
     method = "none"
   )
 
@@ -257,14 +257,14 @@ test_that("constant data returns NULL", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
 
   tr <- manager:::.compute_trend(
     df = x,
-    date_col = date_var(x),
+    sample_date_col = sample_date_var(x),
     method = "lm"
   )
 
@@ -287,14 +287,14 @@ test_that("fewer than three observations returns NULL", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
 
   tr <- manager:::.compute_trend(
     df = x,
-    date_col = date_var(x),
+    sample_date_col = sample_date_var(x),
     method = "lm"
   )
 

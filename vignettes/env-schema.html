@@ -12,7 +12,7 @@
 
 <meta name="author" content="manager package" />
 
-<meta name="date" content="2026-11-09" />
+<meta name="date" content="2026-11-10" />
 
 <title>Working with env_schema</title>
 
@@ -341,7 +341,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Working with env_schema</h1>
 <h4 class="author">manager package</h4>
-<h4 class="date">2026-11-09</h4>
+<h4 class="date">2026-11-10</h4>
 
 
 <div id="TOC">
@@ -500,7 +500,7 @@ env_schema</h1>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>gw <span class="ot">&lt;-</span> <span class="fu">as_env_schema</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  gw_data,</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">location =</span> location_id,</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">date =</span> sample_date,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">sample_date =</span> sample_date,</span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">analyte =</span> param_name,</span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">result =</span> analysis_result,</span>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">unit =</span> default_unit</span>
@@ -525,8 +525,8 @@ than referencing columns directly.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">location</span>(gw)</span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">sample_date</span>(gw)</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">analyte</span>(gw)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">result</span>(gw)</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">unit</span>(gw)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">analysis_result</span>(gw)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">analysis_unit</span>(gw)</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="fu">detect</span>(gw)</span>
 <span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">limit</span>(gw)</span>
 <span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">method</span>(gw)</span></code></pre></div>
@@ -535,11 +535,11 @@ changes to internal implementation details.</p>
 <p>For example:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">n_distinct</span>(<span class="fu">location</span>(gw))</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">result</span>(gw), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">analysis_result</span>(gw), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Instead of:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">n_distinct</span>(gw<span class="sc">$</span>.location)</span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">mean</span>(gw<span class="sc">$</span>.result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">mean</span>(gw<span class="sc">$</span>.analysis_result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Using accessors results in code that is more maintainable and easier
 to refactor.</p>
 </div>
@@ -616,17 +616,17 @@ Columns</h2>
 </div>
 <div id="filtering-rows" class="section level2" number="10.2">
 <h2><span class="header-section-number">10.2</span> Filtering Rows</h2>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>benzene <span class="ot">&lt;-</span> gw <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="fu">filter</span>(.analyte <span class="sc">==</span> <span class="st">&quot;Benzene&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>chloride <span class="ot">&lt;-</span> gw <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="fu">filter</span>(.analyte <span class="sc">==</span> <span class="st">&quot;Chloride, total&quot;</span>)</span></code></pre></div>
 <p>The filtered object retains the schema.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">inherits</span>(benzene, <span class="st">&quot;env_schema&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">inherits</span>(chloride, <span class="st">&quot;env_schema&quot;</span>)</span></code></pre></div>
 </div>
 <div id="mutating-columns" class="section level2" number="10.3">
 <h2><span class="header-section-number">10.3</span> Mutating
 Columns</h2>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>gw2 <span class="ot">&lt;-</span> gw <span class="sc">%&gt;%</span></span>
 <span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>    <span class="at">result_log =</span> <span class="fu">log</span>(.result)</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>    <span class="at">result_log =</span> <span class="fu">log</span>(.analysis_result)</span>
 <span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>  )</span></code></pre></div>
 <p>Schema restoration occurs automatically.</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">inherits</span>(gw2, <span class="st">&quot;env_schema&quot;</span>)</span></code></pre></div>
@@ -661,7 +661,7 @@ return a regular tibble rather than an <code>env_schema</code>.</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>gw <span class="sc">%&gt;%</span></span>
 <span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>  <span class="fu">group_by</span>(.analyte) <span class="sc">%&gt;%</span></span>
 <span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>    <span class="at">mean_result =</span> <span class="fu">mean</span>(.result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>    <span class="at">mean_result =</span> <span class="fu">mean</span>(.analysis_result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>  )</span></code></pre></div>
 <p>The resulting object is no longer a collection of analytical results
 in the original schema form.</p>
@@ -675,11 +675,11 @@ with env_schema</h1>
 API.</p>
 <p>Prefer:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="cf">function</span>(x) {</span>
-<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="fu">result</span>(x), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="fu">analysis_result</span>(x), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>}</span></code></pre></div>
 <p>Instead of:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="cf">function</span>(x) {</span>
-<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="fu">mean</span>(x<span class="sc">$</span>.result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="fu">mean</span>(x<span class="sc">$</span>.analysis_result, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>}</span></code></pre></div>
 <p>Advantages include:</p>
 <ul>
@@ -697,7 +697,7 @@ API.</p>
 <span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>    <span class="fu">analyte</span>(.) <span class="sc">==</span> <span class="st">&quot;Chloride, total&quot;</span></span>
 <span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>    <span class="at">result_ug_l =</span> <span class="fu">result</span>(.)</span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>    <span class="at">result_ug_l =</span> <span class="fu">analysis_result</span>(.)</span>
 <span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>  <span class="fu">arrange</span>(</span>
 <span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>    <span class="fu">sample_date</span>(.)</span>

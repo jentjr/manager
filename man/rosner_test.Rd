@@ -105,7 +105,7 @@ input is not grouped, tests are performed by:
 schema <- env_schema(
   gw_data,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit

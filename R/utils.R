@@ -122,7 +122,7 @@ to_wide.data.frame <- function(
 #'
 #' @section env_schema Method:
 #'
-#' For `env_schema` objects, location, date, analyte,
+#' For `env_schema` objects, location, sample_date, analyte,
 #' and result fields are obtained automatically from
 #' schema mappings.
 #'
@@ -162,7 +162,7 @@ to_wide.env_schema <- function(
     df = df,
     id_cols = c(
       location_var(df),
-      date_var(df)
+      sample_date_var(df)
     ),
     names_from = names_from,
     values_from = values_from

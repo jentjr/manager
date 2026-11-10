@@ -29,8 +29,12 @@
 #' @param analysis_date Analysis date column.
 #' @param matrix Matrix column.
 #' @param lab_name Laboratory column.
-#' @param metadata Optional tidyselect specification identifying
-#'   columns containing method-specific metadata.
+#' @param analysis_metadata Optional tidyselect specification identifying
+#'   analysis-context metadata columns (for example analytical methods,
+#'   laboratories, matrices, measurement uncertainty,
+#'   or other analytical metadata).
+#' @param source_metadata Optional tidyselect specification
+#'   identifying source-system-specific metadata columns.
 #' @param qualifier_table Optional qualifier lookup table.
 #' @param analyte_lookup Optional analyte metadata lookup table.
 #'   Defaults to \code{analyte_tbl}. Used to standardize analyte
@@ -141,7 +145,8 @@ env_schema <- function(
   matrix = NULL,
   lab_name = NULL,
 
-  metadata = NULL,
+  analysis_metadata = NULL,
+  source_metadata = NULL,
   qualifier_table = NULL,
 
   display_options = default_display_options(),
@@ -154,7 +159,8 @@ env_schema <- function(
     )
   }
 
-  metadata <- rlang::enquo(metadata)
+  analysis_metadata <- rlang::enquo(analysis_metadata)
+  source_metadata <- rlang::enquo(source_metadata)
 
   if (is.null(qualifier_table)) {
     qualifier_table <- .qualifier_tbl
@@ -457,12 +463,23 @@ env_schema <- function(
   # Metadata columns
   # --------------------------------------------------------------
 
-  metadata_cols <- character()
+  analysis_metadata_cols <- character()
 
-  if (!rlang::quo_is_null(metadata)) {
-    metadata_cols <- names(
+  if (!rlang::quo_is_null(analysis_metadata)) {
+    analysis_metadata_cols <- names(
       tidyselect::eval_select(
-        metadata,
+        analysis_metadata,
+        df
+      )
+    )
+  }
+
+  source_metadata_cols <- character()
+
+  if (!rlang::quo_is_null(source_metadata)) {
+    source_metadata_cols <- names(
+      tidyselect::eval_select(
+        source_metadata,
         df
       )
     )
@@ -473,29 +490,30 @@ env_schema <- function(
   # --------------------------------------------------------------
 
   threshold_metadata <- env_mapping[
-    c(
-      "reporting_limit",
-      "detection_limit",
-      "quantitation_limit",
-      "achieved_mdc"
+    intersect(
+      names(env_mapping),
+      c(
+        "reporting_limit",
+        "detection_limit",
+        "quantitation_limit",
+        "achieved_mdc"
+      )
     )
   ]
 
-  threshold_metadata <- threshold_metadata[
-    !vapply(
+  threshold_metadata <- unname(
+    unlist(
       threshold_metadata,
-      function(x) {
-        length(x) == 1 && is.na(x)
-      },
-      logical(1)
+      use.names = FALSE
     )
-  ]
+  )
 
   out <- new_env_schema(
     out,
     env_mapping = env_mapping,
-    measurement_metadata = metadata_cols,
+    analysis_metadata = analysis_metadata_cols,
     threshold_metadata = threshold_metadata,
+    source_metadata = source_metadata_cols,
     schema_metadata = names(env_mapping),
     display_options = display_options,
     schema_version = "0.5.0",
@@ -961,36 +979,30 @@ restore_env_schema <- function(
 
     env_mapping = mapping,
 
-    measurement_metadata = intersect(
-      attr(
-        to,
-        "measurement_metadata",
-        exact = TRUE
-      ),
+    analysis_metadata = intersect(
+      analysis_metadata(to),
       metadata_names
     ),
 
     threshold_metadata = intersect(
-      attr(
-        to,
-        "threshold_metadata",
-        exact = TRUE
-      ),
+      threshold_metadata(to),
       metadata_names
     ),
 
-    schema_metadata = intersect(
-      attr(
-        to,
-        "schema_metadata",
-        exact = TRUE
-      ),
+    source_metadata = intersect(
+      source_metadata(to),
       metadata_names
     ),
 
     analyte_metadata = intersect(
       known_analyte_metadata(),
       metadata_names
+    ),
+
+    schema_metadata = attr(
+      to,
+      "schema_metadata",
+      exact = TRUE
     ),
 
     display_options = attr(
@@ -1062,10 +1074,12 @@ restore_env_schema <- function(
 new_env_schema <- function(
   x,
   env_mapping = NULL,
-  measurement_metadata = character(),
+  analysis_metadata = character(),
   threshold_metadata = character(),
   schema_metadata = character(),
   analyte_metadata = NULL,
+
+  source_metadata = character(),
 
   display_options = default_display_options(),
 
@@ -1080,6 +1094,22 @@ new_env_schema <- function(
   analyte_lookup_cols = NULL
 ) {
   x <- tibble::as_tibble(x)
+
+  if (is.null(analysis_metadata)) {
+    analysis_metadata <- character()
+  }
+
+  if (is.null(threshold_metadata)) {
+    threshold_metadata <- character()
+  }
+
+  if (is.null(source_metadata)) {
+    source_metadata <- character()
+  }
+
+  if (is.null(schema_metadata)) {
+    schema_metadata <- character()
+  }
 
   if (is.null(analyte_metadata)) {
     analyte_cols <- c(
@@ -1175,10 +1205,12 @@ new_env_schema <- function(
 
     env_mapping = env_mapping,
 
-    measurement_metadata = measurement_metadata,
+    analysis_metadata = analysis_metadata,
     threshold_metadata = threshold_metadata,
     schema_metadata = schema_metadata,
     analyte_metadata = analyte_metadata,
+
+    source_metadata = source_metadata,
 
     display_options = display_options,
 
@@ -1350,10 +1382,10 @@ get_schema_metadata <- function(x) {
   )
 }
 
-get_measurement_metadata <- function(x) {
+get_analysis_metadata <- function(x) {
   attr(
     x,
-    "measurement_metadata",
+    "analysis_metadata",
     exact = TRUE
   )
 }
@@ -1370,6 +1402,15 @@ get_schema_created <- function(x) {
   attr(
     x,
     "env_schema_created",
+    exact = TRUE
+  )
+}
+
+#' @keywords internal
+get_source_metadata <- function(x) {
+  attr(
+    x,
+    "source_metadata",
     exact = TRUE
   )
 }
@@ -1423,18 +1464,54 @@ schema_metadata <- function(x) {
 #' @returns Character vector.
 #'
 #' @export
-measurement_metadata <- function(x) {
+analysis_metadata <- function(x) {
   if (!is_env_schema(x)) {
     rlang::abort(
       "Object must inherit from 'env_schema'."
     )
   }
 
-  meta <- get_measurement_metadata(x)
+  meta <- get_analysis_metadata(x)
 
   if (is.null(meta)) {
     return(character())
   }
+
+  meta
+}
+
+#' Return threshold metadata
+#'
+#' @param x An env_schema object.
+#'
+#' @returns Character vector.
+#'
+#' @export
+threshold_metadata <- function(x) {
+  if (!is_env_schema(x)) {
+    rlang::abort(
+      "Object must inherit from 'env_schema'."
+    )
+  }
+
+  meta <- attr(
+    x,
+    "threshold_metadata",
+    exact = TRUE
+  )
+
+  if (is.null(meta)) {
+    return(character())
+  }
+
+  if (is.list(meta)) {
+    meta <- unlist(
+      meta,
+      use.names = FALSE
+    )
+  }
+
+  meta <- meta[!is.na(meta)]
 
   meta
 }
@@ -1522,6 +1599,35 @@ schema_result_types <- function(x) {
     )
 }
 
+#' Return source metadata columns
+#'
+#' Returns source-system-specific metadata columns attached to an
+#' env_schema object.
+#'
+#' These columns are not part of the core schema mapping and are
+#' typically added by source-specific importers such as
+#' `read_manages4()`.
+#'
+#' @param x An env_schema object.
+#'
+#' @returns Character vector of source metadata column names.
+#'
+#' @export
+source_metadata <- function(x) {
+  if (!is_env_schema(x)) {
+    rlang::abort(
+      "Object must inherit from 'env_schema'."
+    )
+  }
+
+  meta <- get_source_metadata(x)
+
+  if (is.null(meta)) {
+    return(character())
+  }
+
+  meta
+}
 # -------------------------------------------------------------------------
 # Internal helpers
 # -------------------------------------------------------------------------
@@ -1539,96 +1645,109 @@ schema_result_types <- function(x) {
 }
 
 # -------------------------------------------------------------------------
-# Internal mapping accessors
+# Mapping accessors
 # -------------------------------------------------------------------------
 
-analyte_id_var <- function(x) {
+#' @export
+analyte_id_var <- function() {
   ".analyte_id"
 }
 
+#' @export
 site_var <- function(x) {
   get_env_mapping(x)$site
 }
 
+#' @export
 location_var <- function(x) {
   get_env_mapping(x)$location
 }
 
+#' @export
 sample_date_var <- function(x) {
   get_env_mapping(x)$sample_date
 }
 
+#' @export
 analysis_date_var <- function(x) {
   get_env_mapping(x)$analysis_date
 }
 
+#' @export
 analyte_var <- function(x) {
   get_env_mapping(x)$analyte
 }
 
+#' @export
 result_var <- function(x) {
   get_env_mapping(x)$result
 }
 
+#' @export
 analysis_result_var <- function() {
   ".analysis_result"
 }
 
+#' @export
 analysis_unit_var <- function() {
   ".analysis_unit"
 }
 
+#' @export
 unit_var <- function(x) {
   get_env_mapping(x)$unit
 }
 
+#' @export
 sample_id_var <- function(x) {
   get_env_mapping(x)$sample_id
 }
 
+#' @export
 reporting_flag_var <- function(x) {
   get_env_mapping(x)$reporting_flag
 }
 
+#' @export
 reporting_limit_var <- function(x) {
   get_env_mapping(x)$reporting_limit
 }
 
+#' @export
 detection_limit_var <- function(x) {
   get_env_mapping(x)$detection_limit
 }
 
+#' @export
 quantitation_limit_var <- function(x) {
   get_env_mapping(x)$quantitation_limit
 }
 
+#' @export
 achieved_mdc_var <- function(x) {
   get_env_mapping(x)$achieved_mdc
 }
 
+#' @export
 method_var <- function(x) {
   get_env_mapping(x)$method
 }
 
 #' MEQ result column
 #'
-#' @param x An env_schema object.
-#'
 #' @returns Character scalar.
 #'
 #' @export
-analysis_result_meq_var <- function(x) {
+analysis_result_meq_var <- function() {
   ".analysis_result_meq"
 }
 
 #' MEQ unit column
 #'
-#' @param x An env_schema object.
-#'
 #' @returns Character scalar.
 #'
 #' @export
-analysis_unit_meq_var <- function(x) {
+analysis_unit_meq_var <- function() {
   ".analysis_unit_meq"
 }
 
@@ -1713,6 +1832,15 @@ analysis_date <- function(x) {
 #' @export
 analyte <- function(x) {
   UseMethod("analyte")
+}
+
+#' Return analyte_id values
+#'
+#' @param x Object.
+#'
+#' @export
+analyte_id <- function(x) {
+  UseMethod("analyte_id")
 }
 
 #' Return original result values
@@ -1979,6 +2107,14 @@ analyte.env_schema <- function(x) {
 }
 
 #' @export
+analyte_id.env_schema <- function(x) {
+  .get_mapped_column(
+    x,
+    analyte_id_var()
+  )
+}
+
+#' @export
 result.env_schema <- function(x) {
   .get_mapped_column(
     x,
@@ -2070,11 +2206,6 @@ display_threshold_type.env_schema <- function(x) {
 # -------------------------------------------------------------------------
 
 #' @export
-analyte_id <- function(x) {
-  x[[analyte_id_var(x)]]
-}
-
-#' @export
 analysis_result.env_schema <- function(x) {
   x[[analysis_result_var()]]
 }
@@ -2092,7 +2223,7 @@ analysis_unit.env_schema <- function(x) {
 #'
 #' @export
 analysis_result_meq <- function(x) {
-  col <- analysis_result_meq_var(x)
+  col <- analysis_result_meq_var()
 
   if (!col %in% names(x)) {
     rlang::abort(
@@ -2111,7 +2242,7 @@ analysis_result_meq <- function(x) {
 #'
 #' @export
 analysis_unit_meq <- function(x) {
-  col <- analysis_unit_meq_var(x)
+  col <- analysis_unit_meq_var()
 
   if (!col %in% names(x)) {
     rlang::abort(
@@ -2224,6 +2355,14 @@ analysis_date.default <- function(x) {
 #' @export
 analyte.default <- function(x) {
   .accessor_not_implemented("analyte", x)
+}
+
+#' @export
+analyte_id.default <- function(x) {
+  .accessor_not_implemented(
+    "analyte_id",
+    x
+  )
 }
 
 #' @export
@@ -2414,6 +2553,20 @@ dplyr_reconstruct.env_schema <- function(
 }
 
 #' @export
+select.env_schema <- function(.data, ...) {
+  out <- dplyr::select(
+    tibble::as_tibble(.data),
+    ...
+  )
+
+  restore_env_schema(
+    out,
+    .data,
+    validate = FALSE
+  )
+}
+
+#' @export
 print.env_schema <- function(x, ...) {
   cat("<env_schema>\n")
 
@@ -2564,7 +2717,8 @@ print.env_schema <- function(x, ...) {
   analysis_date = NULL,
   matrix = NULL,
   lab_name = NULL,
-  metadata = NULL,
+  analysis_metadata = NULL,
+  source_metadata = NULL,
   qualifier_table = NULL,
   analyte_lookup = analyte_tbl
 ) {
@@ -2592,7 +2746,8 @@ print.env_schema <- function(x, ...) {
     analysis_date = rlang::enquo(analysis_date),
     matrix = rlang::enquo(matrix),
     lab_name = rlang::enquo(lab_name),
-    metadata = rlang::enquo(metadata)
+    analysis_metadata = rlang::enquo(analysis_metadata),
+    source_metadata = rlang::enquo(source_metadata)
   )
 
   optional_args <- optional_args[
@@ -2612,4 +2767,48 @@ print.env_schema <- function(x, ...) {
     env_schema,
     !!!args
   )
+}
+
+#' Attach source metadata columns
+#'
+#' @param x env_schema object.
+#' @param columns Character vector of source metadata columns.
+#'
+#' @returns env_schema
+#'
+#' @keywords internal
+set_source_metadata <- function(
+  x,
+  columns
+) {
+  validate_env_schema(x)
+
+  missing_cols <- setdiff(
+    columns,
+    names(x)
+  )
+
+  if (length(missing_cols) > 0) {
+    rlang::abort(
+      paste(
+        "Source metadata columns not found:",
+        paste(missing_cols, collapse = ", ")
+      )
+    )
+  }
+
+  attr(
+    x,
+    "source_metadata"
+  ) <- columns
+
+  out <- restore_env_schema(
+    x = x,
+    to = x,
+    validate = FALSE
+  )
+
+  validate_env_schema(out)
+
+  out
 }

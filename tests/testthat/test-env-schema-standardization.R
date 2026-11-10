@@ -26,7 +26,7 @@ make_test_schema <- function(
       unit = unit
     ),
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -98,7 +98,7 @@ test_that("analysis unit matches metadata standard unit", {
   out <- env_schema(
     x,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -341,7 +341,7 @@ test_that("mixed reporting units convert correctly", {
   out <- env_schema(
     x,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -391,7 +391,7 @@ test_that("equivalent concentrations standardize identically", {
   out <- env_schema(
     x,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit

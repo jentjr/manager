@@ -11,7 +11,7 @@ piper_plot_df <- function(df = gw_piper, ...) {
   piper_plot(
     df,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
@@ -59,7 +59,7 @@ test_that("data.frame method dispatches correctly", {
 test_that("data.frame method requires mappings", {
   expect_error(
     piper_plot(gw_piper),
-    "location.*date.*analyte.*result"
+    "location.*sample_date.*analyte.*result"
   )
 })
 

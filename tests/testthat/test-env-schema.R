@@ -3,7 +3,7 @@ test_that("unknown analytes generate warning", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     ),
@@ -16,7 +16,7 @@ test_that("env_schema constructor creates valid object", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit,
@@ -39,7 +39,7 @@ test_that("schema mappings are stored correctly", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit,
@@ -50,7 +50,7 @@ test_that("schema mappings are stored correctly", {
   mapping <- schema_mapping(x)
 
   expect_equal(mapping$location, "location_id")
-  expect_equal(mapping$date, "sample_date")
+  expect_equal(mapping$sample_date, "sample_date")
   expect_equal(mapping$analyte, "param_name")
   expect_equal(mapping$result, "analysis_result")
   expect_equal(mapping$unit, "default_unit")
@@ -63,7 +63,7 @@ test_that("required accessors return source columns", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -75,7 +75,7 @@ test_that("required accessors return source columns", {
   )
 
   expect_identical(
-    date(x),
+    sample_date(x),
     x$sample_date
   )
 
@@ -96,7 +96,7 @@ test_that("optional accessors return source columns", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit,
@@ -121,7 +121,7 @@ test_that("missing optional mappings return NULL", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -139,7 +139,7 @@ test_that("standardized accessors return manager columns", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit
@@ -188,7 +188,7 @@ test_that("schema metadata accessors work", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -221,7 +221,7 @@ test_that("analyte metadata columns are attached", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit
@@ -248,7 +248,7 @@ test_that("analyte labels are created", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit
@@ -280,7 +280,7 @@ test_that("filter preserves env_schema", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit
@@ -310,7 +310,7 @@ test_that("mutate preserves env_schema", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -339,7 +339,7 @@ test_that("select preserves env_schema", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit
@@ -353,17 +353,30 @@ test_that("select preserves env_schema", {
 
   expect_s3_class(y, "env_schema")
 
-  expect_identical(
-    schema_mapping(y),
-    schema_mapping(x)
-  )
+  expect_null(unit(y))
 
   expect_null(
-    unit(y)
+    schema_mapping(y)$unit
   )
 
-  expect_no_error(
-    validate_env_schema(y)
+  expect_equal(
+    schema_mapping(y)$location,
+    schema_mapping(x)$location
+  )
+
+  expect_equal(
+    schema_mapping(y)$sample_date,
+    schema_mapping(x)$sample_date
+  )
+
+  expect_equal(
+    schema_mapping(y)$analyte,
+    schema_mapping(x)$analyte
+  )
+
+  expect_equal(
+    schema_mapping(y)$result,
+    schema_mapping(x)$result
   )
 })
 
@@ -373,7 +386,7 @@ test_that("required mapped columns must remain present", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -445,7 +458,7 @@ test_that("has_env_schema_structure detects schema structure", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -469,7 +482,7 @@ test_that("optional mappings may be removed", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit
@@ -493,7 +506,7 @@ test_that("slice preserves env_schema", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -517,7 +530,7 @@ test_that("as_env_schema preserves metadata", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -543,7 +556,7 @@ test_that("display metadata columns are created", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -566,7 +579,7 @@ test_that("default display options are attached", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -596,7 +609,7 @@ test_that("display_options accessor returns stored options", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       display_options = opts
@@ -614,7 +627,7 @@ test_that("invalid display options fail validation", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       display_options = list()
@@ -625,7 +638,7 @@ test_that("invalid display options fail validation", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       display_options = modifyList(
@@ -640,7 +653,7 @@ test_that("invalid display options fail validation", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       display_options = modifyList(
@@ -657,7 +670,7 @@ test_that("set_display_options updates schema display options", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -694,7 +707,7 @@ test_that("display options survive dplyr operations", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -722,7 +735,7 @@ test_that("display threshold type values are valid", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -750,7 +763,7 @@ test_that("corrupt display options fail schema validation", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -772,7 +785,7 @@ test_that("corrupt display threshold type fails validation", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -791,7 +804,7 @@ test_that("refresh_display_results regenerates display output", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -823,7 +836,7 @@ test_that("reporting limit is preferred for display threshold", {
   x <- env_schema(
     dat,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     reporting_limit = reporting_limit,
@@ -851,7 +864,7 @@ test_that("to_wide returns analysis results by default", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result
     )
@@ -867,7 +880,7 @@ test_that("to_wide supports display results", {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       reporting_flag = lt_measure
@@ -882,5 +895,35 @@ test_that("to_wide supports display results", {
   expect_s3_class(
     y,
     "tbl_df"
+  )
+})
+
+test_that("source metadata survives reconstruction", {
+  gw <- env_schema(
+    tibble::tibble(
+      location_id = "MW-1",
+      sample_date = Sys.Date(),
+      analyte = "Benzene",
+      result = 1,
+      .site_name = "Site A",
+      .water_class = "GW"
+    ),
+    location = location_id,
+    sample_date = sample_date,
+    analyte = analyte,
+    result = result
+  )
+
+  attr(gw, "source_metadata") <- c(
+    ".site_name",
+    ".water_class"
+  )
+
+  gw2 <- gw |>
+    dplyr::mutate(x = 1)
+
+  expect_equal(
+    source_metadata(gw2),
+    c(".site_name", ".water_class")
   )
 })

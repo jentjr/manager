@@ -18,7 +18,7 @@ test_that("compute_group_labels returns one label per group", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -57,7 +57,7 @@ test_that("compute_group_labels returns one label for each location analyte grou
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -88,7 +88,7 @@ test_that("label_x is latest date in each group", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -125,7 +125,7 @@ test_that("label_y equals final fitted value", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -156,7 +156,7 @@ test_that("compact labels are generated", {
     trend_df = trend_df,
     trend = "mann_kendall",
     trend_label = "compact",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -187,7 +187,7 @@ test_that("mann kendall labels are generated", {
     trend_df = trend_df,
     trend = "mann_kendall",
     trend_label = "full",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -235,7 +235,7 @@ test_that("multiple analytes generate separate labels", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -266,7 +266,7 @@ test_that("returned labels contain required columns", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -297,7 +297,7 @@ test_that("empty trend data returns empty result", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    sample_date_col = "date",
+    sample_date_col = "sample_date",
     location_col = "location",
     analyte_col = "analyte"
   )

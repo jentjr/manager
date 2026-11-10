@@ -3,7 +3,7 @@ make_outlier_schema <- function() {
     env_schema(
       gw_data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = param_name,
       result = analysis_result,
       unit = default_unit
@@ -33,7 +33,7 @@ make_dixon_schema <- function() {
       default_unit = "ug/L"
     ),
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -69,7 +69,7 @@ test_that("rosner_test identifies a high outlier", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -110,7 +110,7 @@ test_that("rosner_test finds no outliers in stable data", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -149,7 +149,7 @@ test_that("grubbs_test identifies high outlier", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -187,7 +187,7 @@ test_that("dixon_test identifies high outlier", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -295,7 +295,7 @@ test_that("tukey_outlier identifies high outlier", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -351,7 +351,7 @@ test_that("rosner_test respects existing grouping", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )

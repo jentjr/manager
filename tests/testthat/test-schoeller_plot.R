@@ -4,7 +4,7 @@ make_chemistry_df <- function(df) {
   schema <- env_schema(
     df,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -126,7 +126,7 @@ test_that("empty dataframe returns empty result", {
   schema <- env_schema(
     df,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -163,7 +163,7 @@ test_that("schoeller_plot returns a ggplot object", {
   p <- schoeller_plot(
     df,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -190,7 +190,7 @@ test_that("schoeller_plot env_schema dispatch works", {
   schema <- env_schema(
     df,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -221,7 +221,7 @@ test_that("both faceting options work", {
   schema <- env_schema(
     df,
     location = location_id,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = param_name,
     result = analysis_result,
     unit = default_unit
@@ -230,14 +230,14 @@ test_that("both faceting options work", {
   expect_no_error(
     schoeller_plot(
       schema,
-      facet_var = "location"
+      facet_var = "location_id"
     )
   )
 
   expect_no_error(
     schoeller_plot(
       schema,
-      facet_var = "date"
+      facet_var = "sample_date"
     )
   )
 })

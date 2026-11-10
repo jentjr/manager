@@ -15,7 +15,7 @@ test_that("trend method is recorded", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -57,7 +57,7 @@ test_that("compute_group_trends returns one fitted series per group", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -145,7 +145,7 @@ test_that("trend method is recorded", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -185,7 +185,7 @@ test_that("groups with insufficient observations are dropped", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -245,7 +245,7 @@ test_that("compute_group_trends computes separate analyte trends", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )

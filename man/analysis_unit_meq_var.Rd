@@ -4,10 +4,7 @@
 \alias{analysis_unit_meq_var}
 \title{MEQ unit column}
 \usage{
-analysis_unit_meq_var(x)
-}
-\arguments{
-\item{x}{An env_schema object.}
+analysis_unit_meq_var()
 }
 \value{
 Character scalar.
