@@ -1261,7 +1261,7 @@ trend_summary.data.frame <- function(
   env_schema(
     df,
     location = !!rlang::sym(location_id),
-    date = !!rlang::sym(sample_date),
+    sample_date = !!rlang::sym(sample_date),
     analyte = !!rlang::sym(param_name),
     result = !!rlang::sym(analysis_result)
   ) |>
@@ -1300,7 +1300,7 @@ trend_summary.env_schema <- function(
 
   alpha <- 1 - conf.level
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   group_cols <- .get_trend_group_cols(df)
 
@@ -1313,7 +1313,7 @@ trend_summary.env_schema <- function(
     dplyr::group_modify(
       ~ .trend_summary_group(
         .x,
-        date_col = date_col,
+        sample_date_col = sample_date_col,
         method = method,
         censored_method = censored_method,
         alpha = alpha,
@@ -1326,7 +1326,7 @@ trend_summary.env_schema <- function(
 #' @keywords internal
 .trend_summary_group <- function(
   df,
-  date_col,
+  sample_date_col,
   method,
   censored_method,
   alpha,
@@ -1334,14 +1334,14 @@ trend_summary.env_schema <- function(
 ) {
   n <- nrow(df)
 
-  date_values <- stats::na.omit(
-    df[[date_col]]
+  sample_date_values <- stats::na.omit(
+    df[[sample_date_col]]
   )
 
-  if (length(date_values) > 0) {
-    first_date <- min(date_values)
+  if (length(sample_date_values) > 0) {
+    first_date <- min(sample_date_values)
 
-    last_date <- max(date_values)
+    last_date <- max(sample_date_values)
 
     date_range_days <- as.numeric(
       difftime(
@@ -1399,7 +1399,7 @@ trend_summary.env_schema <- function(
 
   tr <- .compute_trend(
     df = df,
-    date_col = date_col,
+    sample_date_col = sample_date_col,
     method = method,
     censored_method = censored_method,
     conf.level = conf.level
@@ -1469,16 +1469,16 @@ trend_summary.env_schema <- function(
 #' @noRd
 .prepare_trend_data <- function(
   df,
-  date_col,
+  sample_date_col,
   censored_method = "cenken"
 ) {
   out <- df |>
     dplyr::filter(
-      !is.na(.data[[date_col]]),
+      !is.na(.data[[sample_date_col]]),
       !is.na(.analysis_result)
     ) |>
     dplyr::arrange(
-      .data[[date_col]]
+      .data[[sample_date_col]]
     )
 
   if (nrow(out) < 3) {
@@ -1561,7 +1561,7 @@ kendall_trend.data.frame <- function(
   env_schema(
     df,
     location = !!rlang::sym(location_id),
-    date = !!rlang::sym(sample_date),
+    sample_date = !!rlang::sym(sample_date),
     analyte = !!rlang::sym(param_name),
     result = !!rlang::sym(analysis_result)
   ) |>
@@ -1588,11 +1588,11 @@ kendall_trend.env_schema <- function(
 ) {
   validate_env_schema(df)
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   EnvStats::kendallTrendTest(
     x = df$.analysis_result,
-    y = df[[date_col]],
+    y = df[[sample_date_col]],
     conf.level = conf.level
   )
 }
@@ -1669,14 +1669,14 @@ kendall_trend.env_schema <- function(
 #' @noRd
 .compute_trend <- function(
   df,
-  date_col,
+  sample_date_col,
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95
 ) {
   df <- .prepare_trend_data(
     df = df,
-    date_col = date_col,
+    sample_date_col = sample_date_col,
     censored_method = censored_method
   )
 
@@ -1720,7 +1720,7 @@ kendall_trend.env_schema <- function(
 
   if (method == "lm") {
     df$.date_num <- as.numeric(
-      df[[date_col]]
+      df[[sample_date_col]]
     )
 
     fit <- stats::lm(
@@ -1760,7 +1760,7 @@ kendall_trend.env_schema <- function(
 
   if (method == "loess") {
     df$.date_num <- as.numeric(
-      df[[date_col]]
+      df[[sample_date_col]]
     )
 
     fit <- stats::loess(
@@ -1793,7 +1793,7 @@ kendall_trend.env_schema <- function(
 
   if (method == "gam") {
     df$.date_num <- as.numeric(
-      df[[date_col]]
+      df[[sample_date_col]]
     )
 
     fit <- tryCatch(
@@ -1837,12 +1837,12 @@ kendall_trend.env_schema <- function(
   ) {
     fit <- EnvStats::kendallTrendTest(
       x = df$.analysis_result,
-      y = df[[date_col]],
+      y = df[[sample_date_col]],
       conf.level = conf.level
     )
 
     x_num <- as.numeric(
-      df[[date_col]]
+      df[[sample_date_col]]
     )
 
     x0 <- min(x_num)
@@ -1896,7 +1896,7 @@ kendall_trend.env_schema <- function(
         NADA2::cenken(
           y = df$.analysis_result,
           ycen = df$.censored,
-          x = as.numeric(df[[date_col]])
+          x = as.numeric(df[[sample_date_col]])
         ),
         error = function(e) NULL
       )
@@ -1911,7 +1911,7 @@ kendall_trend.env_schema <- function(
     p_value <- fit$p
 
     x_num <- as.numeric(
-      df[[date_col]]
+      df[[sample_date_col]]
     )
 
     x0 <- min(x_num)
@@ -1960,7 +1960,7 @@ kendall_trend.env_schema <- function(
     )
   )
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   location_col <- location_var(df)
 
@@ -1979,7 +1979,7 @@ kendall_trend.env_schema <- function(
   if (plot_type == "split") {
     tr <- .compute_trend(
       df = df,
-      date_col = date_col,
+      sample_date_col = sample_date_col,
       method = trend,
       censored_method = censored_method,
       conf.level = trend_conf_level
@@ -1997,7 +1997,7 @@ kendall_trend.env_schema <- function(
         ggplot2::geom_ribbon(
           data = tr$trend_df,
           ggplot2::aes(
-            x = .data[[date_col]],
+            x = .data[[sample_date_col]],
             ymin = lwr,
             ymax = upr
           ),
@@ -2011,7 +2011,7 @@ kendall_trend.env_schema <- function(
       ggplot2::geom_line(
         data = tr$trend_df,
         ggplot2::aes(
-          x = .data[[date_col]],
+          x = .data[[sample_date_col]],
           y = fit
         ),
         colour = "red",
@@ -2054,7 +2054,7 @@ kendall_trend.env_schema <- function(
           ggplot2::geom_text(
             data = label_df,
             ggplot2::aes(
-              x = .data[[date_col]],
+              x = .data[[sample_date_col]],
               y = fit,
               label = label
             ),
@@ -2089,7 +2089,7 @@ kendall_trend.env_schema <- function(
       ggplot2::geom_ribbon(
         data = trend_df,
         ggplot2::aes(
-          x = .data[[date_col]],
+          x = .data[[sample_date_col]],
           ymin = lwr,
           ymax = upr,
           group = interaction(
@@ -2109,7 +2109,7 @@ kendall_trend.env_schema <- function(
     ggplot2::geom_line(
       data = trend_df,
       ggplot2::aes(
-        x = .data[[date_col]],
+        x = .data[[sample_date_col]],
         y = fit,
         group = interaction(
           .data[[location_col]],
@@ -2126,7 +2126,7 @@ kendall_trend.env_schema <- function(
       trend_df = trend_df,
       trend = trend,
       trend_label = trend_label,
-      date_col = date_col,
+      sample_date_col = sample_date_col,
       location_col = location_col,
       analyte_col = analyte_col
     )
@@ -2173,7 +2173,7 @@ kendall_trend.env_schema <- function(
   censored_method = "cenken",
   conf.level = 0.95
 ) {
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   group_cols <- .get_trend_group_cols(df)
 
@@ -2187,7 +2187,7 @@ kendall_trend.env_schema <- function(
       ~ {
         tr <- .compute_trend(
           df = .x,
-          date_col = date_col,
+          sample_date_col = sample_date_col,
           method = method,
           censored_method = censored_method,
           conf.level = conf.level
@@ -2239,7 +2239,7 @@ kendall_trend.env_schema <- function(
   trend_df,
   trend = "mann_kendall",
   trend_label = "compact",
-  date_col,
+  sample_date_col,
   location_col,
   analyte_col
 ) {
@@ -2255,7 +2255,7 @@ kendall_trend.env_schema <- function(
       )
     ) |>
     dplyr::arrange(
-      .data[[date_col]],
+      .data[[sample_date_col]],
       .by_group = TRUE
     ) |>
     dplyr::slice_tail(
@@ -2263,7 +2263,7 @@ kendall_trend.env_schema <- function(
     ) |>
     dplyr::ungroup() |>
     dplyr::mutate(
-      label_x = .data[[date_col]],
+      label_x = .data[[sample_date_col]],
 
       label_y = fit,
 
@@ -2517,7 +2517,7 @@ kendall_trend.env_schema <- function(
 #' schema <- env_schema(
 #'   gw_data,
 #'   location = location_id,
-#'   date = sample_date,
+#'   sample_date = sample_date,
 #'   analyte = param_name,
 #'   result = analysis_result,
 #'   unit = default_unit
@@ -2556,7 +2556,7 @@ dixon_test.data.frame <- function(
     df,
     location = !!rlang::sym(location_id),
     analyte = !!rlang::sym(param_name),
-    date = !!rlang::sym(sample_date),
+    sample_date = !!rlang::sym(sample_date),
     result = !!rlang::sym(analysis_result),
     unit = !!rlang::sym(default_unit)
   )
@@ -2721,7 +2721,7 @@ grubbs_test.data.frame <- function(
     df,
     location = !!rlang::sym(location_id),
     analyte = !!rlang::sym(param_name),
-    date = !!rlang::sym(sample_date),
+    sample_date = !!rlang::sym(sample_date),
     result = !!rlang::sym(analysis_result),
     unit = !!rlang::sym(default_unit)
   )
@@ -2831,7 +2831,7 @@ grubbs_test.env_schema <- function(
 #' schema <- env_schema(
 #'   gw_data,
 #'   location = location_id,
-#'   date = sample_date,
+#'   sample_date = sample_date,
 #'   analyte = param_name,
 #'   result = analysis_result,
 #'   unit = default_unit
@@ -2870,7 +2870,7 @@ rosner_test.data.frame <- function(
     df,
     location = !!rlang::sym(location_id),
     analyte = !!rlang::sym(param_name),
-    date = !!rlang::sym(sample_date),
+    sample_date = !!rlang::sym(sample_date),
     result = !!rlang::sym(analysis_result),
     unit = !!rlang::sym(default_unit)
   )
@@ -3050,7 +3050,7 @@ tukey_outlier.data.frame <- function(
     df,
     location = !!rlang::sym(location_id),
     analyte = !!rlang::sym(param_name),
-    date = !!rlang::sym(sample_date),
+    sample_date = !!rlang::sym(sample_date),
     result = !!rlang::sym(analysis_result),
     unit = !!rlang::sym(default_unit)
   )
