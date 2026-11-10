@@ -2,7 +2,7 @@ test_that("compute_group_labels returns one label per group", {
   trend_df <- tibble::tibble(
     location = rep("MW-1", 5),
     analyte = rep("Arsenic", 5),
-    date = seq.Date(
+    sample_date = seq.Date(
       as.Date("2020-01-01"),
       by = "year",
       length.out = 5
@@ -18,7 +18,7 @@ test_that("compute_group_labels returns one label per group", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -38,7 +38,7 @@ test_that("compute_group_labels returns one label for each location analyte grou
       rep("MW-2", 5)
     ),
     analyte = "Arsenic",
-    date = rep(
+    sample_date = rep(
       seq.Date(
         as.Date("2020-01-01"),
         by = "year",
@@ -57,7 +57,7 @@ test_that("compute_group_labels returns one label for each location analyte grou
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -72,7 +72,7 @@ test_that("label_x is latest date in each group", {
   trend_df <- tibble::tibble(
     location = "MW-1",
     analyte = "Arsenic",
-    date = seq.Date(
+    sample_date = seq.Date(
       as.Date("2020-01-01"),
       by = "year",
       length.out = 5
@@ -88,14 +88,14 @@ test_that("label_x is latest date in each group", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
 
   expect_equal(
     out$label_x,
-    max(trend_df$date)
+    max(trend_df$sample_date)
   )
 })
 
@@ -103,7 +103,7 @@ test_that("label_y equals final fitted value", {
   trend_df <- tibble::tibble(
     location = "MW-1",
     analyte = "Arsenic",
-    date = seq.Date(
+    sample_date = seq.Date(
       as.Date("2020-01-01"),
       by = "year",
       length.out = 5
@@ -125,7 +125,7 @@ test_that("label_y equals final fitted value", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -140,7 +140,7 @@ test_that("compact labels are generated", {
   trend_df <- tibble::tibble(
     location = "MW-1",
     analyte = "Arsenic",
-    date = seq.Date(
+    sample_date = seq.Date(
       as.Date("2020-01-01"),
       by = "year",
       length.out = 5
@@ -156,7 +156,7 @@ test_that("compact labels are generated", {
     trend_df = trend_df,
     trend = "mann_kendall",
     trend_label = "compact",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -171,7 +171,7 @@ test_that("mann kendall labels are generated", {
   trend_df <- tibble::tibble(
     location = "MW-1",
     analyte = "Arsenic",
-    date = seq.Date(
+    sample_date = seq.Date(
       as.Date("2020-01-01"),
       by = "year",
       length.out = 5
@@ -187,7 +187,7 @@ test_that("mann kendall labels are generated", {
     trend_df = trend_df,
     trend = "mann_kendall",
     trend_label = "full",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -213,7 +213,7 @@ test_that("multiple analytes generate separate labels", {
       ),
       each = 5
     ),
-    date = rep(
+    sample_date = rep(
       seq.Date(
         as.Date("2020-01-01"),
         by = "year",
@@ -235,7 +235,7 @@ test_that("multiple analytes generate separate labels", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -250,7 +250,7 @@ test_that("returned labels contain required columns", {
   trend_df <- tibble::tibble(
     location = "MW-1",
     analyte = "Arsenic",
-    date = seq.Date(
+    sample_date = seq.Date(
       as.Date("2020-01-01"),
       by = "year",
       length.out = 5
@@ -266,7 +266,7 @@ test_that("returned labels contain required columns", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
@@ -285,7 +285,7 @@ test_that("empty trend data returns empty result", {
   trend_df <- tibble::tibble(
     location = character(),
     analyte = character(),
-    date = as.Date(character()),
+    sample_date = as.Date(character()),
     fit = numeric(),
     .trend_slope = numeric(),
     .trend_p_value = numeric(),
@@ -297,7 +297,7 @@ test_that("empty trend data returns empty result", {
     trend_df = trend_df,
     trend = "lm",
     trend_label = "full",
-    date_col = "date",
+    sample_date_col = "date",
     location_col = "location",
     analyte_col = "analyte"
   )
