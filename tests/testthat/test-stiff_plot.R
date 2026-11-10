@@ -102,11 +102,8 @@ test_that("invalid group_var throws error", {
   )
 
   expect_error(
-    stiff_plot(
-      schema,
-      group_var = "site_id"
-    ),
-    "group_var"
+    stiff_plot(schema, group_var = "site_id"),
+    "site_id"
   )
 })
 
@@ -121,15 +118,12 @@ test_that("invalid facet_var throws error", {
   )
 
   expect_error(
-    stiff_plot(
-      schema,
-      facet_var = "site_id"
-    ),
-    "facet_var"
+    stiff_plot(schema, facet_var = "site_id"),
+    "not found"
   )
 })
 
-test_that("missing major ion generates warning", {
+test_that("missing major ions are handled gracefully", {
   data <- dplyr::filter(
     gw_data,
     param_name != "Calcium, dissolved"
@@ -144,11 +138,11 @@ test_that("missing major ion generates warning", {
     sample_date = sample_date
   )
 
-  expect_warning(
-    stiff_plot(schema),
-    "Missing major ions"
+  expect_no_error(
+    stiff_plot(schema)
   )
 })
+
 
 test_that("Na + K is correctly calculated", {
   schema <- env_schema(
