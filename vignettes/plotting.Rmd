@@ -55,7 +55,7 @@ For example:
 series_plot(
   groundwater_data,
   location = well_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = constituent,
   result = concentration
 )
@@ -67,7 +67,7 @@ internally becomes:
 env_schema(
   groundwater_data,
   location = well_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = constituent,
   result = concentration
 )
@@ -77,10 +77,10 @@ Internally, plotting methods interact with schema accessors rather than hard-cod
 
 ```r
 location_var()
-date_var()
+sample_date_var()
 analyte_var()
-result_var()
-unit_var()
+analysis_result_var()
+analysis_unit_var()
 reporting_flag_var()
 ```
 
@@ -144,7 +144,7 @@ Raw datasets can be converted into an `env_schema` object.
 gw_schema <- env_schema(
   gw_subset,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit,
@@ -352,7 +352,7 @@ schoeller_plot(gw)
 ```{r schoeller-location}
 schoeller_plot(
   gw,
-  facet_var = "location"
+  facet_var = location_var(gw)
 )
 ```
 
@@ -361,7 +361,7 @@ schoeller_plot(
 ```{r schoeller-date}
 schoeller_plot(
   gw,
-  facet_var = "date"
+  facet_var = sample_date_var(gw)
 )
 ```
 
@@ -400,7 +400,7 @@ plots[[1]]
 ```{r stiff-date}
 plots <- stiff_plot(
   gw,
-  group_var = "sample_date"
+  group_var = sample_date_var(gw)
 )
 
 plots[[1]]
@@ -506,7 +506,7 @@ New visualization functions should follow the same S3 design pattern used throug
 my_plot.data.frame <- function(
   df,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   ...
@@ -515,7 +515,7 @@ my_plot.data.frame <- function(
   df <- env_schema(
     df,
     location = {{ location }},
-    date = {{ date }},
+    sample_date = {{ sample_date }},
     analyte = {{ analyte }},
     result = {{ result }}
   )
@@ -534,7 +534,7 @@ my_plot.env_schema <- function(
 
   location_col <- location_var(df)
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   analyte_col <- analyte_var(df)
 
