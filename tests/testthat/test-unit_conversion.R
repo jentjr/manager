@@ -51,7 +51,7 @@ test_that("major_ion_chemistry returns env_schema", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   result <- major_ion_chemistry(
@@ -71,7 +71,7 @@ test_that("major_ion_chemistry preserves observations", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   result <- major_ion_chemistry(
@@ -91,7 +91,7 @@ test_that("major_ion_chemistry creates meq field", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   result <- major_ion_chemistry(
@@ -99,9 +99,7 @@ test_that("major_ion_chemistry creates meq field", {
   )
 
   expect_true(
-    analysis_result_meq_var(
-      result
-    ) %in%
+    analysis_result_meq_var() %in%
       names(result)
   )
 })
@@ -113,7 +111,7 @@ test_that("major_ion_chemistry resolves analytes", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_no_error(
@@ -131,7 +129,7 @@ test_that("major_ions returns expected columns", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   result <- major_ions(
@@ -162,7 +160,7 @@ test_that("major_ions returns one row per sample", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   result <- major_ions(
@@ -174,7 +172,7 @@ test_that("major_ions returns one row per sample", {
   expected <- chemistry_df |>
     dplyr::distinct(
       .data[[location_var(chemistry_df)]],
-      .data[[date_var(chemistry_df)]]
+      .data[[sample_date_var(chemistry_df)]]
     ) |>
     nrow()
 
@@ -191,7 +189,7 @@ test_that("charge_balance returns expected fields", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   result <- charge_balance(
@@ -217,7 +215,7 @@ test_that("charge_balance returns one row per sample", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   result <- charge_balance(
@@ -229,7 +227,7 @@ test_that("charge_balance returns one row per sample", {
   expected <- chemistry_df |>
     dplyr::distinct(
       .data[[location_var(chemistry_df)]],
-      .data[[date_var(chemistry_df)]]
+      .data[[sample_date_var(chemistry_df)]]
     ) |>
     nrow()
 
@@ -246,7 +244,7 @@ test_that("charge_balance percent is numeric", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   result <- charge_balance(
@@ -266,7 +264,7 @@ test_that("major_ion_chemistry data.frame dispatch works", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_s3_class(
@@ -282,7 +280,7 @@ test_that("major_ions data.frame dispatch works", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_true(
@@ -297,7 +295,7 @@ test_that("charge_balance data.frame dispatch works", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_true(
@@ -321,12 +319,12 @@ test_that("major_ion_chemistry converts calcium to meq/L", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   chem <- major_ion_chemistry(schema)
 
-  meq_col <- analysis_result_meq_var(chem)
+  meq_col <- analysis_result_meq_var()
 
   expected <- 40 * 2 / 40.078
 
@@ -358,12 +356,12 @@ test_that("multiple ions are converted to meq/L", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   chem <- major_ion_chemistry(schema)
 
-  meq_col <- analysis_result_meq_var(chem)
+  meq_col <- analysis_result_meq_var()
 
   expect_true(
     all(
@@ -384,7 +382,7 @@ test_that("charge_balance handles missing ions", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_no_error(
@@ -404,7 +402,7 @@ test_that("major_ions returns missing component when analyte absent", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   ions <- major_ions(schema)
@@ -427,7 +425,7 @@ test_that("piper_data handles incomplete chemistry", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_no_error(
@@ -447,7 +445,7 @@ test_that("durov_data warns when chemistry is incomplete", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_warning(
@@ -467,7 +465,7 @@ test_that("stiff_data handles incomplete chemistry", {
     analyte = param_name,
     result = analysis_result,
     unit = default_unit,
-    date = sample_date
+    sample_date = sample_date
   )
 
   expect_no_error(
