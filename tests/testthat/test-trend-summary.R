@@ -17,7 +17,7 @@ make_increasing_trend <- function() {
   env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -38,7 +38,7 @@ make_decreasing_trend <- function() {
   env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -65,7 +65,7 @@ make_stable_trend <- function() {
   env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -98,7 +98,7 @@ make_censored_trend <- function() {
   env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result,
     reporting_flag = qualifier
@@ -259,7 +259,7 @@ test_that("constant data returns NA trend statistics", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -286,7 +286,7 @@ test_that("fewer than three observations returns NA trend statistics", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -371,7 +371,7 @@ test_that("cenken returns stable when trend is not significant", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result,
     reporting_flag = qualifier
@@ -422,7 +422,7 @@ test_that("trend_summary calculates separate trends by location", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -473,7 +473,7 @@ test_that("non-significant positive slope is classified as stable", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -508,7 +508,7 @@ test_that("non-significant negative slope is classified as stable", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )

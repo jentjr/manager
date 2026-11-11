@@ -22,6 +22,7 @@ groundwater or surface water samples."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/env-schema.html">Working with env_schema</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Environmental Plotting System</a></li>
+    <li><a class="dropdown-item" href="../articles/statistical-decision.html">Statistical Decision Guidance and Automated Method Selection</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -49,7 +50,7 @@ groundwater or surface water samples.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">schoeller_plot</span><span class="op">(</span><span class="va">df</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'data.frame'</span></span>
-<span><span class="fu">schoeller_plot</span><span class="op">(</span><span class="va">df</span>, <span class="va">location</span>, <span class="va">analyte</span>, <span class="va">result</span>, <span class="va">unit</span>, <span class="va">date</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">schoeller_plot</span><span class="op">(</span><span class="va">df</span>, <span class="va">location</span>, <span class="va">analyte</span>, <span class="va">result</span>, <span class="va">unit</span>, <span class="va">sample_date</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'env_schema'</span></span>
 <span><span class="fu">schoeller_plot</span><span class="op">(</span></span>
@@ -62,7 +63,7 @@ groundwater or surface water samples.</p>
 <span>  sulfate <span class="op">=</span> <span class="st">"Sulfate, total"</span>,</span>
 <span>  alkalinity <span class="op">=</span> <span class="st">"Alkalinity, total (lab)"</span>,</span>
 <span>  analyte_matching <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"exact"</span>, <span class="st">"strict"</span>, <span class="st">"normalized"</span><span class="op">)</span>,</span>
-<span>  facet_var <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"date"</span><span class="op">)</span>,</span>
+<span>  facet_var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lwt <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -96,7 +97,7 @@ groundwater or surface water samples.</p>
 <dd><p>Reporting unit column.</p></dd>
 
 
-<dt id="arg-date">date<a class="anchor" aria-label="anchor" href="#arg-date"></a></dt>
+<dt id="arg-sample-date">sample_date<a class="anchor" aria-label="anchor" href="#arg-sample-date"></a></dt>
 <dd><p>Sample date column.</p></dd>
 
 
@@ -134,8 +135,8 @@ groundwater or surface water samples.</p>
 
 
 <dt id="arg-facet-var">facet_var<a class="anchor" aria-label="anchor" href="#arg-facet-var"></a></dt>
-<dd><p>Faceting variable. One of
-`"location"` or `"date"`.</p></dd>
+<dd><p>Column used for faceting. Must be either the mapped
+location field or mapped sample_date field. Defaults to the mapped location field.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -170,7 +171,7 @@ standard hydrochemical ion categories.</p>
 practice.</p>
 <p>Missing analytes are permitted and omitted from the
 resulting profile.</p>
-<p>For `env_schema` objects, analyte, result, unit, date,
+<p>For `env_schema` objects, analyte, result, unit, sample_date,
 and location fields are determined from schema mappings.</p>
     </div>
     <div class="section level2">
@@ -198,12 +199,12 @@ and location fields are determined from schema mappings.</p>
 
 
 
-<p>If `facet_var = "location"`, each location is displayed
-in a separate panel and sample events are drawn as individual
-profiles.</p>
-<p>If `facet_var = "date"`, each sampling event is
-displayed in a separate panel and locations are drawn as
-individual profiles.</p>
+<p>If `facet_var` is the mapped location field,
+each location is displayed in a separate panel and
+sample events are drawn as individual profiles.</p>
+<p>If `facet_var` is the mapped sample_date field,
+each sampling event is displayed in a separate panel and
+locations are drawn as individual profiles.</p>
     </div>
     <div class="section level2">
     <h2 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a></h2>
@@ -224,11 +225,12 @@ individual profiles.</p>
 <span class="r-in"><span><span class="fu">schoeller_plot</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %&gt;%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %&gt;%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %&gt;%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction):</span> could not find function "%&gt;%"</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">schoeller_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
-<span class="r-in"><span>  facet_var <span class="op">=</span> <span class="st">"date"</span></span></span>
+<span class="r-in"><span>  facet_var <span class="op">=</span> <span class="fu">sample_date_var</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %&gt;%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %&gt;%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %&gt;%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction):</span> could not find function "%&gt;%"</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in sample_date_var(gw):</span> could not find function "sample_date_var"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">schoeller_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>

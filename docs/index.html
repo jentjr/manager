@@ -37,6 +37,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="articles/env-schema.html">Working with env_schema</a></li>
     <li><a class="dropdown-item" href="articles/plotting.html">Environmental Plotting System</a></li>
+    <li><a class="dropdown-item" href="articles/statistical-decision.html">Statistical Decision Guidance and Automated Method Selection</a></li>
   </ul>
 </li>
       </ul>
@@ -102,12 +103,15 @@
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">location_id</span> <span class="op">==</span> <span class="st">"MW-1"</span>,</span>
 <span>         <span class="va">.analyte</span> <span class="op">==</span> <span class="st">"Chloride"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="reference/stats_summary.html">stats_summary</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 16</span></span>
-<span><span class="co">#&gt;   location_id param_name      .analysis_unit     n percent_censored  mean median</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;           &lt;chr&gt;          &lt;int&gt;            &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 MW-1        Chloride, total mg/l              20                0  22.0   21.9</span></span>
-<span><span class="co">#&gt; # ℹ 9 more variables: sd &lt;dbl&gt;, var &lt;dbl&gt;, min &lt;dbl&gt;, max &lt;dbl&gt;, cv &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   `25%` &lt;dbl&gt;, `75%` &lt;dbl&gt;, IQR &lt;dbl&gt;, mad &lt;dbl&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 1 × 26</span></span>
+<span><span class="co">#&gt;   location_id param_name   .analysis_unit     n n_used n_detect percent_censored</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;        &lt;chr&gt;          &lt;int&gt;  &lt;int&gt;    &lt;int&gt;            &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 MW-1        Chloride, t… mg/l              20     20       20                0</span></span>
+<span><span class="co">#&gt; # ℹ 19 more variables: mean &lt;dbl&gt;, median &lt;dbl&gt;, sd &lt;dbl&gt;, var &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   min &lt;dbl&gt;, max &lt;dbl&gt;, cv &lt;dbl&gt;, `25%` &lt;dbl&gt;, `75%` &lt;dbl&gt;, IQR &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   mad &lt;dbl&gt;, censoring_class &lt;chr&gt;, distribution_method &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;, censored_method &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   distribution_config &lt;list&gt;, interval_config &lt;list&gt;, decision_basis &lt;chr&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="environmental-data-standard">Environmental Data Standard<a class="anchor" aria-label="anchor" href="#environmental-data-standard"></a>
@@ -116,17 +120,11 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gw</span></span>
 <span><span class="co">#&gt; &lt;env_schema&gt;</span></span>
-<span><span class="co">#&gt; 5878 rows x 41 columns</span></span>
+<span><span class="co">#&gt; 5878 rows x 44 columns</span></span>
 <span><span class="co">#&gt; Locations: 8 </span></span>
 <span><span class="co">#&gt; Analytes: 49 </span></span>
 <span><span class="co">#&gt; Valid: TRUE </span></span>
 <span><span class="co">#&gt; Version: 0.5.0</span></span></code></pre></div>
-<p>Output:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="dv">12345</span> rows × <span class="dv">15</span> columns</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>Locations<span class="sc">:</span> <span class="dv">48</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>Analytes<span class="sc">:</span> <span class="dv">72</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>Date range<span class="sc">:</span> <span class="dv">2015-01-01</span> to <span class="dv">2024-12-31</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>Class<span class="sc">:</span> env_schema</span></code></pre></div>
 <p>Core environmental variables include:</p>
 <ul>
 <li>location</li>
@@ -139,7 +137,7 @@
 <div class="section level2">
 <h2 id="import-data">Import Data<a class="anchor" aria-label="anchor" href="#import-data"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gw</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_manages3.html">read_manages3</a></span><span class="op">(</span><span class="st">"Site.mdb"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gw</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/read_manages4.html">read_manages4</a></span><span class="op">(</span></span>
@@ -151,7 +149,7 @@
 <div class="section level2">
 <h2 id="visualize-data">Visualize Data<a class="anchor" aria-label="anchor" href="#visualize-data"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># load example data and plot time series of selected wells and constituents</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"gw"</span><span class="op">)</span></span>
 <span></span>
@@ -165,7 +163,7 @@
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">location_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">wells</span>, <span class="va">param_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">params</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="reference/series_plot.html">series_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-time-series-1.png"><!-- --><img src="reference/figures/README-time-series-2.png"><!-- --></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create boxplots filled by gradient</span></span>
 <span><span class="va">gw</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">param_name</span> <span class="op">==</span> <span class="st">"Chloride, total"</span>, </span>
@@ -174,7 +172,7 @@
 <span>  <span class="fu"><a href="reference/boxplot.html">boxplot</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"gradient"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-boxplots-1.png"><!-- --></p>
 <p>Piper Diagrams and more…</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gw</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="reference/piper_plot.html">piper_plot</a></span><span class="op">(</span></span>
 <span>    x_cation <span class="op">=</span> <span class="st">"Calcium, dissolved"</span>,</span>
@@ -192,7 +190,7 @@
 <h2 id="interactive-exploration">Interactive Exploration<a class="anchor" aria-label="anchor" href="#interactive-exploration"></a>
 </h2>
 <p>manager also includes a Shiny application:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">manager</span><span class="fu">::</span><span class="fu"><a href="reference/manager.html">manager</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 

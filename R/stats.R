@@ -690,13 +690,13 @@ estimate_distribution <- function(
     )
   }
 
-  df %>%
+  df |>
     dplyr::group_modify(
       ~ .estimate_distribution_group(
         .x,
         distribution_config = distribution_config
       )
-    ) %>%
+    ) |>
     dplyr::ungroup()
 }
 
@@ -2971,17 +2971,17 @@ rosner_test.env_schema <- function(
     )
 
   if (isTRUE(keep_data_object)) {
-    outliers <- df %>%
+    outliers <- df |>
       dplyr::mutate(
         value = purrr::map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])
-      ) %>%
+      ) |>
       dplyr::select(-data)
   } else {
-    outliers <- df %>%
+    outliers <- df |>
       dplyr::mutate(
         value = purrr::map(.x = rosner, ~ .x$all.stats[c("Value", "Outlier")])
-      ) %>%
-      dplyr::select(-data, -rosner) %>%
+      ) |>
+      dplyr::select(-data, -rosner) |>
       tidyr::unnest(
         cols = c(value)
       )
@@ -3143,9 +3143,9 @@ boxcox_transform <- function(
   objective_name = "PPCC"
 ) {
   if (combine_locations) {
-    df <- df %>%
-      group_by(param_name, default_unit) %>%
-      nest() %>%
+    df <- df |>
+      group_by(param_name, default_unit) |>
+      nest() |>
       mutate(
         boxcox = map(
           .x = data,
@@ -3155,26 +3155,26 @@ boxcox_transform <- function(
             objective.name = objective_name
           )
         )
-      ) %>%
+      ) |>
       mutate(
         lambda = map(.x = boxcox, ~ .x$lambda)
-      ) %>%
-      select(-boxcox) %>%
-      unnest(lambda) %>%
-      unnest(data) %>%
-      group_by(param_name, default_unit) %>%
-      nest() %>%
+      ) |>
+      select(-boxcox) |>
+      unnest(lambda) |>
+      unnest(data) |>
+      group_by(param_name, default_unit) |>
+      nest() |>
       mutate(
         analysis_result = map(
           .x = data,
           ~ boxcoxTransform(.x$analysis_result, lambda = .x$lambda[1])
         )
-      ) %>%
+      ) |>
       unnest()
   } else {
-    df <- df %>%
-      group_by(location_id, param_name, default_unit) %>%
-      nest() %>%
+    df <- df |>
+      group_by(location_id, param_name, default_unit) |>
+      nest() |>
       mutate(
         boxcox = map(
           .x = data,
@@ -3184,21 +3184,21 @@ boxcox_transform <- function(
             objective.name = objective_name
           )
         )
-      ) %>%
+      ) |>
       mutate(
         lambda = map(.x = boxcox, ~ .x$lambda)
-      ) %>%
-      select(-boxcox) %>%
-      unnest(lambda) %>%
-      unnest(data) %>%
-      group_by(location_id, param_name, default_unit) %>%
-      nest() %>%
+      ) |>
+      select(-boxcox) |>
+      unnest(lambda) |>
+      unnest(data) |>
+      group_by(location_id, param_name, default_unit) |>
+      nest() |>
       mutate(
         analysis_result = map(
           .x = data,
           ~ boxcoxTransform(.x$analysis_result, lambda = .x$lambda[1])
         )
-      ) %>%
+      ) |>
       unnest()
   }
 
@@ -3217,12 +3217,12 @@ boxcox_transform <- function(
 #'
 #' params <- c("Calcium, dissolved", "Sodium, dissolved", "Sulfate, total")
 #'
-#' gw_data %>%
-#'   filter(location_id %in% wells, param_name %in% params) %>%
+#' gw_data |>
+#'   filter(location_id %in% wells, param_name %in% params) |>
 #'   anova()
 #'
-#' anova_object <- gw_data %>%
-#'   filter(location_id %in% wells, param_name %in% params) %>%
+#' anova_object <- gw_data |>
+#'   filter(location_id %in% wells, param_name %in% params) |>
 #'   anova(., keep_data_object = TRUE)
 #'
 #' plot(anova_object$anova[[1]], 1)
@@ -3230,40 +3230,40 @@ boxcox_transform <- function(
 #' @export
 
 anova <- function(df, keep_data_object = FALSE) {
-  df <- df %>%
+  df <- df |>
     mutate(location_id = fct_recode(location_id))
 
-  aov_result <- df %>%
-    group_by(param_name, default_unit) %>%
-    nest() %>%
+  aov_result <- df |>
+    group_by(param_name, default_unit) |>
+    nest() |>
     mutate(
       anova = map(
         .x = data,
         ~ aov(analysis_result ~ location_id, data = .x)
       ),
       tukey = map(.x = anova, ~ TukeyHSD(.x))
-    ) %>%
-    ungroup() %>%
+    ) |>
+    ungroup() |>
     select(-data)
 
   if (isTRUE(keep_data_object)) {
-    aov_result %>%
+    aov_result |>
       mutate(
         pairwise = map(
           .x = tukey,
           ~ rownames_to_column(data.frame(.x$location_id))
         )
-      ) %>%
+      ) |>
       select(-default_unit)
   } else {
-    aov_result %>%
+    aov_result |>
       mutate(
         pairwise = map(
           .x = tukey,
           ~ rownames_to_column(data.frame(.x$location_id))
         )
-      ) %>%
-      select(-anova, -tukey, -default_unit) %>%
+      ) |>
+      select(-anova, -tukey, -default_unit) |>
       unnest()
   }
 }
@@ -3307,7 +3307,7 @@ anova <- function(df, keep_data_object = FALSE) {
   return_result,
   distribution_config
 ) {
-  df %>%
+  df |>
     dplyr::group_modify(
       ~ .est_dist_group(
         df = .x,
@@ -3376,7 +3376,7 @@ anova <- function(df, keep_data_object = FALSE) {
   return_result,
   distribution_config
 ) {
-  df %>%
+  df |>
     dplyr::group_modify(
       ~ .est_dist_censored_group(
         df = .x,
@@ -3601,14 +3601,14 @@ anova <- function(df, keep_data_object = FALSE) {
     )
   }
 
-  df %>%
+  df |>
     dplyr::mutate(
       pred_int = purrr::map2(
         data,
         distribution,
         pred_fun
       )
-    ) %>%
+    ) |>
     dplyr::mutate(
       sample_size = purrr::map_dbl(
         pred_int,
@@ -3626,7 +3626,7 @@ anova <- function(df, keep_data_object = FALSE) {
         pred_int,
         ~ unname(.x$interval$limits["UPL"])
       )
-    ) %>%
+    ) |>
     dplyr::select(-data, -pred_int)
 }
 
@@ -3657,15 +3657,15 @@ anova <- function(df, keep_data_object = FALSE) {
 
 #' # first group data by location, param, and background
 #' # estimate percent less than and distribution
-#' background_data <- gw_data %>%
+#' background_data <- gw_data |>
 #'  filter(location_id %in% wells, param_name %in% params,
-#'          sample_date >= background[1] & sample_date <= background[2]) %>%
-#'   group_by(location_id, param_name, default_unit) %>%
-#'   percent_lt() %>%
-#'   est_dist(., keep_data_object = TRUE) %>%
+#'          sample_date >= background[1] & sample_date <= background[2]) |>
+#'   group_by(location_id, param_name, default_unit) |>
+#'   percent_lt() |>
+#'   est_dist(keep_data_object = TRUE) |>
 #'   arrange(location_id, param_name)
 #'
-#' background_data %>%
+#' background_data |>
 #' conf_int(., ci_type = "lower", conf_level = 0.99)
 #'
 #' @export
@@ -3682,7 +3682,7 @@ conf_int <- function(
     df$distribution
   )
 
-  conf_int <- df %>%
+  conf_int <- df |>
     mutate(
       conf_int = case_when(
         distribution == "Normal" ~ map(
@@ -3719,15 +3719,15 @@ conf_int <- function(
       )
     )
 
-  conf_int %>%
+  conf_int |>
     mutate(
       distribution = distribution,
       sample_size = map(.x = conf_int, ~ .x$sample.size),
       lcl = map(.x = conf_int, ~ round(.x$interval$limits["LCL"], 3)),
       ucl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
       conf_level = map(.x = conf_int, ~ .x$interval$conf.level)
-    ) %>%
-    select(-data, -conf_int) %>%
+    ) |>
+    select(-data, -conf_int) |>
     unnest()
 }
 
@@ -3763,15 +3763,15 @@ conf_int <- function(
 #'
 #' # first group data by location, param, and background
 #' # estimate percent less than and distribution
-#' background_data <- gw_data %>%
+#' background_data <- gw_data |>
 #'  filter(location_id %in% wells, param_name %in% params,
-#'          sample_date >= background[1] & sample_date <= background[2]) %>%
-#'   group_by(location_id, param_name, default_unit) %>%
-#'   percent_lt() %>%
-#'   est_dist(., keep_data_object = TRUE) %>%
+#'          sample_date >= background[1] & sample_date <= background[2]) |>
+#'   group_by(location_id, param_name, default_unit) |>
+#'   percent_lt() |>
+#'   est_dist(keep_data_object = TRUE) |>
 #'   arrange(location_id, param_name)
 #'
-#' background_data %>%
+#' background_data |>
 #' pred_int(., pi_type = "upper", conf_level = 0.99)
 #'
 #'
@@ -3833,16 +3833,16 @@ pred_int <- function(
 #'
 #' # first group data by location, param, and background
 #' # estimate percent less than and distribution
-#' background_data <- gw_data %>%
+#' background_data <- gw_data |>
 #'  filter(location_id %in% wells, param_name %in% params,
-#'          sample_date >= background[1] & sample_date <= background[2]) %>%
-#'   group_by(location_id, param_name, default_unit) %>%
-#'   percent_lt() %>%
-#'   est_dist(., keep_data_object = TRUE) %>%
+#'          sample_date >= background[1] & sample_date <= background[2]) |>
+#'   group_by(location_id, param_name, default_unit) |>
+#'   percent_lt() |>
+#'   est_dist(., keep_data_object = TRUE) |>
 #'   arrange(location_id, param_name)
 #'
-#' background_data %>%
-#' pred_int_sim(., pi_type = "upper", conf_level = 0.99)
+#' background_data |>
+#' pred_int_sim(pi_type = "upper", conf_level = 0.99)
 #'
 #' @export
 
@@ -3911,7 +3911,7 @@ tol_int <- function(
     df$distribution
   )
 
-  tol_int <- df %>%
+  tol_int <- df |>
     mutate(
       tol_int = case_when(
         distribution == "Normal" ~ map(
@@ -3946,15 +3946,15 @@ tol_int <- function(
       )
     )
 
-  tol_int %>%
+  tol_int |>
     mutate(
       distribution = distribution,
       sample_size = map(.x = tol_int, ~ .x$sample.size),
       ltl = map(.x = tol_int, ~ .x$interval$limits["LTL"]),
       utl = map(.x = tol_int, ~ .x$interval$limits["UTL"]),
       conf_level = map(.x = tol_int, ~ .x$interval$conf.level)
-    ) %>%
-    select(-data, -tol_int) %>%
+    ) |>
+    select(-data, -tol_int) |>
     unnest()
 }
 
@@ -3979,29 +3979,29 @@ update_background <- function(
   n_end = 8,
   n_prop = 4
 ) {
-  tmp <- df %>%
+  tmp <- df |>
     filter_(~ location_id == well, ~ param_name == param)
 
   if (is.null(start)) {
-    start <- tmp %>%
+    start <- tmp |>
       start_date()
   }
 
-  end <- tmp %>%
+  end <- tmp |>
     nth_date(start = start, n = n_end - 1)
 
-  max <- tmp %>%
-    select_(~sample_date) %>%
-    first() %>%
+  max <- tmp |>
+    select_(~sample_date) |>
+    first() |>
     max()
 
-  bkgd <- tmp %>%
+  bkgd <- tmp |>
     set_background(start = start, end = end)
 
-  next_date <- tmp %>%
+  next_date <- tmp |>
     nth_date(start = end, n = n_prop)
 
-  next_bkgd <- tmp %>%
+  next_bkgd <- tmp |>
     set_proposed_background(start = end, end = next_date)
 
   outlier <- EnvStats::rosnerTest(bkgd$analysis_result, k = 1, alpha = 0.01)

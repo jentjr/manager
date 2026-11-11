@@ -13,7 +13,7 @@ make_plot_trend_data <- function() {
   env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )
@@ -42,7 +42,7 @@ make_censored_trend <- function() {
   env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result,
     reporting_limit = reporting_limit,
@@ -211,7 +211,7 @@ test_that("grouped trend plotting succeeds", {
   x <- env_schema(
     x,
     location = location,
-    date = sample_date,
+    sample_date = sample_date,
     analyte = analyte,
     result = result
   )

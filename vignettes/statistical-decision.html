@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Statistical Decision Guidance and Automated Method Selection</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Statistical Decision Guidance and Automated
+Method Selection</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#guidance-profiles" id="toc-guidance-profiles">Guidance
+Profiles</a>
+<ul>
+<li><a href="#profile-thresholds" id="toc-profile-thresholds">Profile
+Thresholds</a></li>
+</ul></li>
+<li><a href="#statistical-decisions" id="toc-statistical-decisions">Statistical Decisions</a></li>
+<li><a href="#censoring-classification" id="toc-censoring-classification">Censoring Classification</a></li>
+<li><a href="#distribution-recommendations" id="toc-distribution-recommendations">Distribution Recommendations</a>
+<ul>
+<li><a href="#decision-matrix" id="toc-decision-matrix">Decision
+Matrix</a></li>
+<li><a href="#parametric-recommendation" id="toc-parametric-recommendation">Parametric Recommendation</a></li>
+<li><a href="#ros-censored-recommendation" id="toc-ros-censored-recommendation">ROS-Censored
+Recommendation</a></li>
+<li><a href="#nonparametric-recommendation" id="toc-nonparametric-recommendation">Nonparametric
+Recommendation</a></li>
+<li><a href="#descriptive-only-recommendation" id="toc-descriptive-only-recommendation">Descriptive-Only
+Recommendation</a></li>
+</ul></li>
+<li><a href="#trend-recommendations" id="toc-trend-recommendations">Trend Recommendations</a>
+<ul>
+<li><a href="#trend-guidance-categories" id="toc-trend-guidance-categories">Trend Guidance Categories</a>
+<ul>
+<li><a href="#formal-trend-testing" id="toc-formal-trend-testing">Formal
+Trend Testing</a></li>
+<li><a href="#screening-only-evaluation" id="toc-screening-only-evaluation">Screening-Only Evaluation</a></li>
+<li><a href="#insufficient-detects" id="toc-insufficient-detects">Insufficient Detects</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#censored-trend-methods" id="toc-censored-trend-methods">Censored Trend Methods</a></li>
+<li><a href="#deriving-decisions-from-data" id="toc-deriving-decisions-from-data">Deriving Decisions from Data</a>
+<ul>
+<li><a href="#example" id="toc-example">Example</a></li>
+</ul></li>
+<li><a href="#distribution-estimation-workflow" id="toc-distribution-estimation-workflow">Distribution Estimation
+Workflow</a></li>
+<li><a href="#automatic-method-selection" id="toc-automatic-method-selection">Automatic Method Selection</a></li>
+<li><a href="#distribution-configuration" id="toc-distribution-configuration">Distribution Configuration</a></li>
+<li><a href="#interval-configuration" id="toc-interval-configuration">Interval Configuration</a></li>
+<li><a href="#prediction-intervals" id="toc-prediction-intervals">Prediction Intervals</a></li>
+<li><a href="#summary-statistics-with-decision-guidance" id="toc-summary-statistics-with-decision-guidance">Summary Statistics
+with Decision Guidance</a></li>
+<li><a href="#custom-guidance-thresholds" id="toc-custom-guidance-thresholds">Custom Guidance Thresholds</a></li>
+<li><a href="#example-workflow" id="toc-example-workflow">Example
+Workflow</a></li>
+<li><a href="#references" id="toc-references">References</a>
+<ul>
+<li><a href="#regulatory-and-guidance-documents" id="toc-regulatory-and-guidance-documents">Regulatory and Guidance
+Documents</a></li>
+<li><a href="#statistical-methods" id="toc-statistical-methods">Statistical Methods</a></li>
+<li><a href="#r-packages" id="toc-r-packages">R Packages</a></li>
+<li><a href="#methods-referenced-in-this-vignette" id="toc-methods-referenced-in-this-vignette">Methods Referenced in This
+Vignette</a></li>
+</ul></li>
+<li><a href="#summary" id="toc-summary">Summary</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Environmental monitoring datasets frequently contain censored
+observations, limited sample sizes, and varying analytical detection
+frequencies. These characteristics can substantially influence the
+validity of distribution fitting, trend analysis, and interval
+estimation procedures <span class="citation">(<a href="#ref-helsel2012">Helsel 2012</a>; <a href="#ref-helsel2020">Helsel
+et al. 2020</a>)</span>. Statistical methods that perform well under low
+censoring may become unreliable when censoring is extensive.</p>
+<p>The <code>manager</code> package includes a statistical decision
+framework that automatically evaluates data quality and recommends
+appropriate statistical methods for environmental monitoring data. The
+framework is inspired by recommendations commonly used in groundwater
+monitoring programs and EPA statistical guidance documents <span class="citation">(<a href="#ref-epa2009">United States Environmental
+Protection Agency 2009</a>, <a href="#ref-epa1989">1989</a>; <a href="#ref-itrc2013">Interstate Technology and Regulatory Council
+2013</a>)</span>.</p>
+<p>The <code>manager</code> package includes a statistical decision
+framework that automatically evaluates data quality and recommends
+appropriate statistical methods for:</p>
+<ul>
+<li>Distribution estimation</li>
+<li>Trend analysis</li>
+<li>Censored-data handling</li>
+<li>Prediction intervals</li>
+<li>Confidence intervals</li>
+<li>Tolerance intervals</li>
+</ul>
+<p>Decision recommendations are based on:</p>
+<ul>
+<li>Number of usable observations (<code>n_used</code>)</li>
+<li>Number of detected observations (<code>n_detect</code>)</li>
+<li>Percent censored (<code>percent_censored</code>)</li>
+</ul>
+<p>The goal is to provide a repeatable and defensible framework for
+selecting analytical methods across environmental monitoring
+programs.</p>
+</div>
+<div id="guidance-profiles" class="section level1">
+<h1>Guidance Profiles</h1>
+<p>Decision rules are controlled through predefined guidance
+profiles.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">guidance_profile</span>()</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt; $low_threshold</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; [1] 15</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; $moderate_threshold</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt; [1] 50</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; $high_threshold</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; [1] 90</span></span></code></pre></div>
+<p>The default profile is <code>&quot;epa_unified&quot;</code>. The default
+profile reflects thresholds commonly encountered in EPA groundwater
+monitoring guidance and environmental censored-data applications <span class="citation">(<a href="#ref-epa2009">United States Environmental
+Protection Agency 2009</a>; <a href="#ref-helsel2012">Helsel
+2012</a>)</span>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">guidance_profile</span>(<span class="st">&quot;epa_unified&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; $low_threshold</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; [1] 15</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; $moderate_threshold</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; [1] 50</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; $high_threshold</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; [1] 90</span></span></code></pre></div>
+<p>Available profiles include:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">guidance_profile</span>(<span class="st">&quot;conservative&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; $low_threshold</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; [1] 10</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; $moderate_threshold</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; [1] 25</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt; $high_threshold</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt; [1] 75</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="fu">guidance_profile</span>(<span class="st">&quot;site_specific&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt; $low_threshold</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; [1] 20</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt; $moderate_threshold</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; [1] 60</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; $high_threshold</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; [1] 90</span></span></code></pre></div>
+<div id="profile-thresholds" class="section level2">
+<h2>Profile Thresholds</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Profile</th>
+<th>Low</th>
+<th>Moderate</th>
+<th>High</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>epa_unified</td>
+<td>15%</td>
+<td>50%</td>
+<td>90%</td>
+</tr>
+<tr class="even">
+<td>conservative</td>
+<td>10%</td>
+<td>25%</td>
+<td>75%</td>
+</tr>
+<tr class="odd">
+<td>site_specific</td>
+<td>20%</td>
+<td>60%</td>
+<td>90%</td>
+</tr>
+</tbody>
+</table>
+<p>These thresholds determine how censoring severity is classified and
+which statistical methods are recommended.</p>
+</div>
+</div>
+<div id="statistical-decisions" class="section level1">
+<h1>Statistical Decisions</h1>
+<p>A statistical decision object records method recommendations for a
+dataset.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>decision <span class="ot">&lt;-</span> <span class="fu">statistical_decision</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="dv">12</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="dv">18</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>decision</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;   n_used n_detect percent_censored censoring_class distribution_method</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; 1     20       18               12   low_censoring          parametric</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;   trend_method    trend_guidance censored_method distribution_config</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; 1 mann_kendall formal_trend_test     as_reported     sf, norm, lnorm</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;          interval_config decision_basis</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; 1 0.95, Bonferroni, 1, 1  low_censoring</span></span></code></pre></div>
+<p>The resulting object contains:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">names</span>(decision)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;n_used&quot;              &quot;n_detect&quot;            &quot;percent_censored&quot;   </span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;  [4] &quot;censoring_class&quot;     &quot;distribution_method&quot; &quot;trend_method&quot;       </span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;trend_guidance&quot;      &quot;censored_method&quot;     &quot;distribution_config&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; [10] &quot;interval_config&quot;     &quot;decision_basis&quot;</span></span></code></pre></div>
+<p>Key recommendation fields include:</p>
+<ul>
+<li><code>censoring_class</code></li>
+<li><code>distribution_method</code></li>
+<li><code>trend_method</code></li>
+<li><code>trend_guidance</code></li>
+<li><code>censored_method</code></li>
+<li><code>distribution_config</code></li>
+<li><code>interval_config</code></li>
+</ul>
+</div>
+<div id="censoring-classification" class="section level1">
+<h1>Censoring Classification</h1>
+<p>The degree of censoring is often the primary factor governing method
+selection for environmental datasets. As censoring increases, parametric
+distribution assumptions become more difficult to assess and trend
+analyses may require censored-data techniques such as ROS or censored
+Kendall methods <span class="citation">(<a href="#ref-helsel2012">Helsel
+2012</a>)</span>.</p>
+<p>The first stage of the decision framework is classification of
+censoring severity.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">statistical_decision</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">25</span>, <span class="dv">75</span>, <span class="dv">95</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">15</span>, <span class="dv">5</span>, <span class="dv">1</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    percent_censored,</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>    censoring_class</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  )</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt;   percent_censored    censoring_class</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 1                5      low_censoring</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; 2               25 moderate_censoring</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 3               75     high_censoring</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 4               95  extreme_censoring</span></span></code></pre></div>
+<p>Under the default EPA profile:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Censored (%)</th>
+<th>Classification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&lt;15</td>
+<td>low_censoring</td>
+</tr>
+<tr class="even">
+<td>15-50</td>
+<td>moderate_censoring</td>
+</tr>
+<tr class="odd">
+<td>50-90</td>
+<td>high_censoring</td>
+</tr>
+<tr class="even">
+<td>&gt;=90</td>
+<td>extreme_censoring</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="distribution-recommendations" class="section level1">
+<h1>Distribution Recommendations</h1>
+<p>Distribution estimation recommendations depend on both censoring and
+sample size.</p>
+<div id="decision-matrix" class="section level2">
+<h2>Decision Matrix</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>n_used &lt; 4</td>
+<td>insufficient_data</td>
+</tr>
+<tr class="even">
+<td>Low censoring</td>
+<td>parametric</td>
+</tr>
+<tr class="odd">
+<td>Moderate censoring</td>
+<td>ros_censored</td>
+</tr>
+<tr class="even">
+<td>High censoring</td>
+<td>nonparametric</td>
+</tr>
+<tr class="odd">
+<td>Extreme censoring</td>
+<td>descriptive_only</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">statistical_decision</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">25</span>, <span class="dv">75</span>, <span class="dv">95</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">15</span>, <span class="dv">5</span>, <span class="dv">1</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>    percent_censored,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>    distribution_method</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  )</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt;   percent_censored distribution_method</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 1                5          parametric</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; 2               25        ros_censored</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 3               75       nonparametric</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; 4               95    descriptive_only</span></span></code></pre></div>
+<p>The progression from parametric methods to censored-data methods and
+eventually nonparametric approaches is consistent with recommendations
+described by Helsel <span class="citation">(<a href="#ref-helsel2012">Helsel 2012</a>)</span> and EPA groundwater
+guidance <span class="citation">(<a href="#ref-epa2009">United States
+Environmental Protection Agency 2009</a>)</span>.</p>
+</div>
+<div id="parametric-recommendation" class="section level2">
+<h2>Parametric Recommendation</h2>
+<p>Low-censoring datasets are evaluated using conventional distribution
+fitting.Parametric model selection is performed using
+<code>EnvStats::distChoose()</code>, which evaluates candidate
+probability distributions using goodness-of-fit procedures described in
+Millard <span class="citation">(<a href="#ref-envstats">Millard and
+Kowarik 2024</a>)</span>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">statistical_decision</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="dv">5</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">15</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="dv">14</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    distribution_method,</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>    distribution_config</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  )</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;   distribution_method distribution_config</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; 1          parametric     sf, norm, lnorm</span></span></code></pre></div>
+<p>The default configuration evaluates:</p>
+<ul>
+<li>Normal</li>
+<li>Lognormal</li>
+</ul>
+<p>distributions using <code>EnvStats::distChoose()</code>.</p>
+</div>
+<div id="ros-censored-recommendation" class="section level2">
+<h2>ROS-Censored Recommendation</h2>
+<p>Moderately censored datasets are evaluated using censored
+distribution fitting. Regression on Order Statistics (ROS) is among the
+most widely used approaches for estimating distributions from moderately
+censored environmental datasets <span class="citation">(<a href="#ref-helsel2012">Helsel 2012</a>)</span>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">statistical_decision</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="dv">35</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="dv">13</span></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>    distribution_method</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  )</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;   distribution_method</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 1        ros_censored</span></span></code></pre></div>
+<p>This recommendation is implemented using:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>EnvStats<span class="sc">::</span><span class="fu">distChooseCensored</span>()</span></code></pre></div>
+<p>with left-censoring assumptions.</p>
+</div>
+<div id="nonparametric-recommendation" class="section level2">
+<h2>Nonparametric Recommendation</h2>
+<p>Highly censored datasets are classified as nonparametric. When
+censoring becomes extensive, distributional assumptions may no longer be
+adequately supported and nonparametric methods are generally preferred
+<span class="citation">(<a href="#ref-helsel2012">Helsel 2012</a>; <a href="#ref-epa2009">United States Environmental Protection Agency
+2009</a>)</span>.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">statistical_decision</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="dv">75</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="dv">5</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>    distribution_method</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  )</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt;   distribution_method</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="co">#&gt; 1       nonparametric</span></span></code></pre></div>
+<p>Formal distribution fitting is not attempted.</p>
+</div>
+<div id="descriptive-only-recommendation" class="section level2">
+<h2>Descriptive-Only Recommendation</h2>
+<p>Extremely censored datasets are limited to descriptive
+evaluation.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">statistical_decision</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="dv">95</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="dv">1</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>    distribution_method</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>  )</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt;   distribution_method</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt; 1    descriptive_only</span></span></code></pre></div>
+</div>
+</div>
+<div id="trend-recommendations" class="section level1">
+<h1>Trend Recommendations</h1>
+<p>Trend evaluations are based on a Mann-Kendall framework, a widely
+used nonparametric approach for environmental time-series analysis <span class="citation">(<a href="#ref-helsel2020">Helsel et al. 2020</a>; <a href="#ref-gilbert1987">Gilbert 1987</a>)</span>. Mann-Kendall methods
+are particularly attractive for groundwater monitoring because they do
+not require the assumption of normally distributed concentrations and
+are robust to skewed environmental data <span class="citation">(<a href="#ref-gilbert1987">Gilbert 1987</a>)</span>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>decision <span class="ot">&lt;-</span> <span class="fu">statistical_decision</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="dv">25</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="dv">15</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>decision <span class="sc">|&gt;</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>    trend_method,</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>    trend_guidance,</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>    censored_method</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>  )</span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt;   trend_method    trend_guidance censored_method</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; 1 mann_kendall formal_trend_test          cenken</span></span></code></pre></div>
+<div id="trend-guidance-categories" class="section level2">
+<h2>Trend Guidance Categories</h2>
+<div id="formal-trend-testing" class="section level3">
+<h3>Formal Trend Testing</h3>
+<p>When censoring remains below the high-censoring threshold and
+adequate detects are available:</p>
+<pre class="text"><code>formal_trend_test</code></pre>
+<p>is recommended.</p>
+</div>
+<div id="screening-only-evaluation" class="section level3">
+<h3>Screening-Only Evaluation</h3>
+<p>When censoring becomes extensive:</p>
+<pre class="text"><code>screening_only</code></pre>
+<p>is returned.</p>
+</div>
+<div id="insufficient-detects" class="section level3">
+<h3>Insufficient Detects</h3>
+<p>When fewer than four detects are available:</p>
+<pre class="text"><code>insufficient_detects</code></pre>
+<p>is returned.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="fu">statistical_decision</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="dv">90</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="dv">2</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>    trend_guidance</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>  )</span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a><span class="co">#&gt;         trend_guidance</span></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co">#&gt; 1 insufficient_detects</span></span></code></pre></div>
+</div>
+</div>
+</div>
+<div id="censored-trend-methods" class="section level1">
+<h1>Censored Trend Methods</h1>
+<p>The decision framework also recommends how censored observations
+should be handled during trend evaluation.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">statistical_decision</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">40</span>, <span class="dv">75</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">12</span>, <span class="dv">5</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>    percent_censored,</span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>    censored_method</span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>  )</span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="co">#&gt;   percent_censored censored_method</span></span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; 1                5     as_reported</span></span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a><span class="co">#&gt; 2               40          cenken</span></span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="co">#&gt; 3               75          cenken</span></span></code></pre></div>
+<p>For censored environmental datasets, ordinary Mann-Kendall analyses
+may not adequately account for reporting limits. In these situations,
+censored Kendall methods such as <code>NADA2::cenken()</code> are often
+recommended <span class="citation">(<a href="#ref-helsel2012">Helsel
+2012</a>; <a href="#ref-nada2"><span class="nocase">Julian et al.</span>
+2024</a>)</span>.</p>
+<p>Recommended methods:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Low censoring</td>
+<td>as_reported</td>
+</tr>
+<tr class="even">
+<td>Moderate or greater censoring</td>
+<td>cenken</td>
+</tr>
+</tbody>
+</table>
+<p>These recommendations are automatically used by functions such
+as:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">trend_summary</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  gw,</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  <span class="at">censored_method =</span> <span class="st">&quot;auto&quot;</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="deriving-decisions-from-data" class="section level1">
+<h1>Deriving Decisions from Data</h1>
+<p>Most workflows will not create decisions manually.</p>
+<p>Instead, recommendations are derived automatically from environmental
+data.</p>
+<p>This approach allows data characteristics rather than analyst
+preference to determine the recommended statistical workflow, improving
+reproducibility and consistency across monitoring programs <span class="citation">(<a href="#ref-epa2009">United States Environmental
+Protection Agency 2009</a>)</span>.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>decision <span class="ot">&lt;-</span> <span class="fu">derive_decision</span>(gw)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a>decision</span></code></pre></div>
+<p><code>derive_decision()</code> calculates:</p>
+<ul>
+<li><code>n_used</code></li>
+<li><code>n_detect</code></li>
+<li><code>percent_censored</code></li>
+</ul>
+<p>and passes those values into <code>statistical_decision()</code>.</p>
+<div id="example" class="section level2">
+<h2>Example</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>    param_name <span class="sc">==</span> <span class="st">&quot;Arsenic, dissolved&quot;</span></span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  <span class="fu">derive_decision</span>()</span></code></pre></div>
+</div>
+</div>
+<div id="distribution-estimation-workflow" class="section level1">
+<h1>Distribution Estimation Workflow</h1>
+<p>The primary consumer of statistical decision guidance is
+<code>estimate_distribution()</code>. Distribution estimation relies on
+methods implemented in the <code>EnvStats</code> package <span class="citation">(<a href="#ref-envstats">Millard and Kowarik
+2024</a>)</span>, which contains many of the statistical procedures
+described in EPA groundwater monitoring guidance <span class="citation">(<a href="#ref-epa2009">United States Environmental
+Protection Agency 2009</a>)</span>.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>    location_id,</span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>    param_name,</span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>    default_unit</span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>()</span></code></pre></div>
+<p>For each group:</p>
+<ol style="list-style-type: decimal">
+<li>Censoring is evaluated</li>
+<li>A statistical decision is derived</li>
+<li>The recommended workflow is selected</li>
+<li>Distribution results are returned along with decision metadata</li>
+</ol>
+</div>
+<div id="automatic-method-selection" class="section level1">
+<h1>Automatic Method Selection</h1>
+<p>Under the default EPA profile:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Percent Censored</th>
+<th>Recommendation</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&lt;15</td>
+<td>parametric</td>
+<td>Fit candidate distributions</td>
+</tr>
+<tr class="even">
+<td>15-50</td>
+<td>ros_censored</td>
+<td>Fit censored distributions</td>
+</tr>
+<tr class="odd">
+<td>50-90</td>
+<td>nonparametric</td>
+<td>Classify as nonparametric</td>
+</tr>
+<tr class="even">
+<td>&gt;=90</td>
+<td>descriptive_only</td>
+<td>Descriptive evaluation only</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>    location_id,</span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>    param_name,</span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>    default_unit</span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>()</span></code></pre></div>
+<p>The method-selection process occurs automatically.</p>
+</div>
+<div id="distribution-configuration" class="section level1">
+<h1>Distribution Configuration</h1>
+<p>Each decision includes a recommended configuration object.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>decision <span class="ot">&lt;-</span> <span class="fu">statistical_decision</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>  <span class="at">percent_censored =</span> <span class="dv">10</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>  <span class="at">n_used =</span> <span class="dv">20</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>  <span class="at">n_detect =</span> <span class="dv">18</span></span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>)</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>decision<span class="sc">$</span>distribution_config[[<span class="dv">1</span>]]</span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a><span class="co">#&gt; $method</span></span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a><span class="co">#&gt; [1] &quot;sf&quot;</span></span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a><span class="co">#&gt; $choices</span></span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a><span class="co">#&gt; [1] &quot;norm&quot;  &quot;lnorm&quot;</span></span></code></pre></div>
+<p>Default settings:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;sf&quot;</span>,</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>  <span class="at">choices =</span> <span class="fu">c</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>    <span class="st">&quot;norm&quot;</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>    <span class="st">&quot;lnorm&quot;</span></span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>  )</span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>)</span></code></pre></div>
+<p>These settings are automatically supplied to:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>EnvStats<span class="sc">::</span><span class="fu">distChoose</span>()</span></code></pre></div>
+<p>or</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>EnvStats<span class="sc">::</span><span class="fu">distChooseCensored</span>()</span></code></pre></div>
+<p>depending on the decision outcome.</p>
+</div>
+<div id="interval-configuration" class="section level1">
+<h1>Interval Configuration</h1>
+<p>The decision object also includes interval-estimation guidance.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>decision<span class="sc">$</span>interval_config[[<span class="dv">1</span>]]</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="co">#&gt; $conf_level</span></span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="co">#&gt; [1] 0.95</span></span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a><span class="co">#&gt; $method</span></span>
+<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Bonferroni&quot;</span></span>
+<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a><span class="co">#&gt; $k</span></span>
+<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a><span class="co">#&gt; $n_mean</span></span>
+<span id="cb28-12"><a href="#cb28-12" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<p>Default settings:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">list</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a>  <span class="at">conf_level =</span> <span class="fl">0.95</span>,</span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;Bonferroni&quot;</span>,</span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">1</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a>  <span class="at">n_mean =</span> <span class="dv">1</span></span>
+<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a>)</span></code></pre></div>
+<p>These values are intended as defaults for:</p>
+<ul>
+<li><code>pred_int()</code></li>
+<li><code>pred_int_sim()</code></li>
+<li><code>conf_int()</code></li>
+<li><code>tol_int()</code></li>
+</ul>
+</div>
+<div id="prediction-intervals" class="section level1">
+<h1>Prediction Intervals</h1>
+<p>Prediction intervals are commonly used in groundwater monitoring to
+establish concentration thresholds expected to contain future
+observations with a specified degree of confidence <span class="citation">(<a href="#ref-epa2009">United States Environmental
+Protection Agency 2009</a>; <a href="#ref-gilbert1987">Gilbert
+1987</a>)</span>.</p>
+<p>Prediction intervals require a distribution classification.</p>
+<p>A common workflow is:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a>dist_est <span class="ot">&lt;-</span> gw <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a>    location_id,</span>
+<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a>    param_name,</span>
+<span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a>    default_unit</span>
+<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>()</span></code></pre></div>
+<p>Standard prediction intervals:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="fu">pred_int</span>(dist_est)</span></code></pre></div>
+<p>Upper prediction intervals:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">pred_int</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>  dist_est,</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>  <span class="at">pi_type =</span> <span class="st">&quot;upper&quot;</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a>  <span class="at">conf_level =</span> <span class="fl">0.99</span></span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>)</span></code></pre></div>
+<p>Simultaneous prediction intervals:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="fu">pred_int_sim</span>(</span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>  dist_est,</span>
+<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>  <span class="at">pi_type =</span> <span class="st">&quot;upper&quot;</span>,</span>
+<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>  <span class="at">conf_level =</span> <span class="fl">0.99</span></span>
+<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="summary-statistics-with-decision-guidance" class="section level1">
+<h1>Summary Statistics with Decision Guidance</h1>
+<p><code>stats_summary()</code> automatically integrates statistical
+decision outputs. Incorporating statistical decision metadata directly
+into summary tables helps document methodological decisions and provides
+a transparent audit trail for regulatory and technical review <span class="citation">(<a href="#ref-epa2009">United States Environmental
+Protection Agency 2009</a>; <a href="#ref-itrc2013">Interstate
+Technology and Regulatory Council 2013</a>)</span>.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a>    location_id,</span>
+<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a>    param_name</span>
+<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a>  <span class="fu">stats_summary</span>()</span></code></pre></div>
+<p>Additional fields include:</p>
+<pre class="text"><code>censoring_class
+distribution_method
+trend_method
+trend_guidance
+censored_method
+decision_basis</code></pre>
+<p>This allows routine reports to include recommended statistical
+approaches directly within summary tables.</p>
+</div>
+<div id="custom-guidance-thresholds" class="section level1">
+<h1>Custom Guidance Thresholds</h1>
+<p>Organizations may prefer different censoring thresholds.</p>
+<p>Global options can be used to override defaults.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a><span class="fu">options</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a>  <span class="at">manager.guidance =</span> <span class="fu">list</span>(</span>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a>    <span class="at">low_threshold =</span> <span class="dv">10</span>,</span>
+<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a>    <span class="at">moderate_threshold =</span> <span class="dv">25</span>,</span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a>    <span class="at">high_threshold =</span> <span class="dv">75</span></span>
+<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a>  )</span>
+<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a>)</span></code></pre></div>
+<p>Retrieve the active settings:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">guidance_options</span>()</span>
+<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a><span class="co">#&gt; $low_threshold</span></span>
+<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="co">#&gt; [1] 10</span></span>
+<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a><span class="co">#&gt; $moderate_threshold</span></span>
+<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a><span class="co">#&gt; [1] 25</span></span>
+<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a><span class="co">#&gt; $high_threshold</span></span>
+<span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a><span class="co">#&gt; [1] 75</span></span></code></pre></div>
+<p>Decisions derived afterward will use the updated thresholds.</p>
+</div>
+<div id="example-workflow" class="section level1">
+<h1>Example Workflow</h1>
+<p>A typical environmental monitoring workflow may look like:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a>    location_id,</span>
+<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a>    param_name,</span>
+<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a>    default_unit</span>
+<span id="cb38-6"><a href="#cb38-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb38-7"><a href="#cb38-7" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>() <span class="sc">|&gt;</span></span>
+<span id="cb38-8"><a href="#cb38-8" tabindex="-1"></a>  <span class="fu">pred_int</span>(</span>
+<span id="cb38-9"><a href="#cb38-9" tabindex="-1"></a>    <span class="at">pi_type =</span> <span class="st">&quot;upper&quot;</span>,</span>
+<span id="cb38-10"><a href="#cb38-10" tabindex="-1"></a>    <span class="at">conf_level =</span> <span class="fl">0.95</span></span>
+<span id="cb38-11"><a href="#cb38-11" tabindex="-1"></a>  )</span></code></pre></div>
+<p>Or for sitewide reporting:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
+<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a>    location_id,</span>
+<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a>    param_name</span>
+<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a>  <span class="fu">stats_summary</span>()</span></code></pre></div>
+<p>The decision framework automatically:</p>
+<ul>
+<li>Evaluates data sufficiency</li>
+<li>Quantifies censoring</li>
+<li>Selects recommended methods</li>
+<li>Configures distribution fitting</li>
+<li>Recommends trend approaches</li>
+<li>Provides interval defaults</li>
+<li>Documents the decision basis</li>
+</ul>
+<p>This approach promotes reproducible, transparent, and defensible
+statistical analyses for environmental monitoring programs.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>The statistical decision framework implemented in
+<code>manager</code> draws upon commonly accepted approaches for
+environmental monitoring data, including censored-data analysis,
+distribution fitting, trend evaluation, and interval estimation.</p>
+<div id="regulatory-and-guidance-documents" class="section level2">
+<h2>Regulatory and Guidance Documents</h2>
+<p>United States Environmental Protection Agency (EPA). 2009.
+<em>Statistical Analysis of Groundwater Monitoring Data at RCRA
+Facilities, Unified Guidance</em>. EPA 530/R-09-007. Washington, DC.</p>
+<p>United States Environmental Protection Agency (EPA). 1989.
+<em>Statistical Analysis of Ground-Water Monitoring Data at RCRA
+Facilities: Interim Final Guidance</em>. EPA/530-SW-89-026.</p>
+<p>Interstate Technology &amp; Regulatory Council (ITRC). 2013.
+<em>Groundwater Statistics and Monitoring Compliance (GSMC-1)</em>.
+Washington, DC.</p>
+</div>
+<div id="statistical-methods" class="section level2">
+<h2>Statistical Methods</h2>
+<p>Helsel, D.R. (2012). <em>Statistics for Censored Environmental Data
+Using Minitab and R</em>, Second Edition. John Wiley &amp; Sons,
+Hoboken, NJ.</p>
+<p>Helsel, D.R., Hirsch, R.M., Ryberg, K.R., Archfield, S.A., and
+Gilroy, E.J. (2020). <em>Statistical Methods in Water Resources</em>.
+U.S. Geological Survey Techniques and Methods, Book 4, Chapter A3.</p>
+<p>Gilbert, R.O. (1987). <em>Statistical Methods for Environmental
+Pollution Monitoring</em>. Van Nostrand Reinhold, New York.</p>
+</div>
+<div id="r-packages" class="section level2">
+<h2>R Packages</h2>
+<p>Millard, S.P. and Kowarik, A. (Current Version). <em>EnvStats:
+Package for Environmental Statistics</em>. R package.</p>
+<p>Julian, J. and Helsel, D.R. (Current Version). <em>NADA2: Data
+Analysis for Censored Environmental Data</em>. R package.</p>
+</div>
+<div id="methods-referenced-in-this-vignette" class="section level2">
+<h2>Methods Referenced in This Vignette</h2>
+<ul>
+<li><p>Parametric distribution fitting via
+<code>EnvStats::distChoose()</code></p></li>
+<li><p>Censored distribution fitting via
+<code>EnvStats::distChooseCensored()</code></p></li>
+<li><p>Mann-Kendall trend testing via
+<code>EnvStats::kendallTrendTest()</code></p></li>
+<li><p>Censored Kendall trend estimation via
+<code>NADA2::cenken()</code></p></li>
+<li><p>Prediction intervals using:</p>
+<ul>
+<li><code>EnvStats::predIntNorm()</code></li>
+<li><code>EnvStats::predIntLnorm()</code></li>
+<li><code>EnvStats::predIntNpar()</code></li>
+<li>corresponding simultaneous interval procedures</li>
+</ul></li>
+<li><p>Confidence intervals using:</p>
+<ul>
+<li><code>EnvStats::enorm()</code></li>
+<li><code>EnvStats::elnormAlt()</code></li>
+<li><code>EnvStats::eqnpar()</code></li>
+</ul></li>
+<li><p>Tolerance intervals using:</p>
+<ul>
+<li><code>EnvStats::tolIntNorm()</code></li>
+<li><code>EnvStats::tolIntLnorm()</code></li>
+<li><code>EnvStats::tolIntNpar()</code></li>
+</ul></li>
+</ul>
+</div>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>The statistical decision framework provides a centralized mechanism
+for selecting analytical methods based on sample size, detection
+frequency, and censoring severity. The approach follows principles
+described in EPA groundwater monitoring guidance and modern
+environmental statistics references <span class="citation">(<a href="#ref-epa2009">United States Environmental Protection Agency
+2009</a>; <a href="#ref-helsel2012">Helsel 2012</a>; <a href="#ref-helsel2020">Helsel et al. 2020</a>)</span>.</p>
+<p>Key functions include:</p>
+<ul>
+<li><code>guidance_profile()</code></li>
+<li><code>guidance_options()</code></li>
+<li><code>statistical_decision()</code></li>
+<li><code>derive_decision()</code></li>
+<li><code>estimate_distribution()</code></li>
+<li><code>stats_summary()</code></li>
+</ul>
+<p>Together these functions allow environmental datasets to be evaluated
+using method-selection rules that are consistent across projects,
+analytes, and monitoring programs.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-gilbert1987" class="csl-entry">
+Gilbert, Richard O. 1987. <em>Statistical Methods for Environmental
+Pollution Monitoring</em>. Van Nostrand Reinhold.
+</div>
+<div id="ref-helsel2012" class="csl-entry">
+Helsel, Dennis R. 2012. <em>Statistics for Censored Environmental Data
+Using Minitab and r</em>. 2nd ed. John Wiley &amp; Sons.
+</div>
+<div id="ref-helsel2020" class="csl-entry">
+Helsel, Dennis R., Robert M. Hirsch, Karen R. Ryberg, Stacey A.
+Archfield, and Edward J. Gilroy. 2020. <em>Statistical Methods in Water
+Resources</em>. Book 4, Chapter A3. Techniques and Methods. U.S.
+Geological Survey.
+</div>
+<div id="ref-itrc2013" class="csl-entry">
+Interstate Technology and Regulatory Council. 2013. <em>Groundwater
+Statistics and Monitoring Compliance</em>. ITRC.
+</div>
+<div id="ref-nada2" class="csl-entry">
+<span class="nocase">Julian, Joseph et al.</span> 2024. <em>NADA2: Data
+Analysis for Censored Environmental Data</em>.
+</div>
+<div id="ref-envstats" class="csl-entry">
+Millard, Steven P., and Alexander Kowarik. 2024. <em>EnvStats: An r
+Package for Environmental Statistics</em>.
+</div>
+<div id="ref-epa1989" class="csl-entry">
+United States Environmental Protection Agency. 1989. <em>Statistical
+Analysis of Ground-Water Monitoring Data at RCRA Facilities: Interim
+Final Guidance</em>. EPA/530-SW-89-026. U.S. Environmental Protection
+Agency.
+</div>
+<div id="ref-epa2009" class="csl-entry">
+United States Environmental Protection Agency. 2009. <em>Statistical
+Analysis of Groundwater Monitoring Data at RCRA Facilities: Unified
+Guidance</em>. EPA 530/R-09-007. U.S. Environmental Protection Agency.
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

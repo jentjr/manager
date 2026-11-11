@@ -1,0 +1,762 @@
+---
+title: "Statistical Decision Guidance and Automated Method Selection"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+bibliography: references.bib
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Statistical Decision Guidance and Automated Method Selection}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(manager)
+library(dplyr)
+```
+
+# Introduction
+
+Environmental monitoring datasets frequently contain censored observations,
+limited sample sizes, and varying analytical detection frequencies.
+These characteristics can substantially influence the validity of
+distribution fitting, trend analysis, and interval estimation procedures
+[@helsel2012; @helsel2020]. Statistical methods that perform well under low censoring may become unreliable when censoring is extensive.
+
+The `manager` package includes a statistical decision framework that
+automatically evaluates data quality and recommends appropriate
+statistical methods for environmental monitoring data. The framework is
+inspired by recommendations commonly used in groundwater monitoring
+programs and EPA statistical guidance documents
+[@epa2009; @epa1989; @itrc2013].
+
+The `manager` package includes a statistical decision framework that automatically evaluates data quality and recommends appropriate statistical methods for:
+
+- Distribution estimation
+- Trend analysis
+- Censored-data handling
+- Prediction intervals
+- Confidence intervals
+- Tolerance intervals
+
+Decision recommendations are based on:
+
+- Number of usable observations (`n_used`)
+- Number of detected observations (`n_detect`)
+- Percent censored (`percent_censored`)
+
+The goal is to provide a repeatable and defensible framework for selecting analytical methods across environmental monitoring programs.
+
+# Guidance Profiles
+
+Decision rules are controlled through predefined guidance profiles.
+
+```{r}
+guidance_profile()
+```
+
+The default profile is `"epa_unified"`. The default profile reflects thresholds commonly encountered in EPA groundwater monitoring guidance and environmental censored-data applications [@epa2009; @helsel2012].
+
+```{r}
+guidance_profile("epa_unified")
+```
+
+Available profiles include:
+
+```{r}
+guidance_profile("conservative")
+
+guidance_profile("site_specific")
+```
+
+## Profile Thresholds
+
+| Profile | Low | Moderate | High |
+|----------|------|----------|------|
+| epa_unified | 15% | 50% | 90% |
+| conservative | 10% | 25% | 75% |
+| site_specific | 20% | 60% | 90% |
+
+These thresholds determine how censoring severity is classified and which statistical methods are recommended.
+
+# Statistical Decisions
+
+A statistical decision object records method recommendations for a dataset.
+
+```{r}
+decision <- statistical_decision(
+  percent_censored = 12,
+  n_used = 20,
+  n_detect = 18
+)
+
+decision
+```
+
+The resulting object contains:
+
+```{r}
+names(decision)
+```
+
+Key recommendation fields include:
+
+- `censoring_class`
+- `distribution_method`
+- `trend_method`
+- `trend_guidance`
+- `censored_method`
+- `distribution_config`
+- `interval_config`
+
+# Censoring Classification
+
+The degree of censoring is often the primary factor governing method
+selection for environmental datasets. As censoring increases, parametric
+distribution assumptions become more difficult to assess and trend
+analyses may require censored-data techniques such as ROS or censored
+Kendall methods [@helsel2012].
+
+The first stage of the decision framework is classification of censoring severity.
+
+```{r}
+statistical_decision(
+  percent_censored = c(5, 25, 75, 95),
+  n_used = 20,
+  n_detect = c(19, 15, 5, 1)
+) |>
+  select(
+    percent_censored,
+    censoring_class
+  )
+```
+
+Under the default EPA profile:
+
+| Censored (%) | Classification |
+|-------------|----------------|
+| <15 | low_censoring |
+| 15-50 | moderate_censoring |
+| 50-90 | high_censoring |
+| >=90 | extreme_censoring |
+
+# Distribution Recommendations
+
+Distribution estimation recommendations depend on both censoring and sample size.
+
+## Decision Matrix
+
+| Condition | Recommendation |
+|------------|--------------|
+| n_used < 4 | insufficient_data |
+| Low censoring | parametric |
+| Moderate censoring | ros_censored |
+| High censoring | nonparametric |
+| Extreme censoring | descriptive_only |
+
+Example:
+
+```{r}
+statistical_decision(
+  percent_censored = c(5, 25, 75, 95),
+  n_used = 20,
+  n_detect = c(19, 15, 5, 1)
+) |>
+  select(
+    percent_censored,
+    distribution_method
+  )
+```
+
+The progression from parametric methods to censored-data methods and
+eventually nonparametric approaches is consistent with recommendations
+described by Helsel [@helsel2012] and EPA groundwater guidance
+[@epa2009].
+
+## Parametric Recommendation
+
+Low-censoring datasets are evaluated using conventional distribution
+fitting.Parametric model selection is performed using
+`EnvStats::distChoose()`, which evaluates candidate probability
+distributions using goodness-of-fit procedures described in
+Millard [@envstats].
+
+```{r}
+statistical_decision(
+  percent_censored = 5,
+  n_used = 15,
+  n_detect = 14
+) |>
+  select(
+    distribution_method,
+    distribution_config
+  )
+```
+
+The default configuration evaluates:
+
+- Normal
+- Lognormal
+
+distributions using `EnvStats::distChoose()`.
+
+## ROS-Censored Recommendation
+
+Moderately censored datasets are evaluated using censored distribution fitting.
+Regression on Order Statistics (ROS) is among the most widely used
+approaches for estimating distributions from moderately censored
+environmental datasets [@helsel2012].
+
+```{r}
+statistical_decision(
+  percent_censored = 35,
+  n_used = 20,
+  n_detect = 13
+) |>
+  select(
+    distribution_method
+  )
+```
+
+This recommendation is implemented using:
+
+```r
+EnvStats::distChooseCensored()
+```
+
+with left-censoring assumptions.
+
+## Nonparametric Recommendation
+
+Highly censored datasets are classified as nonparametric. When censoring becomes 
+extensive, distributional assumptions may no longer be adequately supported and 
+nonparametric methods are generally preferred [@helsel2012; @epa2009].
+
+```{r}
+statistical_decision(
+  percent_censored = 75,
+  n_used = 20,
+  n_detect = 5
+) |>
+  select(
+    distribution_method
+  )
+```
+
+Formal distribution fitting is not attempted.
+
+## Descriptive-Only Recommendation
+
+Extremely censored datasets are limited to descriptive evaluation.
+
+```{r}
+statistical_decision(
+  percent_censored = 95,
+  n_used = 20,
+  n_detect = 1
+) |>
+  select(
+    distribution_method
+  )
+```
+
+# Trend Recommendations
+
+Trend evaluations are based on a Mann-Kendall framework, a widely used
+nonparametric approach for environmental time-series analysis
+[@helsel2020; @gilbert1987]. Mann-Kendall methods are particularly attractive for
+groundwater monitoring because they do not require the assumption of normally
+distributed concentrations and are robust to skewed environmental data
+[@gilbert1987].
+
+```{r}
+decision <- statistical_decision(
+  percent_censored = 25,
+  n_used = 20,
+  n_detect = 15
+)
+
+decision |>
+  select(
+    trend_method,
+    trend_guidance,
+    censored_method
+  )
+```
+
+## Trend Guidance Categories
+
+### Formal Trend Testing
+
+When censoring remains below the high-censoring threshold and adequate detects are available:
+
+```text
+formal_trend_test
+```
+
+is recommended.
+
+### Screening-Only Evaluation
+
+When censoring becomes extensive:
+
+```text
+screening_only
+```
+
+is returned.
+
+### Insufficient Detects
+
+When fewer than four detects are available:
+
+```text
+insufficient_detects
+```
+
+is returned.
+
+```{r}
+statistical_decision(
+  percent_censored = 90,
+  n_used = 20,
+  n_detect = 2
+) |>
+  select(
+    trend_guidance
+  )
+```
+
+# Censored Trend Methods
+
+The decision framework also recommends how censored observations should be handled during trend evaluation.
+
+```{r}
+statistical_decision(
+  percent_censored = c(5, 40, 75),
+  n_used = 20,
+  n_detect = c(19, 12, 5)
+) |>
+  select(
+    percent_censored,
+    censored_method
+  )
+```
+
+For censored environmental datasets, ordinary Mann-Kendall analyses may
+not adequately account for reporting limits. In these situations,
+censored Kendall methods such as `NADA2::cenken()` are often
+recommended [@helsel2012; @nada2].
+
+Recommended methods:
+
+| Condition | Method |
+|------------|---------|
+| Low censoring | as_reported |
+| Moderate or greater censoring | cenken |
+
+These recommendations are automatically used by functions such as:
+
+```r
+trend_summary(
+  gw,
+  censored_method = "auto"
+)
+```
+
+# Deriving Decisions from Data
+
+Most workflows will not create decisions manually.
+
+Instead, recommendations are derived automatically from environmental data.
+
+This approach allows data characteristics rather than analyst preference
+to determine the recommended statistical workflow, improving
+reproducibility and consistency across monitoring programs
+[@epa2009].
+
+```{r eval = FALSE}
+decision <- derive_decision(gw)
+
+decision
+```
+
+`derive_decision()` calculates:
+
+- `n_used`
+- `n_detect`
+- `percent_censored`
+
+and passes those values into `statistical_decision()`.
+
+## Example
+
+```{r eval = FALSE}
+gw |>
+  filter(
+    param_name == "Arsenic, dissolved"
+  ) |>
+  derive_decision()
+```
+
+# Distribution Estimation Workflow
+
+The primary consumer of statistical decision guidance is 
+`estimate_distribution()`. Distribution estimation relies on methods implemented 
+in the `EnvStats` package [@envstats], which contains many of the statistical
+procedures described in EPA groundwater monitoring guidance
+[@epa2009].
+
+```{r eval = FALSE}
+gw |>
+  group_by(
+    location_id,
+    param_name,
+    default_unit
+  ) |>
+  estimate_distribution()
+```
+
+For each group:
+
+1. Censoring is evaluated
+2. A statistical decision is derived
+3. The recommended workflow is selected
+4. Distribution results are returned along with decision metadata
+
+# Automatic Method Selection
+
+Under the default EPA profile:
+
+| Percent Censored | Recommendation | Action |
+|-----------------|--------------|---------|
+| <15 | parametric | Fit candidate distributions |
+| 15-50 | ros_censored | Fit censored distributions |
+| 50-90 | nonparametric | Classify as nonparametric |
+| >=90 | descriptive_only | Descriptive evaluation only |
+
+Example:
+
+```{r eval = FALSE}
+gw |>
+  group_by(
+    location_id,
+    param_name,
+    default_unit
+  ) |>
+  estimate_distribution()
+```
+
+The method-selection process occurs automatically.
+
+# Distribution Configuration
+
+Each decision includes a recommended configuration object.
+
+```{r}
+decision <- statistical_decision(
+  percent_censored = 10,
+  n_used = 20,
+  n_detect = 18
+)
+
+decision$distribution_config[[1]]
+```
+
+Default settings:
+
+```r
+list(
+  method = "sf",
+  choices = c(
+    "norm",
+    "lnorm"
+  )
+)
+```
+
+These settings are automatically supplied to:
+
+```r
+EnvStats::distChoose()
+```
+
+or
+
+```r
+EnvStats::distChooseCensored()
+```
+
+depending on the decision outcome.
+
+# Interval Configuration
+
+The decision object also includes interval-estimation guidance.
+
+```{r}
+decision$interval_config[[1]]
+```
+
+Default settings:
+
+```r
+list(
+  conf_level = 0.95,
+  method = "Bonferroni",
+  k = 1,
+  n_mean = 1
+)
+```
+
+These values are intended as defaults for:
+
+- `pred_int()`
+- `pred_int_sim()`
+- `conf_int()`
+- `tol_int()`
+
+# Prediction Intervals
+
+Prediction intervals are commonly used in groundwater monitoring to
+establish concentration thresholds expected to contain future
+observations with a specified degree of confidence
+[@epa2009; @gilbert1987].
+
+Prediction intervals require a distribution classification.
+
+A common workflow is:
+
+```{r eval = FALSE}
+dist_est <- gw |>
+  group_by(
+    location_id,
+    param_name,
+    default_unit
+  ) |>
+  estimate_distribution()
+```
+
+Standard prediction intervals:
+
+```{r eval = FALSE}
+pred_int(dist_est)
+```
+
+Upper prediction intervals:
+
+```{r eval = FALSE}
+pred_int(
+  dist_est,
+  pi_type = "upper",
+  conf_level = 0.99
+)
+```
+
+Simultaneous prediction intervals:
+
+```{r eval = FALSE}
+pred_int_sim(
+  dist_est,
+  pi_type = "upper",
+  conf_level = 0.99
+)
+```
+
+# Summary Statistics with Decision Guidance
+
+`stats_summary()` automatically integrates statistical decision outputs. 
+Incorporating statistical decision metadata directly into summary tables
+helps document methodological decisions and provides a transparent audit
+trail for regulatory and technical review [@epa2009; @itrc2013].
+
+```{r eval = FALSE}
+gw |>
+  group_by(
+    location_id,
+    param_name
+  ) |>
+  stats_summary()
+```
+
+Additional fields include:
+
+```text
+censoring_class
+distribution_method
+trend_method
+trend_guidance
+censored_method
+decision_basis
+```
+
+This allows routine reports to include recommended statistical approaches directly within summary tables.
+
+# Custom Guidance Thresholds
+
+Organizations may prefer different censoring thresholds.
+
+Global options can be used to override defaults.
+
+```{r}
+options(
+  manager.guidance = list(
+    low_threshold = 10,
+    moderate_threshold = 25,
+    high_threshold = 75
+  )
+)
+```
+
+Retrieve the active settings:
+
+```{r}
+guidance_options()
+```
+
+Decisions derived afterward will use the updated thresholds.
+
+# Example Workflow
+
+A typical environmental monitoring workflow may look like:
+
+```{r eval = FALSE}
+gw |>
+  group_by(
+    location_id,
+    param_name,
+    default_unit
+  ) |>
+  estimate_distribution() |>
+  pred_int(
+    pi_type = "upper",
+    conf_level = 0.95
+  )
+```
+
+Or for sitewide reporting:
+
+```{r eval = FALSE}
+gw |>
+  group_by(
+    location_id,
+    param_name
+  ) |>
+  stats_summary()
+```
+
+The decision framework automatically:
+
+- Evaluates data sufficiency
+- Quantifies censoring
+- Selects recommended methods
+- Configures distribution fitting
+- Recommends trend approaches
+- Provides interval defaults
+- Documents the decision basis
+
+This approach promotes reproducible, transparent, and defensible statistical analyses for environmental monitoring programs.
+
+# References
+
+The statistical decision framework implemented in `manager` draws upon
+commonly accepted approaches for environmental monitoring data,
+including censored-data analysis, distribution fitting, trend
+evaluation, and interval estimation.
+
+## Regulatory and Guidance Documents
+
+United States Environmental Protection Agency (EPA). 2009.
+*Statistical Analysis of Groundwater Monitoring Data at RCRA Facilities,
+Unified Guidance*. EPA 530/R-09-007.
+Washington, DC.
+
+United States Environmental Protection Agency (EPA). 1989.
+*Statistical Analysis of Ground-Water Monitoring Data at RCRA Facilities:
+Interim Final Guidance*.
+EPA/530-SW-89-026.
+
+Interstate Technology & Regulatory Council (ITRC). 2013.
+*Groundwater Statistics and Monitoring Compliance (GSMC-1)*.
+Washington, DC.
+
+## Statistical Methods
+
+Helsel, D.R. (2012).
+*Statistics for Censored Environmental Data Using Minitab and R*,
+Second Edition.
+John Wiley & Sons, Hoboken, NJ.
+
+Helsel, D.R., Hirsch, R.M., Ryberg, K.R., Archfield, S.A.,
+and Gilroy, E.J. (2020).
+*Statistical Methods in Water Resources*.
+U.S. Geological Survey Techniques and Methods, Book 4, Chapter A3.
+
+Gilbert, R.O. (1987).
+*Statistical Methods for Environmental Pollution Monitoring*.
+Van Nostrand Reinhold, New York.
+
+## R Packages
+
+Millard, S.P. and Kowarik, A. (Current Version).
+*EnvStats: Package for Environmental Statistics*.
+R package.
+
+Julian, J. and Helsel, D.R. (Current Version).
+*NADA2: Data Analysis for Censored Environmental Data*.
+R package.
+
+## Methods Referenced in This Vignette
+
+- Parametric distribution fitting via
+  `EnvStats::distChoose()`
+
+- Censored distribution fitting via
+  `EnvStats::distChooseCensored()`
+
+- Mann-Kendall trend testing via
+  `EnvStats::kendallTrendTest()`
+
+- Censored Kendall trend estimation via
+  `NADA2::cenken()`
+
+- Prediction intervals using:
+  - `EnvStats::predIntNorm()`
+  - `EnvStats::predIntLnorm()`
+  - `EnvStats::predIntNpar()`
+  - corresponding simultaneous interval procedures
+
+- Confidence intervals using:
+  - `EnvStats::enorm()`
+  - `EnvStats::elnormAlt()`
+  - `EnvStats::eqnpar()`
+
+- Tolerance intervals using:
+  - `EnvStats::tolIntNorm()`
+  - `EnvStats::tolIntLnorm()`
+  - `EnvStats::tolIntNpar()`
+
+# Summary
+
+The statistical decision framework provides a centralized mechanism for
+selecting analytical methods based on sample size, detection frequency,
+and censoring severity. The approach follows principles described in EPA
+groundwater monitoring guidance and modern environmental statistics
+references [@epa2009; @helsel2012; @helsel2020].
+
+Key functions include:
+
+- `guidance_profile()`
+- `guidance_options()`
+- `statistical_decision()`
+- `derive_decision()`
+- `estimate_distribution()`
+- `stats_summary()`
+
+Together these functions allow environmental datasets to be evaluated using method-selection rules that are consistent across projects, analytes, and monitoring programs.

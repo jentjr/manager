@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/env-schema.html">Working with env_schema</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Environmental Plotting System</a></li>
+    <li><a class="dropdown-item" href="../articles/statistical-decision.html">Statistical Decision Guidance and Automated Method Selection</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -47,7 +48,7 @@
 <span>  <span class="va">data</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">location</span>,</span>
-<span>  <span class="va">date</span>,</span>
+<span>  <span class="va">sample_date</span>,</span>
 <span>  <span class="va">analyte</span>,</span>
 <span>  <span class="va">result</span>,</span>
 <span>  unit <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -62,7 +63,8 @@
 <span>  analysis_date <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  matrix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lab_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  analysis_metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  source_metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  qualifier_table <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  analyte_lookup <span class="op">=</span> <span class="va">analyte_tbl</span></span>
 <span><span class="op">)</span></span></code></pre></div>

@@ -22,6 +22,7 @@ mappings and schema metadata to a data frame."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/env-schema.html">Working with env_schema</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Environmental Plotting System</a></li>
+    <li><a class="dropdown-item" href="../articles/statistical-decision.html">Statistical Decision Guidance and Automated Method Selection</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -50,7 +51,7 @@ mappings and schema metadata to a data frame.</p>
 <span>  <span class="va">df</span>,</span>
 <span>  site <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">location</span>,</span>
-<span>  <span class="va">date</span>,</span>
+<span>  <span class="va">sample_date</span>,</span>
 <span>  <span class="va">analyte</span>,</span>
 <span>  <span class="va">result</span>,</span>
 <span>  unit <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -65,7 +66,8 @@ mappings and schema metadata to a data frame.</p>
 <span>  analysis_date <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  matrix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lab_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  analysis_metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  source_metadata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  qualifier_table <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  display_options <span class="op">=</span> <span class="fu">default_display_options</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  analyte_lookup <span class="op">=</span> <span class="va">analyte_tbl</span></span>
@@ -88,7 +90,7 @@ mappings and schema metadata to a data frame.</p>
 <dd><p>Location identifier column.</p></dd>
 
 
-<dt id="arg-date">date<a class="anchor" aria-label="anchor" href="#arg-date"></a></dt>
+<dt id="arg-sample-date">sample_date<a class="anchor" aria-label="anchor" href="#arg-sample-date"></a></dt>
 <dd><p>Sample date column.</p></dd>
 
 
@@ -150,9 +152,16 @@ mappings and schema metadata to a data frame.</p>
 <dd><p>Laboratory column.</p></dd>
 
 
-<dt id="arg-metadata">metadata<a class="anchor" aria-label="anchor" href="#arg-metadata"></a></dt>
+<dt id="arg-analysis-metadata">analysis_metadata<a class="anchor" aria-label="anchor" href="#arg-analysis-metadata"></a></dt>
 <dd><p>Optional tidyselect specification identifying
-columns containing method-specific metadata.</p></dd>
+analysis-context metadata columns (for example analytical methods,
+laboratories, matrices, measurement uncertainty,
+or other analytical metadata).</p></dd>
+
+
+<dt id="arg-source-metadata">source_metadata<a class="anchor" aria-label="anchor" href="#arg-source-metadata"></a></dt>
+<dd><p>Optional tidyselect specification
+identifying source-system-specific metadata columns.</p></dd>
 
 
 <dt id="arg-qualifier-table">qualifier_table<a class="anchor" aria-label="anchor" href="#arg-qualifier-table"></a></dt>
@@ -214,7 +223,7 @@ as schema metadata through an internal column-mapping structure.</p>
 <span><span class="fu"><a href="../reference/env_schema.html">env_schema</a></span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  location <span class="op">=</span> <span class="va">location_id</span>,</span>
-<span>  date <span class="op">=</span> <span class="va">sample_date</span>,</span>
+<span>  sample_date <span class="op">=</span> <span class="va">sample_date</span>,</span>
 <span>  analyte <span class="op">=</span> <span class="va">parameter</span>,</span>
 <span>  result <span class="op">=</span> <span class="va">concentration</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -237,7 +246,7 @@ reporting workflows, plotting, and statistical calculations.</p>
 <span class="r-in"><span><span class="va">gw</span> <span class="op">&lt;-</span> <span class="fu">env_schema</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">my_data</span>,</span></span>
 <span class="r-in"><span>  location <span class="op">=</span> <span class="va">location_id</span>,</span></span>
-<span class="r-in"><span>  date <span class="op">=</span> <span class="va">sample_date</span>,</span></span>
+<span class="r-in"><span>  sample_date <span class="op">=</span> <span class="va">sample_date</span>,</span></span>
 <span class="r-in"><span>  analyte <span class="op">=</span> <span class="va">param_name</span>,</span></span>
 <span class="r-in"><span>  result <span class="op">=</span> <span class="va">analysis_result</span>,</span></span>
 <span class="r-in"><span>  unit <span class="op">=</span> <span class="va">default_unit</span></span></span>

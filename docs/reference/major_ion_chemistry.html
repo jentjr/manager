@@ -22,6 +22,7 @@ hydrogeochemical analysis."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/env-schema.html">Working with env_schema</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Environmental Plotting System</a></li>
+    <li><a class="dropdown-item" href="../articles/statistical-decision.html">Statistical Decision Guidance and Automated Method Selection</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -49,7 +50,7 @@ hydrogeochemical analysis.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">major_ion_chemistry</span><span class="op">(</span><span class="va">df</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'data.frame'</span></span>
-<span><span class="fu">major_ion_chemistry</span><span class="op">(</span><span class="va">df</span>, <span class="va">location</span>, <span class="va">analyte</span>, <span class="va">result</span>, <span class="va">unit</span>, <span class="va">date</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">major_ion_chemistry</span><span class="op">(</span><span class="va">df</span>, <span class="va">location</span>, <span class="va">analyte</span>, <span class="va">result</span>, <span class="va">unit</span>, <span class="va">sample_date</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'env_schema'</span></span>
 <span><span class="fu">major_ion_chemistry</span><span class="op">(</span></span>
@@ -89,7 +90,7 @@ hydrogeochemical analysis.</p>
 <dd><p>Reporting unit column.</p></dd>
 
 
-<dt id="arg-date">date<a class="anchor" aria-label="anchor" href="#arg-date"></a></dt>
+<dt id="arg-sample-date">sample_date<a class="anchor" aria-label="anchor" href="#arg-sample-date"></a></dt>
 <dd><p>Sample date column.</p></dd>
 
 

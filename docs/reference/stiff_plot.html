@@ -22,6 +22,7 @@ major-ion water chemistry."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/env-schema.html">Working with env_schema</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Environmental Plotting System</a></li>
+    <li><a class="dropdown-item" href="../articles/statistical-decision.html">Statistical Decision Guidance and Automated Method Selection</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -49,7 +50,7 @@ major-ion water chemistry.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">stiff_plot</span><span class="op">(</span><span class="va">df</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'data.frame'</span></span>
-<span><span class="fu">stiff_plot</span><span class="op">(</span><span class="va">df</span>, <span class="va">location</span>, <span class="va">analyte</span>, <span class="va">result</span>, <span class="va">unit</span>, <span class="va">date</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">stiff_plot</span><span class="op">(</span><span class="va">df</span>, <span class="va">location</span>, <span class="va">analyte</span>, <span class="va">result</span>, <span class="va">unit</span>, <span class="va">sample_date</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'env_schema'</span></span>
 <span><span class="fu">stiff_plot</span><span class="op">(</span></span>
@@ -100,7 +101,7 @@ major-ion water chemistry.</p>
 <dd><p>Reporting unit column.</p></dd>
 
 
-<dt id="arg-date">date<a class="anchor" aria-label="anchor" href="#arg-date"></a></dt>
+<dt id="arg-sample-date">sample_date<a class="anchor" aria-label="anchor" href="#arg-sample-date"></a></dt>
 <dd><p>Sample date column.</p></dd>
 
 
@@ -199,7 +200,7 @@ characteristics, making Stiff diagrams useful for evaluating:</p>
 <li><p>groundwater mixing;</p></li>
 <li><p>hydrochemical facies;</p></li>
 <li><p>geochemical evolution.</p></li>
-</ul><p>For `env_schema` objects, analyte, result, unit, date,
+</ul><p>For `env_schema` objects, analyte, result, unit, sample_date,
 and location fields are obtained directly from schema mappings.</p>
     </div>
     <div class="section level2">
@@ -230,7 +231,7 @@ and location fields are obtained directly from schema mappings.</p>
 <p>`group_var` controls how data are divided into separate
 Stiff diagrams.</p>
 <p>By default, one plot is generated per location.</p>
-<p>If `group_var` is set to the mapped date field, one plot is
+<p>If `group_var` is set to the mapped sample_date field, one plot is
 generated per sampling event.</p>
     </div>
     <div class="section level2">
@@ -275,9 +276,9 @@ or another indicator parameter alongside hydrochemical facies.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">stiff_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
-<span class="r-in"><span>  group_var <span class="op">=</span> <span class="st">"sample_date"</span></span></span>
+<span class="r-in"><span>  group_var <span class="op">=</span> <span class="fu">sample_date_var</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in split(df, df[[group_var]]) %&gt;% purrr::imap(~.stiff_plot(df = .x,     group_name = .y, location_col = location_col, date_col = date_col,     analyte_matching = analyte_matching, calcium = calcium, magnesium = magnesium,     sodium = sodium, potassium = potassium, chloride = chloride,     sulfate = sulfate, alkalinity = alkalinity, scale_analyte = scale_analyte,     facet_var = facet_var, group_var = group_var, stiff_limit = stiff_limit,     stiff_breaks = stiff_breaks, lines = lines, title = title)):</span> could not find function "%&gt;%"</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in sample_date_var(gw):</span> could not find function "sample_date_var"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
