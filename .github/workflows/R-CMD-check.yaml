@@ -9,6 +9,9 @@ on:
 jobs:
   check:
     runs-on: ${{ matrix.config.os }}
+    permissions:
+      contents: read
+      id-token: write
 
     strategy:
       fail-fast: false
@@ -56,8 +59,15 @@ jobs:
           name: check-results-${{ matrix.config.os }}-${{ matrix.config.r }}
           path: check
 
+      - name: Generate coverage report
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
+        run: Rscript -e 'covr::to_cobertura(covr::package_coverage(), filename = "coverage.xml")'
+
       - name: Upload coverage to Codecov
         if: matrix.config.os == 'ubuntu-latest' && matrix.config.r == 'release'
-        run: Rscript -e 'covr::codecov()'
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
