@@ -6,14 +6,31 @@
 \alias{boxcox_transform.env_schema}
 \title{Box-Cox Transformation}
 \usage{
-boxcox_transform(x, ...)
+boxcox_transform(df, ...)
 
-\method{boxcox_transform}{data.frame}(x, objective_name = "PPCC", keep_data_object = FALSE, ...)
+\method{boxcox_transform}{data.frame}(
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  objective_name = "PPCC",
+  result_col = analysis_result_var(),
+  keep_data_object = FALSE,
+  ...
+)
 
-\method{boxcox_transform}{env_schema}(x, objective_name = "PPCC", keep_data_object = FALSE, ...)
+\method{boxcox_transform}{env_schema}(
+  df,
+  result_col = analysis_result_var(),
+  objective_name = "PPCC",
+  keep_data_object = FALSE,
+  ...
+)
 }
 \arguments{
-\item{x}{A data frame or `env_schema` object.}
+\item{df}{A data frame or `env_schema` object.}
 
 \item{...}{Additional arguments passed to methods.}
 
@@ -64,8 +81,9 @@ For ungrouped `env_schema` objects, transformations are performed by:
   \item analysis unit
 }
 
-For ungrouped `data.frame` objects, the entire dataset is treated as
-a single group.
+For ungrouped `data.frame` inputs, data are first converted to an
+env_schema object and transformations are performed separately by
+location, analyte, and analysis unit.
 }
 \section{env_schema Method}{
 

@@ -1,15 +1,33 @@
-test_that("boxcox_transform adds Box-Cox columns", {
-  df <- tibble::tibble(
-    analysis_result = c(
-      1,
-      2,
-      3,
-      5,
-      10
+# ------------------------------------------------------------------------------
+# Helpers
+# ------------------------------------------------------------------------------
+
+build_boxcox_schema <- function(x) {
+  build_schema(
+    tibble::tibble(
+      location_id = rep("MW-1", length(x)),
+      sample_date = seq.Date(
+        as.Date("2020-01-01"),
+        by = "year",
+        length.out = length(x)
+      ),
+      param_name = "Chloride",
+      analysis_result = x,
+      default_unit = "mg/L"
     )
   )
+}
 
-  out <- boxcox_transform(df)
+# ------------------------------------------------------------------------------
+# Tests
+# ------------------------------------------------------------------------------
+
+test_that("boxcox_transform adds Box-Cox columns", {
+  gw <- build_boxcox_schema(
+    c(1, 2, 3, 5, 10)
+  )
+
+  out <- boxcox_transform(gw)
 
   expect_true(
     ".boxcox_transform" %in% names(out)
@@ -21,7 +39,7 @@ test_that("boxcox_transform adds Box-Cox columns", {
 
   expect_equal(
     nrow(out),
-    nrow(df)
+    nrow(gw)
   )
 
   expect_type(
@@ -36,40 +54,46 @@ test_that("boxcox_transform adds Box-Cox columns", {
 })
 
 test_that("boxcox_transform does not overwrite results", {
-  df <- tibble::tibble(
-    analysis_result = c(
-      1,
-      2,
-      3,
-      5,
-      10
-    )
+  gw <- build_boxcox_schema(
+    c(1, 2, 3, 5, 10)
   )
 
-  out <- boxcox_transform(df)
+  out <- boxcox_transform(gw)
 
   expect_equal(
-    out$analysis_result,
-    df$analysis_result
+    out$.analysis_result,
+    gw$.analysis_result
   )
 })
 
 test_that("all rows within a group share the same lambda", {
-  df <- tibble::tibble(
-    group = rep(c("A", "B"), each = 5),
-    analysis_result = c(
-      1:5,
-      10:14
+  gw <- build_schema(
+    tibble::tibble(
+      location_id = rep(
+        c("MW-1", "MW-2"),
+        each = 5
+      ),
+      sample_date = seq.Date(
+        as.Date("2020-01-01"),
+        by = "month",
+        length.out = 10
+      ),
+      param_name = "Chloride",
+      analysis_result = c(
+        1:5,
+        10:14
+      ),
+      default_unit = "mg/L"
     )
   ) |>
-    dplyr::group_by(group)
+    dplyr::group_by(location_id)
 
-  out <- boxcox_transform(df)
+  out <- boxcox_transform(gw)
 
   expect_equal(
     dplyr::n_distinct(
       out$.boxcox_lambda[
-        out$group == "A"
+        out$location_id == "MW-1"
       ]
     ),
     1
@@ -78,7 +102,7 @@ test_that("all rows within a group share the same lambda", {
   expect_equal(
     dplyr::n_distinct(
       out$.boxcox_lambda[
-        out$group == "B"
+        out$location_id == "MW-2"
       ]
     ),
     1
@@ -86,23 +110,32 @@ test_that("all rows within a group share the same lambda", {
 })
 
 test_that("grouping affects Box-Cox estimation", {
-  df <- tibble::tibble(
-    group = c(
-      rep("A", 8),
-      rep("B", 8)
-    ),
-    analysis_result = c(
-      1:8,
-      exp(seq(1, 2, length.out = 8))
+  gw <- build_schema(
+    tibble::tibble(
+      location_id = c(
+        rep("MW-1", 8),
+        rep("MW-2", 8)
+      ),
+      sample_date = seq.Date(
+        as.Date("2020-01-01"),
+        by = "month",
+        length.out = 16
+      ),
+      param_name = "Chloride",
+      analysis_result = c(
+        1:8,
+        exp(seq(1, 2, length.out = 8))
+      ),
+      default_unit = "mg/L"
     )
   ) |>
-    dplyr::group_by(group)
+    dplyr::group_by(location_id)
 
-  out <- boxcox_transform(df)
+  out <- boxcox_transform(gw)
 
   lambdas <- out |>
     dplyr::distinct(
-      group,
+      location_id,
       .boxcox_lambda
     )
 
@@ -122,18 +155,12 @@ test_that("grouping affects Box-Cox estimation", {
 })
 
 test_that("keep_data_object retains boxcox results", {
-  df <- tibble::tibble(
-    analysis_result = c(
-      1,
-      2,
-      3,
-      5,
-      10
-    )
+  gw <- build_boxcox_schema(
+    c(1, 2, 3, 5, 10)
   )
 
   out <- boxcox_transform(
-    df,
+    gw,
     keep_data_object = TRUE
   )
 
@@ -157,12 +184,10 @@ test_that("boxcox_transform matches EnvStats::boxcoxTransform", {
     32
   )
 
-  df <- tibble::tibble(
-    analysis_result = x
-  )
+  gw <- build_boxcox_schema(x)
 
   out <- boxcox_transform(
-    df,
+    gw,
     keep_data_object = TRUE
   )
 
@@ -181,27 +206,8 @@ test_that("boxcox_transform matches EnvStats::boxcoxTransform", {
 })
 
 test_that("boxcox_transform preserves env_schema class", {
-  gw <- env_schema(
-    tibble::tibble(
-      location_id = rep("MW-1", 5),
-      sample_date = seq.Date(
-        as.Date("2020-01-01"),
-        by = "year",
-        length.out = 5
-      ),
-      analyte = "Benzene",
-      result = c(
-        1,
-        2,
-        3,
-        5,
-        10
-      )
-    ),
-    location = location_id,
-    sample_date = sample_date,
-    analyte = analyte,
-    result = result
+  gw <- build_boxcox_schema(
+    c(1, 2, 3, 5, 10)
   )
 
   out <- boxcox_transform(gw)
@@ -213,7 +219,7 @@ test_that("boxcox_transform preserves env_schema class", {
 })
 
 test_that("ungrouped env_schema computes separate lambdas by default groups", {
-  gw <- env_schema(
+  gw <- build_schema(
     tibble::tibble(
       location_id = c(
         rep("MW-1", 6),
@@ -224,18 +230,13 @@ test_that("ungrouped env_schema computes separate lambdas by default groups", {
         by = "month",
         length.out = 12
       ),
-      analyte = "Benzene",
-      result = c(
+      param_name = "Chloride",
+      analysis_result = c(
         1:6,
         exp(seq(1, 2, length.out = 6))
       ),
-      unit = "mg/L"
-    ),
-    location = location_id,
-    sample_date = sample_date,
-    analyte = analyte,
-    result = result,
-    unit = unit
+      default_unit = "mg/L"
+    )
   )
 
   out <- boxcox_transform(gw)
@@ -245,5 +246,17 @@ test_that("ungrouped env_schema computes separate lambdas by default groups", {
       out$.boxcox_lambda
     ),
     1
+  )
+})
+
+test_that("boxcox_transform preserves ungrouped state", {
+  gw <- build_boxcox_schema(
+    c(1, 2, 3, 5, 10)
+  )
+
+  out <- boxcox_transform(gw)
+
+  expect_false(
+    dplyr::is_grouped_df(out)
   )
 })

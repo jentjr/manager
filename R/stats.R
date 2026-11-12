@@ -1107,9 +1107,11 @@ stats_summary.env_schema <- function(
         na.rm = na.rm
       ),
 
-      cv = cv(
-        .data[[result_col]],
-        na.rm = na.rm
+      cv = dplyr::if_else(
+        mean(.data[[result_col]], na.rm = na.rm) == 0,
+        NA_real_,
+        stats::sd(.data[[result_col]], na.rm = na.rm) /
+          mean(.data[[result_col]], na.rm = na.rm)
       ),
 
       `25%` = unname(
@@ -2450,7 +2452,7 @@ kendall_trend.env_schema <- function(
   c(
     location_var(df),
     analyte_var(df),
-    ".analysis_unit"
+    analysis_unit_var()
   )
 }
 
@@ -3185,10 +3187,11 @@ tukey_outlier.env_schema <- function(
 #'   \item analysis unit
 #' }
 #'
-#' For ungrouped `data.frame` objects, the entire dataset is treated as
-#' a single group.
+#' For ungrouped `data.frame` inputs, data are first converted to an
+#' env_schema object and transformations are performed separately by
+#' location, analyte, and analysis unit.
 #'
-#' @param x A data frame or `env_schema` object.
+#' @param df A data frame or `env_schema` object.
 #' @param objective_name Character string specifying the optimization
 #'   criterion passed to [EnvStats::boxcox()].
 #' @param keep_data_object Logical indicating whether the complete
@@ -3225,23 +3228,39 @@ tukey_outlier.env_schema <- function(
 #'   boxcox_transform()
 #'
 #' @export
-boxcox_transform <- function(x, ...) {
+boxcox_transform <- function(df, ...) {
   UseMethod("boxcox_transform")
 }
 
 #' @rdname boxcox_transform
 #' @export
 boxcox_transform.data.frame <- function(
-  x,
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
   objective_name = "PPCC",
+  result_col = analysis_result_var(),
   keep_data_object = FALSE,
   ...
 ) {
-  .boxcox_transform_core(
-    x = x,
-    result_col = "analysis_result",
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location_id),
+    analyte = !!rlang::sym(param_name),
+    sample_date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(analysis_result),
+    unit = !!rlang::sym(default_unit)
+  )
+
+  boxcox_transform(
+    df = df,
+    result_col = result_col,
     objective_name = objective_name,
-    keep_data_object = keep_data_object
+    keep_data_object = keep_data_object,
+    ...
   )
 }
 
@@ -3266,21 +3285,25 @@ boxcox_transform.data.frame <- function(
 #'
 #' @export
 boxcox_transform.env_schema <- function(
-  x,
+  df,
+  result_col = analysis_result_var(),
   objective_name = "PPCC",
   keep_data_object = FALSE,
   ...
 ) {
-  validate_env_schema(x)
+  validate_env_schema(df)
 
-  if (!dplyr::is_grouped_df(x)) {
-    x <- x |>
+  template <- df
+  was_grouped <- dplyr::is_grouped_df(df)
+
+  if (!was_grouped) {
+    df <- df |>
       dplyr::group_by(
         dplyr::across(
           dplyr::all_of(
             c(
-              location_var(x),
-              analyte_var(x),
+              location_var(df),
+              analyte_var(df),
               analysis_unit_var()
             )
           )
@@ -3289,55 +3312,79 @@ boxcox_transform.env_schema <- function(
   }
 
   out <- .boxcox_transform_core(
-    x = x,
-    result_col = analysis_result_var(),
+    df = df,
+    result_col = result_col,
     objective_name = objective_name,
     keep_data_object = keep_data_object
   )
 
-  restore_env_schema(
+  if (!was_grouped) {
+    out <- dplyr::ungroup(out)
+  }
+
+  out <- restore_env_schema(
     out,
-    x,
+    template,
     validate = FALSE
   )
+
+  out
 }
 
 #' @keywords internal
 .boxcox_transform_core <- function(
-  x,
+  df,
   result_col,
   objective_name = "PPCC",
   keep_data_object = FALSE
 ) {
-  grouped <- dplyr::is_grouped_df(x)
+  grouped <- dplyr::is_grouped_df(df)
 
-  out <- x |>
+  out <- df |>
     tidyr::nest() |>
     dplyr::mutate(
       boxcox = purrr::map(
         data,
-        ~ EnvStats::boxcox(
-          .x[[result_col]],
-          optimize = TRUE,
-          objective.name = objective_name
+        purrr::possibly(
+          function(.x) {
+            EnvStats::boxcox(
+              .x[[result_col]],
+              optimize = TRUE,
+              objective.name = objective_name
+            )
+          },
+          otherwise = NULL
         )
       ),
 
       .boxcox_lambda = purrr::map_dbl(
         boxcox,
-        "lambda"
+        ~ if (is.null(.x)) {
+          NA_real_
+        } else {
+          .x$lambda
+        }
       ),
 
       data = purrr::map2(
         data,
         .boxcox_lambda,
-        ~ dplyr::mutate(
-          .x,
-          .boxcox_transform = EnvStats::boxcoxTransform(
-            .x[[result_col]],
-            lambda = .y
-          )
-        )
+        ~ {
+          if (is.na(.y)) {
+            dplyr::mutate(
+              .x,
+              .boxcox_transform = NA_real_
+            )
+          } else {
+            dplyr::mutate(
+              .x,
+              .boxcox_transform = EnvStats::boxcoxTransform(
+                .x[[result_col]],
+                lambda = .y
+              )
+            )
+          }
+        }
       )
     )
 
@@ -3541,7 +3588,8 @@ anova <- function(df, keep_data_object = FALSE) {
       ~ .est_dist_censored_group(
         df = .x,
         return_result = return_result,
-        distribution_config = distribution_config
+        distribution_config = distribution_config,
+        result_col = result_col
       )
     )
 }
@@ -3689,13 +3737,41 @@ anova <- function(df, keep_data_object = FALSE) {
     c("upper", "lower", "two-sided")
   )
 
-  checkmate::assert_int(n_mean, lower = 1)
-  checkmate::assert_int(k, lower = 1)
-  checkmate::assert_number(
-    conf_level,
-    lower = 0,
-    upper = 1
-  )
+  if (
+    !is.numeric(n_mean) ||
+      length(n_mean) != 1 ||
+      is.na(n_mean) ||
+      n_mean < 1 ||
+      n_mean != as.integer(n_mean)
+  ) {
+    rlang::abort(
+      "`n_mean` must be a positive integer."
+    )
+  }
+
+  if (
+    !is.numeric(k) ||
+      length(k) != 1 ||
+      is.na(k) ||
+      k < 1 ||
+      k != as.integer(k)
+  ) {
+    rlang::abort(
+      "`k` must be a positive integer."
+    )
+  }
+
+  if (
+    !is.numeric(conf_level) ||
+      length(conf_level) != 1 ||
+      is.na(conf_level) ||
+      conf_level <= 0 ||
+      conf_level >= 1
+  ) {
+    rlang::abort(
+      "`conf_level` must be between 0 and 1."
+    )
+  }
 
   pred_fun <- function(data, distribution) {
     values <- data$.analysis_result
