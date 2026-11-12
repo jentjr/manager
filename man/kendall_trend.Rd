@@ -17,7 +17,7 @@ kendall_trend(df, ...)
   conf.level = 0.95
 )
 
-\method{kendall_trend}{env_schema}(df, conf.level = 0.95)
+\method{kendall_trend}{env_schema}(df, result_col = analysis_result_var(), conf.level = 0.95)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}
