@@ -36,14 +36,14 @@ make_test_schema <- function(
 get_std_unit <- function(analyte) {
   resolved <- .resolve_analyte(analyte)
 
-  analyte_tbl %>%
+  analyte_tbl |>
     dplyr::filter(
       analyte_id == resolved$analyte_id[[1]]
-    ) %>%
+    ) |>
     dplyr::pull(
       std_unit
-    ) %>%
-    unique() %>%
+    ) |>
+    unique() |>
     .normalize_unit()
 }
 

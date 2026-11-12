@@ -80,7 +80,7 @@ test_that("major ions are flagged correctly", {
 })
 
 test_that("major ions have molecular weights", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -95,7 +95,7 @@ test_that("major ions have molecular weights", {
 })
 
 test_that("major ions have charges", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -110,7 +110,7 @@ test_that("major ions have charges", {
 })
 
 test_that("major ions have valid ion classes", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -127,7 +127,7 @@ test_that("major ions have valid ion classes", {
 })
 
 test_that("major ions have meq factors", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -142,7 +142,7 @@ test_that("major ions have meq factors", {
 })
 
 test_that("major ion meq factors are positive", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -155,7 +155,7 @@ test_that("major ion meq factors are positive", {
 })
 
 test_that("major ion meq factors are chemically consistent", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -172,7 +172,7 @@ test_that("major ion meq factors are chemically consistent", {
 })
 
 test_that("trace metals are flagged correctly", {
-  metals <- analyte_tbl %>%
+  metals <- analyte_tbl |>
     dplyr::filter(
       analyte_group == "Trace Metals"
     )
@@ -185,7 +185,7 @@ test_that("trace metals are flagged correctly", {
 })
 
 test_that("radionuclides are flagged correctly", {
-  radionuclides <- analyte_tbl %>%
+  radionuclides <- analyte_tbl |>
     dplyr::filter(
       analyte_group == "Radionuclides"
     )
@@ -198,7 +198,7 @@ test_that("radionuclides are flagged correctly", {
 })
 
 test_that("field parameters are flagged correctly", {
-  field <- analyte_tbl %>%
+  field <- analyte_tbl |>
     dplyr::filter(
       analyte_group == "Field Parameters"
     )
@@ -211,7 +211,7 @@ test_that("field parameters are flagged correctly", {
 })
 
 test_that("cas numbers are unique when present", {
-  x <- analyte_tbl %>%
+  x <- analyte_tbl |>
     dplyr::filter(
       !is.na(casrn)
     )
@@ -270,7 +270,7 @@ test_that("default major ion analytes resolve", {
 })
 
 test_that("all major ions resolve successfully", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )

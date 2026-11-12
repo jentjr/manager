@@ -539,13 +539,13 @@ convert_analytes_to_meq <- function(
     unit_col = unit_col
   )
 
-  meq_lookup <- .get_meq_conversion_factors() %>%
+  meq_lookup <- .get_meq_conversion_factors() |>
     dplyr::select(
       analyte_id,
       meq_factor
     )
 
-  df %>%
+  df |>
     dplyr::left_join(
       meq_lookup,
       by = by <- stats::setNames(
@@ -553,7 +553,7 @@ convert_analytes_to_meq <- function(
         analyte_col
       ),
       relationship = "many-to-one"
-    ) %>%
+    ) |>
     dplyr::mutate(
       !!value_out_col := dplyr::if_else(
         !is.na(meq_factor) &
@@ -569,7 +569,7 @@ convert_analytes_to_meq <- function(
         "meq/L",
         NA_character_
       )
-    ) %>%
+    ) |>
     dplyr::select(
       -meq_factor
     )
@@ -642,12 +642,12 @@ convert_analytes_to_meq <- function(
     lookup
   )
 
-  lookup %>%
+  lookup |>
     dplyr::select(
       analyte_id,
       std_unit,
       meq_factor
-    ) %>%
+    ) |>
     dplyr::mutate(
       std_unit = .normalize_unit(
         std_unit

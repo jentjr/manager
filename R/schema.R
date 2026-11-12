@@ -1688,6 +1688,15 @@ analysis_result_var <- function() {
   ".analysis_result"
 }
 
+#' Box-Cox transformed result column
+#'
+#' @returns Character scalar.
+#'
+#' @export
+boxcox_transform_var <- function() {
+  ".boxcox_transform"
+}
+
 #' @export
 analysis_unit_var <- function() {
   ".analysis_unit"

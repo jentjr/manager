@@ -289,19 +289,23 @@ statistical_decision <- function(
 #'   derive_decision()
 #'
 #' @export
-derive_decision <- function(df) {
+derive_decision <- function(
+  df,
+  result_col = analysis_result_var(),
+  censored_col = ".censored"
+) {
   n_used <- sum(
-    !is.na(df$.analysis_result)
+    !is.na(df[[result_col]])
   )
 
   n_detect <- sum(
-    !df$.censored &
-      !is.na(df$.analysis_result),
+    !df[[censored_col]] &
+      !is.na(df[[result_col]]),
     na.rm = TRUE
   )
 
   pct <- mean(
-    df$.censored,
+    df[[censored_col]],
     na.rm = TRUE
   ) *
     100
@@ -312,7 +316,6 @@ derive_decision <- function(df) {
     n_detect = n_detect
   )
 }
-
 
 #' Print Statistical Decision Object
 #'
@@ -679,7 +682,8 @@ guidance_profile <- function(
 #' @export
 estimate_distribution <- function(
   df,
-  distribution_config = "auto"
+  distribution_config = "auto",
+  result_col = analysis_result_var()
 ) {
   if (!dplyr::is_grouped_df(df)) {
     rlang::abort(
@@ -694,7 +698,8 @@ estimate_distribution <- function(
     dplyr::group_modify(
       ~ .estimate_distribution_group(
         .x,
-        distribution_config = distribution_config
+        distribution_config = distribution_config,
+        result_col = result_col
       )
     ) |>
     dplyr::ungroup()
@@ -703,9 +708,10 @@ estimate_distribution <- function(
 #' @keywords internal
 .estimate_distribution_group <- function(
   df,
-  distribution_config
+  distribution_config,
+  result_col
 ) {
-  decision_obj <- derive_decision(df)
+  decision_obj <- derive_decision(df, result_col = result_col)
 
   if (identical(distribution_config, "auto")) {
     distribution_config <-
@@ -722,7 +728,9 @@ estimate_distribution <- function(
       .attach_nested_data(
         result = .make_dist_result(
           distribution = "insufficient_data",
-          n_used = sum(!is.na(df$.analysis_result)),
+          n_used = sum(
+            !is.na(df[[result_col]])
+          ),
           return_result = TRUE
         ),
         data = df
@@ -733,7 +741,8 @@ estimate_distribution <- function(
       .est_dist_group(
         df,
         return_result = TRUE,
-        distribution_config = distribution_config
+        distribution_config = distribution_config,
+        result_col = result_col
       )
     },
 
@@ -741,7 +750,8 @@ estimate_distribution <- function(
       .est_dist_censored_group(
         df,
         return_result = TRUE,
-        distribution_config = distribution_config
+        distribution_config = distribution_config,
+        result_col = result_col
       )
     },
 
@@ -749,7 +759,9 @@ estimate_distribution <- function(
       .attach_nested_data(
         result = .make_dist_result(
           distribution = "Nonparametric",
-          n_used = sum(!is.na(df$.analysis_result)),
+          n_used = sum(
+            !is.na(df[[result_col]])
+          ),
           return_result = TRUE
         ),
         data = df
@@ -760,7 +772,9 @@ estimate_distribution <- function(
       .attach_nested_data(
         result = .make_dist_result(
           distribution = "Descriptive Only",
-          n_used = sum(!is.na(df$.analysis_result)),
+          n_used = sum(
+            !is.na(df[[result_col]])
+          ),
           return_result = TRUE
         ),
         data = df
@@ -901,6 +915,7 @@ stats_summary <- function(df, ...) {
 #' @param censored Censoring indicator column name.
 #' @param analysis_result Analytical result column name.
 #' @param default_unit Reporting unit column name.
+#' @param result_col Numerical column on which stats_summary is computed
 #' @export
 stats_summary.data.frame <- function(
   df,
@@ -909,6 +924,7 @@ stats_summary.data.frame <- function(
   censored = "censored",
   analysis_result = "analysis_result",
   default_unit = "default_unit",
+  result_col = analysis_result,
   na.rm = TRUE
 ) {
   group_cols <- if (dplyr::is_grouped_df(df)) {
@@ -924,7 +940,7 @@ stats_summary.data.frame <- function(
   .stats_summary_core(
     df = df,
     group_cols = group_cols,
-    result_col = analysis_result,
+    result_col = result_col,
     censored_col = censored,
     na.rm = na.rm
   )
@@ -948,6 +964,7 @@ stats_summary.data.frame <- function(
 #' @export
 stats_summary.env_schema <- function(
   df,
+  result_col = analysis_result_var(),
   na.rm = TRUE,
   ...
 ) {
@@ -964,7 +981,7 @@ stats_summary.env_schema <- function(
   .stats_summary_core(
     df = df,
     group_cols = group_cols,
-    result_col = ".analysis_result",
+    result_col = result_col,
     censored_col = ".censored",
     na.rm = na.rm
   )
@@ -1292,6 +1309,7 @@ trend_summary.data.frame <- function(
 #' @export
 trend_summary.env_schema <- function(
   df,
+  result_col = analysis_result_var(),
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95
@@ -1314,6 +1332,7 @@ trend_summary.env_schema <- function(
       ~ .trend_summary_group(
         .x,
         sample_date_col = sample_date_col,
+        result_col = result_col,
         method = method,
         censored_method = censored_method,
         alpha = alpha,
@@ -1327,6 +1346,7 @@ trend_summary.env_schema <- function(
 .trend_summary_group <- function(
   df,
   sample_date_col,
+  result_col,
   method,
   censored_method,
   alpha,
@@ -1369,7 +1389,7 @@ trend_summary.env_schema <- function(
   )
 
   values <- stats::na.omit(
-    df$.analysis_result
+    df[[result_col]]
   )
 
   if (length(values) > 0) {
@@ -1400,6 +1420,7 @@ trend_summary.env_schema <- function(
   tr <- .compute_trend(
     df = df,
     sample_date_col = sample_date_col,
+    result_col = result_col,
     method = method,
     censored_method = censored_method,
     conf.level = conf.level
@@ -1470,12 +1491,13 @@ trend_summary.env_schema <- function(
 .prepare_trend_data <- function(
   df,
   sample_date_col,
+  result_col,
   censored_method = "cenken"
 ) {
   out <- df |>
     dplyr::filter(
       !is.na(.data[[sample_date_col]]),
-      !is.na(.analysis_result)
+      !is.na(.data[[result_col]])
     ) |>
     dplyr::arrange(
       .data[[sample_date_col]]
@@ -1487,7 +1509,7 @@ trend_summary.env_schema <- function(
 
   if (
     dplyr::n_distinct(
-      out$.analysis_result
+      out[[result_col]]
     ) <
       2
   ) {
@@ -1670,6 +1692,7 @@ kendall_trend.env_schema <- function(
 .compute_trend <- function(
   df,
   sample_date_col,
+  result_col = analysis_result_var(),
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95
@@ -1677,6 +1700,7 @@ kendall_trend.env_schema <- function(
   df <- .prepare_trend_data(
     df = df,
     sample_date_col = sample_date_col,
+    result_col = result_col,
     censored_method = censored_method
   )
 
@@ -1704,7 +1728,10 @@ kendall_trend.env_schema <- function(
     )
   )
   if (censored_method == "auto") {
-    decision <- derive_decision(df)
+    decision <- derive_decision(
+      df,
+      result_col = result_col
+    )
 
     censored_method <-
       decision$censored_method[[1]]
@@ -1724,7 +1751,10 @@ kendall_trend.env_schema <- function(
     )
 
     fit <- stats::lm(
-      .analysis_result ~ .date_num,
+      stats::reformulate(
+        ".date_num",
+        response = result_col
+      ),
       data = df
     )
 
@@ -1764,7 +1794,10 @@ kendall_trend.env_schema <- function(
     )
 
     fit <- stats::loess(
-      .analysis_result ~ .date_num,
+      stats::reformulate(
+        ".date_num",
+        response = result_col
+      ),
       data = df
     )
 
@@ -1798,7 +1831,9 @@ kendall_trend.env_schema <- function(
 
     fit <- tryCatch(
       mgcv::gam(
-        .analysis_result ~ s(.date_num),
+        stats::as.formula(
+          paste(result_col, "~ s(.date_num)")
+        ),
         data = df
       ),
       error = function(e) NULL
@@ -1836,7 +1871,7 @@ kendall_trend.env_schema <- function(
       censored_method == "as_reported"
   ) {
     fit <- EnvStats::kendallTrendTest(
-      x = df$.analysis_result,
+      x = df[[result_col]],
       y = df[[sample_date_col]],
       conf.level = conf.level
     )
@@ -1852,7 +1887,7 @@ kendall_trend.env_schema <- function(
     )
 
     intercept <- stats::median(
-      df$.analysis_result -
+      df[[result_col]] -
         slope * (x_num - x0),
       na.rm = TRUE
     )
@@ -1894,7 +1929,7 @@ kendall_trend.env_schema <- function(
     fit <- suppressWarnings(
       tryCatch(
         NADA2::cenken(
-          y = df$.analysis_result,
+          y = df[[result_col]],
           ycen = df$.censored,
           x = as.numeric(df[[sample_date_col]])
         ),
@@ -3126,83 +3161,202 @@ tukey_outlier.env_schema <- function(
   return(high)
 }
 
-#' Boxcox transformation
+#' Box-Cox Transformation
 #'
-#' @param df data frame
-#' @param combine_locations logical
-#' @param objective_name character string indicating what objective to use.
-#' The possible values are "PPCC" (probability plot correlation coefficient;
-#' the default), "Shapiro-Wilk" (the Shapiro-Wilk goodness-of-fit statistic),
-#' and "Log-Likelihood" (the log-likelihood function).
+#' Applies a Box-Cox transformation to analytical results within groups.
+#'
+#' Transformation parameters are estimated independently for each group
+#' using [EnvStats::boxcox()]. Transformed values are calculated using
+#' [EnvStats::boxcoxTransform()].
+#'
+#' Existing analytical results are preserved. Transformed values are
+#' returned in a new `.boxcox_transform` column together with the
+#' estimated transformation parameter `.boxcox_lambda`.
+#'
+#' If the input is grouped using [dplyr::group_by()], transformations
+#' are performed within the existing groups.
+#'
+#' For ungrouped `env_schema` objects, transformations are performed by:
+#'
+#' \itemize{
+#'   \item location
+#'   \item analyte
+#'   \item analysis unit
+#' }
+#'
+#' For ungrouped `data.frame` objects, the entire dataset is treated as
+#' a single group.
+#'
+#' @param x A data frame or `env_schema` object.
+#' @param objective_name Character string specifying the optimization
+#'   criterion passed to [EnvStats::boxcox()].
+#' @param keep_data_object Logical indicating whether the complete
+#'   Box-Cox result object should be retained.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @returns
+#' The original data with additional columns:
+#'
+#' \describe{
+#'   \item{.boxcox_transform}{
+#'   Box-Cox transformed analytical result.
+#'   }
+#'
+#'   \item{.boxcox_lambda}{
+#'   Estimated Box-Cox transformation parameter.
+#'   }
+#'
+#'   \item{boxcox}{
+#'   Full Box-Cox optimization result object when
+#'   `keep_data_object = TRUE`.
+#'   }
+#' }
+#'
+#' @examples
+#' gw |>
+#'   dplyr::group_by(
+#'     location_id,
+#'     param_name
+#'   ) |>
+#'   boxcox_transform()
+#'
+#' gw |>
+#'   boxcox_transform()
 #'
 #' @export
+boxcox_transform <- function(x, ...) {
+  UseMethod("boxcox_transform")
+}
 
-boxcox_transform <- function(
-  df,
-  combine_locations = FALSE,
-  objective_name = "PPCC"
+#' @rdname boxcox_transform
+#' @export
+boxcox_transform.data.frame <- function(
+  x,
+  objective_name = "PPCC",
+  keep_data_object = FALSE,
+  ...
 ) {
-  if (combine_locations) {
-    df <- df |>
-      group_by(param_name, default_unit) |>
-      nest() |>
-      mutate(
-        boxcox = map(
-          .x = data,
-          ~ EnvStats::boxcox(
-            .x$analysis_result,
-            optimize = TRUE,
-            objective.name = objective_name
+  .boxcox_transform_core(
+    x = x,
+    result_col = "analysis_result",
+    objective_name = objective_name,
+    keep_data_object = keep_data_object
+  )
+}
+
+#' @rdname boxcox_transform
+#'
+#' @section env_schema Method:
+#'
+#' For `env_schema` objects, Box-Cox transformations are performed using
+#' standardized analytical results stored in `.analysis_result`.
+#'
+#' Existing `dplyr::group_by()` groups are preserved.
+#'
+#' When the input is not grouped, transformations are performed by:
+#'
+#' \itemize{
+#'   \item location
+#'   \item analyte
+#'   \item analysis unit
+#' }
+#'
+#' Schema metadata are preserved.
+#'
+#' @export
+boxcox_transform.env_schema <- function(
+  x,
+  objective_name = "PPCC",
+  keep_data_object = FALSE,
+  ...
+) {
+  validate_env_schema(x)
+
+  if (!dplyr::is_grouped_df(x)) {
+    x <- x |>
+      dplyr::group_by(
+        dplyr::across(
+          dplyr::all_of(
+            c(
+              location_var(x),
+              analyte_var(x),
+              analysis_unit_var()
+            )
           )
         )
-      ) |>
-      mutate(
-        lambda = map(.x = boxcox, ~ .x$lambda)
-      ) |>
-      select(-boxcox) |>
-      unnest(lambda) |>
-      unnest(data) |>
-      group_by(param_name, default_unit) |>
-      nest() |>
-      mutate(
-        analysis_result = map(
-          .x = data,
-          ~ boxcoxTransform(.x$analysis_result, lambda = .x$lambda[1])
-        )
-      ) |>
-      unnest()
-  } else {
-    df <- df |>
-      group_by(location_id, param_name, default_unit) |>
-      nest() |>
-      mutate(
-        boxcox = map(
-          .x = data,
-          ~ EnvStats::boxcox(
-            .x$analysis_result,
-            optimize = TRUE,
-            objective.name = objective_name
-          )
-        )
-      ) |>
-      mutate(
-        lambda = map(.x = boxcox, ~ .x$lambda)
-      ) |>
-      select(-boxcox) |>
-      unnest(lambda) |>
-      unnest(data) |>
-      group_by(location_id, param_name, default_unit) |>
-      nest() |>
-      mutate(
-        analysis_result = map(
-          .x = data,
-          ~ boxcoxTransform(.x$analysis_result, lambda = .x$lambda[1])
-        )
-      ) |>
-      unnest()
+      )
   }
 
-  df
+  out <- .boxcox_transform_core(
+    x = x,
+    result_col = analysis_result_var(),
+    objective_name = objective_name,
+    keep_data_object = keep_data_object
+  )
+
+  restore_env_schema(
+    out,
+    x,
+    validate = FALSE
+  )
+}
+
+#' @keywords internal
+.boxcox_transform_core <- function(
+  x,
+  result_col,
+  objective_name = "PPCC",
+  keep_data_object = FALSE
+) {
+  grouped <- dplyr::is_grouped_df(x)
+
+  out <- x |>
+    tidyr::nest() |>
+    dplyr::mutate(
+      boxcox = purrr::map(
+        data,
+        ~ EnvStats::boxcox(
+          .x[[result_col]],
+          optimize = TRUE,
+          objective.name = objective_name
+        )
+      ),
+
+      .boxcox_lambda = purrr::map_dbl(
+        boxcox,
+        "lambda"
+      ),
+
+      data = purrr::map2(
+        data,
+        .boxcox_lambda,
+        ~ dplyr::mutate(
+          .x,
+          .boxcox_transform = EnvStats::boxcoxTransform(
+            .x[[result_col]],
+            lambda = .y
+          )
+        )
+      )
+    )
+
+  if (!keep_data_object) {
+    out <- dplyr::select(
+      out,
+      -boxcox
+    )
+  }
+
+  out <- out |>
+    tidyr::unnest(
+      cols = data
+    )
+
+  if (!grouped) {
+    out <- dplyr::ungroup(out)
+  }
+
+  out
 }
 
 #' Analysis of Variance
@@ -3273,10 +3427,11 @@ anova <- function(df, keep_data_object = FALSE) {
 .est_dist_group <- function(
   df,
   return_result = FALSE,
-  distribution_config
+  distribution_config,
+  result_col
 ) {
   x <- stats::na.omit(
-    df$.analysis_result
+    df[[result_col]]
   )
 
   n <- length(x)
@@ -3305,14 +3460,16 @@ anova <- function(df, keep_data_object = FALSE) {
 .est_dist_worker <- function(
   df,
   return_result,
-  distribution_config
+  distribution_config,
+  result_col
 ) {
   df |>
     dplyr::group_modify(
       ~ .est_dist_group(
         df = .x,
         return_result = return_result,
-        distribution_config = distribution_config
+        distribution_config = distribution_config,
+        result_col = result_col
       )
     )
 }
@@ -3321,9 +3478,10 @@ anova <- function(df, keep_data_object = FALSE) {
 .est_dist_censored_group <- function(
   df,
   return_result = FALSE,
-  distribution_config
+  distribution_config,
+  result_col
 ) {
-  x <- df$.analysis_result
+  x <- df[[result_col]]
   censored <- df$.censored
 
   keep <- !is.na(x)
@@ -3374,7 +3532,8 @@ anova <- function(df, keep_data_object = FALSE) {
 .est_dist_censored_worker <- function(
   df,
   return_result,
-  distribution_config
+  distribution_config,
+  result_col
 ) {
   df |>
     dplyr::group_modify(

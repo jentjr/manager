@@ -12,7 +12,7 @@ test_that("mutate preserves env_schema", {
     result = result
   )
 
-  y <- x %>%
+  y <- x |>
     dplyr::mutate(
       log_result = log(.analysis_result)
     )
@@ -52,7 +52,7 @@ test_that("filter preserves env_schema", {
     result = result
   )
 
-  y <- x %>%
+  y <- x |>
     dplyr::filter(
       location == "MW-1"
     )
@@ -86,7 +86,7 @@ test_that("select preserves env_schema subclass", {
     result = result
   )
 
-  y <- x %>%
+  y <- x |>
     dplyr::select(
       location,
       .analysis_result
@@ -122,7 +122,7 @@ test_that("rename preserves env_schema subclass", {
     result = result
   )
 
-  y <- x %>%
+  y <- x |>
     dplyr::rename(
       result_value = .analysis_result
     )
@@ -156,7 +156,7 @@ test_that("missing .analysis_result invalidates schema", {
     result = result
   )
 
-  y <- x %>%
+  y <- x |>
     dplyr::rename(
       result_value = .analysis_result
     )
@@ -184,7 +184,7 @@ test_that("missing .analysis_unit invalidates schema", {
     analyte = analyte,
     result = result
   )
-  y <- x %>%
+  y <- x |>
     dplyr::select(
       -.analysis_unit
     )
@@ -212,7 +212,7 @@ test_that("removing .analysis_result invalidates schema", {
     analyte = analyte,
     result = result
   )
-  y <- x %>%
+  y <- x |>
     dplyr::rename(
       result_value = .analysis_result
     )
@@ -245,7 +245,7 @@ test_that("arrange preserves env_schema", {
     result = result
   )
 
-  y <- x %>%
+  y <- x |>
     dplyr::arrange(
       .analysis_result
     )
@@ -279,7 +279,7 @@ test_that("class and validity are distinct concepts", {
     result = result
   )
 
-  y <- x %>%
+  y <- x |>
     dplyr::select(
       dplyr::all_of(location_var(x)),
       .analysis_result
@@ -313,7 +313,7 @@ test_that("env_schema metadata survives dplyr operations", {
     result = result
   )
 
-  y <- x %>%
+  y <- x |>
     dplyr::mutate(
       x = 1
     )

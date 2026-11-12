@@ -60,7 +60,7 @@ test_that("new_env_schema stores package lookup source", {
 test_that("new_env_schema stores user lookup source", {
   lookup <- analyte_tbl
 
-  lookup <- lookup %>%
+  lookup <- lookup |>
     dplyr::slice(1:5)
 
   x <- tibble::tibble(

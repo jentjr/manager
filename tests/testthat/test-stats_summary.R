@@ -182,10 +182,10 @@ test_that("stats_summary ignores reporting flags once .censored exists", {
 test_that("stats_summary respects grouped workflows", {
   x <- make_env_schema()
 
-  out <- x %>%
+  out <- x |>
     dplyr::group_by(
       location_id
-    ) %>%
+    ) |>
     stats_summary()
 
   expect_equal(

@@ -2,20 +2,99 @@
 % Please edit documentation in R/stats.R
 \name{boxcox_transform}
 \alias{boxcox_transform}
-\title{Boxcox transformation}
+\alias{boxcox_transform.data.frame}
+\alias{boxcox_transform.env_schema}
+\title{Box-Cox Transformation}
 \usage{
-boxcox_transform(df, combine_locations = FALSE, objective_name = "PPCC")
+boxcox_transform(x, ...)
+
+\method{boxcox_transform}{data.frame}(x, objective_name = "PPCC", keep_data_object = FALSE, ...)
+
+\method{boxcox_transform}{env_schema}(x, objective_name = "PPCC", keep_data_object = FALSE, ...)
 }
 \arguments{
-\item{df}{data frame}
+\item{x}{A data frame or `env_schema` object.}
 
-\item{combine_locations}{logical}
+\item{...}{Additional arguments passed to methods.}
 
-\item{objective_name}{character string indicating what objective to use.
-The possible values are "PPCC" (probability plot correlation coefficient;
-the default), "Shapiro-Wilk" (the Shapiro-Wilk goodness-of-fit statistic),
-and "Log-Likelihood" (the log-likelihood function).}
+\item{objective_name}{Character string specifying the optimization
+criterion passed to [EnvStats::boxcox()].}
+
+\item{keep_data_object}{Logical indicating whether the complete
+Box-Cox result object should be retained.}
+}
+\value{
+The original data with additional columns:
+
+\describe{
+  \item{.boxcox_transform}{
+  Box-Cox transformed analytical result.
+  }
+
+  \item{.boxcox_lambda}{
+  Estimated Box-Cox transformation parameter.
+  }
+
+  \item{boxcox}{
+  Full Box-Cox optimization result object when
+  `keep_data_object = TRUE`.
+  }
+}
 }
 \description{
-Boxcox transformation
+Applies a Box-Cox transformation to analytical results within groups.
+}
+\details{
+Transformation parameters are estimated independently for each group
+using [EnvStats::boxcox()]. Transformed values are calculated using
+[EnvStats::boxcoxTransform()].
+
+Existing analytical results are preserved. Transformed values are
+returned in a new `.boxcox_transform` column together with the
+estimated transformation parameter `.boxcox_lambda`.
+
+If the input is grouped using [dplyr::group_by()], transformations
+are performed within the existing groups.
+
+For ungrouped `env_schema` objects, transformations are performed by:
+
+\itemize{
+  \item location
+  \item analyte
+  \item analysis unit
+}
+
+For ungrouped `data.frame` objects, the entire dataset is treated as
+a single group.
+}
+\section{env_schema Method}{
+
+
+For `env_schema` objects, Box-Cox transformations are performed using
+standardized analytical results stored in `.analysis_result`.
+
+Existing `dplyr::group_by()` groups are preserved.
+
+When the input is not grouped, transformations are performed by:
+
+\itemize{
+  \item location
+  \item analyte
+  \item analysis unit
+}
+
+Schema metadata are preserved.
+}
+
+\examples{
+gw |>
+  dplyr::group_by(
+    location_id,
+    param_name
+  ) |>
+  boxcox_transform()
+
+gw |>
+  boxcox_transform()
+
 }

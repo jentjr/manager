@@ -1665,12 +1665,12 @@ corr_plot <- function(
     )
   }
 
-  df %>%
+  df |>
     .get_corr_data(
       .,
       constituents = constituents,
       sample_locations = sample_locations
-    ) %>%
+    ) |>
     GGally::ggpairs(columns = 3:ncol(.), aes(colour = location_id))
 }
 
@@ -1687,14 +1687,14 @@ corr_plot <- function(
   constituents = NULL,
   sample_locations = NULL
 ) {
-  df <- df %>%
+  df <- df |>
     filter_(
       ~ param_name %in% constituents,
       ~ location_id %in% sample_locations
-    ) %>%
-    spread_(param_name, analysis_result) %>%
-    group_by_(~location_id, ~sample_date) %>%
-    summarise_at(vars(constituents), mean, na.rm = TRUE) %>%
+    ) |>
+    spread_(param_name, analysis_result) |>
+    group_by_(~location_id, ~sample_date) |>
+    summarise_at(vars(constituents), mean, na.rm = TRUE) |>
     ungroup()
 
   return(df)
@@ -1936,7 +1936,7 @@ piper_plot.env_schema <- function(
     }
   }
 
-  piper_df <- df %>%
+  piper_df <- df |>
     .transform_piper_data(
       analyte_matching = analyte_matching,
       x_cation = x_cation,
@@ -1949,13 +1949,13 @@ piper_plot.env_schema <- function(
     )
 
   if (!is.null(group_col)) {
-    group_df <- df %>%
+    group_df <- df |>
       dplyr::distinct(
         .data[[location_col]],
         .data[[group_col]]
       )
-    dup_groups <- group_df %>%
-      dplyr::count(.data[[location_col]]) %>%
+    dup_groups <- group_df |>
+      dplyr::count(.data[[location_col]]) |>
       dplyr::filter(n > 1)
 
     if (nrow(dup_groups) > 0) {
@@ -1972,26 +1972,26 @@ piper_plot.env_schema <- function(
       location_col
     )
 
-    piper_df <- piper_df %>%
+    piper_df <- piper_df |>
       dplyr::left_join(
         group_df,
         by = join_by
       )
   }
 
-  cation_df <- piper_df %>%
+  cation_df <- piper_df |>
     dplyr::filter(
       !is.na(cation_x),
       !is.na(cation_y)
     )
 
-  anion_df <- piper_df %>%
+  anion_df <- piper_df |>
     dplyr::filter(
       !is.na(anion_x),
       !is.na(anion_y)
     )
 
-  diamond_df <- piper_df %>%
+  diamond_df <- piper_df |>
     dplyr::filter(
       !is.na(diamond_x),
       !is.na(diamond_y)
@@ -3105,7 +3105,7 @@ stiff_plot.env_schema <- function(
     )
   }
 
-  split(df, df[[group_var]]) %>%
+  split(df, df[[group_var]]) |>
     purrr::imap(
       ~ .stiff_plot(
         df = .x,
@@ -3303,7 +3303,7 @@ stiff_plot.env_schema <- function(
       linewidth = 0.8
     )
 
-  label_data <- df %>%
+  label_data <- df |>
     dplyr::distinct(
       .data[[facet_var]],
       ion,
@@ -3311,7 +3311,7 @@ stiff_plot.env_schema <- function(
       stiff_y
     )
 
-  label_data <- label_data %>%
+  label_data <- label_data |>
     dplyr::mutate(
       label_x = dplyr::if_else(
         label_side == "left",
@@ -3629,7 +3629,7 @@ durov_plot.env_schema <- function(
     chemistry_df
   )
 
-  plot_df <- plot_df %>%
+  plot_df <- plot_df |>
     dplyr::filter(
       !is.na(durov_x_plot),
       !is.na(durov_y_plot)
@@ -4079,8 +4079,8 @@ sp_plot <- function(
   group_var = "param_name",
   facet_var = "sample_date"
 ) {
-  df %>%
-    group_by_(group_var) %>%
+  df |>
+    group_by_(group_var) |>
     do(
       plot = .sp_plot(
         .,

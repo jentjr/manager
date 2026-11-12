@@ -21,12 +21,12 @@ wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
 
 params <- c("Calcium, dissolved", "Sodium, dissolved", "Sulfate, total")
 
-gw_data \%>\%
-  filter(location_id \%in\% wells, param_name \%in\% params) \%>\%
+gw_data |>
+  filter(location_id \%in\% wells, param_name \%in\% params) |>
   anova()
 
-anova_object <- gw_data \%>\%
-  filter(location_id \%in\% wells, param_name \%in\% params) \%>\%
+anova_object <- gw_data |>
+  filter(location_id \%in\% wells, param_name \%in\% params) |>
   anova(., keep_data_object = TRUE)
 
 plot(anova_object$anova[[1]], 1)

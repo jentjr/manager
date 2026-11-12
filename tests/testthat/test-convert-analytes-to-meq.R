@@ -36,18 +36,18 @@ make_meq_schema <- function(
 get_meq_factor <- function(analyte) {
   resolved <- .resolve_analyte(analyte)
 
-  .get_meq_conversion_factors() %>%
+  .get_meq_conversion_factors() |>
     dplyr::filter(
       analyte_id == resolved$analyte_id[[1]]
-    ) %>%
+    ) |>
     dplyr::pull(
       meq_factor
-    ) %>%
+    ) |>
     unique()
 }
 
 test_that("meq output columns are created", {
-  out <- make_meq_schema() %>%
+  out <- make_meq_schema() |>
     convert_analytes_to_meq()
 
   expect_true(
@@ -62,7 +62,7 @@ test_that("meq output columns are created", {
 })
 
 test_that("meq unit is assigned", {
-  out <- make_meq_schema() %>%
+  out <- make_meq_schema() |>
     convert_analytes_to_meq()
 
   expect_equal(
@@ -131,7 +131,7 @@ test_that("zero concentrations produce zero meq", {
   out <- make_meq_schema(
     analyte = "Calcium, dissolved",
     result = 0
-  ) %>%
+  ) |>
     convert_analytes_to_meq()
 
   expect_equal(
@@ -144,7 +144,7 @@ test_that("missing concentrations remain missing", {
   out <- make_meq_schema(
     analyte = "Calcium, dissolved",
     result = NA_real_
-  ) %>%
+  ) |>
     convert_analytes_to_meq()
 
   expect_true(
@@ -233,7 +233,7 @@ test_that("equivalent concentrations produce identical meq values", {
 })
 
 test_that("major ions have valid meq factors", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -254,7 +254,7 @@ test_that("major ions have valid meq factors", {
 })
 
 test_that("major ions have charge definitions", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -269,7 +269,7 @@ test_that("major ions have charge definitions", {
 })
 
 test_that("major ions have molecular weights", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )
@@ -284,7 +284,7 @@ test_that("major ions have molecular weights", {
 })
 
 test_that("meq factors are internally consistent", {
-  major <- analyte_tbl %>%
+  major <- analyte_tbl |>
     dplyr::filter(
       is_major_ion
     )

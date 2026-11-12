@@ -375,7 +375,7 @@ test_that("add_explanation validator works", {
 test_that("boxplot works with explanation", {
   expect_no_error(
     boxplot(
-      gw %>%
+      gw |>
         dplyr::filter(
           .data[[analyte_var(gw)]] == "Chloride, total"
         ),
@@ -387,7 +387,7 @@ test_that("boxplot works with explanation", {
 test_that("boxplot works with explanation, standards and fill", {
   expect_no_error(
     boxplot(
-      gw %>%
+      gw |>
         dplyr::filter(
           .data[[analyte_var(gw)]] == "Chloride, total"
         ),
@@ -473,7 +473,7 @@ test_that("boxplot honors custom schema mappings", {
 
 test_that("short_name uses short analyte labels", {
   plt <- boxplot(
-    gw %>%
+    gw |>
       filter(.data[[analyte_var(gw)]] == "Chloride, total"),
     short_name = TRUE
   )[[1]]

@@ -909,15 +909,15 @@ validate_analyte_alias_tbl <- function(
     )
   }
 
-  alias_conflicts <- alias_tbl %>%
+  alias_conflicts <- alias_tbl |>
     dplyr::mutate(
       alias = .normalize_analyte_text(alias)
-    ) %>%
-    dplyr::group_by(alias) %>%
+    ) |>
+    dplyr::group_by(alias) |>
     dplyr::summarise(
       n_ids = dplyr::n_distinct(analyte_id),
       .groups = "drop"
-    ) %>%
+    ) |>
     dplyr::filter(
       n_ids > 1
     )
@@ -1071,7 +1071,7 @@ validate_analyte_alias_tbl <- function(
     analyte_tbl
   )
 
-  out <- df %>%
+  out <- df |>
     .resolve_analyte_column(
       analyte_col = param_name
     )
@@ -1080,7 +1080,7 @@ validate_analyte_alias_tbl <- function(
     out
   )
 
-  out %>%
+  out |>
     dplyr::mutate(
       !!default_unit := .normalize_unit(
         .data[[default_unit]]
@@ -1132,17 +1132,17 @@ validate_analyte_alias_tbl <- function(
     )
   )
 
-  meq_lookup <- .get_meq_conversion_factors() %>%
+  meq_lookup <- .get_meq_conversion_factors() |>
     dplyr::filter(
       !is.na(meq_factor)
     )
 
-  invalid_units <- df %>%
+  invalid_units <- df |>
     dplyr::mutate(
       !!unit_col := .normalize_unit(
         .data[[unit_col]]
       )
-    ) %>%
+    ) |>
     dplyr::left_join(
       meq_lookup,
       by = stats::setNames(
@@ -1150,12 +1150,12 @@ validate_analyte_alias_tbl <- function(
         analyte_col
       ),
       relationship = "many-to-one"
-    ) %>%
+    ) |>
     dplyr::filter(
       !is.na(meq_factor),
       !is.na(.data[[unit_col]]),
       .data[[unit_col]] != std_unit
-    ) %>%
+    ) |>
     dplyr::distinct(
       .data[[analyte_col]],
       .data[[unit_col]],
@@ -1163,7 +1163,7 @@ validate_analyte_alias_tbl <- function(
     )
 
   if (nrow(invalid_units) > 0) {
-    examples <- invalid_units %>%
+    examples <- invalid_units |>
       utils::head(10)
 
     cli::cli_abort(
@@ -1293,8 +1293,8 @@ validate_analyte_alias_tbl <- function(
     )
   }
 
-  alias_dupes <- alias_lookup %>%
-    dplyr::count(alias) %>%
+  alias_dupes <- alias_lookup |>
+    dplyr::count(alias) |>
     dplyr::filter(n > 1)
 
   if (nrow(alias_dupes) > 0) {
@@ -1370,7 +1370,7 @@ validate_analyte_alias_tbl <- function(
     "unfiltered"
   )
 
-  bad_fraction <- alias_lookup %>%
+  bad_fraction <- alias_lookup |>
     dplyr::filter(
       !is.na(fraction),
       !fraction %in% valid_fractions
@@ -1388,7 +1388,7 @@ validate_analyte_alias_tbl <- function(
     )
   }
 
-  bad_aliases <- alias_lookup %>%
+  bad_aliases <- alias_lookup |>
     dplyr::filter(
       alias != .normalize_analyte_text(alias)
     )

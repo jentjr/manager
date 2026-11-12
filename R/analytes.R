@@ -28,7 +28,7 @@
 ) {
   validate_analyte_tbl(lookup)
 
-  lookup <- lookup %>%
+  lookup <- lookup |>
     dplyr::rename(
       .analyte_id = analyte_id,
       .short_name = short_name,
@@ -46,7 +46,7 @@
       .is_radionuclide = is_radionuclide,
       .is_general_chemistry = is_general_chemistry,
       .is_field_parameter = is_field_parameter
-    ) %>%
+    ) |>
     dplyr::select(
       -dplyr::any_of("analyte")
     )
@@ -136,7 +136,7 @@
     )
   }
 
-  out <- df %>%
+  out <- df |>
     .resolve_analyte_column(
       analyte_col = !!rlang::sym(analyte_col),
       alias_lookup = alias_lookup,
@@ -147,7 +147,7 @@
     out
   )
 
-  out %>%
+  out |>
     dplyr::relocate(
       .source_analyte,
       .normalized_input,
@@ -226,7 +226,7 @@
     ),
     alias_lookup = alias_lookup,
     analyte_lookup = analyte_lookup
-  ) %>%
+  ) |>
     dplyr::rename(
       .source_analyte = source_analyte,
       .normalized_input = normalized_input,
@@ -255,10 +255,10 @@
   dplyr::bind_cols(
     data,
     resolved
-  ) %>%
+  ) |>
     dplyr::mutate(
       .analyte = .resolved_analyte
-    ) %>%
+    ) |>
     dplyr::select(
       -.resolved_analyte
     )
@@ -315,18 +315,18 @@
   resolved <- tibble::tibble(
     source_analyte = source_analyte,
     alias = normalized
-  ) %>%
+  ) |>
     dplyr::left_join(
       alias_lookup,
       by = "alias",
       relationship = "many-to-one"
-    ) %>%
+    ) |>
     dplyr::mutate(
       fraction = dplyr::coalesce(
         fraction,
         .extract_fraction(source_analyte)
       )
-    ) %>%
+    ) |>
     dplyr::transmute(
       source_analyte,
       normalized_input = normalized,
@@ -350,9 +350,9 @@
       fraction
     )
 
-  resolved %>%
+  resolved |>
     dplyr::left_join(
-      analyte_lookup %>%
+      analyte_lookup |>
         dplyr::select(
           -dplyr::any_of(
             c(
@@ -520,7 +520,7 @@
     short_name
   )
 
-  df %>%
+  df |>
     dplyr::mutate(
       .analyte_label = analyte_label,
       .short_analyte_label = short_analyte_label
@@ -585,10 +585,10 @@
     )
   }
 
-  unsupported <- x %>%
+  unsupported <- x |>
     dplyr::filter(
       !.data[[known_col]]
-    ) %>%
+    ) |>
     dplyr::distinct(
       .data[[source_col]]
     )
@@ -730,20 +730,20 @@
   expanded <- purrr::map2_dfr(
     analyte_alias_tbl$analyte_id,
     analyte_alias_tbl$alias,
-    ~ .add_fraction_aliases(.y) %>%
+    ~ .add_fraction_aliases(.y) |>
       dplyr::mutate(
         analyte_id = .x
       )
   )
 
-  expanded %>%
+  expanded |>
     dplyr::mutate(
       alias = .normalize_analyte_text(
         alias
       )
-    ) %>%
+    ) |>
     dplyr::left_join(
-      analyte_tbl %>%
+      analyte_tbl |>
         dplyr::select(
           analyte_id,
           analyte,
@@ -751,11 +751,11 @@
         ),
       by = "analyte_id",
       relationship = "many-to-one"
-    ) %>%
+    ) |>
     dplyr::distinct(
       alias,
       .keep_all = TRUE
-    ) %>%
+    ) |>
     dplyr::arrange(
       analyte_id,
       alias

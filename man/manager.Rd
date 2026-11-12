@@ -9,7 +9,8 @@
 manager()
 }
 \description{
-Provides tools for managing, analyzing, and visualizing environmental monitoring data. Includes a schema-based data model for standardized environmental datasets, statistical summaries, trend analysis, censored-data methods, prediction and tolerance intervals, groundwater monitoring workflows, and hydrochemical visualizations including Piper, Durov, Schoeller, and Stiff diagrams. Supports integration with external environmental data sources such as MANAGES.
+Tools for environmental data management, statistical analysis,
+trend evaluation, and groundwater chemistry visualization.
 }
 \seealso{
 Useful links:
