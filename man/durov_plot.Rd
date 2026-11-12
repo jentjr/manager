@@ -13,7 +13,8 @@ durov_plot(df, ...)
 \method{durov_plot}{env_schema}(
   df,
   analyte_matching = c("normalized", "strict", "exact"),
-  title = NULL
+  title = NULL,
+  ...
 )
 }
 \arguments{

@@ -484,6 +484,41 @@ env_schema <- function(
       )
     )
   }
+  # --------------------------------------------------------------
+  # Column order
+  # --------------------------------------------------------------
+
+  priority_cols <- c(
+    unlist(
+      env_mapping[c(
+        "site",
+        "location",
+        "analyte",
+        "sample_date",
+        "result",
+        "unit",
+        "reporting_flag",
+        "reporting_limit",
+        "detection_limit"
+      )],
+      use.names = FALSE
+    ),
+    ".analysis_result",
+    ".analysis_unit",
+    ".censored"
+  )
+
+  priority_cols <- unique(
+    priority_cols[
+      !is.na(priority_cols) &
+        nzchar(priority_cols)
+    ]
+  )
+
+  out <- dplyr::relocate(
+    out,
+    dplyr::any_of(priority_cols)
+  )
 
   # --------------------------------------------------------------
   # Attributes
@@ -843,8 +878,10 @@ default_display_options <- function() {
   "<"             , "nondetect"  , FALSE     , TRUE      , FALSE      , FALSE     ,
   "ND"            , "nondetect"  , FALSE     , TRUE      , FALSE      , FALSE     ,
   "U"             , "nondetect"  , FALSE     , TRUE      , FALSE      , FALSE     ,
+  "U1"            , "nondetect"  , FALSE     , TRUE      , FALSE      , FALSE     ,
 
   "J"             , "estimated"  , TRUE      , FALSE     , TRUE       , FALSE     ,
+  "J1"            , "estimated"  , TRUE      , FALSE     , TRUE       , FALSE     ,
   "UJ"            , "estimated"  , FALSE     , TRUE      , TRUE       , FALSE     ,
   "JB"            , "estimated"  , TRUE      , FALSE     , TRUE       , FALSE     ,
   "EST"           , "estimated"  , TRUE      , FALSE     , TRUE       , FALSE     ,
@@ -963,84 +1000,66 @@ restore_env_schema <- function(
 ) {
   metadata_names <- names(x)
 
-  mapping <- attr(
-    to,
-    "env_mapping",
-    exact = TRUE
-  )
+  mapping <- attr(to, "env_mapping", exact = TRUE)
 
   mapping <- mapping[
-    unlist(mapping, use.names = FALSE) %in%
-      names(x)
+    unlist(mapping, use.names = FALSE) %in% metadata_names
   ]
 
   out <- new_env_schema(
     x,
-
     env_mapping = mapping,
-
     analysis_metadata = intersect(
       analysis_metadata(to),
       metadata_names
     ),
-
     threshold_metadata = intersect(
       threshold_metadata(to),
       metadata_names
     ),
-
     source_metadata = intersect(
       source_metadata(to),
       metadata_names
     ),
-
     analyte_metadata = intersect(
       known_analyte_metadata(),
       metadata_names
     ),
-
     schema_metadata = attr(
       to,
       "schema_metadata",
       exact = TRUE
     ),
-
     display_options = attr(
       to,
       "display_options",
       exact = TRUE
     ),
-
     schema_version = attr(
       to,
       "env_schema_version",
       exact = TRUE
     ),
-
     schema_created = attr(
       to,
       "env_schema_created",
       exact = TRUE
     ),
-
     analyte_lookup_source = attr(
       to,
       "analyte_lookup_source",
       exact = TRUE
     ),
-
     analyte_lookup_version = attr(
       to,
       "analyte_lookup_version",
       exact = TRUE
     ),
-
     analyte_lookup_n = attr(
       to,
       "analyte_lookup_n",
       exact = TRUE
     ),
-
     analyte_lookup_cols = attr(
       to,
       "analyte_lookup_cols",
@@ -1048,17 +1067,24 @@ restore_env_schema <- function(
     )
   )
 
-  class(out) <- unique(
-    c(
-      setdiff(class(x), c("tbl_df", "tbl", "data.frame")),
-      class(out)
-    )
+  # Preserve grouped_df/tibble classes and maintain a vctrs-compatible
+  # class hierarchy.
+  restored_classes <- unique(c(
+    class(x),
+    class(out)
+  ))
+
+  class(out) <- c(
+    setdiff(
+      restored_classes,
+      c("env_schema", "data.frame")
+    ),
+    "env_schema",
+    "data.frame"
   )
 
-  dplyr_attrs <- attributes(x)
-
-  if (!is.null(dplyr_attrs$groups)) {
-    attr(out, "groups") <- dplyr_attrs$groups
+  if (!is.null(attr(x, "groups", exact = TRUE))) {
+    attr(out, "groups") <- attr(x, "groups", exact = TRUE)
   }
 
   if (validate) {
@@ -1366,6 +1392,7 @@ refresh_display_results <- function(x) {
 # Internal attribute helpers
 # -------------------------------------------------------------------------
 
+#' @keywords internal
 get_env_mapping <- function(x) {
   attr(
     x,
@@ -1374,6 +1401,7 @@ get_env_mapping <- function(x) {
   )
 }
 
+#' @keywords internal
 get_schema_metadata <- function(x) {
   attr(
     x,
@@ -1382,6 +1410,7 @@ get_schema_metadata <- function(x) {
   )
 }
 
+#' @keywords internal
 get_analysis_metadata <- function(x) {
   attr(
     x,
@@ -1390,6 +1419,7 @@ get_analysis_metadata <- function(x) {
   )
 }
 
+#' @keywords internal
 get_schema_version <- function(x) {
   attr(
     x,
@@ -1398,6 +1428,7 @@ get_schema_version <- function(x) {
   )
 }
 
+#' @keywords internal
 get_schema_created <- function(x) {
   attr(
     x,
@@ -1648,116 +1679,145 @@ source_metadata <- function(x) {
 # Mapping accessors
 # -------------------------------------------------------------------------
 
+#' Schema Variable Accessors
+#'
+#' Access stored schema mappings.
+#'
+#' @name schema_accessors
+#' @title Schema Variable Accessors
+#'
+#' @param x An `env_schema` object.
+#'
+#' @return A character scalar.
+#'
+#' @keywords internal
+NULL
+
+#' @rdname schema_accessors
 #' @export
-analyte_id_var <- function() {
+analyte_id_var <- function(x) {
   ".analyte_id"
 }
 
+#' @rdname schema_accessors
 #' @export
 site_var <- function(x) {
   get_env_mapping(x)$site
 }
 
+#' @rdname schema_accessors
 #' @export
 location_var <- function(x) {
   get_env_mapping(x)$location
 }
 
+#' @rdname schema_accessors
 #' @export
 sample_date_var <- function(x) {
   get_env_mapping(x)$sample_date
 }
 
+#' @rdname schema_accessors
 #' @export
 analysis_date_var <- function(x) {
   get_env_mapping(x)$analysis_date
 }
 
+#' @rdname schema_accessors
 #' @export
 analyte_var <- function(x) {
   get_env_mapping(x)$analyte
 }
 
+#' @rdname schema_accessors
 #' @export
 result_var <- function(x) {
   get_env_mapping(x)$result
 }
 
+
+#' @rdname schema_accessors
 #' @export
-analysis_result_var <- function() {
+analysis_result_var <- function(x) {
   ".analysis_result"
 }
 
-#' Box-Cox transformed result column
-#'
-#' @returns Character scalar.
-#'
+#' @rdname schema_accessors
 #' @export
-boxcox_transform_var <- function() {
+boxcox_transform_var <- function(x) {
   ".boxcox_transform"
 }
 
+#' @rdname schema_accessors
 #' @export
-analysis_unit_var <- function() {
+analysis_unit_var <- function(x) {
   ".analysis_unit"
 }
 
+#' @rdname schema_accessors
 #' @export
 unit_var <- function(x) {
   get_env_mapping(x)$unit
 }
 
+#' @rdname schema_accessors
 #' @export
 sample_id_var <- function(x) {
   get_env_mapping(x)$sample_id
 }
 
+#' @rdname schema_accessors
 #' @export
 reporting_flag_var <- function(x) {
   get_env_mapping(x)$reporting_flag
 }
 
+#' @rdname schema_accessors
 #' @export
 reporting_limit_var <- function(x) {
   get_env_mapping(x)$reporting_limit
 }
 
+#' @rdname schema_accessors
 #' @export
 detection_limit_var <- function(x) {
   get_env_mapping(x)$detection_limit
 }
 
+#' @rdname schema_accessors
 #' @export
 quantitation_limit_var <- function(x) {
   get_env_mapping(x)$quantitation_limit
 }
 
+#' @rdname schema_accessors
 #' @export
 achieved_mdc_var <- function(x) {
   get_env_mapping(x)$achieved_mdc
 }
 
+#' @rdname schema_accessors
 #' @export
 method_var <- function(x) {
   get_env_mapping(x)$method
 }
 
-#' MEQ result column
-#'
-#' @returns Character scalar.
-#'
+#' @rdname schema_accessors
 #' @export
-analysis_result_meq_var <- function() {
+analysis_result_meq_var <- function(x) {
   ".analysis_result_meq"
 }
 
-#' MEQ unit column
-#'
-#' @returns Character scalar.
-#'
+#' @rdname schema_accessors
 #' @export
-analysis_unit_meq_var <- function() {
+analysis_unit_meq_var <- function(x) {
   ".analysis_unit_meq"
+}
+
+#' @rdname schema_accessors
+#' @export
+censored_var <- function(x) {
+  ".censored"
 }
 
 # -------------------------------------------------------------------------
@@ -2499,7 +2559,7 @@ display_threshold_type.default <- function(x) {
   )
 }
 
-#' @export
+#' @exportS3Method dplyr::group_by env_schema
 group_by.env_schema <- function(
   .data,
   ...,
@@ -2513,11 +2573,13 @@ group_by.env_schema <- function(
     .drop = .drop
   )
 
-  restore_env_schema(
+  restored <- restore_env_schema(
     out,
     .data,
     validate = FALSE
   )
+
+  restored
 }
 
 #' @export
@@ -2573,91 +2635,6 @@ select.env_schema <- function(.data, ...) {
     .data,
     validate = FALSE
   )
-}
-
-#' @export
-print.env_schema <- function(x, ...) {
-  cat("<env_schema>\n")
-
-  cat(
-    nrow(x),
-    "rows x",
-    ncol(x),
-    "columns\n"
-  )
-
-  if (!is.null(site_var(x))) {
-    cat(
-      "Sites:",
-      dplyr::n_distinct(site(x)),
-      "\n"
-    )
-  }
-
-  cat(
-    "Locations:",
-    dplyr::n_distinct(location(x)),
-    "\n"
-  )
-
-  cat(
-    "Analytes:",
-    dplyr::n_distinct(analyte(x)),
-    "\n"
-  )
-
-  cat(
-    "Valid:",
-    has_env_schema_structure(x),
-    "\n"
-  )
-
-  cat(
-    "Version:",
-    attr(
-      x,
-      "env_schema_version",
-      exact = TRUE
-    ),
-    "\n"
-  )
-
-  invisible(x)
-}
-
-#' Normalize analytical units
-#'
-#' Normalizes unit strings to a consistent format for comparison and
-#' unit conversion.
-#'
-#' The function:
-#' \itemize{
-#'   \item trims leading and trailing whitespace;
-#'   \item converts microgram symbols (`µg`, `μg`) to `"ug"`;
-#'   \item converts all text to lower case.
-#' }
-#'
-#' Examples:
-#'
-#' \itemize{
-#'   \item `" µg/L "` becomes `"ug/l"`
-#'   \item `"MG/L"` becomes `"mg/l"`
-#' }
-#'
-#' @param x Character vector of analytical units.
-#'
-#' @return
-#' A normalized character vector of units.
-#'
-#' @noRd
-.normalize_unit <- function(x) {
-  x <- as.character(x)
-
-  x |>
-    stringr::str_trim() |>
-    stringr::str_replace_all("µg", "ug") |>
-    stringr::str_replace_all("μg", "ug") |>
-    stringr::str_to_lower()
 }
 
 #' Copy env_schema attributes

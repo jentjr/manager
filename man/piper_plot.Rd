@@ -32,7 +32,8 @@ piper_plot(df, ...)
   transparency = 0.7,
   pnt_size = 3,
   label_size = 3,
-  title = NULL
+  title = NULL,
+  ...
 )
 }
 \arguments{

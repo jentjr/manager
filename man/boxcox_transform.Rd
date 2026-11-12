@@ -16,14 +16,14 @@ boxcox_transform(df, ...)
   analysis_result = "analysis_result",
   default_unit = "default_unit",
   objective_name = "PPCC",
-  result_col = analysis_result_var(),
+  result_col = analysis_result_var(df),
   keep_data_object = FALSE,
   ...
 )
 
 \method{boxcox_transform}{env_schema}(
   df,
-  result_col = analysis_result_var(),
+  result_col = analysis_result_var(df),
   objective_name = "PPCC",
   keep_data_object = FALSE,
   ...

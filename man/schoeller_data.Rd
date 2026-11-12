@@ -10,7 +10,7 @@ schoeller_data(df, ...)
 
 \method{schoeller_data}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
-\method{schoeller_data}{env_schema}(df, analyte_matching = c("exact", "strict", "normalized"))
+\method{schoeller_data}{env_schema}(df, analyte_matching = c("exact", "strict", "normalized"), ...)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}

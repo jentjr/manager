@@ -84,6 +84,9 @@
 #'   \item{decision_basis}{
 #'     Primary basis for the recommendation.
 #'   }
+#'   \item{comparison_method}{
+#'     Recommended multiple-group comparison procedure.
+#'   }
 #' }
 #'
 #' @details
@@ -229,6 +232,19 @@ statistical_decision <- function(
 
       TRUE ~
         "extreme_censoring"
+    ),
+    comparison_method = dplyr::case_when(
+      n_used < 4 ~
+        "insufficient_data",
+
+      percent_censored < low_threshold ~
+        "anova",
+
+      percent_censored < high_threshold ~
+        "kruskal",
+
+      TRUE ~
+        "insufficient_data"
     )
   )
 
@@ -291,8 +307,8 @@ statistical_decision <- function(
 #' @export
 derive_decision <- function(
   df,
-  result_col = analysis_result_var(),
-  censored_col = ".censored"
+  result_col = analysis_result_var(df),
+  censored_col = censored_var(df)
 ) {
   n_used <- sum(
     !is.na(df[[result_col]])
@@ -683,7 +699,7 @@ guidance_profile <- function(
 estimate_distribution <- function(
   df,
   distribution_config = "auto",
-  result_col = analysis_result_var()
+  result_col = analysis_result_var(df)
 ) {
   if (!dplyr::is_grouped_df(df)) {
     rlang::abort(
@@ -915,7 +931,9 @@ stats_summary <- function(df, ...) {
 #' @param censored Censoring indicator column name.
 #' @param analysis_result Analytical result column name.
 #' @param default_unit Reporting unit column name.
-#' @param result_col Numerical column on which stats_summary is computed
+#' @param result_col Numerical column on which stats_summary is computed.
+#' @param censored_col Censoring indicator column name used to calculate
+#'   detection counts and censoring percentages.
 #' @export
 stats_summary.data.frame <- function(
   df,
@@ -925,23 +943,20 @@ stats_summary.data.frame <- function(
   analysis_result = "analysis_result",
   default_unit = "default_unit",
   result_col = analysis_result,
+  censored_col = censored,
   na.rm = TRUE
 ) {
   group_cols <- if (dplyr::is_grouped_df(df)) {
     dplyr::group_vars(df)
   } else {
-    c(
-      location_id,
-      param_name,
-      default_unit
-    )
+    c(location_id, param_name, default_unit)
   }
 
   .stats_summary_core(
     df = df,
     group_cols = group_cols,
     result_col = result_col,
-    censored_col = censored,
+    censored_col = censored_col,
     na.rm = na.rm
   )
 }
@@ -964,7 +979,8 @@ stats_summary.data.frame <- function(
 #' @export
 stats_summary.env_schema <- function(
   df,
-  result_col = analysis_result_var(),
+  result_col = analysis_result_var(df),
+  censored_col = censored_var(df),
   na.rm = TRUE,
   ...
 ) {
@@ -974,7 +990,7 @@ stats_summary.env_schema <- function(
     c(
       location_var(df),
       analyte_var(df),
-      ".analysis_unit"
+      analysis_unit_var(df)
     )
   }
 
@@ -982,9 +998,19 @@ stats_summary.env_schema <- function(
     df = df,
     group_cols = group_cols,
     result_col = result_col,
-    censored_col = ".censored",
+    censored_col = censored_col,
     na.rm = na.rm
   )
+}
+
+#' @rdname stats_summary
+#' @export
+stats_summary.grouped_df <- function(df, ...) {
+  if (inherits(df, "env_schema")) {
+    stats_summary.env_schema(df, ...)
+  } else {
+    stats_summary.data.frame(df, ...)
+  }
 }
 
 #' Summary statistics core
@@ -997,18 +1023,11 @@ stats_summary.env_schema <- function(
   censored_col,
   na.rm = TRUE
 ) {
-  required_cols <- c(
-    group_cols,
-    result_col,
-    censored_col
-  )
+  required_cols <- unique(c(group_cols, result_col, censored_col))
 
-  missing_cols <- setdiff(
-    required_cols,
-    names(df)
-  )
+  missing_cols <- setdiff(required_cols, names(df))
 
-  if (length(missing_cols) > 0) {
+  if (length(missing_cols) > 0L) {
     rlang::abort(
       paste(
         "Missing required columns:",
@@ -1017,44 +1036,33 @@ stats_summary.env_schema <- function(
     )
   }
 
-  if (length(group_cols) > 0) {
+  result_values <- df[[result_col]]
+  censored_values <- df[[censored_col]]
+
+  if (!is.numeric(result_values)) {
+    rlang::abort(
+      sprintf("`%s` must be numeric.", result_col)
+    )
+  }
+
+  if (!is.logical(censored_values)) {
+    rlang::abort(
+      sprintf("`%s` must be a logical column.", censored_col)
+    )
+  }
+
+  # Preserve existing groups. This is important for env_schema objects,
+  # whose class includes grouped_df.
+  if (!dplyr::is_grouped_df(df) && length(group_cols) > 0L) {
     df <- dplyr::group_by(
       df,
-      dplyr::across(
-        dplyr::all_of(group_cols)
-      ),
+      dplyr::across(dplyr::all_of(group_cols)),
       .add = FALSE
     )
   }
 
-  if (nrow(df) == 0) {
-    return(
-      tibble::tibble(
-        n = integer(),
-        n_used = integer(),
-        n_detect = integer(),
-        percent_censored = numeric(),
-        mean = numeric(),
-        median = numeric(),
-        sd = numeric(),
-        var = numeric(),
-        min = numeric(),
-        max = numeric(),
-        cv = numeric(),
-        `25%` = numeric(),
-        `75%` = numeric(),
-        IQR = numeric(),
-        mad = numeric(),
-        censoring_class = character(),
-        distribution_method = character(),
-        trend_method = character(),
-        trend_guidance = character(),
-        censored_method = character(),
-        distribution_config = list(),
-        interval_config = list(),
-        decision_basis = character()
-      )
-    )
+  if (nrow(df) == 0L) {
+    return(.empty_stats_summary())
   }
 
   df |>
@@ -1066,99 +1074,139 @@ stats_summary.env_schema <- function(
       ),
 
       n_detect = sum(
-        !.data[[censored_col]] &
-          !is.na(.data[[result_col]]),
-        na.rm = TRUE
+        !is.na(.data[[result_col]]) &
+          !is.na(.data[[censored_col]]) &
+          !.data[[censored_col]]
       ),
 
-      percent_censored = mean(
-        .data[[censored_col]],
-        na.rm = na.rm
-      ) *
-        100,
+      percent_censored = {
+        censor_values <- .data[[censored_col]]
 
-      mean = mean(
-        .data[[result_col]],
-        na.rm = na.rm
+        if (all(is.na(censor_values))) {
+          NA_real_
+        } else {
+          mean(censor_values, na.rm = TRUE) * 100
+        }
+      },
+
+      mean = .safe_stat(
+        mean(.data[[result_col]], na.rm = na.rm)
       ),
 
-      median = stats::median(
-        .data[[result_col]],
-        na.rm = na.rm
+      median = .safe_stat(
+        stats::median(.data[[result_col]], na.rm = na.rm)
       ),
 
-      sd = stats::sd(
-        .data[[result_col]],
-        na.rm = na.rm
+      sd = .safe_stat(
+        stats::sd(.data[[result_col]], na.rm = na.rm)
       ),
 
-      var = stats::var(
-        .data[[result_col]],
-        na.rm = na.rm
+      var = .safe_stat(
+        stats::var(.data[[result_col]], na.rm = na.rm)
       ),
 
-      min = min(
-        .data[[result_col]],
-        na.rm = na.rm
+      min = .safe_stat(
+        min(.data[[result_col]], na.rm = na.rm)
       ),
 
-      max = max(
-        .data[[result_col]],
-        na.rm = na.rm
+      max = .safe_stat(
+        max(.data[[result_col]], na.rm = na.rm)
       ),
 
-      cv = dplyr::if_else(
-        mean(.data[[result_col]], na.rm = na.rm) == 0,
-        NA_real_,
-        stats::sd(.data[[result_col]], na.rm = na.rm) /
-          mean(.data[[result_col]], na.rm = na.rm)
-      ),
+      cv = {
+        values <- .data[[result_col]]
 
-      `25%` = unname(
-        stats::quantile(
+        if (na.rm) {
+          values <- values[!is.na(values)]
+        }
+
+        if (
+          length(values) < 2L ||
+            anyNA(values)
+        ) {
+          NA_real_
+        } else {
+          value_mean <- mean(values)
+
+          if (
+            !is.finite(value_mean) ||
+              value_mean == 0
+          ) {
+            NA_real_
+          } else {
+            stats::sd(values) / value_mean
+          }
+        }
+      },
+
+      `25%` = .safe_stat(
+        unname(stats::quantile(
           .data[[result_col]],
           probs = 0.25,
           na.rm = na.rm
-        )
+        ))
       ),
 
-      `75%` = unname(
-        stats::quantile(
+      `75%` = .safe_stat(
+        unname(stats::quantile(
           .data[[result_col]],
           probs = 0.75,
+          na.rm = na.rm
+        ))
+      ),
+
+      IQR = .safe_stat(
+        stats::IQR(
+          .data[[result_col]],
           na.rm = na.rm
         )
       ),
 
-      IQR = stats::IQR(
-        .data[[result_col]],
-        na.rm = na.rm
-      ),
-
-      mad = stats::mad(
-        .data[[result_col]],
-        na.rm = na.rm
+      mad = .safe_stat(
+        stats::mad(
+          .data[[result_col]],
+          na.rm = na.rm
+        )
       ),
 
       .groups = "drop"
     ) |>
-    (\(x) {
+    (\(summary_data) {
       decision <- statistical_decision(
-        n_used = x$n_used,
-        n_detect = x$n_detect,
-        percent_censored = x$percent_censored
+        n_used = summary_data$n_used,
+        n_detect = summary_data$n_detect,
+        percent_censored = summary_data$percent_censored
       )
 
       dplyr::bind_cols(
-        x,
+        summary_data,
         dplyr::select(
           decision,
-          -c(n_used, n_detect, percent_censored)
+          -dplyr::all_of(c(
+            "n_used",
+            "n_detect",
+            "percent_censored"
+          ))
         )
       )
     })()
 }
 
+#' Safely normalize invalid scalar statistics to NA.
+#'
+#' @keywords internal
+.safe_stat <- function(value) {
+  if (
+    length(value) == 0L ||
+      is.na(value) ||
+      is.nan(value) ||
+      is.infinite(value)
+  ) {
+    return(NA_real_)
+  }
+
+  as.numeric(value)
+}
 #' Trend Summary Statistics
 #'
 #' Computes trend statistics and monitoring-period summary metrics
@@ -1311,10 +1359,11 @@ trend_summary.data.frame <- function(
 #' @export
 trend_summary.env_schema <- function(
   df,
-  result_col = analysis_result_var(),
+  result_col = analysis_result_var(df),
   method = "mann_kendall",
   censored_method = "auto",
-  conf.level = 0.95
+  conf.level = 0.95,
+  ...
 ) {
   validate_env_schema(df)
 
@@ -1608,8 +1657,9 @@ kendall_trend.data.frame <- function(
 #' @export
 kendall_trend.env_schema <- function(
   df,
-  result_col = analysis_result_var(),
-  conf.level = 0.95
+  result_col = analysis_result_var(df),
+  conf.level = 0.95,
+  ...
 ) {
   validate_env_schema(df)
 
@@ -1695,7 +1745,7 @@ kendall_trend.env_schema <- function(
 .compute_trend <- function(
   df,
   sample_date_col,
-  result_col = analysis_result_var(),
+  result_col = analysis_result_var(df),
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95
@@ -2635,7 +2685,8 @@ dixon_test.env_schema <- function(
   type = 0,
   opposite = FALSE,
   two_sided = TRUE,
-  keep_data_object = FALSE
+  keep_data_object = FALSE,
+  ...
 ) {
   validate_env_schema(df)
 
@@ -2792,7 +2843,8 @@ grubbs_test.env_schema <- function(
   type = 10,
   opposite = FALSE,
   two_sided = FALSE,
-  keep_data_object = FALSE
+  keep_data_object = FALSE,
+  ...
 ) {
   validate_env_schema(df)
 
@@ -2958,7 +3010,8 @@ rosner_test.env_schema <- function(
   k = 3,
   alpha = 0.05,
   warn = TRUE,
-  keep_data_object = FALSE
+  keep_data_object = FALSE,
+  ...
 ) {
   validate_env_schema(df)
 
@@ -3117,7 +3170,8 @@ tukey_outlier.env_schema <- function(
   df,
   k = 3,
   na.rm = FALSE,
-  type = 6
+  type = 6,
+  ...
 ) {
   validate_env_schema(df)
 
@@ -3242,7 +3296,7 @@ boxcox_transform.data.frame <- function(
   analysis_result = "analysis_result",
   default_unit = "default_unit",
   objective_name = "PPCC",
-  result_col = analysis_result_var(),
+  result_col = analysis_result_var(df),
   keep_data_object = FALSE,
   ...
 ) {
@@ -3286,7 +3340,7 @@ boxcox_transform.data.frame <- function(
 #' @export
 boxcox_transform.env_schema <- function(
   df,
-  result_col = analysis_result_var(),
+  result_col = analysis_result_var(df),
   objective_name = "PPCC",
   keep_data_object = FALSE,
   ...
@@ -3407,69 +3461,282 @@ boxcox_transform.env_schema <- function(
   out
 }
 
-#' Analysis of Variance
-#'
-#' @param df data frame
-#' @param keep_data_object logical to keep objects from aov and TukeyHSD
-#'
-#' @examples
-#' data(gw_data)
-#'
-#' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
-#'
-#' params <- c("Calcium, dissolved", "Sodium, dissolved", "Sulfate, total")
-#'
-#' gw_data |>
-#'   filter(location_id %in% wells, param_name %in% params) |>
-#'   anova()
-#'
-#' anova_object <- gw_data |>
-#'   filter(location_id %in% wells, param_name %in% params) |>
-#'   anova(., keep_data_object = TRUE)
-#'
-#' plot(anova_object$anova[[1]], 1)
-#'
 #' @export
-
-anova <- function(df, keep_data_object = FALSE) {
-  df <- df |>
-    mutate(location_id = fct_recode(location_id))
-
-  aov_result <- df |>
-    group_by(param_name, default_unit) |>
-    nest() |>
-    mutate(
-      anova = map(
-        .x = data,
-        ~ aov(analysis_result ~ location_id, data = .x)
-      ),
-      tukey = map(.x = anova, ~ TukeyHSD(.x))
-    ) |>
-    ungroup() |>
-    select(-data)
-
-  if (isTRUE(keep_data_object)) {
-    aov_result |>
-      mutate(
-        pairwise = map(
-          .x = tukey,
-          ~ rownames_to_column(data.frame(.x$location_id))
-        )
-      ) |>
-      select(-default_unit)
-  } else {
-    aov_result |>
-      mutate(
-        pairwise = map(
-          .x = tukey,
-          ~ rownames_to_column(data.frame(.x$location_id))
-        )
-      ) |>
-      select(-anova, -tukey, -default_unit) |>
-      unnest()
-  }
+compare_groups <- function(df, ...) {
+  UseMethod("compare_groups")
 }
 
+#' @export
+compare_groups.data.frame <- function(
+  df,
+  location_id = "location_id",
+  param_name = "param_name",
+  sample_date = "sample_date",
+  analysis_result = "analysis_result",
+  default_unit = "default_unit",
+  compare = location_id,
+  keep_data_object = FALSE,
+  ...
+) {
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location_id),
+    analyte = !!rlang::sym(param_name),
+    sample_date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(analysis_result),
+    unit = !!rlang::sym(default_unit)
+  )
+
+  compare_groups(
+    df,
+    compare = compare,
+    keep_data_object = keep_data_object,
+    ...
+  )
+}
+
+#' @export
+compare_groups.env_schema <- function(
+  df,
+  compare = location_var(df),
+  result_col = analysis_result_var(df),
+  keep_data_object = FALSE,
+  ...
+) {
+  validate_env_schema(df)
+
+  group_cols <- if (dplyr::is_grouped_df(df)) {
+    dplyr::group_vars(df)
+  } else {
+    c(
+      analyte_var(df),
+      analysis_unit_var()
+    )
+  }
+
+  .compare_groups_core(
+    df = df,
+    group_cols = group_cols,
+    compare = compare,
+    result_col = result_col,
+    keep_data_object = keep_data_object
+  )
+}
+
+#' @keywords internal
+.compare_groups_core <- function(
+  df,
+  group_cols,
+  compare,
+  result_col,
+  method = "auto",
+  keep_data_object = FALSE
+) {
+  group_cols <- if (dplyr::is_grouped_df(df)) {
+    dplyr::group_vars(df)
+  } else {
+    c(
+      analyte_var(df),
+      analysis_unit_var()
+    )
+  }
+
+  nested <- df |>
+    dplyr::group_by(
+      dplyr::across(
+        dplyr::all_of(group_cols)
+      )
+    ) |>
+    tidyr::nest()
+
+  nested |>
+    dplyr::mutate(
+      decision = purrr::map(
+        data,
+        derive_decision,
+        result_col = result_col
+      ),
+
+      comparison_method = if (identical(method, "auto")) {
+        purrr::map_chr(
+          decision,
+          ~ .x$comparison_method[[1]]
+        )
+      } else {
+        rep(method, nrow(nested))
+      },
+
+      test = purrr::map2(
+        data,
+        comparison_method,
+        ~ .run_comparison_test(
+          df = .x,
+          method = .y,
+          compare = compare,
+          result_col = result_col
+        )
+      )
+    ) |>
+    .extract_comparison_results(
+      keep_data_object = keep_data_object
+    )
+}
+
+#' @keywords internal
+.run_comparison_test <- function(
+  df,
+  method,
+  compare,
+  result_col
+) {
+  if (
+    dplyr::n_distinct(
+      df[[compare]]
+    ) <
+      2
+  ) {
+    return(NULL)
+  }
+
+  frm <- stats::reformulate(
+    compare,
+    response = result_col
+  )
+
+  switch(
+    method,
+
+    anova = stats::aov(
+      frm,
+      data = df
+    ),
+
+    welch = stats::oneway.test(
+      frm,
+      data = df,
+      var.equal = FALSE
+    ),
+
+    kruskal = stats::kruskal.test(
+      frm,
+      data = df
+    ),
+
+    NULL
+  )
+}
+
+#' @export
+anova_test <- function(df, ...) {
+  UseMethod("anova_test")
+}
+
+#' @export
+anova_test.env_schema <- function(
+  df,
+  compare = location_var(df),
+  result_col = analysis_result_var(df),
+  keep_data_object = FALSE,
+  ...
+) {
+  .compare_groups_core(
+    df = df,
+    compare = compare,
+    result_col = result_col,
+    method = "anova",
+    keep_data_object = keep_data_object
+  )
+}
+
+#' @export
+welch_test <- function(df, ...) {
+  UseMethod("welch_test")
+}
+
+#' @export
+welch_test.env_schema <- function(
+  df,
+  compare = location_var(df),
+  result_col = analysis_result_var(df),
+  keep_data_object = FALSE,
+  ...
+) {
+  .compare_groups_core(
+    df = df,
+    compare = compare,
+    result_col = result_col,
+    method = "welch",
+    keep_data_object = keep_data_object
+  )
+}
+
+#' @export
+kruskal_test <- function(df, ...) {
+  UseMethod("kruskal_test")
+}
+
+#' @export
+kruskal_test.env_schema <- function(
+  df,
+  compare = location_var(df),
+  result_col = analysis_result_var(df),
+  keep_data_object = FALSE,
+  ...
+) {
+  .compare_groups_core(
+    df = df,
+    compare = compare,
+    result_col = result_col,
+    method = "kruskal",
+    keep_data_object = keep_data_object
+  )
+}
+
+#' @keywords internal
+.extract_comparison_results <- function(
+  x,
+  keep_data_object = FALSE
+) {
+  out <- x |>
+    dplyr::mutate(
+      statistic = purrr::map_dbl(
+        test,
+        ~ if (is.null(.x)) NA_real_ else unname(.x$statistic[[1]])
+      ),
+
+      p_value = purrr::map_dbl(
+        test,
+        ~ if (is.null(.x)) NA_real_ else .x$p.value
+      )
+    )
+
+  if (!keep_data_object) {
+    out <- dplyr::select(
+      out,
+      -data,
+      -test
+    )
+  }
+
+  out
+}
+
+#' @keywords internal
+.extract_comparison_statistic <- function(x) {
+  if (inherits(x, "aov")) {
+    tbl <- summary(x)[[1]]
+
+    return(list(
+      statistic = tbl[["F value"]][1],
+      p_value = tbl[["Pr(>F)"]][1]
+    ))
+  }
+
+  list(
+    statistic = unname(x$statistic[[1]]),
+    p_value = x$p.value
+  )
+}
 
 #' @keywords internal
 .est_dist_group <- function(

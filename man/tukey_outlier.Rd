@@ -18,7 +18,7 @@ tukey_outlier(df, ...)
   ...
 )
 
-\method{tukey_outlier}{env_schema}(df, k = 3, na.rm = FALSE, type = 6)
+\method{tukey_outlier}{env_schema}(df, k = 3, na.rm = FALSE, type = 6, ...)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}

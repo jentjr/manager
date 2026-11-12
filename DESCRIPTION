@@ -29,7 +29,6 @@ Imports:
   plyr,
   purrr,
   readr,
-  readxl,
   rlang,
   scales,
   stringi,
@@ -39,7 +38,8 @@ Imports:
   tidyselect,
   units,
   vctrs,
-  DBI
+  DBI,
+  Hmisc
 Suggests: 
     animation,
     lubridate,

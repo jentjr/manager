@@ -20,7 +20,8 @@ stiff_data(df, ...)
   chloride = "Chloride, total",
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
-  scale_analyte = NULL
+  scale_analyte = NULL,
+  ...
 )
 }
 \arguments{

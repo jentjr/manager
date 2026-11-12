@@ -18,7 +18,14 @@ rosner_test(df, ...)
   ...
 )
 
-\method{rosner_test}{env_schema}(df, k = 3, alpha = 0.05, warn = TRUE, keep_data_object = FALSE)
+\method{rosner_test}{env_schema}(
+  df,
+  k = 3,
+  alpha = 0.05,
+  warn = TRUE,
+  keep_data_object = FALSE,
+  ...
+)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}

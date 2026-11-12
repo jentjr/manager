@@ -15,7 +15,8 @@ major_ion_chemistry(df, ...)
   analytes = c("Calcium, dissolved", "Magnesium, dissolved", "Sodium, dissolved",
     "Potassium, dissolved", "Chloride, total", "Sulfate, total",
     "Alkalinity, total (lab)"),
-  analyte_matching = c("exact", "strict", "normalized")
+  analyte_matching = c("exact", "strict", "normalized"),
+  ...
 )
 }
 \arguments{

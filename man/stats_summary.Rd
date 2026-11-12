@@ -4,6 +4,7 @@
 \alias{stats_summary}
 \alias{stats_summary.data.frame}
 \alias{stats_summary.env_schema}
+\alias{stats_summary.grouped_df}
 \title{Summary Statistics}
 \usage{
 stats_summary(df, ...)
@@ -16,10 +17,19 @@ stats_summary(df, ...)
   analysis_result = "analysis_result",
   default_unit = "default_unit",
   result_col = analysis_result,
+  censored_col = censored,
   na.rm = TRUE
 )
 
-\method{stats_summary}{env_schema}(df, result_col = analysis_result_var(), na.rm = TRUE, ...)
+\method{stats_summary}{env_schema}(
+  df,
+  result_col = analysis_result_var(df),
+  censored_col = censored_var(df),
+  na.rm = TRUE,
+  ...
+)
+
+\method{stats_summary}{grouped_df}(df, ...)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}
@@ -36,7 +46,10 @@ stats_summary(df, ...)
 
 \item{default_unit}{Reporting unit column name.}
 
-\item{result_col}{Numerical column on which stats_summary is computed}
+\item{result_col}{Numerical column on which stats_summary is computed.}
+
+\item{censored_col}{Censoring indicator column name used to calculate
+detection counts and censoring percentages.}
 
 \item{na.rm}{Logical indicating whether missing values should
 be removed when calculating summary statistics.}

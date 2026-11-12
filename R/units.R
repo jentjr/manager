@@ -1,3 +1,76 @@
+#' Normalize analytical units
+#'
+#' Normalizes analytical units to canonical UDUNITS-2-compatible strings.
+#'
+#' @param x Character vector of analytical units.
+#'
+#' @return A normalized character vector of units.
+#'
+#' @noRd
+.normalize_unit <- function(x) {
+  x <- as.character(x)
+
+  # Normalize whitespace and Unicode micro symbols.
+  x <- x |>
+    stringr::str_trim() |>
+    stringr::str_replace_all("[\u00B5\u03BC]", "u") |>
+    stringr::str_replace_all("\\s*/\\s*", "/") |>
+    stringr::str_replace_all("\\s+", " ") |>
+    stringr::str_to_lower()
+
+  # Temperature.
+  x <- stringr::str_replace_all(
+    x,
+    stringr::regex(
+      "^(?:\u00B0\\s*c|deg\\s*c|degrees?\\s+celsius|celsius)$",
+      ignore_case = TRUE
+    ),
+    "degC"
+  )
+
+  # Millisiemens per centimeter.
+  x <- stringr::str_replace_all(
+    x,
+    stringr::regex(
+      "^(?:ms/cm|millisiemens/cm|millisiemens per centimeter|ms cm-1)$",
+      ignore_case = TRUE
+    ),
+    "mS/cm"
+  )
+
+  # Microsiemens or micromhos per centimeter.
+  # 1 micromho = 1 microsiemens.
+  x <- stringr::str_replace_all(
+    x,
+    stringr::regex(
+      paste0(
+        "^(?:",
+        "us/cm|",
+        "umho/cm|umhos/cm|",
+        "microsiemens/cm|",
+        "microsiemens per centimeter|",
+        "micromho/cm|micromhos/cm|",
+        "uS cm-1|umho cm-1",
+        ")$"
+      ),
+      ignore_case = TRUE
+    ),
+    "uS/cm"
+  )
+
+  # Conductance-only units.
+  x <- stringr::str_replace_all(
+    x,
+    stringr::regex(
+      "^(?:us|umho|umhos|microsiemens|micromho|micromhos)$",
+      ignore_case = TRUE
+    ),
+    "uS"
+  )
+
+  x
+}
+
 #' Standardize env_schema analytical results
 #'
 #' Converts .analysis_result values to analyte-specific

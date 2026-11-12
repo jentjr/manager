@@ -10,7 +10,7 @@ charge_balance(df, ...)
 
 \method{charge_balance}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
-\method{charge_balance}{env_schema}(df, analyte_matching = c("exact", "strict", "normalized"))
+\method{charge_balance}{env_schema}(df, analyte_matching = c("exact", "strict", "normalized"), ...)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}

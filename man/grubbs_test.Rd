@@ -23,7 +23,8 @@ grubbs_test(df, ...)
   type = 10,
   opposite = FALSE,
   two_sided = FALSE,
-  keep_data_object = FALSE
+  keep_data_object = FALSE,
+  ...
 )
 }
 \arguments{

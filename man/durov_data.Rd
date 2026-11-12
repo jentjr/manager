@@ -10,7 +10,7 @@ durov_data(df, ...)
 
 \method{durov_data}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
-\method{durov_data}{env_schema}(df, analyte_matching = c("normalized", "strict", "exact"))
+\method{durov_data}{env_schema}(df, analyte_matching = c("normalized", "strict", "exact"), ...)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}

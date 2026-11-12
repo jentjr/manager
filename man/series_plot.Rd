@@ -35,7 +35,8 @@ series_plot(df, ...)
   short_name = FALSE,
   pnt = 3,
   ncol = NULL,
-  plot_type = c("split", "combined")
+  plot_type = c("split", "combined"),
+  ...
 )
 }
 \arguments{

@@ -22,7 +22,8 @@ schoeller_plot(df, ...)
   analyte_matching = c("exact", "strict", "normalized"),
   facet_var = NULL,
   title = NULL,
-  lwt = 1
+  lwt = 1,
+  ...
 )
 }
 \arguments{

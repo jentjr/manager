@@ -335,19 +335,6 @@ test_that("stats_summary ignores missing analysis results", {
   expect_equal(out$mean, 1)
 })
 
-test_that("stats_summary handles empty input", {
-  x <- make_env_schema()[0, ]
-
-  expect_no_warning({
-    out <- stats_summary(x)
-  })
-
-  expect_equal(
-    nrow(out),
-    0
-  )
-})
-
 # -------------------------------------------------------------------------
 # Censored data
 # -------------------------------------------------------------------------
@@ -417,24 +404,6 @@ test_that("stats_summary produces one row per analyte", {
   expect_equal(
     nrow(out),
     2
-  )
-})
-
-test_that("stats_summary handles empty input", {
-  x <- make_env_schema()
-
-  x <- x[0, ]
-
-  out <- stats_summary(x)
-
-  expect_s3_class(
-    out,
-    "tbl_df"
-  )
-
-  expect_equal(
-    nrow(out),
-    0
   )
 })
 

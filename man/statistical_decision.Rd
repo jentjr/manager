@@ -77,6 +77,9 @@ The returned object contains:
   \item{decision_basis}{
     Primary basis for the recommendation.
   }
+  \item{comparison_method}{
+    Recommended multiple-group comparison procedure.
+  }
 }
 }
 \description{

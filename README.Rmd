@@ -18,7 +18,6 @@ knitr::opts_chunk$set(
 
 [![R-CMD-check](https://github.com/jentjr/manager/actions/workflows/R-CMD-check.yaml/badge.svg)](...)
 [![Codecov](https://codecov.io/gh/jentjr/manager/branch/main/graph/badge.svg)](...)
-[![CRAN status](https://www.r-pkg.org/badges/version/manager)](...)
 
 ## Overview
 

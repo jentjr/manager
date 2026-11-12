@@ -7,7 +7,7 @@
 estimate_distribution(
   df,
   distribution_config = "auto",
-  result_col = analysis_result_var()
+  result_col = analysis_result_var(df)
 )
 }
 \arguments{

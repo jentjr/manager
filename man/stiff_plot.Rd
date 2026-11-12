@@ -26,7 +26,8 @@ stiff_plot(df, ...)
   stiff_limit = NULL,
   stiff_breaks = 1,
   lines = FALSE,
-  title = NULL
+  title = NULL,
+  ...
 )
 }
 \arguments{

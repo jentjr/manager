@@ -151,7 +151,8 @@ major_ion_chemistry.env_schema <- function(
     "exact",
     "strict",
     "normalized"
-  )
+  ),
+  ...
 ) {
   validate_env_schema(df)
 
@@ -263,7 +264,8 @@ major_ions.env_schema <- function(
     "exact",
     "strict",
     "normalized"
-  )
+  ),
+  ...
 ) {
   validate_env_schema(df)
 
@@ -474,7 +476,8 @@ charge_balance.env_schema <- function(
     "exact",
     "strict",
     "normalized"
-  )
+  ),
+  ...
 ) {
   validate_env_schema(df)
 
@@ -591,7 +594,8 @@ piper_data.env_schema <- function(
   ),
   y_anion = "Alkalinity, total (lab)",
   z_anion = "Sulfate, total",
-  scale_analyte = NULL
+  scale_analyte = NULL,
+  ...
 ) {
   validate_env_schema(df)
 
@@ -694,7 +698,8 @@ durov_data.env_schema <- function(
     "normalized",
     "strict",
     "exact"
-  )
+  ),
+  ...
 ) {
   validate_env_schema(df)
 
@@ -827,7 +832,8 @@ schoeller_data.env_schema <- function(
     "exact",
     "strict",
     "normalized"
-  )
+  ),
+  ...
 ) {
   validate_env_schema(df)
 
@@ -945,7 +951,8 @@ stiff_data.env_schema <- function(
   chloride = "Chloride, total",
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
-  scale_analyte = NULL
+  scale_analyte = NULL,
+  ...
 ) {
   validate_env_schema(df)
 

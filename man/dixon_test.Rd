@@ -23,7 +23,8 @@ dixon_test(df, ...)
   type = 0,
   opposite = FALSE,
   two_sided = TRUE,
-  keep_data_object = FALSE
+  keep_data_object = FALSE,
+  ...
 )
 }
 \arguments{

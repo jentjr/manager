@@ -6,8 +6,8 @@
 \usage{
 derive_decision(
   df,
-  result_col = analysis_result_var(),
-  censored_col = ".censored"
+  result_col = analysis_result_var(df),
+  censored_col = censored_var(df)
 )
 }
 \arguments{

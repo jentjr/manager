@@ -1,0 +1,29 @@
+utils::globalVariables(
+  c(
+    ".data",
+    ".analysis_result",
+    ".analysis_unit",
+    ".analyte",
+    ".analyte_id",
+    ".censored",
+    ".detected",
+    ".estimated",
+    ".rejected",
+    ".usable",
+    ".standard_value",
+    ".standard_type",
+    ".trend_p_value",
+    ".trend_slope",
+    "anion_x",
+    "anion_y",
+    "cation_x",
+    "cation_y",
+    "diamond_x",
+    "diamond_y",
+    "n",
+    "fit",
+    "label",
+    "x",
+    "y"
+  )
+)

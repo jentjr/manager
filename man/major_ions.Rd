@@ -10,7 +10,7 @@ major_ions(df, ...)
 
 \method{major_ions}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
 
-\method{major_ions}{env_schema}(df, analyte_matching = c("exact", "strict", "normalized"))
+\method{major_ions}{env_schema}(df, analyte_matching = c("exact", "strict", "normalized"), ...)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}

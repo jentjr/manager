@@ -283,7 +283,8 @@ series_plot.env_schema <- function(
   plot_type = c(
     "split",
     "combined"
-  )
+  ),
+  ...
 ) {
   validate_env_schema(df)
 
@@ -1902,7 +1903,8 @@ piper_plot.env_schema <- function(
   transparency = 0.7,
   pnt_size = 3,
   label_size = 3,
-  title = NULL
+  title = NULL,
+  ...
 ) {
   validate_env_schema(df)
 
@@ -2713,7 +2715,8 @@ schoeller_plot.env_schema <- function(
   ),
   facet_var = NULL,
   title = NULL,
-  lwt = 1
+  lwt = 1,
+  ...
 ) {
   location_col <- location_var(df)
 
@@ -3053,7 +3056,8 @@ stiff_plot.env_schema <- function(
   stiff_limit = NULL,
   stiff_breaks = 1,
   lines = FALSE,
-  title = NULL
+  title = NULL,
+  ...
 ) {
   location_col <- location_var(df)
 
@@ -3610,7 +3614,8 @@ durov_plot.env_schema <- function(
     "strict",
     "exact"
   ),
-  title = NULL
+  title = NULL,
+  ...
 ) {
   validate_env_schema(df)
 

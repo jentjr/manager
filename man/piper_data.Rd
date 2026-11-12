@@ -19,7 +19,8 @@ piper_data(df, ...)
   x_anion = c("Chloride, total", "Fluoride, total"),
   y_anion = "Alkalinity, total (lab)",
   z_anion = "Sulfate, total",
-  scale_analyte = NULL
+  scale_analyte = NULL,
+  ...
 )
 }
 \arguments{
