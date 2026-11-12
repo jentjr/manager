@@ -1,12 +1,26 @@
-test_that("stiff_plot returns a named list", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
+# ------------------------------------------------------------------------------
+# Helpers
+# ------------------------------------------------------------------------------
+
+build_stiff_schema <- function(df = gw_data) {
+  suppressWarnings(
+    env_schema(
+      df,
+      location = location_id,
+      analyte = param_name,
+      result = analysis_result,
+      unit = default_unit,
+      sample_date = sample_date
+    )
   )
+}
+
+# ------------------------------------------------------------------------------
+# stiff_plot()
+# ------------------------------------------------------------------------------
+
+test_that("stiff_plot returns a named list", {
+  schema <- build_stiff_schema()
 
   p <- stiff_plot(schema)
 
@@ -15,14 +29,7 @@ test_that("stiff_plot returns a named list", {
 })
 
 test_that("list elements are ggplot objects", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   p <- stiff_plot(schema)
 
@@ -33,36 +40,26 @@ test_that("list elements are ggplot objects", {
 })
 
 test_that("returns one plot per location", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   plots <- stiff_plot(schema)
 
   expect_length(
     plots,
-    dplyr::n_distinct(schema[[location_var(schema)]])
+    dplyr::n_distinct(
+      schema[[location_var(schema)]]
+    )
   )
 })
 
 test_that("returns one plot per sample date", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
-  plots <- stiff_plot(
-    schema,
-    group_var = sample_date_var(schema)
+  plots <- suppressWarnings(
+    stiff_plot(
+      schema,
+      group_var = sample_date_var(schema)
+    )
   )
 
   expect_length(
@@ -74,68 +71,50 @@ test_that("returns one plot per sample date", {
 })
 
 test_that("plot names equal grouping values", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   plots <- stiff_plot(schema)
 
   expect_setequal(
     names(plots),
-    unique(schema[[location_var(schema)]])
+    as.character(
+      unique(
+        schema[[location_var(schema)]]
+      )
+    )
   )
 })
 
 test_that("invalid group_var throws error", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   expect_error(
-    stiff_plot(schema, group_var = "site_id"),
+    stiff_plot(
+      schema,
+      group_var = "site_id"
+    ),
     "site_id"
   )
 })
 
 test_that("invalid facet_var throws error", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   expect_error(
-    stiff_plot(schema, facet_var = "site_id"),
+    stiff_plot(
+      schema,
+      facet_var = "site_id"
+    ),
     "not found"
   )
 })
 
 test_that("missing major ions are handled gracefully", {
-  data <- dplyr::filter(
-    gw_data,
-    param_name != "Calcium, dissolved"
-  )
-
-  schema <- env_schema(
-    data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
+  schema <- build_stiff_schema(
+    dplyr::filter(
+      gw_data,
+      param_name != "Calcium, dissolved"
+    )
   )
 
   expect_no_error(
@@ -143,16 +122,12 @@ test_that("missing major ions are handled gracefully", {
   )
 })
 
+# ------------------------------------------------------------------------------
+# stiff_data()
+# ------------------------------------------------------------------------------
 
 test_that("Na + K is correctly calculated", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   stiff <- stiff_data(schema)
 
@@ -162,14 +137,7 @@ test_that("Na + K is correctly calculated", {
 })
 
 test_that("stiff coordinates are assigned correctly", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   stiff <- stiff_data(schema)
 
@@ -197,14 +165,7 @@ test_that("stiff coordinates are assigned correctly", {
 })
 
 test_that("scale_analyte works", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   expect_no_error(
     stiff_data(
@@ -215,14 +176,7 @@ test_that("scale_analyte works", {
 })
 
 test_that("scale_value column is present", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   stiff <- stiff_data(
     schema,
@@ -235,14 +189,7 @@ test_that("scale_value column is present", {
 })
 
 test_that("faceting variable is applied", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   p <- stiff_plot(
     schema,
@@ -256,14 +203,7 @@ test_that("faceting variable is applied", {
 })
 
 test_that("custom title overrides default", {
-  schema <- env_schema(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_date = sample_date
-  )
+  schema <- build_stiff_schema()
 
   plots <- stiff_plot(
     schema,

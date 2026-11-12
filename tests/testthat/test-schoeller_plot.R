@@ -15,14 +15,14 @@ make_chemistry_df <- function(df) {
 
 test_that(".transform_schoeller_data() returns expected Schoeller ions", {
   df <- tibble::tribble(
-    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit   ,
-    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               12 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               20 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               15 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L as CaCO3"
+    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit ,
+    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               12 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               20 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               15 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L"
   )
 
   chemistry_df <- make_chemistry_df(df)
@@ -150,14 +150,14 @@ test_that("empty dataframe returns empty result", {
 
 test_that("schoeller_plot returns a ggplot object", {
   df <- tibble::tribble(
-    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit   ,
-    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               10 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               15 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               20 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L as CaCO3"
+    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit ,
+    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               10 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               15 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               20 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L"
   )
 
   p <- schoeller_plot(
@@ -177,14 +177,14 @@ test_that("schoeller_plot returns a ggplot object", {
 
 test_that("schoeller_plot env_schema dispatch works", {
   df <- tibble::tribble(
-    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit   ,
-    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               10 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               15 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               20 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L as CaCO3"
+    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit ,
+    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               10 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               15 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               20 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L"
   )
 
   schema <- env_schema(
@@ -208,14 +208,14 @@ test_that("schoeller_plot env_schema dispatch works", {
 
 test_that("both faceting options work", {
   df <- tibble::tribble(
-    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit   ,
-    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               10 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               15 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               20 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"          ,
-    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L as CaCO3"
+    ~location_id , ~sample_date          , ~param_name               , ~analysis_result , ~default_unit ,
+    "MW-1"       , as.Date("2024-01-01") , "Calcium, dissolved"      ,               40 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Magnesium, dissolved"    ,               10 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Sodium, dissolved"       ,               15 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Potassium, dissolved"    ,                2 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Chloride, total"         ,               20 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Sulfate, total"          ,               30 , "mg/L"        ,
+    "MW-1"       , as.Date("2024-01-01") , "Alkalinity, total (lab)" ,              100 , "mg/L"
   )
 
   schema <- env_schema(

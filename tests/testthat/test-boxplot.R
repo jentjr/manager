@@ -423,12 +423,14 @@ test_that("empty env_schema aborts", {
 })
 
 test_that("boxplot.data.frame dispatch works", {
-  out <- boxplot(
-    gw_data,
-    location = location_id,
-    analyte = param_name,
-    sample_date = sample_date,
-    result = analysis_result
+  out <- suppressWarnings(
+    boxplot(
+      gw_data,
+      location = location_id,
+      analyte = param_name,
+      sample_date = sample_date,
+      result = analysis_result
+    )
   )
 
   expect_type(out, "list")

@@ -903,7 +903,7 @@ test_that("source metadata survives reconstruction", {
     tibble::tibble(
       location_id = "MW-1",
       sample_date = Sys.Date(),
-      analyte = "Benzene",
+      analyte = "Chloride",
       result = 1,
       .site_name = "Site A",
       .water_class = "GW"

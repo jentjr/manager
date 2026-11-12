@@ -92,13 +92,15 @@ test_that("charge_balance detects anion excess", {
 })
 
 test_that("charge_balance preserves env_schema dispatch", {
-  x <- env_schema(
-    gw_data,
-    location = location_id,
-    sample_date = sample_date,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit
+  x <- suppressWarnings(
+    env_schema(
+      gw_data,
+      location = location_id,
+      sample_date = sample_date,
+      analyte = param_name,
+      result = analysis_result,
+      unit = default_unit
+    )
   )
 
   out <- charge_balance(x)
@@ -114,13 +116,15 @@ test_that("charge_balance preserves env_schema dispatch", {
 })
 
 test_that("charge_balance.data.frame dispatch works", {
-  out <- charge_balance(
-    gw_data,
-    location = location_id,
-    sample_date = sample_date,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit
+  out <- suppressWarnings(
+    charge_balance(
+      gw_data,
+      location = location_id,
+      sample_date = sample_date,
+      analyte = param_name,
+      result = analysis_result,
+      unit = default_unit
+    )
   )
 
   expect_true(
