@@ -4,7 +4,11 @@
 \alias{estimate_distribution}
 \title{Estimate Distributions Using Statistical Decision Guidance}
 \usage{
-estimate_distribution(df, distribution_config = "auto")
+estimate_distribution(
+  df,
+  distribution_config = "auto",
+  result_col = analysis_result_var()
+)
 }
 \arguments{
 \item{df}{Grouped data frame or `env_schema` object.}

@@ -4,7 +4,11 @@
 \alias{derive_decision}
 \title{Derive Statistical Decision Guidance from Data}
 \usage{
-derive_decision(df)
+derive_decision(
+  df,
+  result_col = analysis_result_var(),
+  censored_col = ".censored"
+)
 }
 \arguments{
 \item{df}{Data frame containing analytical results.}

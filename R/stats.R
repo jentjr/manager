@@ -1606,6 +1606,7 @@ kendall_trend.data.frame <- function(
 #' @export
 kendall_trend.env_schema <- function(
   df,
+  result_col = analysis_result_var(),
   conf.level = 0.95
 ) {
   validate_env_schema(df)
@@ -1613,7 +1614,7 @@ kendall_trend.env_schema <- function(
   sample_date_col <- sample_date_var(df)
 
   EnvStats::kendallTrendTest(
-    x = df$.analysis_result,
+    x = df[[result_col]],
     y = df[[sample_date_col]],
     conf.level = conf.level
   )

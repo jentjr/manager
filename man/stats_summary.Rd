@@ -15,10 +15,11 @@ stats_summary(df, ...)
   censored = "censored",
   analysis_result = "analysis_result",
   default_unit = "default_unit",
+  result_col = analysis_result,
   na.rm = TRUE
 )
 
-\method{stats_summary}{env_schema}(df, na.rm = TRUE, ...)
+\method{stats_summary}{env_schema}(df, result_col = analysis_result_var(), na.rm = TRUE, ...)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}
@@ -34,6 +35,8 @@ stats_summary(df, ...)
 \item{analysis_result}{Analytical result column name.}
 
 \item{default_unit}{Reporting unit column name.}
+
+\item{result_col}{Numerical column on which stats_summary is computed}
 
 \item{na.rm}{Logical indicating whether missing values should
 be removed when calculating summary statistics.}

@@ -21,6 +21,7 @@ trend_summary(df, ...)
 
 \method{trend_summary}{env_schema}(
   df,
+  result_col = analysis_result_var(),
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95
