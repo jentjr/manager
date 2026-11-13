@@ -3,19 +3,19 @@ source("data-raw/analyte_alias_tbl.R")
 source("data-raw/standards_tbl.R")
 source("data-raw/data-gw.R")
 
-validate_analyte_tbl(analyte_tbl)
+manager:::validate_analyte_tbl(analyte_tbl)
 
-validate_analyte_alias_tbl(
+manager:::validate_analyte_alias_tbl(
   analyte_alias_tbl,
   analyte_tbl
 )
 
-analyte_alias_lookup <- .build_alias_lookup(
+analyte_alias_lookup <- manager:::.build_alias_lookup(
   analyte_tbl,
   analyte_alias_tbl
 )
 
-.validate_alias_lookup(
+manager:::.validate_alias_lookup(
   analyte_alias_lookup,
   analyte_tbl
 )
