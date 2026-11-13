@@ -36,12 +36,12 @@ shinyServer(function(input, output, session) {
   )
   # End Data Table -------------------------------------------------------------
 
-  # Summary table --------------------------------------------------------------
+  # Stats Summary table --------------------------------------------------------------
   output$summary_table <- DT::renderDT(
     {
       req(get_data())
 
-      manager::summary(get_data())
+      manager::stats_summary(get_data())
     },
     options = list(
       scrollY = "100%",
@@ -65,7 +65,7 @@ shinyServer(function(input, output, session) {
   output$wide_table <- DT::renderDT({
     req(get_data())
 
-    to_wide(get_data(), lab_id = TRUE)
+    to_wide(get_data())
   })
 
   # Map ------------------------------------------------------------------------
@@ -90,7 +90,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "dist_well",
@@ -106,7 +106,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "dist_param",
@@ -159,7 +159,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "corr_wells",
@@ -175,7 +175,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    param_names <- constituents(data)
+    param_names <- analysis_analyte(data)
 
     selectInput(
       "corr_params",
@@ -207,7 +207,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "boxplot_well",
@@ -223,7 +223,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "boxplot_param",
@@ -245,8 +245,8 @@ shinyServer(function(input, output, session) {
         param_name %in% input$boxplot_param
       )
 
-    box_wells <- sample_locations(box_data)
-    box_params <- constituents(box_data)
+    box_wells <- location(box_data)
+    box_params <- analysis_analyte(box_data)
 
     box_list <- lapply(seq_along(box_params), function(i) {
       box_name <- paste("box_plot", i, sep = "")
@@ -321,7 +321,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "ts_well",
@@ -337,7 +337,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "ts_param",
@@ -356,9 +356,9 @@ shinyServer(function(input, output, session) {
     ts_data <- ts_data %>%
       filter(location_id %in% input$ts_well, param_name %in% input$ts_param)
 
-    ts_wells <- sample_locations(ts_data)
+    ts_wells <- location(ts_data)
 
-    ts_params <- constituents(ts_data)
+    ts_params <- analysis_analyte(ts_data)
 
     # Need to inlcude group_var option, using param_name for now
 
@@ -413,7 +413,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "piper_well",
@@ -430,7 +430,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     x_cation_list <- data %>%
       filter(grepl("Calcium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "x_cation",
       "Select X Cation",
@@ -445,7 +445,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     y_cation_list <- data %>%
       filter(grepl("Magnesium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "y_cation",
       "Select Y Cation",
@@ -460,7 +460,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     z_cation_list <- data %>%
       filter(grepl("Potassium|Sodium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "z_cation",
       "Select Z Cations",
@@ -475,7 +475,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     x_anion_list <- data %>%
       filter(grepl("Chloride|Fluoride", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "x_anion",
       "Select X Anions",
@@ -490,7 +490,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     y_anion_list <- data %>%
       filter(grepl("Alkalinity|Carbonate|Bicarbonate", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "y_anion",
       "Select Y Anion",
@@ -505,7 +505,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     z_anion_list <- data %>%
       filter(grepl("Sulfate", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "z_anion",
       "Select Z Anion",
@@ -520,7 +520,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     tds_list <- data %>%
       filter(grepl("TDS|Total Dissolved Solids", param_name)) %>%
-      constituents()
+      analysis_analyte()
     if (isTRUE(input$TDS_plot)) {
       selectInput(
         "piper_tds",
@@ -602,7 +602,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "well_stiff",
@@ -629,7 +629,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     stiff_calcium_list <- data %>%
       filter(grepl("Calcium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "calcium_stiff",
       "Select Calcium",
@@ -644,7 +644,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     stiff_magnesium_list <- data %>%
       filter(grepl("Magnesium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "magnesium_stiff",
       "Select Magnesium",
@@ -659,7 +659,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     stiff_potassium_list <- data %>%
       filter(grepl("Potassium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "potassium_stiff",
       "Select Potassium",
@@ -674,7 +674,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     stiff_sodium_list <- data %>%
       filter(grepl("Sodium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "sodium_stiff",
       "Select Sodium",
@@ -689,7 +689,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     stiff_chloride_list <- data %>%
       filter(grepl("Chloride", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "chloride_stiff",
       "Select Chloride",
@@ -704,7 +704,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     stiff_sulfate_list <- data %>%
       filter(grepl("Sulfate", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "sulfate_stiff",
       "Select Sulfate",
@@ -719,7 +719,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     stiff_alkalinity_list <- data %>%
       filter(grepl("Alkalinity", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "alkalinity_stiff",
       "Select Alkalinity",
@@ -774,7 +774,7 @@ shinyServer(function(input, output, session) {
 
     stiff_data <- get_stiff_data()
 
-    stiff_locations <- sample_locations(stiff_data)
+    stiff_locations <- location(stiff_data)
 
     stiff_dates <- unique(stiff_data$sample_date)
 
@@ -904,7 +904,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "well_schoeller",
@@ -931,7 +931,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     calcium_list <- data %>%
       filter(grepl("Calcium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "schoeller_calcium",
       "Select Calcium",
@@ -946,7 +946,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     magnesium_list <- data %>%
       filter(grepl("Magnesium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "schoeller_magnesium",
       "Select Magnesium",
@@ -961,7 +961,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     potassium_list <- data %>%
       filter(grepl("Potassium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "schoeller_potassium",
       "Select Potassium",
@@ -976,7 +976,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     sodium_list <- data %>%
       filter(grepl("Sodium", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "schoeller_sodium",
       "Select Sodium",
@@ -991,7 +991,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     chloride_list <- data %>%
       filter(grepl("Chloride", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "schoeller_chloride",
       "Select Chloride",
@@ -1006,7 +1006,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     sulfate_list <- data %>%
       filter(grepl("Sulfate", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "schoeller_sulfate",
       "Select Sulfate",
@@ -1021,7 +1021,7 @@ shinyServer(function(input, output, session) {
     data <- get_data()
     alkalinity_list <- data %>%
       filter(grepl("Alkalinity", param_name)) %>%
-      constituents()
+      analysis_analyte()
     selectInput(
       "schoeller_alkalinity",
       "Select Alkalinity",
@@ -1091,7 +1091,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "outlier_well",
@@ -1107,7 +1107,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "outlier_analyte",
@@ -1196,7 +1196,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "trend_well",
@@ -1212,7 +1212,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "trend_analyte",
@@ -1273,7 +1273,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "conf_int_wells",
@@ -1289,7 +1289,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "conf_int_analytes",
@@ -1399,7 +1399,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "tol_int_wells",
@@ -1415,7 +1415,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "tol_int_analytes",
@@ -1568,7 +1568,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "well_intra",
@@ -1584,7 +1584,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "analyte_intra",
@@ -1751,8 +1751,8 @@ shinyServer(function(input, output, session) {
         param_name %in% input$analyte_intra
       )
 
-    ts_params <- constituents(ts_data)
-    ts_wells <- sample_locations(ts_data)
+    ts_params <- analysis_analyte(ts_data)
+    ts_wells <- location(ts_data)
 
     start <- min(as.Date(
       input$back_dates_intra,
@@ -1820,7 +1820,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "well_inter",
@@ -1836,7 +1836,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "analyte_inter",
@@ -1994,7 +1994,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "well_hca",
@@ -2010,7 +2010,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "analyte_hca",
@@ -2049,9 +2049,9 @@ shinyServer(function(input, output, session) {
 
     df <- df %>%
       name_units() %>%
-      group_by(location_id, param_name) %>%
-      summarise(analysis_mean = mean(analysis_result, na.rm = TRUE)) %>%
-      spread(param_name, analysis_mean) %>%
+      dplyr::group_by(location_id, param_name) %>%
+      dplyr::summarise(analysis_mean = mean(analysis_result, na.rm = TRUE)) %>%
+      tidyr::spread(param_name, analysis_mean) %>%
       na.omit()
 
     d <- dist(scale(df[, -1]), method = input$clust_dist_method)
@@ -2076,7 +2076,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    well_names <- sample_locations(data)
+    well_names <- location(data)
 
     selectInput(
       "well_kmeans",
@@ -2092,7 +2092,7 @@ shinyServer(function(input, output, session) {
 
     data <- get_data()
 
-    analyte_names <- constituents(data)
+    analyte_names <- analysis_analyte(data)
 
     selectInput(
       "analyte_kmeans",
@@ -2133,9 +2133,9 @@ shinyServer(function(input, output, session) {
 
     df <- df %>%
       name_units() %>%
-      group_by(location_id, param_name) %>%
-      summarise(analysis_mean = mean(analysis_result, na.rm = TRUE)) %>%
-      spread(param_name, analysis_mean) %>%
+      dplyr::group_by(location_id, param_name) %>%
+      dplyr::summarise(analysis_mean = mean(analysis_result, na.rm = TRUE)) %>%
+      tidyr::spread(param_name, analysis_mean) %>%
       na.omit()
 
     df <- as.data.frame(df)

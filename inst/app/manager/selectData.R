@@ -12,9 +12,9 @@ selectData <- function(input, output, session, multiple) {
   })
 
   get_locations <- reactive({
-    query %>%
-      filter(name %in% input$sites) %>%
-      select(location_id) %>%
+    query |>
+      filter(name %in% input$sites) |>
+      select(location_id) |>
       collect()
   })
 
@@ -33,9 +33,9 @@ selectData <- function(input, output, session, multiple) {
   })
 
   get_constituents <- reactive({
-    query %>%
-      filter(name %in% input$sites, location_id %in% input$locations) %>%
-      select(param_name) %>%
+    query |>
+      filter(name %in% input$sites, location_id %in% input$locations) |>
+      select(param_name) |>
       collect()
   })
 
@@ -58,12 +58,12 @@ selectData <- function(input, output, session, multiple) {
       need(input$sites != "", "Please submit a query")
     )
 
-    query %>%
+    query |>
       filter(
         name %in% input$sites,
         location_id %in% input$locations,
         param_name %in% input$constituents
-      ) %>%
+      ) |>
       collect()
   }))
 }

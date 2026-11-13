@@ -27,51 +27,103 @@ pool <- dbPool(
   Database = dw$database
 )
 
-sites <- pool %>% tbl("SITE")
+sites <- pool |> tbl("SITE")
 
-site_list <- sites %>%
-  select(NAME) %>%
+site_list <- sites |>
+  select(NAME) |>
   collect()
 
-locations <- pool %>% tbl("LOCATIONS")
+locations <- pool |> tbl("LOCATIONS")
 
-location_list <- locations %>%
-  select(LOCATION_ID) %>%
+location_list <- locations |>
+  select(LOCATION_ID) |>
   collect()
 
-site_parameters <- pool %>% tbl("SITE_PARAMETERS")
+site_parameters <- pool |> tbl("SITE_PARAMETERS")
 
-constituent_list <- site_parameters %>%
-  select(PARAM_NAME) %>%
+constituent_list <- site_parameters |>
+  select(PARAM_NAME) |>
   collect()
 
-sample_results <- pool %>% tbl("SAMPLE_RESULTS")
+sample_results <- pool |> tbl("SAMPLE_RESULTS")
 
-query <- sample_results %>%
-  left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) %>%
-  left_join(locations, by = c("SITE_ID", "LOCATION_ID")) %>%
-  left_join(sites, by = "SITE_ID") %>%
-  select(SITE_ID,
-         NAME,
-         LAB_ID,
-         LOCATION_ID,
-         PARAM_NAME,
-         SAMPLE_DATE,
-         LT_MEASURE,
-         FLAGS,
-         ANALYSIS_RESULT,
-         DETECTION_LIMIT,
-         RL,
-         DEFAULT_UNIT,
-         SHORT_NAME,
-         NORTH_COORDINATE,
-         EAST_COORDINATE,
-         COORDINATE_REFERENCE,
-         WATER_CLASS,
-         LOCATION_CLASS,
-         WELL_TYPE
-  ) %>%
-  select_all(., tolower)
+query <- sample_results |>
+  left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) |>
+  left_join(locations, by = c("SITE_ID", "LOCATION_ID")) |>
+  left_join(sites, by = "SITE_ID") |>
+  select(
+    SITE_ID,
+    NAME,
+    LAB_ID,
+    LOCATION_ID,
+    PARAM_NAME,
+    SAMPLE_DATE,
+    LT_MEASURE,
+    FLAGS,
+    ANALYSIS_RESULT,
+    DETECTION_LIMIT,
+    RL,
+    ACHIEVED_MDC,
+    DEFAULT_UNIT,
+    SHORT_NAME,
+    NORTH_COORDINATE,
+    EAST_COORDINATE,
+    COORDINATE_REFERENCE,
+    WATER_CLASS,
+    LOCATION_CLASS,
+    WELL_TYPE
+  ) |>
+  rename_with(tolower) |>
+  tibble::as_tibble() |>
+  dplyr::mutate(
+    reporting_flag = .resolve_reporting_flag(
+      flags,
+      lt_measure
+    )
+  ) |>
+  env_schema(
+    location = location_id,
+    sample_date = sample_date,
+    analyte = param_name,
+    result = analysis_result,
+    unit = default_unit,
+    sample_id = lab_id,
+    reporting_flag = reporting_flag,
+
+    reporting_limit = rl,
+    detection_limit = detection_limit,
+
+    achieved_mdc = achieved_mdc
+  ) |>
+  dplyr::mutate(
+    .site_id = site_id,
+    .site_name = name,
+
+    .latitude = north_coordinate,
+    .longitude = east_coordinate,
+    .coordinate_system = coordinate_reference,
+
+    .water_class = water_class,
+    .location_class = location_class,
+    .well_type = well_type,
+
+    .source_flag = flags,
+    .source_lt_measure = lt_measure
+  ) |>
+  set_source_metadata(
+    c(
+      ".site_id",
+      ".site_name",
+      ".latitude",
+      ".longitude",
+      ".coordinate_system",
+      ".water_class",
+      ".location_class",
+      ".well_type",
+      ".source_flag",
+      ".source_lt_measure"
+    )
+  )
 
 onStop(function() {
   poolClose(pool)
