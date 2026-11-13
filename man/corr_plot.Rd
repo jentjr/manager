@@ -2,35 +2,54 @@
 % Please edit documentation in R/plotting.R
 \name{corr_plot}
 \alias{corr_plot}
+\alias{corr_plot.data.frame}
+\alias{corr_plot.env_schema}
 \title{Create a correlation plot}
 \usage{
-corr_plot(
+corr_plot(df, ...)
+
+\method{corr_plot}{data.frame}(df, location, analyte, result, unit, sample_date, ...)
+
+\method{corr_plot}{env_schema}(
   df,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
   constituents = NULL,
-  sample_locations = NULL
+  sample_locations = NULL,
+  viridis_option = "D",
+  ...
 )
 }
 \arguments{
-\item{df}{dataframe}
+\item{df}{A data frame or `env_schema` object.}
 
-\item{location_id}{column of sample locations}
+\item{...}{Additional arguments passed to methods.}
 
-\item{sample_date}{column of sample dates}
+\item{location}{Location identifier column.}
 
-\item{param_name}{column of constituents}
+\item{analyte}{Analyte column.}
 
-\item{analysis_result}{column of numerical results}
+\item{result}{Analytical result column.}
 
-\item{constituents}{list of consituents to plot e.g. c("Iron, dissolved",
-"Manganese, dissolved")}
+\item{unit}{Reporting unit column.}
 
-\item{sample_locations}{list of sample locations to plot e.g.
-c("MW-1", "MW-2")}
+\item{sample_date}{Sample date column.}
+
+\item{constituents}{Character vector of analytes to include. Defaults to
+all analytes in the data.}
+
+\item{sample_locations}{Character vector of locations to include. Defaults
+to all locations in the data.}
+
+\item{viridis_option}{Viridis palette option. One of `"A"` through `"H"`.}
+}
+\value{
+A `GGally::ggpairs` correlation plot.
 }
 \description{
-Create a correlation plot
+`corr_plot()` is an S3 generic that supports both raw data frames
+and `env_schema` objects.
+}
+\details{
+For data frames, `corr_plot()` converts the supplied data to an
+`env_schema` object using the specified column mappings, then
+dispatches to [corr_plot.env_schema()].
 }

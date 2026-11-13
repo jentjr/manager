@@ -242,15 +242,15 @@ original source column names or schema mappings used by the input data.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">stats_summary</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There were 16 warnings in `dplyr::summarise()`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>There were 32 warnings in `dplyr::summarise()`.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> The first warning was:</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In argument: `min = .safe_stat(min(.data[[".analysis_result"]], na.rm =</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span>   na.rm))`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 38: `location_id = "MW-1"`, `param_name = "Specific Conductance @</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   25C (field)"`, `.analysis_unit = "us/cm"`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 41: `location_id = "MW-1"`, `param_name = "Temperature (Celsius)"`,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `.analysis_unit = "degC"`.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> Caused by warning in `min()`:</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> no non-missing arguments to min; returning Inf</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Run <a href="x-r-run:dplyr::last_dplyr_warnings()">dplyr::last_dplyr_warnings()</a> to see the 15 remaining warnings.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Run <a href="x-r-run:dplyr::last_dplyr_warnings()">dplyr::last_dplyr_warnings()</a> to see the 31 remaining warnings.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 27</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    location_id param_name  .analysis_unit     n n_used n_detect percent_censored</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
@@ -278,14 +278,14 @@ original source column names or schema mappings used by the input data.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 25</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   location_id     n n_used n_detect percent_censored  mean median    sd      var</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> MW-1          791    772      491             35.5 143.    6.94  398.   1.58<span style="color: #949494;">e</span>5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> MW-2          791    772      497             34.8 130.    5     348.   1.21<span style="color: #949494;">e</span>5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> MW-3          790    771      489             35.7  84.7   5     252.   6.33<span style="color: #949494;">e</span>4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> MW-4          715    697      444             35.4 168.    6.8   536.   2.87<span style="color: #949494;">e</span>5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> MW-5          715    697      427             37.8 181.    6.95  829.   6.87<span style="color: #949494;">e</span>5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> MW-6          715    697      412             39.9 757.    5.35 <span style="text-decoration: underline;">4</span>233.   1.79<span style="color: #949494;">e</span>7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> MW-7          646    630      384             38.1 481.    5    <span style="text-decoration: underline;">2</span>354.   5.54<span style="color: #949494;">e</span>6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> MW-8          715    697      441             35.8 151.    7.57  511.   2.61<span style="color: #949494;">e</span>5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> MW-1          791    753      472             35.5  169.   7.01  412.   1.70<span style="color: #949494;">e</span>5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> MW-2          791    753      478             34.8  152.   5     363.   1.32<span style="color: #949494;">e</span>5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> MW-3          790    752      470             35.7  106.   5     272.   7.38<span style="color: #949494;">e</span>4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> MW-4          715    679      426             35.4  196.   6.9   552.   3.05<span style="color: #949494;">e</span>5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> MW-5          715    679      409             37.8  207.   7     843.   7.11<span style="color: #949494;">e</span>5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> MW-6          715    679      394             39.9  805.   5    <span style="text-decoration: underline;">4</span>285.   1.84<span style="color: #949494;">e</span>7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> MW-7          646    614      368             38.1  519.   5    <span style="text-decoration: underline;">2</span>382.   5.67<span style="color: #949494;">e</span>6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> MW-8          715    679      423             35.8  173.   9     523.   2.74<span style="color: #949494;">e</span>5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 16 more variables: min &lt;dbl&gt;, max &lt;dbl&gt;, cv &lt;dbl&gt;, `25%` &lt;dbl&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   `75%` &lt;dbl&gt;, IQR &lt;dbl&gt;, mad &lt;dbl&gt;, censoring_class &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   distribution_method &lt;chr&gt;, trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span>

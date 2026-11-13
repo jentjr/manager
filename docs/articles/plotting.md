@@ -92,26 +92,26 @@ library(manager)
 data(gw)
 
 gw
-#> # A tibble: 5,878 × 44
-#>    .source_analyte    .normalized_input .analyte .analyte_id .normalized_analyte
-#>  * <chr>              <chr>             <chr>    <chr>       <chr>              
-#>  1 Magnesium, dissol… magnesium dissol… Magnesi… magnesium   magnesium          
-#>  2 Sodium, dissolved  sodium dissolved  Sodium   sodium      sodium             
-#>  3 Potassium, dissol… potassium dissol… Potassi… potassium   potassium          
-#>  4 Chloride, total    chloride total    Chloride chloride    chloride           
-#>  5 Sulfate, total     sulfate total     Sulfate  sulfate     sulfate            
-#>  6 Fluoride, total    fluoride total    Fluoride fluoride    fluoride           
-#>  7 Arsenic, dissolved arsenic dissolved Arsenic  arsenic     arsenic            
-#>  8 Barium, dissolved  barium dissolved  Barium   barium      barium             
-#>  9 Beryllium, dissol… beryllium dissol… Berylli… beryllium   beryllium          
-#> 10 Boron, dissolved   boron dissolved   Boron    boron       boron              
+#> # A tibble: 5,878 × 45
+#>    location_id param_name       sample_date         analysis_result default_unit
+#>  * <chr>       <chr>            <dttm>                        <dbl> <chr>       
+#>  1 MW-2        Magnesium, diss… 2008-10-28 00:00:00           36.3  mg/L        
+#>  2 MW-2        Sodium, dissolv… 2008-10-28 00:00:00           18.9  mg/L        
+#>  3 MW-2        Potassium, diss… 2008-10-28 00:00:00            0.5  mg/L        
+#>  4 MW-2        Chloride, total  2008-10-28 00:00:00           24.9  mg/L        
+#>  5 MW-2        Sulfate, total   2008-10-28 00:00:00          170    mg/L        
+#>  6 MW-2        Fluoride, total  2008-10-28 00:00:00            0.29 mg/L        
+#>  7 MW-2        Arsenic, dissol… 2008-10-28 00:00:00            1.9  ug/L        
+#>  8 MW-2        Barium, dissolv… 2008-10-28 00:00:00          107    ug/L        
+#>  9 MW-2        Beryllium, diss… 2008-10-28 00:00:00            0.5  ug/L        
+#> 10 MW-2        Boron, dissolved 2008-10-28 00:00:00            2.34 mg/L        
 #> # ℹ 5,868 more rows
-#> # ℹ 39 more variables: .fraction <chr>, .is_known_analyte <lgl>,
-#> #   location_id <chr>, sample_date <dttm>, analysis_result <dbl>,
-#> #   lt_measure <chr>, default_unit <chr>, param_name <chr>, .result_type <chr>,
-#> #   .detected <lgl>, .censored <lgl>, .estimated <lgl>, .rejected <lgl>,
-#> #   .usable <lgl>, .original_lab_result <dbl>, .analysis_result <dbl>,
-#> #   .analysis_method <chr>, .original_lab_unit <chr>, .analysis_unit <chr>, …
+#> # ℹ 40 more variables: lt_measure <chr>, .analysis_result <dbl>,
+#> #   .analysis_unit <chr>, .censored <lgl>, .source_analyte <chr>,
+#> #   .normalized_input <chr>, .analyte <chr>, .analyte_id <chr>,
+#> #   .normalized_analyte <chr>, .fraction <chr>, .is_known_analyte <lgl>,
+#> #   .result_type <chr>, .detected <lgl>, .estimated <lgl>, .rejected <lgl>,
+#> #   .usable <lgl>, .original_lab_result <dbl>, .analysis_method <chr>, …
 ```
 
 Because `gw` is already an `env_schema`, no additional mapping is
@@ -179,7 +179,7 @@ gw_schema <- env_schema(
 )
 
 gw_schema
-#> # A tibble: 2,372 × 44
+#> # A tibble: 2,372 × 45
 #>    location_id param_name       sample_date         analysis_result default_unit
 #>  * <chr>       <chr>            <dttm>                        <dbl> <chr>       
 #>  1 MW-2        Magnesium, diss… 2008-10-28 00:00:00           36.3  mg/L        
@@ -193,7 +193,7 @@ gw_schema
 #>  9 MW-2        Beryllium, diss… 2008-10-28 00:00:00            0.5  ug/L        
 #> 10 MW-2        Boron, dissolved 2008-10-28 00:00:00            2.34 mg/L        
 #> # ℹ 2,362 more rows
-#> # ℹ 39 more variables: lt_measure <chr>, .analysis_result <dbl>,
+#> # ℹ 40 more variables: lt_measure <chr>, .analysis_result <dbl>,
 #> #   .analysis_unit <chr>, .censored <lgl>, .source_analyte <chr>,
 #> #   .normalized_input <chr>, .analyte <chr>, .analyte_id <chr>,
 #> #   .normalized_analyte <chr>, .fraction <chr>, .is_known_analyte <lgl>,
@@ -245,10 +245,11 @@ plots[[1]]
 
 ``` r
 
-series_plot(
-  gw,
-  plot_type = "combined"
-)
+gw |>
+  filter(param_name %in% c("Chloride, total", "Sulfate, total", "Total Dissolved Solids")) |>
+  series_plot(
+    plot_type = "combined"
+    )
 ```
 
 ![](plotting_files/figure-html/series-combined-1.png)
@@ -257,12 +258,12 @@ series_plot(
 
 ``` r
 
-plots <- series_plot(
-  gw,
-  standards = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  series_plot(
+    standards = TRUE
+    )
+#> $`Arsenic, dissolved`
 ```
 
 ![](plotting_files/figure-html/series-standards-1.png)
@@ -300,7 +301,7 @@ plots[[1]]
 
 plots <- boxplot(
   gw,
-  show_points = TRUE,
+  show_points = FALSE,
   plot_ci = TRUE
 )
 
@@ -313,12 +314,12 @@ plots[[1]]
 
 ``` r
 
-plots <- boxplot(
-  gw,
-  standards = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  boxplot(
+    standards = TRUE
+    )
+#> $`Arsenic, dissolved`
 ```
 
 ![](plotting_files/figure-html/boxplot-standards-1.png)
@@ -327,12 +328,13 @@ plots[[1]]
 
 ``` r
 
-plots <- boxplot(
-  gw,
-  add_explanation = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  boxplot(
+    standards = TRUE,
+    add_explanation = TRUE
+    )
+#> $`Arsenic, dissolved`
 ```
 
 ![](plotting_files/figure-html/boxplot-explanation-1.png)
@@ -343,8 +345,8 @@ Correlation plots require the optional `GGally` package.
 
 ``` r
 
-corr_plot(
-  gw_data,
+gw |>
+  corr_plot(
   constituents = c(
     "Iron, dissolved",
     "Manganese, dissolved",
@@ -368,30 +370,6 @@ piper_plot(gw)
 
 ![](plotting_files/figure-html/piper-basic-1.png)
 
-### Normalized Analyte Matching
-
-``` r
-
-piper_plot(
-  gw,
-  analyte_matching = "normalized"
-)
-```
-
-![](plotting_files/figure-html/piper-normalized-1.png)
-
-### Exact Analyte Matching
-
-``` r
-
-piper_plot(
-  gw,
-  analyte_matching = "exact"
-)
-```
-
-![](plotting_files/figure-html/piper-exact-1.png)
-
 ### Scale Point Size by TDS
 
 ``` r
@@ -406,10 +384,17 @@ piper_plot(
 
 ``` r
 
-piper_plot(
-  gw,
-  group_col = "aquifer_unit"
-)
+gw |>
+  mutate(
+    aquifer_unit = case_when(
+      location_id %in% c("MW-1", "MW-2", "MW-3") ~ "Sand",
+      location_id %in% c("MW-4", "MW-5") ~ "Shale",
+      .default = "Limestone"
+    )
+  ) |>
+  piper_plot(
+    group_col = "aquifer_unit"
+    )
 ```
 
 ## Piper Animations
@@ -500,20 +485,6 @@ plots <- stiff_plot(
 plots[[1]]
 ```
 
-### Group by Sampling Date
-
-``` r
-
-plots <- stiff_plot(
-  gw,
-  group_var = sample_date_var(gw)
-)
-
-plots[[1]]
-```
-
-![](plotting_files/figure-html/stiff-date-1.png)
-
 ### Add Reference Lines
 
 ``` r
@@ -592,7 +563,7 @@ plots <- series_plot(
   standards = TRUE
 )
 
-plots[[1]]
+plots[[7]]
 ```
 
 ![](plotting_files/figure-html/standards-series-1.png)
@@ -606,7 +577,7 @@ plots <- boxplot(
   standards = TRUE
 )
 
-plots[[1]]
+plots[[7]]
 ```
 
 ![](plotting_files/figure-html/standards-boxplot-1.png)
@@ -732,7 +703,7 @@ sessionInfo()
 #> [21] stringr_1.6.0      textshaping_1.0.5  vipor_0.4.7        htmltools_0.5.9   
 #> [25] sass_0.4.10        yaml_2.3.12        htmlTable_2.5.0    Formula_1.2-6     
 #> [29] pillar_1.11.1      pkgdown_2.2.1      jquerylib_0.1.4    cachem_1.1.0      
-#> [33] viridis_0.6.5      Hmisc_5.3-0        rpart_4.1.27       tidyselect_1.2.1  
+#> [33] Hmisc_5.3-0        viridis_0.6.5      rpart_4.1.27       tidyselect_1.2.1  
 #> [37] digest_0.6.39      stringi_1.8.9      purrr_1.2.2        labeling_0.4.3    
 #> [41] cowplot_1.2.0      fastmap_1.2.0      grid_4.6.1         colorspace_2.1-4  
 #> [45] cli_3.6.6          magrittr_2.0.5     base64enc_0.1-6    utf8_1.2.6        

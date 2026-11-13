@@ -85,16 +85,9 @@ gw <- env_schema(
   reporting_flag = lt_measure,
   analyte_lookup = analyte_tbl
 )
-#> Warning: 13 analytes were not found in analyte metadata.
-#> Aluminum, dissolved
-#> Chromium, hexavalent
-#> Cobalt, Dis
-#> Groundwater Elevation (ref MSL)
-#> Groundwater, depth from TOC
-#> Nitrite + Nitrate, total
-#> SiO2
-#> Strontium, dissolved
-#> Temperature (Celsius)
-#> Tin, dissolved
+#> Warning: 1 analytes were not found in analyte metadata.
+#> ℹ Nitrite + Nitrate, total
 #> ,
+#> Warning: Skipped incompatible unit conversion: degrees c -> degC
+#> Warning: Skipped incompatible unit conversion: std -> ph
 ```

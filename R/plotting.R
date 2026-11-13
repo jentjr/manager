@@ -264,6 +264,7 @@ series_plot.data.frame <- function(
 #' @export
 series_plot.env_schema <- function(
   df,
+  result_col = analysis_result_var(df),
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",
@@ -352,6 +353,7 @@ series_plot.env_schema <- function(
         purrr::imap(
           ~ .series_plot(
             .x,
+            result_col = result_col,
             scale = scale,
             scale_y_trans = scale_y_trans,
             trend = trend,
@@ -372,6 +374,7 @@ series_plot.env_schema <- function(
 
   .series_plot(
     df = df,
+    result_col = result_col,
     scale = scale,
     scale_y_trans = scale_y_trans,
     trend = trend,
@@ -393,6 +396,7 @@ series_plot.env_schema <- function(
 #' @noRd
 .series_plot <- function(
   df,
+  result_col = analysis_result_var(df),
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",
@@ -450,16 +454,22 @@ series_plot.env_schema <- function(
     )
   )
 
-  y_label <-
+  if (identical(result_col, analysis_result_var(df))) {
+    y_label <- "Analysis Result"
+
     if (length(units) == 1) {
-      paste0(
-        "Analysis Result (",
+      y_label <- paste0(
+        y_label,
+        " (",
         units,
         ")"
       )
-    } else {
-      "Analysis Result"
     }
+  } else {
+    y_label <- tools::toTitleCase(
+      gsub("^\\.", "", result_col)
+    )
+  }
 
   if (scale_y_trans != "identity") {
     y_label <- paste(
@@ -476,14 +486,14 @@ series_plot.env_schema <- function(
     if (plot_type == "combined") {
       ggplot2::aes(
         x = .data[[sample_date_col]],
-        y = .analysis_result,
+        y = .data[[result_col]],
         colour = .data[[analyte_col]],
         group = .trend_group
       )
     } else {
       ggplot2::aes(
         x = .data[[sample_date_col]],
-        y = .analysis_result
+        y = .data[[result_col]]
       )
     }
 
@@ -543,6 +553,9 @@ series_plot.env_schema <- function(
 
   if (plot_type == "combined") {
     p <- p +
+      viridis::scale_colour_viridis(
+        discrete = TRUE
+      ) +
       ggplot2::guides(
         colour = ggplot2::guide_legend(
           title = "Analyte"
@@ -568,6 +581,7 @@ series_plot.env_schema <- function(
   p <- .add_trend(
     p = p,
     df = df,
+    result_col = result_col,
     trend = trend,
     trend_ci = trend_ci,
     trend_conf_level = trend_conf_level,
@@ -962,7 +976,7 @@ boxplot.env_schema <- function(
 
   location <- location_var(df)
   analyte <- analyte_var(df)
-  result <- result_var(df)
+  result <- analysis_result_var(df)
   reporting_flag <- reporting_flag_var(df)
 
   split(df, as.character(df[[analyte]])) |>
@@ -1574,7 +1588,7 @@ boxplot.env_schema <- function(
     }
   )
 
-  result_col <- result_var(df)
+  result_col <- analysis_result_var(df)
 
   if (!result_col %in% names(df)) {
     stop(
@@ -1638,67 +1652,187 @@ boxplot.env_schema <- function(
 
 #' Create a correlation plot
 #'
-#' @param df dataframe
-#' @param location_id column of sample locations
-#' @param sample_date column of sample dates
-#' @param param_name column of constituents
-#' @param analysis_result column of numerical results
-#' @param constituents list of consituents to plot e.g. c("Iron, dissolved",
-#' "Manganese, dissolved")
-#' @param sample_locations list of sample locations to plot e.g.
-#' c("MW-1", "MW-2")
+#' `corr_plot()` is an S3 generic that supports both raw data frames
+#' and `env_schema` objects.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @return A `GGally::ggpairs` correlation plot.
 #'
 #' @export
+corr_plot <- function(df, ...) {
+  UseMethod("corr_plot")
+}
 
-corr_plot <- function(
+#' @rdname corr_plot
+#'
+#' @param location Location identifier column.
+#' @param analyte Analyte column.
+#' @param result Analytical result column.
+#' @param unit Reporting unit column.
+#' @param sample_date Sample date column.
+#'
+#' @details
+#' For data frames, `corr_plot()` converts the supplied data to an
+#' `env_schema` object using the specified column mappings, then
+#' dispatches to [corr_plot.env_schema()].
+#'
+#' @export
+corr_plot.data.frame <- function(
   df,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
-  constituents = NULL,
-  sample_locations = NULL
+  location,
+  analyte,
+  result,
+  unit,
+  sample_date,
+  ...
 ) {
+  df <- env_schema(
+    df,
+    location = {{ location }},
+    analyte = {{ analyte }},
+    result = {{ result }},
+    unit = {{ unit }},
+    sample_date = {{ sample_date }}
+  )
+
+  corr_plot(df, ...)
+}
+
+#' @rdname corr_plot
+#'
+#' @param constituents Character vector of analytes to include. Defaults to
+#'   all analytes in the data.
+#' @param sample_locations Character vector of locations to include. Defaults
+#'   to all locations in the data.
+#' @param viridis_option Viridis palette option. One of `"A"` through `"H"`.
+#'
+#' @export
+corr_plot.env_schema <- function(
+  df,
+  constituents = NULL,
+  sample_locations = NULL,
+  viridis_option = "D",
+  ...
+) {
+  validate_env_schema(df)
+
   if (!requireNamespace("GGally", quietly = TRUE)) {
-    stop(
-      "GGally needed for this function to work. Please install it.",
-      call. = FALSE
+    cli::cli_abort(
+      "{.pkg GGally} is required to create correlation plots."
     )
   }
 
-  df |>
-    .get_corr_data(
-      .,
-      constituents = constituents,
-      sample_locations = sample_locations
-    ) |>
-    GGally::ggpairs(columns = 3:ncol(.), aes(colour = location_id))
+  location_col <- location_var(df)
+  sample_date_col <- sample_date_var(df)
+  analyte_col <- analyte_var(df)
+  result_col <- analysis_result_var(df)
+
+  corr_data <- .get_corr_data(
+    df = df,
+    constituents = constituents,
+    sample_locations = sample_locations
+  )
+
+  correlation_columns <- setdiff(
+    names(corr_data),
+    c(location_col, sample_date_col)
+  )
+
+  if (length(correlation_columns) < 2) {
+    cli::cli_abort(
+      "At least two analytes are required to create a correlation plot."
+    )
+  }
+
+  plot <- GGally::ggpairs(
+    data = corr_data,
+    columns = correlation_columns,
+    mapping = ggplot2::aes(
+      colour = !!rlang::sym(location_col)
+    )
+  )
+
+  if (requireNamespace("viridis", quietly = TRUE)) {
+    plot <- plot +
+      viridis::scale_colour_viridis(
+        discrete = TRUE,
+        option = viridis_option,
+        begin = 0.05,
+        end = 0.95,
+        name = location_col
+      )
+  } else {
+    plot <- plot +
+      ggplot2::scale_colour_discrete(
+        name = location_col
+      )
+  }
+
+  plot
 }
 
-#' Function to create a correlation matrix plot
+#' Prepare correlation data from an env_schema object
 #'
 #' @noRd
-
 .get_corr_data <- function(
   df,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
   constituents = NULL,
   sample_locations = NULL
 ) {
-  df <- df |>
-    filter_(
-      ~ param_name %in% constituents,
-      ~ location_id %in% sample_locations
-    ) |>
-    spread_(param_name, analysis_result) |>
-    group_by_(~location_id, ~sample_date) |>
-    summarise_at(vars(constituents), mean, na.rm = TRUE) |>
-    ungroup()
+  location_col <- location_var(df)
+  sample_date_col <- sample_date_var(df)
+  analyte_col <- analyte_var(df)
+  result_col <- analysis_result_var(df)
 
-  return(df)
+  if (is.null(constituents)) {
+    constituents <- df |>
+      dplyr::pull(.data[[analyte_col]]) |>
+      unique() |>
+      stats::na.omit()
+  }
+
+  if (is.null(sample_locations)) {
+    sample_locations <- df |>
+      dplyr::pull(.data[[location_col]]) |>
+      unique() |>
+      stats::na.omit()
+  }
+
+  if (length(constituents) == 0) {
+    cli::cli_abort("No constituents were supplied or found in the data.")
+  }
+
+  if (length(sample_locations) == 0) {
+    cli::cli_abort("No sample locations were supplied or found in the data.")
+  }
+
+  df |>
+    dplyr::filter(
+      .data[[analyte_col]] %in% constituents,
+      .data[[location_col]] %in% sample_locations
+    ) |>
+    dplyr::group_by(
+      .data[[location_col]],
+      .data[[sample_date_col]],
+      .data[[analyte_col]]
+    ) |>
+    dplyr::summarise(
+      .analysis_result = if (all(is.na(.data[[result_col]]))) {
+        NA_real_
+      } else {
+        mean(.data[[result_col]], na.rm = TRUE)
+      },
+      .groups = "drop"
+    ) |>
+    tidyr::pivot_wider(
+      id_cols = dplyr::all_of(
+        c(location_col, sample_date_col)
+      ),
+      names_from = dplyr::all_of(analyte_col),
+      values_from = .analysis_result
+    )
 }
 
 #' Piper Diagram
@@ -1913,8 +2047,8 @@ piper_plot.env_schema <- function(
   location_col <- location_var(df)
   sample_date_col <- sample_date_var(df)
   analyte_col <- analyte_var(df)
-  result_col <- result_var(df)
-  unit_col <- unit_var(df)
+  result_col <- analysis_result_var(df)
+  unit_col <- analysis_unit_var(df)
 
   scale_col <- NULL
 
@@ -3065,9 +3199,9 @@ stiff_plot.env_schema <- function(
 
   analyte_col <- analyte_var(df)
 
-  result_col <- result_var(df)
+  result_col <- analysis_result_var(df)
 
-  unit_col <- unit_var(df)
+  unit_col <- analysis_unit_var(df)
 
   if (is.null(group_var)) {
     group_var <- location_col

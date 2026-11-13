@@ -12,163 +12,203 @@
 "analyte_alias_tbl"
 
 analyte_alias_tbl <- tibble::tribble(
-  ~analyte_id    , ~alias                               ,
+  ~analyte_id       , ~alias                               ,
 
-  "ph"           , "ph"                                 ,
+  "gw_elev"         , "groundwater elevation"              ,
+  "gw_elev"         , "groundwater elevation ref msl"      ,
+  "gw_elev"         , "groundwater elevation (ref msl)"    ,
 
-  "orp"          , "orp"                                ,
-  "orp"          , "oxidation reduction potential"      ,
+  "gw_depth"        , "groundwater depth"                  ,
+  "gw_depth"        , "groundwater depth from toc"         ,
+  "gw_depth"        , "groundwater, depth from toc"        ,
 
-  "do"           , "do"                                 ,
-  "do"           , "dissolved oxygen"                   ,
+  "ph_field"        , "ph"                                 ,
+  "ph_field"        , "ph (field)"                         ,
+  "ph_field"        , "ph field"                           ,
+  "ph_lab"          , "ph (lab)"                           ,
+  "ph_lab"          , "ph lab"                             ,
 
-  "conductivity" , "conductivity"                       ,
-  "conductivity" , "specific conductivity"              ,
-  "conductivity" , "specific conductance"               ,
-  "conductivity" , "Specific Conductance @ 25C (field)" ,
+  "turbidity_field" , "turbidity"                          ,
+  "turbidity_field" , "turbidity (field)"                  ,
+  "turbidity_field" , "turbidity, field"                   ,
+  "turbidity_field" , "turbidity field"                    ,
+  "turbidity_lab"   , "turbidity (lab)"                    ,
+  "turbidity_lab"   , "turbidity lab"                      ,
 
-  "temperature"  , "temperature"                        ,
-  "temperature"  , "temp"                               ,
-  "temperature"  , "temperature field"                  ,
+  "orp"             , "orp"                                ,
+  "orp"             , "oxidation reduction potential"      ,
 
-  "calcium"      , "ca"                                 ,
-  "calcium"      , "calcium"                            ,
+  "do"              , "do"                                 ,
+  "do"              , "dissolved oxygen"                   ,
 
-  "magnesium"    , "mg"                                 ,
-  "magnesium"    , "magnesium"                          ,
+  "conductivity"    , "conductivity"                       ,
+  "conductivity"    , "specific conductivity"              ,
+  "conductivity"    , "specific conductance"               ,
+  "conductivity"    , "Specific Conductance @ 25C (field)" ,
 
-  "sodium"       , "na"                                 ,
-  "sodium"       , "sodium"                             ,
+  "temperature"     , "temperature"                        ,
+  "temperature"     , "temp"                               ,
+  "temperature"     , "temperature field"                  ,
+  "temperature"     , "temperature (celsius)"              ,
+  "temperature"     , "temperature fahrenheit"             ,
 
-  "potassium"    , "k"                                  ,
-  "potassium"    , "potassium"                          ,
+  "calcium"         , "ca"                                 ,
+  "calcium"         , "calcium"                            ,
 
-  "chloride"     , "cl"                                 ,
-  "chloride"     , "chloride"                           ,
+  "magnesium"       , "mg"                                 ,
+  "magnesium"       , "magnesium"                          ,
 
-  "fluoride"     , "f"                                  ,
-  "fluoride"     , "fluoride"                           ,
+  "sodium"          , "na"                                 ,
+  "sodium"          , "sodium"                             ,
 
-  "bromide"      , "br"                                 ,
-  "bromide"      , "bromide"                            ,
+  "potassium"       , "k"                                  ,
+  "potassium"       , "potassium"                          ,
 
-  "iodide"       , "i"                                  ,
-  "iodide"       , "iodide"                             ,
+  "chloride"        , "cl"                                 ,
+  "chloride"        , "chloride"                           ,
 
-  "sulfate"      , "so4"                                ,
-  "sulfate"      , "sulfate"                            ,
+  "fluoride"        , "f"                                  ,
+  "fluoride"        , "fluoride"                           ,
 
-  "nitrate"      , "no3"                                ,
-  "nitrate"      , "nitrate"                            ,
-  "nitrate"      , "nitrate nitrogen"                   ,
-  "nitrate"      , "nitrate nitrogen total"             ,
+  "bromide"         , "br"                                 ,
+  "bromide"         , "bromide"                            ,
 
-  "nitrite"      , "no2"                                ,
-  "nitrite"      , "nitrite"                            ,
-  "nitrite"      , "nitrite nitrogen"                   ,
-  "nitrite"      , "nitrite nitrogen total"             ,
+  "iodide"          , "i"                                  ,
+  "iodide"          , "iodide"                             ,
 
-  "phosphate"    , "po4"                                ,
-  "phosphate"    , "phosphate"                          ,
-  "phosphate"    , "phosphorus total"                   ,
-  "phosphate"    , "phosphorus, total"                  ,
+  "sulfate"         , "so4"                                ,
+  "sulfate"         , "sulfate"                            ,
 
-  "bicarbonate"  , "bicarbonate"                        ,
-  "bicarbonate"  , "hco3"                               ,
-  "bicarbonate"  , "alkalinity"                         ,
-  "bicarbonate"  , "alkalinity as caco3"                ,
-  "bicarbonate"  , "alkalinity total"                   ,
-  "bicarbonate"  , "alkalinity total lab"               ,
-  "bicarbonate"  , "alkalinity total (lab)"             ,
-  "bicarbonate"  , "alkalinity, total (lab)"            ,
+  "nitrate"         , "no3"                                ,
+  "nitrate"         , "nitrate"                            ,
+  "nitrate"         , "nitrate nitrogen"                   ,
+  "nitrate"         , "nitrate nitrogen total"             ,
 
-  "carbonate"    , "carbonate"                          ,
-  "carbonate"    , "co3"                                ,
+  "nitrite"         , "no2"                                ,
+  "nitrite"         , "nitrite"                            ,
+  "nitrite"         , "nitrite nitrogen"                   ,
+  "nitrite"         , "nitrite nitrogen total"             ,
 
-  "arsenic"      , "as"                                 ,
-  "arsenic"      , "arsenic"                            ,
-  "arsenic"      , "arsenic dis"                        ,
+  "nitrate_nitrite" , "nitrate + nitrite"                  ,
+  "nitrate_nitrite" , "nitrate + nitrite total"            ,
 
-  "antimony"     , "sb"                                 ,
-  "antimony"     , "antimony"                           ,
+  "silica"          , "sio2"                               ,
 
-  "barium"       , "ba"                                 ,
-  "barium"       , "barium"                             ,
+  "phosphate"       , "po4"                                ,
+  "phosphate"       , "phosphate"                          ,
+  "phosphate"       , "phosphorus total"                   ,
+  "phosphate"       , "phosphorus, total"                  ,
 
-  "beryllium"    , "be"                                 ,
-  "beryllium"    , "beryllium"                          ,
+  "bicarbonate"     , "bicarbonate"                        ,
+  "bicarbonate"     , "hco3"                               ,
+  "bicarbonate"     , "alkalinity"                         ,
+  "bicarbonate"     , "alkalinity as caco3"                ,
+  "bicarbonate"     , "alkalinity total"                   ,
+  "bicarbonate"     , "alkalinity total lab"               ,
+  "bicarbonate"     , "alkalinity total (lab)"             ,
+  "bicarbonate"     , "alkalinity, total (lab)"            ,
 
-  "boron"        , "b"                                  ,
-  "boron"        , "boron"                              ,
+  "carbonate"       , "carbonate"                          ,
+  "carbonate"       , "co3"                                ,
 
-  "cadmium"      , "cd"                                 ,
-  "cadmium"      , "cadmium"                            ,
+  "aluminum"        , "al"                                 ,
+  "aluminum"        , "aluminum"                           ,
 
-  "chromium"     , "cr"                                 ,
-  "chromium"     , "chromium"                           ,
+  "arsenic"         , "as"                                 ,
+  "arsenic"         , "arsenic"                            ,
+  "arsenic"         , "arsenic dis"                        ,
 
-  "cobalt"       , "co"                                 ,
-  "cobalt"       , "cobalt"                             ,
+  "antimony"        , "sb"                                 ,
+  "antimony"        , "antimony"                           ,
 
-  "copper"       , "cu"                                 ,
-  "copper"       , "copper"                             ,
+  "barium"          , "ba"                                 ,
+  "barium"          , "barium"                             ,
 
-  "iron"         , "fe"                                 ,
-  "iron"         , "iron"                               ,
+  "beryllium"       , "be"                                 ,
+  "beryllium"       , "beryllium"                          ,
 
-  "lead"         , "pb"                                 ,
-  "lead"         , "lead"                               ,
+  "boron"           , "b"                                  ,
+  "boron"           , "boron"                              ,
 
-  "lithium"      , "li"                                 ,
-  "lithium"      , "lithium"                            ,
+  "cadmium"         , "cd"                                 ,
+  "cadmium"         , "cadmium"                            ,
 
-  "manganese"    , "mn"                                 ,
-  "manganese"    , "manganese"                          ,
+  "chromium"        , "cr"                                 ,
+  "chromium"        , "chromium"                           ,
 
-  "mercury"      , "hg"                                 ,
-  "mercury"      , "mercury"                            ,
+  "hex_chromium"    , "Chromium, hexavalent"               ,
 
-  "molybdenum"   , "mo"                                 ,
-  "molybdenum"   , "molybdenum"                         ,
+  "cobalt"          , "co"                                 ,
+  "cobalt"          , "cobalt"                             ,
 
-  "nickel"       , "ni"                                 ,
-  "nickel"       , "nickel"                             ,
+  "copper"          , "cu"                                 ,
+  "copper"          , "copper"                             ,
 
-  "selenium"     , "se"                                 ,
-  "selenium"     , "selenium"                           ,
+  "iron"            , "fe"                                 ,
+  "iron"            , "iron"                               ,
 
-  "silver"       , "ag"                                 ,
-  "silver"       , "silver"                             ,
+  "lead"            , "pb"                                 ,
+  "lead"            , "lead"                               ,
 
-  "thallium"     , "tl"                                 ,
-  "thallium"     , "thallium"                           ,
+  "lithium"         , "li"                                 ,
+  "lithium"         , "lithium"                            ,
 
-  "vanadium"     , "v"                                  ,
-  "vanadium"     , "vanadium"                           ,
+  "manganese"       , "mn"                                 ,
+  "manganese"       , "manganese"                          ,
 
-  "zinc"         , "zn"                                 ,
-  "zinc"         , "zinc"                               ,
+  "mercury"         , "hg"                                 ,
+  "mercury"         , "mercury"                            ,
 
-  "hardness"     , "hardness"                           ,
-  "hardness"     , "hardness total"                     ,
-  "hardness"     , "hardness total as caco3"            ,
-  "hardness"     , "hardness total mg l as caco3"       ,
+  "molybdenum"      , "mo"                                 ,
+  "molybdenum"      , "molybdenum"                         ,
 
-  "tds"          , "tds"                                ,
-  "tds"          , "total dissolved solids"             ,
+  "nickel"          , "ni"                                 ,
+  "nickel"          , "nickel"                             ,
 
-  "ammonia"      , "ammonia"                            ,
-  "ammonia"      , "nh3"                                ,
+  "selenium"        , "se"                                 ,
+  "selenium"        , "selenium"                           ,
 
-  "radium_226"   , "radium 226"                         ,
-  "radium_226"   , "ra 226"                             ,
-  "radium_226"   , "radium-226"                         ,
+  "silver"          , "ag"                                 ,
+  "silver"          , "silver"                             ,
 
-  "radium_228"   , "radium 228"                         ,
-  "radium_228"   , "ra 228"                             ,
-  "radium_228"   , "radium-228"                         ,
+  "strontium"       , "sr"                                 ,
+  "strontium"       , "strontium"                          ,
 
-  "gross_alpha"  , "gross alpha"                        ,
+  "thallium"        , "tl"                                 ,
+  "thallium"        , "thallium"                           ,
 
-  "gross_beta"   , "gross beta"
+  "tin"             , "sn"                                 ,
+  "tin"             , "tin"                                ,
+
+  "uranium"         , "u"                                  ,
+  "uranium"         , "uranium"                            ,
+
+  "vanadium"        , "v"                                  ,
+  "vanadium"        , "vanadium"                           ,
+
+  "zinc"            , "zn"                                 ,
+  "zinc"            , "zinc"                               ,
+
+  "hardness"        , "hardness"                           ,
+  "hardness"        , "hardness total"                     ,
+  "hardness"        , "hardness total as caco3"            ,
+  "hardness"        , "hardness total mg l as caco3"       ,
+
+  "tds"             , "tds"                                ,
+  "tds"             , "total dissolved solids"             ,
+
+  "ammonia"         , "ammonia"                            ,
+  "ammonia"         , "nh3"                                ,
+
+  "radium_226"      , "radium 226"                         ,
+  "radium_226"      , "ra 226"                             ,
+  "radium_226"      , "radium-226"                         ,
+
+  "radium_228"      , "radium 228"                         ,
+  "radium_228"      , "ra 228"                             ,
+  "radium_228"      , "radium-228"                         ,
+
+  "gross_alpha"     , "gross alpha"                        ,
+
+  "gross_beta"      , "gross beta"
 )

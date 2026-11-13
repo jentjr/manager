@@ -716,11 +716,6 @@ convert_analytes_to_meq <- function(
   )
 
   lookup |>
-    dplyr::select(
-      analyte_id,
-      std_unit,
-      meq_factor
-    ) |>
     dplyr::mutate(
       std_unit = .normalize_unit(
         std_unit

@@ -6,28 +6,33 @@ names by appending fraction descriptors.
 ## Usage
 
 ``` r
-.add_fraction_aliases(
-  alias,
-  fractions = c("dissolved", "total", "filtered", "unfiltered")
-)
+.add_fraction_aliases(alias)
 ```
 
 ## Arguments
 
-- x:
+- alias:
 
   Character vector of analyte names or abbreviations.
 
 ## Value
 
-A character vector containing the original values and common
-fraction-specific variants.
+A tibble containing:
+
+- alias:
+
+  Generated alias.
+
+- fraction:
+
+  Resolved fraction associated with the alias.
 
 ## Details
 
 The following suffixes are generated:
 
-\- \`"dissolved"\` - \`"total"\` - \`"filtered"\` - \`"unfiltered"\`
+\- \`"dissolved"\` - \`"diss"\` - \`"dis"\` - \`"total"\` - \`"tot"\` -
+\`"filtered"\` - \`"filt"\` - \`"unfiltered"\` - \`"unfilt"\`
 
 This helper is primarily used when constructing \[analyte_tbl\] and
 \[analyte_alias_lookup\].

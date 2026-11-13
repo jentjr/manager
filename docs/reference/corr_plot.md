@@ -1,18 +1,23 @@
 # Create a correlation plot
 
-Create a correlation plot
+\`corr_plot()\` is an S3 generic that supports both raw data frames and
+\`env_schema\` objects.
 
 ## Usage
 
 ``` r
+corr_plot(df, ...)
+
+# S3 method for class 'data.frame'
+corr_plot(df, location, analyte, result, unit, sample_date, ...)
+
+# S3 method for class 'env_schema'
 corr_plot(
   df,
-  location_id = "location_id",
-  sample_date = "sample_date",
-  param_name = "param_name",
-  analysis_result = "analysis_result",
   constituents = NULL,
-  sample_locations = NULL
+  sample_locations = NULL,
+  viridis_option = "D",
+  ...
 )
 ```
 
@@ -20,29 +25,52 @@ corr_plot(
 
 - df:
 
-  dataframe
+  A data frame or \`env_schema\` object.
 
-- location_id:
+- ...:
 
-  column of sample locations
+  Additional arguments passed to methods.
+
+- location:
+
+  Location identifier column.
+
+- analyte:
+
+  Analyte column.
+
+- result:
+
+  Analytical result column.
+
+- unit:
+
+  Reporting unit column.
 
 - sample_date:
 
-  column of sample dates
-
-- param_name:
-
-  column of constituents
-
-- analysis_result:
-
-  column of numerical results
+  Sample date column.
 
 - constituents:
 
-  list of consituents to plot e.g. c("Iron, dissolved", "Manganese,
-  dissolved")
+  Character vector of analytes to include. Defaults to all analytes in
+  the data.
 
 - sample_locations:
 
-  list of sample locations to plot e.g. c("MW-1", "MW-2")
+  Character vector of locations to include. Defaults to all locations in
+  the data.
+
+- viridis_option:
+
+  Viridis palette option. One of \`"A"\` through \`"H"\`.
+
+## Value
+
+A \`GGally::ggpairs\` correlation plot.
+
+## Details
+
+For data frames, \`corr_plot()\` converts the supplied data to an
+\`env_schema\` object using the specified column mappings, then
+dispatches to \[corr_plot.env_schema()\].

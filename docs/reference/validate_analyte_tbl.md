@@ -45,12 +45,7 @@ Validation includes:
 
 - non-missing analyte identifiers;
 
-- uniqueness of \`analyte_id\`;
-
 - uniqueness of canonical analyte names;
-
-The \`aliases\` column must be stored as a list-column containing one or
-more character aliases for each analyte.
 
 ## See also
 

@@ -128,6 +128,12 @@ statistical_decision(
     censored_method
   )
 
+## -----------------------------------------------------------------------------
+trend_summary(
+  gw,
+  censored_method = "auto"
+)
+
 ## ----eval = FALSE-------------------------------------------------------------
 # decision <- derive_decision(gw)
 # 

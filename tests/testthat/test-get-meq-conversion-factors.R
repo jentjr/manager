@@ -25,7 +25,8 @@ test_that(".get_meq_conversion_factors normalizes units", {
     ion_class = "cation",
     charge = 1,
     molecular_weight = 1,
-    meq_factor = 1
+    meq_factor = 1,
+    fractionable = FALSE
   )
 
   result <- .get_meq_conversion_factors(
@@ -46,7 +47,8 @@ test_that(".get_meq_conversion_factors normalizes std_unit", {
     short_name = "TI",
     analyte_group = "Major Ion",
     std_unit = " MG/L ",
-    meq_factor = 1
+    meq_factor = 1,
+    fractionable = FALSE
   )
 
   result <- .get_meq_conversion_factors(

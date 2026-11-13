@@ -364,7 +364,7 @@ Recommended methods:
 
 These recommendations are automatically used by functions such as:
 
-```r
+```{r}
 trend_summary(
   gw,
   censored_method = "auto"

@@ -219,17 +219,8 @@ plots <- boxplot(
   analyte = param_name,
   result = analysis_result
 )
-#> Warning: 13 analytes were not found in analyte metadata.
-#> Aluminum, dissolved
-#> Chromium, hexavalent
-#> Cobalt, Dis
-#> Groundwater Elevation (ref MSL)
-#> Groundwater, depth from TOC
-#> Nitrite + Nitrate, total
-#> SiO2
-#> Strontium, dissolved
-#> Temperature (Celsius)
-#> Tin, dissolved
+#> Warning: 1 analytes were not found in analyte metadata.
+#> ℹ Nitrite + Nitrate, total
 #> ,
 #> Error in validate_env_schema(out): Missing mapped columns: sample_date
 ```

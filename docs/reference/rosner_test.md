@@ -140,22 +140,15 @@ schema <- env_schema(
   result = analysis_result,
   unit = default_unit
 )
-#> Warning: 13 analytes were not found in analyte metadata.
-#> Aluminum, dissolved
-#> Chromium, hexavalent
-#> Cobalt, Dis
-#> Groundwater Elevation (ref MSL)
-#> Groundwater, depth from TOC
-#> Nitrite + Nitrate, total
-#> SiO2
-#> Strontium, dissolved
-#> Temperature (Celsius)
-#> Tin, dissolved
+#> Warning: 1 analytes were not found in analyte metadata.
+#> ℹ Nitrite + Nitrate, total
 #> ,
+#> Warning: Skipped incompatible unit conversion: degrees c -> degC
+#> Warning: Skipped incompatible unit conversion: std -> ph
 
 rosner_test(schema)
-#> # A tibble: 1,015 × 5
-#> # Groups:   location_id, param_name, .analysis_unit [347]
+#> # A tibble: 967 × 5
+#> # Groups:   location_id, param_name, .analysis_unit [331]
 #>    location_id param_name           .analysis_unit Value Outlier
 #>    <chr>       <chr>                <chr>          <dbl> <lgl>  
 #>  1 MW-2        Magnesium, dissolved mg/l            26.7 FALSE  
@@ -168,7 +161,7 @@ rosner_test(schema)
 #>  8 MW-2        Potassium, dissolved mg/l             0.4 FALSE  
 #>  9 MW-2        Potassium, dissolved mg/l             0.4 FALSE  
 #> 10 MW-2        Chloride, total      mg/l            31.6 FALSE  
-#> # ℹ 1,005 more rows
+#> # ℹ 957 more rows
 
 schema |>
   dplyr::group_by(location_id) |>

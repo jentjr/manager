@@ -175,18 +175,11 @@ standardized analytical results stored in `.analysis_result`.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">dixon_test</span><span class="op">(</span><span class="va">gw_data</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>13 analytes were not found in analyte metadata.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Aluminum, dissolved</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Chromium, hexavalent</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Cobalt, Dis</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater Elevation (ref MSL)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater, depth from TOC</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Nitrite + Nitrate, total</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> SiO2</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Strontium, dissolved</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Temperature (Celsius)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Tin, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1 analytes were not found in analyte metadata.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nitrite + Nitrate, total</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> ,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Skipped incompatible unit conversion: degrees c -&gt; degC</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Skipped incompatible unit conversion: std -&gt; ph</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 5</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   location_id, param_name, .analysis_unit [387]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    location_id param_name           .analysis_unit alternative           p_value</span>
@@ -211,18 +204,11 @@ standardized analytical results stored in `.analysis_result`.</p>
 <span class="r-in"><span>  result <span class="op">=</span> <span class="va">analysis_result</span>,</span></span>
 <span class="r-in"><span>  unit <span class="op">=</span> <span class="va">default_unit</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>13 analytes were not found in analyte metadata.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Aluminum, dissolved</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Chromium, hexavalent</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Cobalt, Dis</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater Elevation (ref MSL)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater, depth from TOC</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Nitrite + Nitrate, total</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> SiO2</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Strontium, dissolved</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Temperature (Celsius)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Tin, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1 analytes were not found in analyte metadata.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Nitrite + Nitrate, total</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> ,</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Skipped incompatible unit conversion: degrees c -&gt; degC</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Skipped incompatible unit conversion: std -&gt; ph</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dixon_test</span><span class="op">(</span><span class="va">schema</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 5</span></span>

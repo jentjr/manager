@@ -24,6 +24,7 @@ series_plot(
 # S3 method for class 'env_schema'
 series_plot(
   df,
+  result_col = analysis_result_var(df),
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",
@@ -390,22 +391,6 @@ series_plot(
 #> ℹ Do you need to adjust the group aesthetic?
 #> `geom_path()`: Each group consists of only one observation.
 #> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
 
 #> 
 #> $`Fluoride, total`
@@ -470,22 +455,6 @@ series_plot(
 #> ℹ Do you need to adjust the group aesthetic?
 #> `geom_path()`: Each group consists of only one observation.
 #> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
-#> `geom_line()`: Each group consists of only one observation.
-#> ℹ Do you need to adjust the group aesthetic?
 
 #> 
 #> $`Phosphorus, total`
@@ -507,10 +476,6 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_path()`).
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`
@@ -520,6 +485,10 @@ series_plot(
 
 #> 
 #> $`Temperature (Celsius)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Thallium, dissolved`
@@ -550,6 +519,10 @@ series_plot(
 
 #> 
 #> $`pH (field)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 
@@ -598,6 +571,8 @@ series_plot(
 
 #> 
 #> $`Copper, dissolved`
+#> Warning: Removed 40 rows containing missing values or values outside the scale range
+#> (`geom_line()`).
 
 #> 
 #> $`Dissolved Oxygen`
@@ -635,6 +610,8 @@ series_plot(
 
 #> 
 #> $`Lead, dissolved`
+#> Warning: Removed 92 rows containing missing values or values outside the scale range
+#> (`geom_line()`).
 
 #> 
 #> $`Magnesium, dissolved`
@@ -653,6 +630,8 @@ series_plot(
 
 #> 
 #> $`Nickel, dissolved`
+#> Warning: Removed 18 rows containing missing values or values outside the scale range
+#> (`geom_line()`).
 
 #> 
 #> $`Nitrate nitrogen, total`
@@ -662,6 +641,8 @@ series_plot(
 
 #> 
 #> $`Nitrite nitrogen, total`
+#> Warning: Removed 12 rows containing missing values or values outside the scale range
+#> (`geom_line()`).
 
 #> 
 #> $`Oxidation Reduction Potential`
@@ -690,6 +671,8 @@ series_plot(
 
 #> 
 #> $`Selenium, dissolved`
+#> Warning: Removed 20 rows containing missing values or values outside the scale range
+#> (`geom_line()`).
 
 #> 
 #> $SiO2
@@ -702,10 +685,6 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_path()`).
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`
@@ -715,9 +694,15 @@ series_plot(
 
 #> 
 #> $`Temperature (Celsius)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Thallium, dissolved`
+#> Warning: Removed 18 rows containing missing values or values outside the scale range
+#> (`geom_line()`).
 
 #> 
 #> $`Tin, dissolved`
@@ -745,6 +730,10 @@ series_plot(
 
 #> 
 #> $`pH (field)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 
@@ -752,9 +741,9 @@ series_plot(
   gw,
   plot_type = "combined"
 )
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> Warning: Removed 290 rows containing missing values or values outside the scale range
 #> (`geom_path()`).
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> Warning: Removed 290 rows containing missing values or values outside the scale range
 #> (`geom_point()`).
 
 
@@ -926,6 +915,15 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
+
+#> 
+#> $`Strontium, dissolved`
+
+#> 
+#> $`Sulfate, total`
+
+#> 
+#> $`Temperature (Celsius)`
 #> Warning: NaNs produced
 #> Warning: NaNs produced
 #> Warning: NaNs produced
@@ -945,21 +943,6 @@ series_plot(
 #> Warning: Removed 145 rows containing missing values or values outside the scale range
 #> (`geom_path()`).
 #> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
-
-#> 
-#> $`Strontium, dissolved`
-
-#> 
-#> $`Sulfate, total`
-
-#> 
-#> $`Temperature (Celsius)`
-#> Warning: NaNs produced
-#> Warning: log-10 transformation introduced infinite values.
-#> Warning: NaNs produced
-#> Warning: log-10 transformation introduced infinite values.
-#> Warning: Removed 1 row containing missing values or values outside the scale range
 #> (`geom_point()`).
 
 #> 
@@ -1001,6 +984,26 @@ series_plot(
 
 #> 
 #> $`pH (field)`
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 
@@ -1157,10 +1160,6 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_path()`).
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`
@@ -1170,6 +1169,10 @@ series_plot(
 
 #> 
 #> $`Temperature (Celsius)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Thallium, dissolved`
@@ -1200,6 +1203,10 @@ series_plot(
 
 #> 
 #> $`pH (field)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 
@@ -1351,10 +1358,6 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_path()`).
-#> Warning: Removed 145 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`
@@ -1364,6 +1367,10 @@ series_plot(
 
 #> 
 #> $`Temperature (Celsius)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Thallium, dissolved`
@@ -1394,6 +1401,10 @@ series_plot(
 
 #> 
 #> $`pH (field)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 ```

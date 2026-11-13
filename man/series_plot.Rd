@@ -23,6 +23,7 @@ series_plot(df, ...)
 
 \method{series_plot}{env_schema}(
   df,
+  result_col = analysis_result_var(df),
   scale = "free",
   scale_y_trans = "identity",
   trend = "none",

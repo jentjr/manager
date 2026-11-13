@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">Package
 Development Team</h4>
             
-            <h4 data-toc-skip class="date">2026-11-12</h4>
+            <h4 data-toc-skip class="date">2026-11-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jentjr/manager/blob/HEAD/vignettes/plotting.Rmd" class="external-link"><code>vignettes/plotting.Rmd</code></a></small>
       <div class="d-none name"><code>plotting.Rmd</code></div>
@@ -149,26 +149,26 @@ can be used directly with plotting functions.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gw</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5,878 × 44</span></span></span>
-<span><span class="co">#&gt;    .source_analyte    .normalized_input .analyte .analyte_id .normalized_analyte</span></span>
-<span><span class="co">#&gt;  <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Magnesium, dissol… magnesium dissol… Magnesi… magnesium   magnesium          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Sodium, dissolved  sodium dissolved  Sodium   sodium      sodium             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Potassium, dissol… potassium dissol… Potassi… potassium   potassium          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Chloride, total    chloride total    Chloride chloride    chloride           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Sulfate, total     sulfate total     Sulfate  sulfate     sulfate            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Fluoride, total    fluoride total    Fluoride fluoride    fluoride           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Arsenic, dissolved arsenic dissolved Arsenic  arsenic     arsenic            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Barium, dissolved  barium dissolved  Barium   barium      barium             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Beryllium, dissol… beryllium dissol… Berylli… beryllium   beryllium          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Boron, dissolved   boron dissolved   Boron    boron       boron              </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5,878 × 45</span></span></span>
+<span><span class="co">#&gt;    location_id param_name       sample_date         analysis_result default_unit</span></span>
+<span><span class="co">#&gt;  <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> MW-2        Magnesium, diss… 2008-10-28 <span style="color: #949494;">00:00:00</span>           36.3  mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> MW-2        Sodium, dissolv… 2008-10-28 <span style="color: #949494;">00:00:00</span>           18.9  mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> MW-2        Potassium, diss… 2008-10-28 <span style="color: #949494;">00:00:00</span>            0.5  mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> MW-2        Chloride, total  2008-10-28 <span style="color: #949494;">00:00:00</span>           24.9  mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> MW-2        Sulfate, total   2008-10-28 <span style="color: #949494;">00:00:00</span>          170    mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> MW-2        Fluoride, total  2008-10-28 <span style="color: #949494;">00:00:00</span>            0.29 mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> MW-2        Arsenic, dissol… 2008-10-28 <span style="color: #949494;">00:00:00</span>            1.9  ug/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> MW-2        Barium, dissolv… 2008-10-28 <span style="color: #949494;">00:00:00</span>          107    ug/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> MW-2        Beryllium, diss… 2008-10-28 <span style="color: #949494;">00:00:00</span>            0.5  ug/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> MW-2        Boron, dissolved 2008-10-28 <span style="color: #949494;">00:00:00</span>            2.34 mg/L        </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5,868 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 39 more variables: .fraction &lt;chr&gt;, .is_known_analyte &lt;lgl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   location_id &lt;chr&gt;, sample_date &lt;dttm&gt;, analysis_result &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   lt_measure &lt;chr&gt;, default_unit &lt;chr&gt;, param_name &lt;chr&gt;, .result_type &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   .detected &lt;lgl&gt;, .censored &lt;lgl&gt;, .estimated &lt;lgl&gt;, .rejected &lt;lgl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   .usable &lt;lgl&gt;, .original_lab_result &lt;dbl&gt;, .analysis_result &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   .analysis_method &lt;chr&gt;, .original_lab_unit &lt;chr&gt;, .analysis_unit &lt;chr&gt;, …</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 40 more variables: lt_measure &lt;chr&gt;, .analysis_result &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .analysis_unit &lt;chr&gt;, .censored &lt;lgl&gt;, .source_analyte &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .normalized_input &lt;chr&gt;, .analyte &lt;chr&gt;, .analyte_id &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .normalized_analyte &lt;chr&gt;, .fraction &lt;chr&gt;, .is_known_analyte &lt;lgl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .result_type &lt;chr&gt;, .detected &lt;lgl&gt;, .estimated &lt;lgl&gt;, .rejected &lt;lgl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .usable &lt;lgl&gt;, .original_lab_result &lt;dbl&gt;, .analysis_method &lt;chr&gt;, …</span></span></span></code></pre></div>
 <p>Because <code>gw</code> is already an <code>env_schema</code>, no
 additional mapping is required.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -224,7 +224,7 @@ object.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gw_schema</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2,372 × 44</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2,372 × 45</span></span></span>
 <span><span class="co">#&gt;    location_id param_name       sample_date         analysis_result default_unit</span></span>
 <span><span class="co">#&gt;  <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> MW-2        Magnesium, diss… 2008-10-28 <span style="color: #949494;">00:00:00</span>           36.3  mg/L        </span></span>
@@ -238,7 +238,7 @@ object.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> MW-2        Beryllium, diss… 2008-10-28 <span style="color: #949494;">00:00:00</span>            0.5  ug/L        </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> MW-2        Boron, dissolved 2008-10-28 <span style="color: #949494;">00:00:00</span>            2.34 mg/L        </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2,362 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 39 more variables: lt_measure &lt;chr&gt;, .analysis_result &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 40 more variables: lt_measure &lt;chr&gt;, .analysis_result &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   .analysis_unit &lt;chr&gt;, .censored &lt;lgl&gt;, .source_analyte &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   .normalized_input &lt;chr&gt;, .analyte &lt;chr&gt;, .analyte_id &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   .normalized_analyte &lt;chr&gt;, .fraction &lt;chr&gt;, .is_known_analyte &lt;lgl&gt;,</span></span></span>
@@ -286,22 +286,23 @@ object.</p>
 <h3 id="combined-plot">Combined Plot<a class="anchor" aria-label="anchor" href="#combined-plot"></a>
 </h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/series_plot.html">series_plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw</span>,</span>
-<span>  plot_type <span class="op">=</span> <span class="st">"combined"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">param_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Chloride, total"</span>, <span class="st">"Sulfate, total"</span>, <span class="st">"Total Dissolved Solids"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/series_plot.html">series_plot</a></span><span class="op">(</span></span>
+<span>    plot_type <span class="op">=</span> <span class="st">"combined"</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/series-combined-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="standards-overlay">Standards Overlay<a class="anchor" aria-label="anchor" href="#standards-overlay"></a>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/series_plot.html">series_plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw</span>,</span>
-<span>  standards <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">param_name</span> <span class="op">==</span> <span class="st">"Arsenic, dissolved"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/series_plot.html">series_plot</a></span><span class="op">(</span></span>
+<span>    standards <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="co">#&gt; $`Arsenic, dissolved`</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/series-standards-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
@@ -335,7 +336,7 @@ object.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boxplot.html">boxplot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
-<span>  show_points <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  show_points <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  plot_ci <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -346,24 +347,25 @@ object.</p>
 <h3 id="standards-overlay-1">Standards Overlay<a class="anchor" aria-label="anchor" href="#standards-overlay-1"></a>
 </h3>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boxplot.html">boxplot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw</span>,</span>
-<span>  standards <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">param_name</span> <span class="op">==</span> <span class="st">"Arsenic, dissolved"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/boxplot.html">boxplot</a></span><span class="op">(</span></span>
+<span>    standards <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="co">#&gt; $`Arsenic, dissolved`</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/boxplot-standards-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="add-explanation-panel">Add Explanation Panel<a class="anchor" aria-label="anchor" href="#add-explanation-panel"></a>
 </h3>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boxplot.html">boxplot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw</span>,</span>
-<span>  add_explanation <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">param_name</span> <span class="op">==</span> <span class="st">"Arsenic, dissolved"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/boxplot.html">boxplot</a></span><span class="op">(</span></span>
+<span>    standards <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    add_explanation <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="co">#&gt; $`Arsenic, dissolved`</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/boxplot-explanation-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 </div>
@@ -373,8 +375,8 @@ object.</p>
 <p>Correlation plots require the optional <code>GGally</code>
 package.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/corr_plot.html">corr_plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw_data</span>,</span>
+<code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/corr_plot.html">corr_plot</a></span><span class="op">(</span></span>
 <span>  constituents <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"Iron, dissolved"</span>,</span>
 <span>    <span class="st">"Manganese, dissolved"</span>,</span>
@@ -397,29 +399,9 @@ package.</p>
 <p><img src="plotting_files/figure-html/piper-basic-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
-<h3 id="normalized-analyte-matching">Normalized Analyte Matching<a class="anchor" aria-label="anchor" href="#normalized-analyte-matching"></a>
-</h3>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/piper_plot.html">piper_plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw</span>,</span>
-<span>  analyte_matching <span class="op">=</span> <span class="st">"normalized"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/piper-normalized-1.png" class="r-plt" alt="" width="768"></p>
-</div>
-<div class="section level3">
-<h3 id="exact-analyte-matching">Exact Analyte Matching<a class="anchor" aria-label="anchor" href="#exact-analyte-matching"></a>
-</h3>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/piper_plot.html">piper_plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw</span>,</span>
-<span>  analyte_matching <span class="op">=</span> <span class="st">"exact"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/piper-exact-1.png" class="r-plt" alt="" width="768"></p>
-</div>
-<div class="section level3">
 <h3 id="scale-point-size-by-tds">Scale Point Size by TDS<a class="anchor" aria-label="anchor" href="#scale-point-size-by-tds"></a>
 </h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/piper_plot.html">piper_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  scale_analyte <span class="op">=</span> <span class="st">"Total Dissolved Solids"</span></span>
@@ -428,21 +410,28 @@ package.</p>
 <div class="section level3">
 <h3 id="group-by-category">Group by Category<a class="anchor" aria-label="anchor" href="#group-by-category"></a>
 </h3>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/piper_plot.html">piper_plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw</span>,</span>
-<span>  group_col <span class="op">=</span> <span class="st">"aquifer_unit"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    aquifer_unit <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>      <span class="va">location_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MW-1"</span>, <span class="st">"MW-2"</span>, <span class="st">"MW-3"</span><span class="op">)</span> <span class="op">~</span> <span class="st">"Sand"</span>,</span>
+<span>      <span class="va">location_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MW-4"</span>, <span class="st">"MW-5"</span><span class="op">)</span> <span class="op">~</span> <span class="st">"Shale"</span>,</span>
+<span>      .default <span class="op">=</span> <span class="st">"Limestone"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/piper_plot.html">piper_plot</a></span><span class="op">(</span></span>
+<span>    group_col <span class="op">=</span> <span class="st">"aquifer_unit"</span></span>
+<span>    <span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="piper-animations">Piper Animations<a class="anchor" aria-label="anchor" href="#piper-animations"></a>
 </h2>
 <p>Create an interactive animation:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/piper_time_plot.html">piper_time_plot</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></code></pre></div>
 <p>Export animation:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/piper_time_html.html">piper_time_html</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -451,14 +440,14 @@ package.</p>
 <div class="section level3">
 <h3 id="basic-schoeller-plot">Basic Schoeller Plot<a class="anchor" aria-label="anchor" href="#basic-schoeller-plot"></a>
 </h3>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/schoeller_plot.html">schoeller_plot</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/schoeller-basic-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="facet-by-location">Facet by Location<a class="anchor" aria-label="anchor" href="#facet-by-location"></a>
 </h3>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/schoeller_plot.html">schoeller_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  facet_var <span class="op">=</span> <span class="fu"><a href="../reference/schema_accessors.html">location_var</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
@@ -468,7 +457,7 @@ package.</p>
 <div class="section level3">
 <h3 id="facet-by-date">Facet by Date<a class="anchor" aria-label="anchor" href="#facet-by-date"></a>
 </h3>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/schoeller_plot.html">schoeller_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  facet_var <span class="op">=</span> <span class="fu"><a href="../reference/schema_accessors.html">sample_date_var</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
@@ -478,7 +467,7 @@ package.</p>
 <div class="section level3">
 <h3 id="custom-title">Custom Title<a class="anchor" aria-label="anchor" href="#custom-title"></a>
 </h3>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/schoeller_plot.html">schoeller_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"Groundwater Major-Ion Chemistry"</span></span>
@@ -492,7 +481,7 @@ package.</p>
 <div class="section level3">
 <h3 id="basic-stiff-diagram">Basic Stiff Diagram<a class="anchor" aria-label="anchor" href="#basic-stiff-diagram"></a>
 </h3>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stiff_plot.html">stiff_plot</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
@@ -501,7 +490,7 @@ package.</p>
 <div class="section level3">
 <h3 id="scale-fill-by-tds">Scale Fill by TDS<a class="anchor" aria-label="anchor" href="#scale-fill-by-tds"></a>
 </h3>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stiff_plot.html">stiff_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  scale_analyte <span class="op">=</span> <span class="st">"Total Dissolved Solids"</span></span>
@@ -510,21 +499,9 @@ package.</p>
 <span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="group-by-sampling-date">Group by Sampling Date<a class="anchor" aria-label="anchor" href="#group-by-sampling-date"></a>
-</h3>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stiff_plot.html">stiff_plot</a></span><span class="op">(</span></span>
-<span>  <span class="va">gw</span>,</span>
-<span>  group_var <span class="op">=</span> <span class="fu"><a href="../reference/schema_accessors.html">sample_date_var</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/stiff-date-1.png" class="r-plt" alt="" width="768"></p>
-</div>
-<div class="section level3">
 <h3 id="add-reference-lines">Add Reference Lines<a class="anchor" aria-label="anchor" href="#add-reference-lines"></a>
 </h3>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stiff_plot.html">stiff_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  lines <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -538,10 +515,10 @@ package.</p>
 <h2 id="stiff-diagram-animations">Stiff Diagram Animations<a class="anchor" aria-label="anchor" href="#stiff-diagram-animations"></a>
 </h2>
 <p>Interactive display:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/stiff_time_plot.html">stiff_time_plot</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></code></pre></div>
 <p>HTML export:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/stiff_time_html.html">stiff_time_html</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -550,14 +527,14 @@ package.</p>
 <div class="section level3">
 <h3 id="basic-durov-diagram">Basic Durov Diagram<a class="anchor" aria-label="anchor" href="#basic-durov-diagram"></a>
 </h3>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/durov_plot.html">durov_plot</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/durov-basic-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="normalized-matching">Normalized Matching<a class="anchor" aria-label="anchor" href="#normalized-matching"></a>
 </h3>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/durov_plot.html">durov_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  analyte_matching <span class="op">=</span> <span class="st">"normalized"</span></span>
@@ -567,7 +544,7 @@ package.</p>
 <div class="section level3">
 <h3 id="exact-matching">Exact Matching<a class="anchor" aria-label="anchor" href="#exact-matching"></a>
 </h3>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/durov_plot.html">durov_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  analyte_matching <span class="op">=</span> <span class="st">"exact"</span></span>
@@ -580,22 +557,22 @@ package.</p>
 </h2>
 <p>Several plotting functions support standards overlays.</p>
 <p>Time-series example:</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/series_plot.html">series_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  standards <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/standards-series-1.png" class="r-plt" alt="" width="768"></p>
 <p>Boxplot example:</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/boxplot.html">boxplot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  standards <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">plots</span><span class="op">[[</span><span class="fl">7</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/standards-boxplot-1.png" class="r-plt" alt="" width="768"></p>
 </div>
 <div class="section level2">
@@ -621,7 +598,7 @@ used throughout the package.</p>
 <div class="section level3">
 <h3 id="data-frame-method">data.frame Method<a class="anchor" aria-label="anchor" href="#data-frame-method"></a>
 </h3>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_plot.data.frame</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
 <span>  <span class="va">location</span>,</span>
@@ -645,7 +622,7 @@ used throughout the package.</p>
 <div class="section level3">
 <h3 id="env_schema-method">env_schema Method<a class="anchor" aria-label="anchor" href="#env_schema-method"></a>
 </h3>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_plot.env_schema</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -685,7 +662,7 @@ datasets.</p>
 <div class="section level2">
 <h2 id="session-information">Session Information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.6.1 (2026-06-24 ucrt)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
@@ -719,7 +696,7 @@ datasets.</p>
 <span><span class="co">#&gt; [21] stringr_1.6.0      textshaping_1.0.5  vipor_0.4.7        htmltools_0.5.9   </span></span>
 <span><span class="co">#&gt; [25] sass_0.4.10        yaml_2.3.12        htmlTable_2.5.0    Formula_1.2-6     </span></span>
 <span><span class="co">#&gt; [29] pillar_1.11.1      pkgdown_2.2.1      jquerylib_0.1.4    cachem_1.1.0      </span></span>
-<span><span class="co">#&gt; [33] viridis_0.6.5      Hmisc_5.3-0        rpart_4.1.27       tidyselect_1.2.1  </span></span>
+<span><span class="co">#&gt; [33] Hmisc_5.3-0        viridis_0.6.5      rpart_4.1.27       tidyselect_1.2.1  </span></span>
 <span><span class="co">#&gt; [37] digest_0.6.39      stringi_1.8.9      purrr_1.2.2        labeling_0.4.3    </span></span>
 <span><span class="co">#&gt; [41] cowplot_1.2.0      fastmap_1.2.0      grid_4.6.1         colorspace_2.1-4  </span></span>
 <span><span class="co">#&gt; [45] cli_3.6.6          magrittr_2.0.5     base64enc_0.1-6    utf8_1.2.6        </span></span>

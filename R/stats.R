@@ -2032,6 +2032,7 @@ kendall_trend.env_schema <- function(
 .add_trend <- function(
   p,
   df,
+  result_col = analysis_result_var(df),
   trend = "none",
   trend_ci = FALSE,
   trend_conf_level = 0.95,
@@ -2048,11 +2049,9 @@ kendall_trend.env_schema <- function(
     )
   )
 
-  sample_date_col <- sample_date_var(df)
-
   location_col <- location_var(df)
-
   analyte_col <- analyte_var(df)
+  sample_date_col <- sample_date_var(df)
 
   if (trend == "none") {
     return(p)
@@ -2065,27 +2064,28 @@ kendall_trend.env_schema <- function(
   alpha <- 1 - trend_conf_level
 
   if (plot_type == "split") {
-    tr <- .compute_trend(
+    trend_df <- .compute_group_trends(
       df = df,
-      sample_date_col = sample_date_col,
+      result_col = result_col,
       method = trend,
       censored_method = censored_method,
       conf.level = trend_conf_level
     )
 
-    if (is.null(tr)) {
+    if (nrow(trend_df) == 0) {
       return(p)
     }
 
     if (
       trend_ci &&
-        all(c("lwr", "upr") %in% names(tr$trend_df))
+        all(c("lwr", "upr") %in% names(trend_df))
     ) {
       p <- p +
         ggplot2::geom_ribbon(
-          data = tr$trend_df,
+          data = trend_df,
           ggplot2::aes(
             x = .data[[sample_date_col]],
+            group = .data[[location_col]],
             ymin = lwr,
             ymax = upr
           ),
@@ -2097,10 +2097,11 @@ kendall_trend.env_schema <- function(
 
     p <- p +
       ggplot2::geom_line(
-        data = tr$trend_df,
+        data = trend_df,
         ggplot2::aes(
           x = .data[[sample_date_col]],
-          y = fit
+          y = fit,
+          group = .data[[location_col]]
         ),
         colour = "red",
         linewidth = 1,
@@ -2108,47 +2109,40 @@ kendall_trend.env_schema <- function(
       )
 
     if (trend_label != "none") {
-      label_df <- tr$trend_df |>
-        dplyr::slice_tail(n = 1) |>
-        dplyr::mutate(
-          .trend_p_value = tr$p_value,
-          .trend_slope = tr$slope,
-          .trend_conf_low = tr$conf_low,
-          .trend_conf_high = tr$conf_high,
-
-          label = .format_trend_label(
-            slope = tr$slope,
-            p_value = tr$p_value,
-            conf_low = tr$conf_low,
-            conf_high = tr$conf_high,
-            trend_label = trend_label,
-            trend = trend
-          )
-        )
-
-      keep_label <- TRUE
+      labels <- .compute_group_labels(
+        trend_df = trend_df,
+        trend = trend,
+        trend_label = trend_label,
+        sample_date_col = sample_date_col,
+        location_col = location_col,
+        analyte_col = analyte_col
+      )
 
       if (
         trend_label_sig_only &&
           trend == "mann_kendall"
       ) {
-        keep_label <-
-          !is.na(tr$p_value) &&
-          tr$p_value <= alpha
+        labels <- labels |>
+          dplyr::filter(
+            !is.na(.trend_p_value),
+            .trend_p_value <= alpha
+          )
       }
 
-      if (keep_label) {
+      if (nrow(labels) > 0) {
         p <- p +
           ggplot2::geom_text(
-            data = label_df,
+            data = labels,
             ggplot2::aes(
-              x = .data[[sample_date_col]],
-              y = fit,
+              x = label_x,
+              y = label_y,
               label = label
             ),
-            hjust = -0.05,
+            colour = "red",
             size = 3,
-            inherit.aes = FALSE
+            hjust = -0.05,
+            inherit.aes = FALSE,
+            show.legend = FALSE
           )
       }
     }
@@ -2158,6 +2152,7 @@ kendall_trend.env_schema <- function(
 
   trend_df <- .compute_group_trends(
     df = df,
+    result_col = result_col,
     method = trend,
     censored_method = censored_method,
     conf.level = trend_conf_level
@@ -2257,6 +2252,7 @@ kendall_trend.env_schema <- function(
 #' @noRd
 .compute_group_trends <- function(
   df,
+  result_col = analysis_result_var(df),
   method = "mann_kendall",
   censored_method = "cenken",
   conf.level = 0.95
@@ -2276,6 +2272,7 @@ kendall_trend.env_schema <- function(
         tr <- .compute_trend(
           df = .x,
           sample_date_col = sample_date_col,
+          result_col = result_col,
           method = method,
           censored_method = censored_method,
           conf.level = conf.level
@@ -2502,7 +2499,7 @@ kendall_trend.env_schema <- function(
   c(
     location_var(df),
     analyte_var(df),
-    analysis_unit_var()
+    analysis_unit_var(df)
   )
 }
 
@@ -3358,7 +3355,7 @@ boxcox_transform.env_schema <- function(
             c(
               location_var(df),
               analyte_var(df),
-              analysis_unit_var()
+              analysis_unit_var(df)
             )
           )
         )
@@ -3510,7 +3507,7 @@ compare_groups.env_schema <- function(
   } else {
     c(
       analyte_var(df),
-      analysis_unit_var()
+      analysis_unit_var(df)
     )
   }
 
@@ -3537,7 +3534,7 @@ compare_groups.env_schema <- function(
   } else {
     c(
       analyte_var(df),
-      analysis_unit_var()
+      analysis_unit_var(df)
     )
   }
 

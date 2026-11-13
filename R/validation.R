@@ -755,12 +755,9 @@ is_valid_env_schema <- function(x) {
 #' \itemize{
 #'   \item presence of required columns;
 #'   \item non-missing analyte identifiers;
-#'   \item uniqueness of `analyte_id`;
 #'   \item uniqueness of canonical analyte names;
 #' }
 #'
-#' The `aliases` column must be stored as a list-column containing
-#' one or more character aliases for each analyte.
 #'
 #' @seealso
 #' [analyte_tbl],
@@ -774,7 +771,8 @@ validate_analyte_tbl <- function(x) {
     "normalized_analyte",
     "short_name",
     "std_unit",
-    "analyte_group"
+    "analyte_group",
+    "fractionable"
   )
 
   missing <- setdiff(
@@ -815,6 +813,18 @@ validate_analyte_tbl <- function(x) {
   if (anyNA(x$analyte)) {
     rlang::abort(
       "'analyte' cannot contain NA."
+    )
+  }
+
+  if (!is.logical(x$fractionable)) {
+    rlang::abort(
+      "'fractionable' must be logical."
+    )
+  }
+
+  if (anyNA(x$fractionable)) {
+    rlang::abort(
+      "'fractionable' cannot contain NA."
     )
   }
 

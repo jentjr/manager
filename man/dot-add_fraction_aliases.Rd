@@ -4,17 +4,17 @@
 \alias{.add_fraction_aliases}
 \title{Generate fraction-specific analyte aliases}
 \usage{
-.add_fraction_aliases(
-  alias,
-  fractions = c("dissolved", "total", "filtered", "unfiltered")
-)
+.add_fraction_aliases(alias)
 }
 \arguments{
-\item{x}{Character vector of analyte names or abbreviations.}
+\item{alias}{Character vector of analyte names or abbreviations.}
 }
 \value{
-A character vector containing the original values and
-common fraction-specific variants.
+A tibble containing:
+\describe{
+  \item{alias}{Generated alias.}
+  \item{fraction}{Resolved fraction associated with the alias.}
+}
 }
 \description{
 Creates common environmental laboratory reporting variants for
@@ -24,9 +24,14 @@ analyte names by appending fraction descriptors.
 The following suffixes are generated:
 
 - `"dissolved"`
+- `"diss"`
+- `"dis"`
 - `"total"`
+- `"tot"`
 - `"filtered"`
+- `"filt"`
 - `"unfiltered"`
+- `"unfilt"`
 
 This helper is primarily used when constructing
 [analyte_tbl] and [analyte_alias_lookup].

@@ -33,8 +33,8 @@ test_that("validate_boxplot_args succeeds with valid data", {
 
 test_that("non-numeric result generates error", {
   bad <- gw
-  bad[[result_var(bad)]] <- as.character(
-    bad[[result_var(bad)]]
+  bad[[analysis_result_var(bad)]] <- as.character(
+    bad[[analysis_result_var(bad)]]
   )
 
   expect_error(
@@ -69,7 +69,7 @@ test_that("invalid transformation generates error", {
 
 test_that("log transforms require positive values", {
   bad <- gw
-  bad[[result_var(bad)]][1] <- 0
+  bad[[analysis_result_var(bad)]][1] <- 0
 
   expect_error(
     do.call(
@@ -90,7 +90,7 @@ test_that("log transforms require positive values", {
 
 test_that("sqrt transform rejects negative values", {
   bad <- gw
-  bad[[result_var(bad)]][1] <- -1
+  bad[[analysis_result_var(bad)]][1] <- -1
 
   expect_error(
     do.call(

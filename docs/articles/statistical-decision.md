@@ -485,6 +485,26 @@ trend_summary(
   gw,
   censored_method = "auto"
 )
+#> # A tibble: 387 × 22
+#>    location_id param_name              n first_date          last_date          
+#>    <chr>       <chr>               <int> <dttm>              <dttm>             
+#>  1 MW-1        Alkalinity, total …    20 2007-12-20 00:00:00 2013-10-02 00:00:00
+#>  2 MW-1        Aluminum, dissolved    19 2008-02-20 00:00:00 2013-10-02 00:00:00
+#>  3 MW-1        Antimony, dissolved    20 2007-12-20 00:00:00 2013-10-02 00:00:00
+#>  4 MW-1        Arsenic, dissolved     21 2007-12-20 00:00:00 2013-10-02 00:00:00
+#>  5 MW-1        Barium, dissolved      20 2007-12-20 00:00:00 2013-10-02 00:00:00
+#>  6 MW-1        Beryllium, dissolv…    20 2007-12-20 00:00:00 2013-10-02 00:00:00
+#>  7 MW-1        Boron, dissolved       20 2007-12-20 00:00:00 2013-10-02 00:00:00
+#>  8 MW-1        Cadmium, dissolved     20 2007-12-20 00:00:00 2013-10-02 00:00:00
+#>  9 MW-1        Calcium, dissolved     20 2007-12-20 00:00:00 2013-10-02 00:00:00
+#> 10 MW-1        Chloride, total        20 2007-12-20 00:00:00 2013-10-02 00:00:00
+#> # ℹ 377 more rows
+#> # ℹ 17 more variables: date_range_days <dbl>, date_range_years <dbl>,
+#> #   sampling_frequency <dbl>, minimum_concentration <dbl>,
+#> #   median_concentration <dbl>, mean_concentration <dbl>,
+#> #   maximum_concentration <dbl>, standard_deviation <dbl>,
+#> #   coefficient_of_variation <dbl>, trend_method <chr>, censored_method <chr>,
+#> #   slope <dbl>, p_value <dbl>, conf_low <dbl>, conf_high <dbl>, …
 ```
 
 ## Deriving Decisions from Data

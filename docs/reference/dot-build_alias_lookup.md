@@ -14,9 +14,13 @@ standardization and metadata assignment.
 
 ## Arguments
 
-- lookup:
+- analyte_tbl:
 
-  An analyte metadata table, typically \[analyte_tbl\].
+  An analyte metadata table.
+
+- analyte_alias_tbl:
+
+  An analyte alias table.
 
 ## Value
 

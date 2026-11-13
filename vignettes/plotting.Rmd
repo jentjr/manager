@@ -190,21 +190,21 @@ plots[[1]]
 ## Combined Plot
 
 ```{r series-combined}
-series_plot(
-  gw,
-  plot_type = "combined"
-)
+gw |>
+  filter(param_name %in% c("Chloride, total", "Sulfate, total", "Total Dissolved Solids")) |>
+  series_plot(
+    plot_type = "combined"
+    )
 ```
 
 ## Standards Overlay
 
 ```{r series-standards}
-plots <- series_plot(
-  gw,
-  standards = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  series_plot(
+    standards = TRUE
+    )
 ```
 
 # Boxplots
@@ -233,7 +233,7 @@ plots[[1]]
 ```{r boxplot-ci}
 plots <- boxplot(
   gw,
-  show_points = TRUE,
+  show_points = FALSE,
   plot_ci = TRUE
 )
 
@@ -243,23 +243,22 @@ plots[[1]]
 ## Standards Overlay
 
 ```{r boxplot-standards}
-plots <- boxplot(
-  gw,
-  standards = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  boxplot(
+    standards = TRUE
+    )
 ```
 
 ## Add Explanation Panel
 
 ```{r boxplot-explanation}
-plots <- boxplot(
-  gw,
-  add_explanation = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  boxplot(
+    standards = TRUE,
+    add_explanation = TRUE
+    )
 ```
 
 # Correlation Plots
@@ -267,8 +266,8 @@ plots[[1]]
 Correlation plots require the optional `GGally` package.
 
 ```{r corr-plot, eval=FALSE}
-corr_plot(
-  gw_data,
+gw |>
+  corr_plot(
   constituents = c(
     "Iron, dissolved",
     "Manganese, dissolved",
@@ -289,24 +288,6 @@ corr_plot(
 piper_plot(gw)
 ```
 
-## Normalized Analyte Matching
-
-```{r piper-normalized}
-piper_plot(
-  gw,
-  analyte_matching = "normalized"
-)
-```
-
-## Exact Analyte Matching
-
-```{r piper-exact}
-piper_plot(
-  gw,
-  analyte_matching = "exact"
-)
-```
-
 ## Scale Point Size by TDS
 
 ```{r piper-tds, eval=FALSE}
@@ -319,10 +300,17 @@ piper_plot(
 ## Group by Category
 
 ```{r piper-group, eval=FALSE}
-piper_plot(
-  gw,
-  group_col = "aquifer_unit"
-)
+gw |>
+  mutate(
+    aquifer_unit = case_when(
+      location_id %in% c("MW-1", "MW-2", "MW-3") ~ "Sand",
+      location_id %in% c("MW-4", "MW-5") ~ "Shale",
+      .default = "Limestone"
+    )
+  ) |>
+  piper_plot(
+    group_col = "aquifer_unit"
+    )
 ```
 
 # Piper Animations
@@ -394,18 +382,6 @@ plots <- stiff_plot(
 
 plots[[1]]
 ```
-
-## Group by Sampling Date
-
-```{r stiff-date}
-plots <- stiff_plot(
-  gw,
-  group_var = sample_date_var(gw)
-)
-
-plots[[1]]
-```
-
 ## Add Reference Lines
 
 ```{r stiff-lines}
@@ -469,7 +445,7 @@ plots <- series_plot(
   standards = TRUE
 )
 
-plots[[1]]
+plots[[7]]
 ```
 
 Boxplot example:
@@ -480,7 +456,7 @@ plots <- boxplot(
   standards = TRUE
 )
 
-plots[[1]]
+plots[[7]]
 ```
 
 # Animation Framework

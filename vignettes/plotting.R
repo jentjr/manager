@@ -74,18 +74,18 @@ plots[[1]]
 # plots[[1]]
 
 ## ----series-combined----------------------------------------------------------
-series_plot(
-  gw,
-  plot_type = "combined"
-)
+gw |>
+  filter(param_name %in% c("Chloride, total", "Sulfate, total", "Total Dissolved Solids")) |>
+  series_plot(
+    plot_type = "combined"
+    )
 
 ## ----series-standards---------------------------------------------------------
-plots <- series_plot(
-  gw,
-  standards = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  series_plot(
+    standards = TRUE
+    )
 
 ## ----boxplot-basic------------------------------------------------------------
 plots <- boxplot(gw)
@@ -103,31 +103,30 @@ plots[[1]]
 ## ----boxplot-ci---------------------------------------------------------------
 plots <- boxplot(
   gw,
-  show_points = TRUE,
+  show_points = FALSE,
   plot_ci = TRUE
 )
 
 plots[[1]]
 
 ## ----boxplot-standards--------------------------------------------------------
-plots <- boxplot(
-  gw,
-  standards = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  boxplot(
+    standards = TRUE
+    )
 
 ## ----boxplot-explanation------------------------------------------------------
-plots <- boxplot(
-  gw,
-  add_explanation = TRUE
-)
-
-plots[[1]]
+gw |>
+  filter(param_name == "Arsenic, dissolved") |>
+  boxplot(
+    standards = TRUE,
+    add_explanation = TRUE
+    )
 
 ## ----corr-plot, eval=FALSE----------------------------------------------------
-# corr_plot(
-#   gw_data,
+# gw |>
+#   corr_plot(
 #   constituents = c(
 #     "Iron, dissolved",
 #     "Manganese, dissolved",
@@ -142,18 +141,6 @@ plots[[1]]
 ## ----piper-basic--------------------------------------------------------------
 piper_plot(gw)
 
-## ----piper-normalized---------------------------------------------------------
-piper_plot(
-  gw,
-  analyte_matching = "normalized"
-)
-
-## ----piper-exact--------------------------------------------------------------
-piper_plot(
-  gw,
-  analyte_matching = "exact"
-)
-
 ## ----piper-tds, eval=FALSE----------------------------------------------------
 # piper_plot(
 #   gw,
@@ -161,10 +148,17 @@ piper_plot(
 # )
 
 ## ----piper-group, eval=FALSE--------------------------------------------------
-# piper_plot(
-#   gw,
-#   group_col = "aquifer_unit"
-# )
+# gw |>
+#   mutate(
+#     aquifer_unit = case_when(
+#       location_id %in% c("MW-1", "MW-2", "MW-3") ~ "Sand",
+#       location_id %in% c("MW-4", "MW-5") ~ "Shale",
+#       .default = "Limestone"
+#     )
+#   ) |>
+#   piper_plot(
+#     group_col = "aquifer_unit"
+#     )
 
 ## ----piper-animation, eval=FALSE----------------------------------------------
 # piper_time_plot(gw)
@@ -206,14 +200,6 @@ plots[[1]]
 # 
 # plots[[1]]
 
-## ----stiff-date---------------------------------------------------------------
-plots <- stiff_plot(
-  gw,
-  group_var = sample_date_var(gw)
-)
-
-plots[[1]]
-
 ## ----stiff-lines--------------------------------------------------------------
 plots <- stiff_plot(
   gw,
@@ -249,7 +235,7 @@ plots <- series_plot(
   standards = TRUE
 )
 
-plots[[1]]
+plots[[7]]
 
 ## ----standards-boxplot--------------------------------------------------------
 plots <- boxplot(
@@ -257,7 +243,7 @@ plots <- boxplot(
   standards = TRUE
 )
 
-plots[[1]]
+plots[[7]]
 
 ## ----extension-dataframe, eval=FALSE------------------------------------------
 # my_plot.data.frame <- function(

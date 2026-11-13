@@ -565,7 +565,27 @@ as:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/trend_summary.html">trend_summary</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  censored_method <span class="op">=</span> <span class="st">"auto"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 387 × 22</span></span></span>
+<span><span class="co">#&gt;    location_id param_name              n first_date          last_date          </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> MW-1        Alkalinity, total …    20 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> MW-1        Aluminum, dissolved    19 2008-02-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> MW-1        Antimony, dissolved    20 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> MW-1        Arsenic, dissolved     21 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> MW-1        Barium, dissolved      20 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> MW-1        Beryllium, dissolv…    20 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> MW-1        Boron, dissolved       20 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> MW-1        Cadmium, dissolved     20 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> MW-1        Calcium, dissolved     20 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> MW-1        Chloride, total        20 2007-12-20 <span style="color: #949494;">00:00:00</span> 2013-10-02 <span style="color: #949494;">00:00:00</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 377 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 17 more variables: date_range_days &lt;dbl&gt;, date_range_years &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   sampling_frequency &lt;dbl&gt;, minimum_concentration &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   median_concentration &lt;dbl&gt;, mean_concentration &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   maximum_concentration &lt;dbl&gt;, standard_deviation &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   coefficient_of_variation &lt;dbl&gt;, trend_method &lt;chr&gt;, censored_method &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   slope &lt;dbl&gt;, p_value &lt;dbl&gt;, conf_low &lt;dbl&gt;, conf_high &lt;dbl&gt;, …</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="deriving-decisions-from-data">Deriving Decisions from Data<a class="anchor" aria-label="anchor" href="#deriving-decisions-from-data"></a>

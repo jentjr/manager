@@ -433,8 +433,7 @@ env_schema <- function(
         analyte_col = env_mapping$analyte,
         alias_lookup = analyte_alias_lookup,
         analyte_lookup = analyte_lookup
-      ) |>
-      .build_analyte_labels()
+      )
   }
 
   # --------------------------------------------------------------
@@ -442,7 +441,8 @@ env_schema <- function(
   # --------------------------------------------------------------
 
   out <- out |>
-    .standardize_schema_results()
+    .standardize_schema_results() |>
+    .build_analyte_labels()
 
   # --------------------------------------------------------------
   # Display standardization
@@ -1264,6 +1264,7 @@ known_analyte_metadata <- function() {
     ".analyte",
     ".analyte_id",
     ".normalized_analyte",
+    ".fractionable",
     ".fraction",
     ".is_known_analyte",
     ".short_name",

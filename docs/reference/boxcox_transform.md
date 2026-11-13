@@ -119,63 +119,63 @@ gw |>
     param_name
   ) |>
   boxcox_transform()
-#> Warning: There were 102 warnings in `dplyr::mutate()`.
+#> Warning: There were 118 warnings in `dplyr::mutate()`.
 #> The first warning was:
 #> ℹ In argument: `boxcox = purrr::map(...)`.
 #> ℹ In group 12: `location_id = "MW-1"`, `param_name = "Chromium, hexavalent"`.
 #> Caused by warning in `cor()`:
 #> ! the standard deviation is zero
-#> ℹ Run dplyr::last_dplyr_warnings() to see the 101 remaining warnings.
-#> # A tibble: 5,878 × 46
+#> ℹ Run dplyr::last_dplyr_warnings() to see the 117 remaining warnings.
+#> # A tibble: 5,878 × 47
 #> # Groups:   location_id, param_name [387]
-#>    location_id param_name .source_analyte .normalized_input .analyte .analyte_id
-#>  * <chr>       <chr>      <chr>           <chr>             <chr>    <chr>      
-#>  1 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#>  2 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#>  3 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#>  4 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#>  5 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#>  6 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#>  7 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#>  8 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#>  9 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
-#> 10 MW-2        Magnesium… Magnesium, dis… magnesium dissol… Magnesi… magnesium  
+#>    location_id param_name       sample_date         analysis_result default_unit
+#>  * <chr>       <chr>            <dttm>                        <dbl> <chr>       
+#>  1 MW-2        Magnesium, diss… 2008-10-28 00:00:00            36.3 mg/L        
+#>  2 MW-2        Magnesium, diss… 2007-12-20 00:00:00            34   mg/L        
+#>  3 MW-2        Magnesium, diss… 2008-12-16 00:00:00            29.7 mg/L        
+#>  4 MW-2        Magnesium, diss… 2008-08-26 00:00:00            34.7 mg/L        
+#>  5 MW-2        Magnesium, diss… 2008-06-18 00:00:00            34.8 mg/L        
+#>  6 MW-2        Magnesium, diss… 2009-04-29 00:00:00            31.8 mg/L        
+#>  7 MW-2        Magnesium, diss… 2008-04-24 00:00:00            30.5 mg/L        
+#>  8 MW-2        Magnesium, diss… 2012-08-22 00:00:00            31.2 mg/L        
+#>  9 MW-2        Magnesium, diss… 2009-02-25 00:00:00            33.8 mg/L        
+#> 10 MW-2        Magnesium, diss… 2008-02-20 00:00:00            35.7 mg/L        
 #> # ℹ 5,868 more rows
-#> # ℹ 40 more variables: .normalized_analyte <chr>, .fraction <chr>,
-#> #   .is_known_analyte <lgl>, sample_date <dttm>, analysis_result <dbl>,
-#> #   lt_measure <chr>, default_unit <chr>, .result_type <chr>, .detected <lgl>,
-#> #   .censored <lgl>, .estimated <lgl>, .rejected <lgl>, .usable <lgl>,
-#> #   .original_lab_result <dbl>, .analysis_result <dbl>, .analysis_method <chr>,
-#> #   .original_lab_unit <chr>, .analysis_unit <chr>, .short_name <chr>, …
+#> # ℹ 42 more variables: lt_measure <chr>, .analysis_result <dbl>,
+#> #   .analysis_unit <chr>, .censored <lgl>, .source_analyte <chr>,
+#> #   .normalized_input <chr>, .analyte <chr>, .analyte_id <chr>,
+#> #   .normalized_analyte <chr>, .fraction <chr>, .is_known_analyte <lgl>,
+#> #   .result_type <chr>, .detected <lgl>, .estimated <lgl>, .rejected <lgl>,
+#> #   .usable <lgl>, .original_lab_result <dbl>, .analysis_method <chr>, …
 
 gw |>
   boxcox_transform()
-#> Warning: There were 102 warnings in `dplyr::mutate()`.
+#> Warning: There were 118 warnings in `dplyr::mutate()`.
 #> The first warning was:
 #> ℹ In argument: `boxcox = purrr::map(...)`.
 #> ℹ In group 12: `location_id = "MW-1"`, `param_name = "Chromium, hexavalent"`,
 #>   `.analysis_unit = "ug/l"`.
 #> Caused by warning in `cor()`:
 #> ! the standard deviation is zero
-#> ℹ Run dplyr::last_dplyr_warnings() to see the 101 remaining warnings.
-#> # A tibble: 5,878 × 46
-#>    location_id param_name       .analysis_unit .source_analyte .normalized_input
-#>  * <chr>       <chr>            <chr>          <chr>           <chr>            
-#>  1 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#>  2 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#>  3 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#>  4 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#>  5 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#>  6 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#>  7 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#>  8 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#>  9 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
-#> 10 MW-2        Magnesium, diss… mg/l           Magnesium, dis… magnesium dissol…
+#> ℹ Run dplyr::last_dplyr_warnings() to see the 117 remaining warnings.
+#> # A tibble: 5,878 × 47
+#>    location_id param_name     .analysis_unit sample_date         analysis_result
+#>  * <chr>       <chr>          <chr>          <dttm>                        <dbl>
+#>  1 MW-2        Magnesium, di… mg/l           2008-10-28 00:00:00            36.3
+#>  2 MW-2        Magnesium, di… mg/l           2007-12-20 00:00:00            34  
+#>  3 MW-2        Magnesium, di… mg/l           2008-12-16 00:00:00            29.7
+#>  4 MW-2        Magnesium, di… mg/l           2008-08-26 00:00:00            34.7
+#>  5 MW-2        Magnesium, di… mg/l           2008-06-18 00:00:00            34.8
+#>  6 MW-2        Magnesium, di… mg/l           2009-04-29 00:00:00            31.8
+#>  7 MW-2        Magnesium, di… mg/l           2008-04-24 00:00:00            30.5
+#>  8 MW-2        Magnesium, di… mg/l           2012-08-22 00:00:00            31.2
+#>  9 MW-2        Magnesium, di… mg/l           2009-02-25 00:00:00            33.8
+#> 10 MW-2        Magnesium, di… mg/l           2008-02-20 00:00:00            35.7
 #> # ℹ 5,868 more rows
-#> # ℹ 41 more variables: .analyte <chr>, .analyte_id <chr>,
+#> # ℹ 42 more variables: default_unit <chr>, lt_measure <chr>,
+#> #   .analysis_result <dbl>, .censored <lgl>, .source_analyte <chr>,
+#> #   .normalized_input <chr>, .analyte <chr>, .analyte_id <chr>,
 #> #   .normalized_analyte <chr>, .fraction <chr>, .is_known_analyte <lgl>,
-#> #   sample_date <dttm>, analysis_result <dbl>, lt_measure <chr>,
-#> #   default_unit <chr>, .result_type <chr>, .detected <lgl>, .censored <lgl>,
-#> #   .estimated <lgl>, .rejected <lgl>, .usable <lgl>,
-#> #   .original_lab_result <dbl>, .analysis_result <dbl>, …
+#> #   .result_type <chr>, .detected <lgl>, .estimated <lgl>, .rejected <lgl>,
+#> #   .usable <lgl>, .original_lab_result <dbl>, .analysis_method <chr>, …
 ```

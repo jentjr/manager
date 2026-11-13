@@ -41,6 +41,7 @@
       .charge = charge,
       .molecular_weight = molecular_weight,
       .meq_factor = meq_factor,
+      .fractionable = fractionable,
       .is_major_ion = is_major_ion,
       .is_trace_metal = is_trace_metal,
       .is_radionuclide = is_radionuclide,
@@ -426,7 +427,7 @@
   dplyr::case_when(
     stringr::str_detect(
       x,
-      "\\bdis\\b|\\bdissolved\\b"
+      "\\bdiss\\b|\\bdis\\b|\\bdissolved\\b"
     ) ~ "dissolved",
 
     stringr::str_detect(
@@ -436,12 +437,12 @@
 
     stringr::str_detect(
       x,
-      "\\bfiltered\\b"
+      "\\bfilt\\b|\\bfiltered\\b"
     ) ~ "filtered",
 
     stringr::str_detect(
       x,
-      "\\bunfiltered\\b"
+      "\\bunfilt\\b|\\bunfiltered\\b"
     ) ~ "unfiltered",
 
     TRUE ~ NA_character_
@@ -473,7 +474,13 @@
 #'
 #' @keywords internal
 .build_analyte_labels <- function(df) {
-  if (!".analysis_unit" %in% names(df)) {
+  required_cols <- c(
+    ".analysis_unit",
+    ".normalized_analyte",
+    ".source_analyte"
+  )
+
+  if (!all(required_cols %in% names(df))) {
     return(df)
   }
 
@@ -619,18 +626,26 @@
 #' Creates common environmental laboratory reporting variants for
 #' analyte names by appending fraction descriptors.
 #'
-#' @param x Character vector of analyte names or abbreviations.
+#' @param alias Character vector of analyte names or abbreviations.
 #'
-#' @returns A character vector containing the original values and
-#' common fraction-specific variants.
+#' @returns A tibble containing:
+#' \describe{
+#'   \item{alias}{Generated alias.}
+#'   \item{fraction}{Resolved fraction associated with the alias.}
+#' }
 #'
 #' @details
 #' The following suffixes are generated:
 #'
 #' - `"dissolved"`
+#' - `"diss"`
+#' - `"dis"`
 #' - `"total"`
+#' - `"tot"`
 #' - `"filtered"`
+#' - `"filt"`
 #' - `"unfiltered"`
+#' - `"unfilt"`
 #'
 #' This helper is primarily used when constructing
 #' [analyte_tbl] and [analyte_alias_lookup].
@@ -646,29 +661,43 @@
 #'
 #' @keywords internal
 .add_fraction_aliases <- function(
-  alias,
-  fractions = c(
-    "dissolved",
-    "total",
-    "filtered",
-    "unfiltered"
-  )
+  alias
 ) {
   stopifnot(
     length(alias) == 1L
   )
 
-  tibble::tibble(
-    alias = c(
-      alias,
-      paste(alias, fractions)
-    ),
+  tibble::tribble(
+    ~alias                     ,
+    alias                      ,
 
-    fraction = c(
-      NA_character_,
-      fractions
+    paste(alias, "dissolved")  ,
+    paste(alias, "diss")       ,
+    paste(alias, "dis")        ,
+
+    paste(alias, "total")      ,
+    paste(alias, "tot")        ,
+
+    paste(alias, "filtered")   ,
+    paste(alias, "filt")       ,
+
+    paste(alias, "unfiltered") ,
+    paste(alias, "unfilt")
+  ) |>
+    dplyr::mutate(
+      fraction = c(
+        NA_character_,
+        "dissolved",
+        "dissolved",
+        "dissolved",
+        "total",
+        "total",
+        "filtered",
+        "filtered",
+        "unfiltered",
+        "unfiltered"
+      )
     )
-  )
 }
 
 #' Build analyte alias lookup table
@@ -685,8 +714,8 @@
 #' standardize analyte names and attach analyte metadata to
 #' environmental chemistry data.
 #'
-#' @param lookup An analyte metadata table, typically
-#'   [analyte_tbl].
+#' @param analyte_tbl An analyte metadata table.
+#' @param analyte_alias_tbl An analyte alias table.
 #'
 #' @returns A tibble with columns:
 #' \describe{
@@ -727,14 +756,37 @@
     analyte_tbl
   )
 
-  expanded <- purrr::map2_dfr(
-    analyte_alias_tbl$analyte_id,
-    analyte_alias_tbl$alias,
-    ~ .add_fraction_aliases(.y) |>
-      dplyr::mutate(
-        analyte_id = .x
-      )
-  )
+  expanded <- analyte_alias_tbl |>
+    dplyr::left_join(
+      analyte_tbl |>
+        dplyr::select(
+          analyte_id,
+          fractionable
+        ),
+      by = "analyte_id",
+      relationship = "many-to-one"
+    ) |>
+    purrr::pmap_dfr(
+      function(
+        analyte_id,
+        alias,
+        fractionable
+      ) {
+        aliases <- if (isTRUE(fractionable)) {
+          .add_fraction_aliases(alias)
+        } else {
+          tibble::tibble(
+            alias = alias,
+            fraction = NA_character_
+          )
+        }
+
+        aliases |>
+          dplyr::mutate(
+            analyte_id = analyte_id
+          )
+      }
+    )
 
   expanded |>
     dplyr::mutate(

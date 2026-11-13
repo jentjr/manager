@@ -134,18 +134,11 @@ Grouping is determined automatically from the current
 
 ``` r
 dixon_test(gw_data)
-#> Warning: 13 analytes were not found in analyte metadata.
-#> Aluminum, dissolved
-#> Chromium, hexavalent
-#> Cobalt, Dis
-#> Groundwater Elevation (ref MSL)
-#> Groundwater, depth from TOC
-#> Nitrite + Nitrate, total
-#> SiO2
-#> Strontium, dissolved
-#> Temperature (Celsius)
-#> Tin, dissolved
+#> Warning: 1 analytes were not found in analyte metadata.
+#> ℹ Nitrite + Nitrate, total
 #> ,
+#> Warning: Skipped incompatible unit conversion: degrees c -> degC
+#> Warning: Skipped incompatible unit conversion: std -> ph
 #> # A tibble: 387 × 5
 #> # Groups:   location_id, param_name, .analysis_unit [387]
 #>    location_id param_name           .analysis_unit alternative           p_value
@@ -170,18 +163,11 @@ schema <- env_schema(
   result = analysis_result,
   unit = default_unit
 )
-#> Warning: 13 analytes were not found in analyte metadata.
-#> Aluminum, dissolved
-#> Chromium, hexavalent
-#> Cobalt, Dis
-#> Groundwater Elevation (ref MSL)
-#> Groundwater, depth from TOC
-#> Nitrite + Nitrate, total
-#> SiO2
-#> Strontium, dissolved
-#> Temperature (Celsius)
-#> Tin, dissolved
+#> Warning: 1 analytes were not found in analyte metadata.
+#> ℹ Nitrite + Nitrate, total
 #> ,
+#> Warning: Skipped incompatible unit conversion: degrees c -> degC
+#> Warning: Skipped incompatible unit conversion: std -> ph
 
 dixon_test(schema)
 #> # A tibble: 387 × 5

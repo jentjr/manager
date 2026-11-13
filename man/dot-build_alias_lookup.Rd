@@ -10,8 +10,9 @@
 )
 }
 \arguments{
-\item{lookup}{An analyte metadata table, typically
-[analyte_tbl].}
+\item{analyte_tbl}{An analyte metadata table.}
+
+\item{analyte_alias_tbl}{An analyte alias table.}
 }
 \value{
 A tibble with columns:

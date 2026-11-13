@@ -38,12 +38,8 @@ Validation includes:
 \itemize{
   \item presence of required columns;
   \item non-missing analyte identifiers;
-  \item uniqueness of `analyte_id`;
   \item uniqueness of canonical analyte names;
 }
-
-The `aliases` column must be stored as a list-column containing
-one or more character aliases for each analyte.
 }
 \seealso{
 [analyte_tbl],

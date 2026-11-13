@@ -170,8 +170,9 @@ sample_date(gw)
 analyte(gw)
 analysis_result(gw)
 analysis_unit(gw)
-detect(gw)
-limit(gw)
+detected(gw)
+reporting_limit(gw)
+detection_limit(gw)
 method(gw)
 ```
 
@@ -189,7 +190,7 @@ mean(analysis_result(gw), na.rm = TRUE)
 Instead of:
 
 ```{r eval = FALSE}
-dplyr::n_distinct(gw$.location)
+dplyr::n_distinct(gw$location_id)
 
 mean(gw$.analysis_result, na.rm = TRUE)
 ```
@@ -279,10 +280,10 @@ Most dplyr verbs operate normally while preserving schema metadata.
 ```{r eval = FALSE}
 gw_small <- gw %>%
   select(
-    .location,
-    .sample_date,
-    .analyte,
-    .result
+    location_id,
+    sample_date,
+    param_name,
+    .analysis_result
   )
 
 gw_small
@@ -298,7 +299,7 @@ inherits(gw_small, "env_schema")
 
 ```{r eval = FALSE}
 chloride <- gw %>%
-  filter(.analyte == "Chloride, total")
+  filter(.source_analyte == "Chloride, total")
 ```
 
 The filtered object retains the schema.
@@ -310,7 +311,7 @@ inherits(chloride, "env_schema")
 ## Mutating Columns
 
 ```{r eval = FALSE}
-gw2 <- gw %>%
+chloride_log <- chloride %>%
   mutate(
     result_log = log(.analysis_result)
   )
@@ -319,7 +320,7 @@ gw2 <- gw %>%
 Schema restoration occurs automatically.
 
 ```{r eval = FALSE}
-inherits(gw2, "env_schema")
+inherits(chloride_log, "env_schema")
 ```
 
 ## Arranging Rows
@@ -327,8 +328,8 @@ inherits(gw2, "env_schema")
 ```{r eval = FALSE}
 gw %>%
   arrange(
-    .location,
-    .sample_date
+    location_id,
+    sample_date
   )
 ```
 
@@ -341,7 +342,7 @@ For example:
 
 ```{r eval = FALSE}
 gw %>%
-  rename(location = .location)
+  rename(location = location_id)
 ```
 
 After renaming, package functions that rely on `.location` may no longer
@@ -358,7 +359,7 @@ For example:
 
 ```{r eval = FALSE}
 gw %>%
-  group_by(.analyte) %>%
+  group_by(param_name) %>%
   summarize(
     mean_result = mean(.analysis_result, na.rm = TRUE)
   )
@@ -407,7 +408,7 @@ gw %>%
     analyte(.) == "Chloride, total"
   ) %>%
   mutate(
-    result_ug_l = analysis_result(.)
+    result_mg_l = analysis_result(.)
   ) %>%
   arrange(
     sample_date(.)

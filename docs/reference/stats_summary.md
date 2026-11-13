@@ -227,15 +227,15 @@ source column names or schema mappings used by the input data.
 
 ``` r
 stats_summary(gw)
-#> Warning: There were 16 warnings in `dplyr::summarise()`.
+#> Warning: There were 32 warnings in `dplyr::summarise()`.
 #> The first warning was:
 #> ℹ In argument: `min = .safe_stat(min(.data[[".analysis_result"]], na.rm =
 #>   na.rm))`.
-#> ℹ In group 38: `location_id = "MW-1"`, `param_name = "Specific Conductance @
-#>   25C (field)"`, `.analysis_unit = "us/cm"`.
+#> ℹ In group 41: `location_id = "MW-1"`, `param_name = "Temperature (Celsius)"`,
+#>   `.analysis_unit = "degC"`.
 #> Caused by warning in `min()`:
 #> ! no non-missing arguments to min; returning Inf
-#> ℹ Run dplyr::last_dplyr_warnings() to see the 15 remaining warnings.
+#> ℹ Run dplyr::last_dplyr_warnings() to see the 31 remaining warnings.
 #> # A tibble: 387 × 27
 #>    location_id param_name  .analysis_unit     n n_used n_detect percent_censored
 #>    <chr>       <chr>       <chr>          <int>  <int>    <int>            <dbl>
@@ -263,14 +263,14 @@ gw |>
 #> # A tibble: 8 × 25
 #>   location_id     n n_used n_detect percent_censored  mean median    sd      var
 #>   <chr>       <int>  <int>    <int>            <dbl> <dbl>  <dbl> <dbl>    <dbl>
-#> 1 MW-1          791    772      491             35.5 143.    6.94  398.   1.58e5
-#> 2 MW-2          791    772      497             34.8 130.    5     348.   1.21e5
-#> 3 MW-3          790    771      489             35.7  84.7   5     252.   6.33e4
-#> 4 MW-4          715    697      444             35.4 168.    6.8   536.   2.87e5
-#> 5 MW-5          715    697      427             37.8 181.    6.95  829.   6.87e5
-#> 6 MW-6          715    697      412             39.9 757.    5.35 4233.   1.79e7
-#> 7 MW-7          646    630      384             38.1 481.    5    2354.   5.54e6
-#> 8 MW-8          715    697      441             35.8 151.    7.57  511.   2.61e5
+#> 1 MW-1          791    753      472             35.5  169.   7.01  412.   1.70e5
+#> 2 MW-2          791    753      478             34.8  152.   5     363.   1.32e5
+#> 3 MW-3          790    752      470             35.7  106.   5     272.   7.38e4
+#> 4 MW-4          715    679      426             35.4  196.   6.9   552.   3.05e5
+#> 5 MW-5          715    679      409             37.8  207.   7     843.   7.11e5
+#> 6 MW-6          715    679      394             39.9  805.   5    4285.   1.84e7
+#> 7 MW-7          646    614      368             38.1  519.   5    2382.   5.67e6
+#> 8 MW-8          715    679      423             35.8  173.   9     523.   2.74e5
 #> # ℹ 16 more variables: min <dbl>, max <dbl>, cv <dbl>, `25%` <dbl>,
 #> #   `75%` <dbl>, IQR <dbl>, mad <dbl>, censoring_class <chr>,
 #> #   distribution_method <chr>, trend_method <chr>, trend_guidance <chr>,
