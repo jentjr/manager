@@ -25,7 +25,8 @@ grubbs_test(
   type = 10,
   opposite = FALSE,
   two_sided = FALSE,
-  keep_data_object = FALSE
+  keep_data_object = FALSE,
+  ...
 )
 ```
 
@@ -115,5 +116,39 @@ groups.
 
 ``` r
 grubbs_test(gw_data)
-#> Error in alias_lookup %>% dplyr::count(alias) %>% dplyr::filter(n > 1): could not find function "%>%"
+#> Warning: 13 analytes were not found in analyte metadata.
+#> Aluminum, dissolved
+#> Chromium, hexavalent
+#> Cobalt, Dis
+#> Groundwater Elevation (ref MSL)
+#> Groundwater, depth from TOC
+#> Nitrite + Nitrate, total
+#> SiO2
+#> Strontium, dissolved
+#> Temperature (Celsius)
+#> Tin, dissolved
+#> ,
+#> Warning: There were 11 warnings in `dplyr::mutate()`.
+#> The first warning was:
+#> ℹ In argument: `grubbs = purrr::map(...)`.
+#> ℹ In group 6: `location_id = "MW-1"`, `param_name = "Beryllium, dissolved"`,
+#>   `.analysis_unit = "ug/l"`.
+#> Caused by warning in `sqrt()`:
+#> ! NaNs produced
+#> ℹ Run dplyr::last_dplyr_warnings() to see the 10 remaining warnings.
+#> # A tibble: 387 × 5
+#> # Groups:   location_id, param_name, .analysis_unit [387]
+#>    location_id param_name           .analysis_unit alternative           p_value
+#>    <chr>       <chr>                <chr>          <chr>                   <dbl>
+#>  1 MW-2        Magnesium, dissolved mg/l           lowest value 26.7 is… 0.335  
+#>  2 MW-2        Sodium, dissolved    mg/l           highest value 27.4 i… 0.00724
+#>  3 MW-2        Potassium, dissolved mg/l           highest value 0.8 is… 0.154  
+#>  4 MW-2        Chloride, total      mg/l           highest value 31.6 i… 1      
+#>  5 MW-2        Sulfate, total       mg/l           highest value 200 is… 0.00876
+#>  6 MW-2        Fluoride, total      mg/l           highest value 1 is a… 0.00857
+#>  7 MW-2        Arsenic, dissolved   ug/l           highest value 10 is … 0.425  
+#>  8 MW-2        Barium, dissolved    ug/l           highest value 134 is… 0.0440 
+#>  9 MW-2        Beryllium, dissolved ug/l           highest value 1 is a… 0      
+#> 10 MW-2        Boron, dissolved     ug/l           lowest value 1200 is… 0.125  
+#> # ℹ 377 more rows
 ```

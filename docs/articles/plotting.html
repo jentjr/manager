@@ -35,6 +35,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/env-schema.html">Working with env_schema</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Environmental Plotting System</a></li>
+    <li><a class="dropdown-item" href="../articles/statistical-decision.html">Statistical Decision Guidance and Automated Method Selection</a></li>
   </ul>
 </li>
       </ul>
@@ -60,7 +61,7 @@
                         <h4 data-toc-skip class="author">Package
 Development Team</h4>
             
-            <h4 data-toc-skip class="date">2026-11-09</h4>
+            <h4 data-toc-skip class="date">2026-11-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/jentjr/manager/blob/HEAD/vignettes/plotting.Rmd" class="external-link"><code>vignettes/plotting.Rmd</code></a></small>
       <div class="d-none name"><code>plotting.Rmd</code></div>
@@ -105,7 +106,7 @@ user-provided column mappings.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/series_plot.html">series_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">groundwater_data</span>,</span>
 <span>  location <span class="op">=</span> <span class="va">well_id</span>,</span>
-<span>  date <span class="op">=</span> <span class="va">sample_date</span>,</span>
+<span>  sample_date <span class="op">=</span> <span class="va">sample_date</span>,</span>
 <span>  analyte <span class="op">=</span> <span class="va">constituent</span>,</span>
 <span>  result <span class="op">=</span> <span class="va">concentration</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -114,19 +115,19 @@ user-provided column mappings.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/env_schema.html">env_schema</a></span><span class="op">(</span></span>
 <span>  <span class="va">groundwater_data</span>,</span>
 <span>  location <span class="op">=</span> <span class="va">well_id</span>,</span>
-<span>  date <span class="op">=</span> <span class="va">sample_date</span>,</span>
+<span>  sample_date <span class="op">=</span> <span class="va">sample_date</span>,</span>
 <span>  analyte <span class="op">=</span> <span class="va">constituent</span>,</span>
 <span>  result <span class="op">=</span> <span class="va">concentration</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Internally, plotting methods interact with schema accessors rather
 than hard-coded column names:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">location_var</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">date_var</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">analyte_var</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">result_var</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">unit_var</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">reporting_flag_var</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/schema_accessors.html">location_var</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/schema_accessors.html">sample_date_var</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/schema_accessors.html">analyte_var</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/schema_accessors.html">analysis_result_var</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/schema_accessors.html">analysis_unit_var</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/schema_accessors.html">reporting_flag_var</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>This architecture ensures plots remain portable across different
 environmental datasets.</p>
 </div>
@@ -148,12 +149,26 @@ can be used directly with plotting functions.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gw</span></span>
-<span><span class="co">#&gt; &lt;env_schema&gt;</span></span>
-<span><span class="co">#&gt; 5878 rows x 44 columns</span></span>
-<span><span class="co">#&gt; Locations: 8 </span></span>
-<span><span class="co">#&gt; Analytes: 49 </span></span>
-<span><span class="co">#&gt; Valid: TRUE </span></span>
-<span><span class="co">#&gt; Version: 0.5.0</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5,878 × 44</span></span></span>
+<span><span class="co">#&gt;    .source_analyte    .normalized_input .analyte .analyte_id .normalized_analyte</span></span>
+<span><span class="co">#&gt;  <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Magnesium, dissol… magnesium dissol… Magnesi… magnesium   magnesium          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Sodium, dissolved  sodium dissolved  Sodium   sodium      sodium             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Potassium, dissol… potassium dissol… Potassi… potassium   potassium          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Chloride, total    chloride total    Chloride chloride    chloride           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Sulfate, total     sulfate total     Sulfate  sulfate     sulfate            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Fluoride, total    fluoride total    Fluoride fluoride    fluoride           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Arsenic, dissolved arsenic dissolved Arsenic  arsenic     arsenic            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Barium, dissolved  barium dissolved  Barium   barium      barium             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Beryllium, dissol… beryllium dissol… Berylli… beryllium   beryllium          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Boron, dissolved   boron dissolved   Boron    boron       boron              </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5,868 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 39 more variables: .fraction &lt;chr&gt;, .is_known_analyte &lt;lgl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   location_id &lt;chr&gt;, sample_date &lt;dttm&gt;, analysis_result &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   lt_measure &lt;chr&gt;, default_unit &lt;chr&gt;, param_name &lt;chr&gt;, .result_type &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .detected &lt;lgl&gt;, .censored &lt;lgl&gt;, .estimated &lt;lgl&gt;, .rejected &lt;lgl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .usable &lt;lgl&gt;, .original_lab_result &lt;dbl&gt;, .analysis_result &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .analysis_method &lt;chr&gt;, .original_lab_unit &lt;chr&gt;, .analysis_unit &lt;chr&gt;, …</span></span></span></code></pre></div>
 <p>Because <code>gw</code> is already an <code>env_schema</code>, no
 additional mapping is required.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -201,7 +216,7 @@ object.</p>
 <code class="sourceCode R"><span><span class="va">gw_schema</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/env_schema.html">env_schema</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw_subset</span>,</span>
 <span>  location <span class="op">=</span> <span class="va">location_id</span>,</span>
-<span>  date <span class="op">=</span> <span class="va">sample_date</span>,</span>
+<span>  sample_date <span class="op">=</span> <span class="va">sample_date</span>,</span>
 <span>  analyte <span class="op">=</span> <span class="va">param_name</span>,</span>
 <span>  result <span class="op">=</span> <span class="va">analysis_result</span>,</span>
 <span>  unit <span class="op">=</span> <span class="va">default_unit</span>,</span>
@@ -209,12 +224,26 @@ object.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">gw_schema</span></span>
-<span><span class="co">#&gt; &lt;env_schema&gt;</span></span>
-<span><span class="co">#&gt; 2372 rows x 44 columns</span></span>
-<span><span class="co">#&gt; Locations: 3 </span></span>
-<span><span class="co">#&gt; Analytes: 49 </span></span>
-<span><span class="co">#&gt; Valid: TRUE </span></span>
-<span><span class="co">#&gt; Version: 0.5.0</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2,372 × 44</span></span></span>
+<span><span class="co">#&gt;    location_id param_name       sample_date         analysis_result default_unit</span></span>
+<span><span class="co">#&gt;  <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> MW-2        Magnesium, diss… 2008-10-28 <span style="color: #949494;">00:00:00</span>           36.3  mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> MW-2        Sodium, dissolv… 2008-10-28 <span style="color: #949494;">00:00:00</span>           18.9  mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> MW-2        Potassium, diss… 2008-10-28 <span style="color: #949494;">00:00:00</span>            0.5  mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> MW-2        Chloride, total  2008-10-28 <span style="color: #949494;">00:00:00</span>           24.9  mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> MW-2        Sulfate, total   2008-10-28 <span style="color: #949494;">00:00:00</span>          170    mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> MW-2        Fluoride, total  2008-10-28 <span style="color: #949494;">00:00:00</span>            0.29 mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> MW-2        Arsenic, dissol… 2008-10-28 <span style="color: #949494;">00:00:00</span>            1.9  ug/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> MW-2        Barium, dissolv… 2008-10-28 <span style="color: #949494;">00:00:00</span>          107    ug/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> MW-2        Beryllium, diss… 2008-10-28 <span style="color: #949494;">00:00:00</span>            0.5  ug/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> MW-2        Boron, dissolved 2008-10-28 <span style="color: #949494;">00:00:00</span>            2.34 mg/L        </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2,362 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 39 more variables: lt_measure &lt;chr&gt;, .analysis_result &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .analysis_unit &lt;chr&gt;, .censored &lt;lgl&gt;, .source_analyte &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .normalized_input &lt;chr&gt;, .analyte &lt;chr&gt;, .analyte_id &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .normalized_analyte &lt;chr&gt;, .fraction &lt;chr&gt;, .is_known_analyte &lt;lgl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .result_type &lt;chr&gt;, .detected &lt;lgl&gt;, .estimated &lt;lgl&gt;, .rejected &lt;lgl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   .usable &lt;lgl&gt;, .original_lab_result &lt;dbl&gt;, .analysis_method &lt;chr&gt;, …</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -432,7 +461,7 @@ package.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/schoeller_plot.html">schoeller_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
-<span>  facet_var <span class="op">=</span> <span class="st">"location"</span></span>
+<span>  facet_var <span class="op">=</span> <span class="fu"><a href="../reference/schema_accessors.html">location_var</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/schoeller-location-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -442,7 +471,7 @@ package.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/schoeller_plot.html">schoeller_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
-<span>  facet_var <span class="op">=</span> <span class="st">"date"</span></span>
+<span>  facet_var <span class="op">=</span> <span class="fu"><a href="../reference/schema_accessors.html">sample_date_var</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/schoeller-date-1.png" class="r-plt" alt="" width="768"></p>
 </div>
@@ -486,7 +515,7 @@ package.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/stiff_plot.html">stiff_plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
-<span>  group_var <span class="op">=</span> <span class="st">"sample_date"</span></span>
+<span>  group_var <span class="op">=</span> <span class="fu"><a href="../reference/schema_accessors.html">sample_date_var</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
@@ -596,7 +625,7 @@ used throughout the package.</p>
 <code class="sourceCode R"><span><span class="va">my_plot.data.frame</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
 <span>  <span class="va">location</span>,</span>
-<span>  <span class="va">date</span>,</span>
+<span>  <span class="va">sample_date</span>,</span>
 <span>  <span class="va">analyte</span>,</span>
 <span>  <span class="va">result</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -605,7 +634,7 @@ used throughout the package.</p>
 <span>  <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/env_schema.html">env_schema</a></span><span class="op">(</span></span>
 <span>    <span class="va">df</span>,</span>
 <span>    location <span class="op">=</span> <span class="op">{</span><span class="op">{</span> <span class="va">location</span> <span class="op">}</span><span class="op">}</span>,</span>
-<span>    date <span class="op">=</span> <span class="op">{</span><span class="op">{</span> <span class="va">date</span> <span class="op">}</span><span class="op">}</span>,</span>
+<span>    sample_date <span class="op">=</span> <span class="op">{</span><span class="op">{</span> <span class="va">sample_date</span> <span class="op">}</span><span class="op">}</span>,</span>
 <span>    analyte <span class="op">=</span> <span class="op">{</span><span class="op">{</span> <span class="va">analyte</span> <span class="op">}</span><span class="op">}</span>,</span>
 <span>    result <span class="op">=</span> <span class="op">{</span><span class="op">{</span> <span class="va">result</span> <span class="op">}</span><span class="op">}</span></span>
 <span>  <span class="op">)</span></span>
@@ -622,13 +651,13 @@ used throughout the package.</p>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span> <span class="op">{</span></span>
 <span></span>
-<span>  <span class="va">location_col</span> <span class="op">&lt;-</span> <span class="fu">location_var</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
+<span>  <span class="va">location_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/schema_accessors.html">location_var</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="va">date_col</span> <span class="op">&lt;-</span> <span class="fu">date_var</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
+<span>  <span class="va">sample_date_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/schema_accessors.html">sample_date_var</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="va">analyte_col</span> <span class="op">&lt;-</span> <span class="fu">analyte_var</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
+<span>  <span class="va">analyte_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/schema_accessors.html">analyte_var</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="va">result_col</span> <span class="op">&lt;-</span> <span class="fu">result_var</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
+<span>  <span class="va">result_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/schema_accessors.html">result_var</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
 <span></span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -684,7 +713,7 @@ datasets.</p>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] gtable_0.3.6       beeswarm_0.4.0     xfun_0.62          bslib_0.12.0      </span></span>
 <span><span class="co">#&gt;  [5] ggplot2_4.0.3      htmlwidgets_1.6.4  vctrs_0.7.3        tools_4.6.1       </span></span>
-<span><span class="co">#&gt;  [9] generics_0.1.4     tibble_3.3.1       cluster_2.1.8.2    pkgconfig_2.0.3   </span></span>
+<span><span class="co">#&gt;  [9] generics_0.1.4     tibble_3.3.1       cluster_2.1.8.3    pkgconfig_2.0.3   </span></span>
 <span><span class="co">#&gt; [13] data.table_1.18.99 checkmate_2.3.4    RColorBrewer_1.1-3 S7_0.2.2          </span></span>
 <span><span class="co">#&gt; [17] desc_1.4.3         lifecycle_1.0.5    compiler_4.6.1     farver_2.1.2      </span></span>
 <span><span class="co">#&gt; [21] stringr_1.6.0      textshaping_1.0.5  vipor_0.4.7        htmltools_0.5.9   </span></span>
@@ -693,13 +722,13 @@ datasets.</p>
 <span><span class="co">#&gt; [33] viridis_0.6.5      Hmisc_5.3-0        rpart_4.1.27       tidyselect_1.2.1  </span></span>
 <span><span class="co">#&gt; [37] digest_0.6.39      stringi_1.8.9      purrr_1.2.2        labeling_0.4.3    </span></span>
 <span><span class="co">#&gt; [41] cowplot_1.2.0      fastmap_1.2.0      grid_4.6.1         colorspace_2.1-4  </span></span>
-<span><span class="co">#&gt; [45] cli_3.6.6          magrittr_2.0.5     base64enc_0.1-6    foreign_0.8-91    </span></span>
-<span><span class="co">#&gt; [49] withr_3.0.3        scales_1.4.0       backports_1.5.1    ggbeeswarm_0.7.3  </span></span>
-<span><span class="co">#&gt; [53] rmarkdown_2.32     otel_0.2.0         nnet_7.3-20        gridExtra_2.3.1   </span></span>
-<span><span class="co">#&gt; [57] ragg_1.5.2         evaluate_1.0.5     knitr_1.52         EnvStats_3.1.0    </span></span>
-<span><span class="co">#&gt; [61] viridisLite_0.4.3  rlang_1.3.0        Rcpp_1.1.2         glue_1.8.1        </span></span>
-<span><span class="co">#&gt; [65] rstudioapi_0.19.0  jsonlite_2.0.0     R6_2.6.1           systemfonts_1.3.2 </span></span>
-<span><span class="co">#&gt; [69] fs_2.1.0           units_1.0-1.6</span></span></code></pre></div>
+<span><span class="co">#&gt; [45] cli_3.6.6          magrittr_2.0.5     base64enc_0.1-6    utf8_1.2.6        </span></span>
+<span><span class="co">#&gt; [49] foreign_0.8-92     withr_3.0.3        scales_1.4.0       backports_1.5.1   </span></span>
+<span><span class="co">#&gt; [53] ggbeeswarm_0.7.3   rmarkdown_2.32     otel_0.3.0         nnet_7.3-21       </span></span>
+<span><span class="co">#&gt; [57] gridExtra_2.3.1    ragg_1.5.2         evaluate_1.0.5     knitr_1.52        </span></span>
+<span><span class="co">#&gt; [61] EnvStats_3.1.0     viridisLite_0.4.3  rlang_1.3.0        Rcpp_1.1.2        </span></span>
+<span><span class="co">#&gt; [65] glue_1.8.1         rstudioapi_0.19.0  jsonlite_2.0.0     R6_2.6.1          </span></span>
+<span><span class="co">#&gt; [69] systemfonts_1.3.2  fs_2.1.0           units_1.0-1.6</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

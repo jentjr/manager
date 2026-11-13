@@ -25,7 +25,8 @@ dixon_test(
   type = 0,
   opposite = FALSE,
   two_sided = TRUE,
-  keep_data_object = FALSE
+  keep_data_object = FALSE,
+  ...
 )
 ```
 
@@ -133,23 +134,85 @@ Grouping is determined automatically from the current
 
 ``` r
 dixon_test(gw_data)
-#> Error in alias_lookup %>% dplyr::count(alias) %>% dplyr::filter(n > 1): could not find function "%>%"
+#> Warning: 13 analytes were not found in analyte metadata.
+#> Aluminum, dissolved
+#> Chromium, hexavalent
+#> Cobalt, Dis
+#> Groundwater Elevation (ref MSL)
+#> Groundwater, depth from TOC
+#> Nitrite + Nitrate, total
+#> SiO2
+#> Strontium, dissolved
+#> Temperature (Celsius)
+#> Tin, dissolved
+#> ,
+#> # A tibble: 387 × 5
+#> # Groups:   location_id, param_name, .analysis_unit [387]
+#>    location_id param_name           .analysis_unit alternative           p_value
+#>    <chr>       <chr>                <chr>          <chr>                   <dbl>
+#>  1 MW-2        Magnesium, dissolved mg/l           lowest value 26.7 is…  0.876 
+#>  2 MW-2        Sodium, dissolved    mg/l           highest value 27.4 i…  0.0276
+#>  3 MW-2        Potassium, dissolved mg/l           highest value 0.8 is…  0.351 
+#>  4 MW-2        Chloride, total      mg/l           highest value 31.6 i…  0.861 
+#>  5 MW-2        Sulfate, total       mg/l           highest value 200 is…  0.0635
+#>  6 MW-2        Fluoride, total      mg/l           highest value 1 is a…  0     
+#>  7 MW-2        Arsenic, dissolved   ug/l           highest value 10 is …  0     
+#>  8 MW-2        Barium, dissolved    ug/l           highest value 134 is…  0.0648
+#>  9 MW-2        Beryllium, dissolved ug/l           NA                    NA     
+#> 10 MW-2        Boron, dissolved     ug/l           lowest value 1200 is…  0.936 
+#> # ℹ 377 more rows
 
 schema <- env_schema(
   gw_data,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit
 )
-#> Error in alias_lookup %>% dplyr::count(alias) %>% dplyr::filter(n > 1): could not find function "%>%"
+#> Warning: 13 analytes were not found in analyte metadata.
+#> Aluminum, dissolved
+#> Chromium, hexavalent
+#> Cobalt, Dis
+#> Groundwater Elevation (ref MSL)
+#> Groundwater, depth from TOC
+#> Nitrite + Nitrate, total
+#> SiO2
+#> Strontium, dissolved
+#> Temperature (Celsius)
+#> Tin, dissolved
+#> ,
 
 dixon_test(schema)
-#> Error: object 'schema' not found
+#> # A tibble: 387 × 5
+#> # Groups:   location_id, param_name, .analysis_unit [387]
+#>    location_id param_name           .analysis_unit alternative           p_value
+#>    <chr>       <chr>                <chr>          <chr>                   <dbl>
+#>  1 MW-2        Magnesium, dissolved mg/l           lowest value 26.7 is…  0.876 
+#>  2 MW-2        Sodium, dissolved    mg/l           highest value 27.4 i…  0.0276
+#>  3 MW-2        Potassium, dissolved mg/l           highest value 0.8 is…  0.351 
+#>  4 MW-2        Chloride, total      mg/l           highest value 31.6 i…  0.861 
+#>  5 MW-2        Sulfate, total       mg/l           highest value 200 is…  0.0635
+#>  6 MW-2        Fluoride, total      mg/l           highest value 1 is a…  0     
+#>  7 MW-2        Arsenic, dissolved   ug/l           highest value 10 is …  0     
+#>  8 MW-2        Barium, dissolved    ug/l           highest value 134 is…  0.0648
+#>  9 MW-2        Beryllium, dissolved ug/l           NA                    NA     
+#> 10 MW-2        Boron, dissolved     ug/l           lowest value 1200 is…  0.936 
+#> # ℹ 377 more rows
 
 schema |>
   dplyr::group_by(location_id) |>
   dixon_test()
-#> Error: object 'schema' not found
+#> # A tibble: 8 × 3
+#> # Groups:   location_id [8]
+#>   location_id alternative p_value
+#>   <chr>       <chr>         <dbl>
+#> 1 MW-2        NA               NA
+#> 2 MW-1        NA               NA
+#> 3 MW-3        NA               NA
+#> 4 MW-4        NA               NA
+#> 5 MW-5        NA               NA
+#> 6 MW-6        NA               NA
+#> 7 MW-7        NA               NA
+#> 8 MW-8        NA               NA
 ```

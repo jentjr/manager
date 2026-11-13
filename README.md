@@ -2,7 +2,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![R-CMD-check](https://github.com/jentjr/manager/actions/workflows/R-CMD-check.yaml/badge.svg)](...)
-[![Codecov](https://codecov.io/gh/jentjr/manager/branch/main/graph/badge.svg)](...)
+[![codecov](https://codecov.io/gh/jentjr/manager/graph/badge.svg?token=T8FL8YKtnP)](https://codecov.io/gh/jentjr/manager)
 
 ## Overview
 

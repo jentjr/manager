@@ -75,7 +75,8 @@ using major-ion chemistry data.</p>
 <span>  transparency <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>  pnt_size <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  label_size <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  title <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -264,25 +265,25 @@ location fields are obtained directly from schema mappings.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">piper_plot</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in df %&gt;% .transform_piper_data(analyte_matching = analyte_matching,     x_cation = x_cation, y_cation = y_cation, z_cation = z_cation,     x_anion = x_anion, y_anion = y_anion, z_anion = z_anion,     scale_analyte = scale_analyte):</span> could not find function "%&gt;%"</span>
+<span class="r-plt img"><img src="piper_plot-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">piper_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  analyte_matching <span class="op">=</span> <span class="st">"normalized"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in df %&gt;% .transform_piper_data(analyte_matching = analyte_matching,     x_cation = x_cation, y_cation = y_cation, z_cation = z_cation,     x_anion = x_anion, y_anion = y_anion, z_anion = z_anion,     scale_analyte = scale_analyte):</span> could not find function "%&gt;%"</span>
+<span class="r-plt img"><img src="piper_plot-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">piper_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  scale_analyte <span class="op">=</span> <span class="st">"Total Dissolved Solids"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %&gt;%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %&gt;%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %&gt;%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction):</span> could not find function "%&gt;%"</span>
+<span class="r-plt img"><img src="piper_plot-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">piper_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  x_cation_label <span class="op">=</span> <span class="st">"Ca~phantom()^+2"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in df %&gt;% .transform_piper_data(analyte_matching = analyte_matching,     x_cation = x_cation, y_cation = y_cation, z_cation = z_cation,     x_anion = x_anion, y_anion = y_anion, z_anion = z_anion,     scale_analyte = scale_analyte):</span> could not find function "%&gt;%"</span>
+<span class="r-plt img"><img src="piper_plot-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

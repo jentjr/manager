@@ -58,16 +58,16 @@ params <- c("Sulfate, total",
 background <- lubridate::ymd(c("2007-12-20", "2012-01-01"), tz = "UTC")
 # first group data by location, param, and background
 # estimate percent less than and distribution
-background_data <- gw_data %>%
+background_data <- gw_data |>
  filter(location_id %in% wells, param_name %in% params,
-         sample_date >= background[1] & sample_date <= background[2]) %>%
-  group_by(location_id, param_name, default_unit) %>%
-  percent_lt() %>%
-  est_dist(., keep_data_object = TRUE) %>%
+         sample_date >= background[1] & sample_date <= background[2]) |>
+  group_by(location_id, param_name, default_unit) |>
+  percent_lt() |>
+  est_dist(keep_data_object = TRUE) |>
   arrange(location_id, param_name)
-#> Error in gw_data %>% filter(location_id %in% wells, param_name %in% params,     sample_date >= background[1] & sample_date <= background[2]) %>%     group_by(location_id, param_name, default_unit) %>% percent_lt() %>%     est_dist(., keep_data_object = TRUE) %>% arrange(location_id,     param_name): could not find function "%>%"
+#> Error in arrange(est_dist(percent_lt(group_by(filter(gw_data, location_id %in%     wells, param_name %in% params, sample_date >= background[1] &     sample_date <= background[2]), location_id, param_name, default_unit)),     keep_data_object = TRUE), location_id, param_name): could not find function "arrange"
 
-background_data %>%
+background_data |>
 conf_int(., ci_type = "lower", conf_level = 0.99)
-#> Error in background_data %>% conf_int(., ci_type = "lower", conf_level = 0.99): could not find function "%>%"
+#> Error: object 'background_data' not found
 ```

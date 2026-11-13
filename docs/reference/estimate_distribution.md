@@ -6,7 +6,11 @@ censoring-aware statistical decision rules.
 ## Usage
 
 ``` r
-estimate_distribution(df, distribution_config = "auto")
+estimate_distribution(
+  df,
+  distribution_config = "auto",
+  result_col = analysis_result_var(df)
+)
 ```
 
 ## Arguments
@@ -148,12 +152,82 @@ gw |>
     default_unit
   ) |>
   estimate_distribution()
-#> Error in df %>% dplyr::group_modify(~.estimate_distribution_group(.x,     distribution_config = distribution_config)) %>% dplyr::ungroup(): could not find function "%>%"
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: NA/NaN function evaluation
+#> Warning: NA/NaN function evaluation
+#> Warning: NA/NaN function evaluation
+#> Warning: NA/NaN function evaluation
+#> Warning: NA/NaN function evaluation
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> # A tibble: 387 × 18
+#>    location_id param_name default_unit n_detect percent_censored censoring_class
+#>    <chr>       <chr>      <chr>           <int>            <dbl> <chr>          
+#>  1 MW-1        Alkalinit… mg/L               20              0   low_censoring  
+#>  2 MW-1        Aluminum,… ug/L                6             68.4 high_censoring 
+#>  3 MW-1        Antimony,… ug/L                3             85   high_censoring 
+#>  4 MW-1        Arsenic, … ug/L               17             19.0 moderate_censo…
+#>  5 MW-1        Barium, d… ug/L               20              0   low_censoring  
+#>  6 MW-1        Beryllium… ug/L                0            100   extreme_censor…
+#>  7 MW-1        Boron, di… mg/L               20              0   low_censoring  
+#>  8 MW-1        Cadmium, … ug/L                1             95   extreme_censor…
+#>  9 MW-1        Calcium, … mg/L               20              0   low_censoring  
+#> 10 MW-1        Chloride,… mg/L               20              0   low_censoring  
+#> # ℹ 377 more rows
+#> # ℹ 12 more variables: distribution_method <chr>, trend_method <chr>,
+#> #   trend_guidance <chr>, censored_method <chr>, distribution_config <list>,
+#> #   interval_config <list>, decision_basis <chr>, comparison_method <chr>,
+#> #   distribution <chr>, n_used <int>, result <list>, data <list>
 
 gw |>
   dplyr::group_by(param_name) |>
   estimate_distribution()
-#> Error in df %>% dplyr::group_modify(~.estimate_distribution_group(.x,     distribution_config = distribution_config)) %>% dplyr::ungroup(): could not find function "%>%"
+#> # A tibble: 49 × 16
+#>    param_name      n_detect percent_censored censoring_class distribution_method
+#>    <chr>              <int>            <dbl> <chr>           <chr>              
+#>  1 Alkalinity, to…      149            0     low_censoring   parametric         
+#>  2 Aluminum, diss…       34           75.9   high_censoring  nonparametric      
+#>  3 Antimony, diss…        5           96.6   extreme_censor… descriptive_only   
+#>  4 Arsenic, disso…      126           15.4   moderate_censo… ros_censored       
+#>  5 Barium, dissol…      147            0.676 low_censoring   parametric         
+#>  6 Beryllium, dis…        0          100     extreme_censor… descriptive_only   
+#>  7 Boron, dissolv…      147            0.676 low_censoring   parametric         
+#>  8 Cadmium, disso…        7           95.3   extreme_censor… descriptive_only   
+#>  9 Calcium, disso…      148            0     low_censoring   parametric         
+#> 10 Chloride, total      149            0     low_censoring   parametric         
+#> # ℹ 39 more rows
+#> # ℹ 11 more variables: trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
+#> #   decision_basis <chr>, comparison_method <chr>, distribution <chr>,
+#> #   n_used <int>, result <list>, data <list>
 
 estimate_distribution(
   gw |>
@@ -162,5 +236,58 @@ estimate_distribution(
       param_name
     )
 )
-#> Error in df %>% dplyr::group_modify(~.estimate_distribution_group(.x,     distribution_config = distribution_config)) %>% dplyr::ungroup(): could not find function "%>%"
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: NA/NaN function evaluation
+#> Warning: NA/NaN function evaluation
+#> Warning: NA/NaN function evaluation
+#> Warning: NA/NaN function evaluation
+#> Warning: NA/NaN function evaluation
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> Warning: Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.
+#> # A tibble: 387 × 17
+#>    location_id param_name              n_detect percent_censored censoring_class
+#>    <chr>       <chr>                      <int>            <dbl> <chr>          
+#>  1 MW-1        Alkalinity, total (lab)       20              0   low_censoring  
+#>  2 MW-1        Aluminum, dissolved            6             68.4 high_censoring 
+#>  3 MW-1        Antimony, dissolved            3             85   high_censoring 
+#>  4 MW-1        Arsenic, dissolved            17             19.0 moderate_censo…
+#>  5 MW-1        Barium, dissolved             20              0   low_censoring  
+#>  6 MW-1        Beryllium, dissolved           0            100   extreme_censor…
+#>  7 MW-1        Boron, dissolved              20              0   low_censoring  
+#>  8 MW-1        Cadmium, dissolved             1             95   extreme_censor…
+#>  9 MW-1        Calcium, dissolved            20              0   low_censoring  
+#> 10 MW-1        Chloride, total               20              0   low_censoring  
+#> # ℹ 377 more rows
+#> # ℹ 12 more variables: distribution_method <chr>, trend_method <chr>,
+#> #   trend_guidance <chr>, censored_method <chr>, distribution_config <list>,
+#> #   interval_config <list>, decision_basis <chr>, comparison_method <chr>,
+#> #   distribution <chr>, n_used <int>, result <list>, data <list>
 ```

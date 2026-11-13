@@ -9,13 +9,14 @@ mixing processes, ion exchange, and geochemical evolution.
 durov_plot(df, ...)
 
 # S3 method for class 'data.frame'
-durov_plot(df, location, analyte, result, unit, date, ...)
+durov_plot(df, location, analyte, result, unit, sample_date, ...)
 
 # S3 method for class 'env_schema'
 durov_plot(
   df,
   analyte_matching = c("normalized", "strict", "exact"),
-  title = NULL
+  title = NULL,
+  ...
 )
 ```
 
@@ -45,7 +46,7 @@ durov_plot(
 
   Reporting unit column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -94,8 +95,8 @@ The central Durov field may be used to evaluate:
 
 - hydrochemical evolution.
 
-For \`env_schema\` objects, analyte, result, unit, date, and location
-fields are obtained directly from schema mappings.
+For \`env_schema\` objects, analyte, result, unit, sample_date, and
+location fields are obtained directly from schema mappings.
 
 ## Analyte Matching
 
@@ -142,17 +143,23 @@ Input data are validated for:
 data(gw)
 
 durov_plot(gw)
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> Warning: 2 sample(s) were omitted because insufficient major-ion chemistry was
+#> available.
+
 
 durov_plot(
   gw,
   analyte_matching = "normalized"
 )
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> Warning: 2 sample(s) were omitted because insufficient major-ion chemistry was
+#> available.
+
 
 durov_plot(
   gw,
   title = "Hydrochemical Facies"
 )
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> Warning: 2 sample(s) were omitted because insufficient major-ion chemistry was
+#> available.
+
 ```

@@ -84,6 +84,10 @@ The returned object contains:
 
   Primary basis for the recommendation.
 
+- comparison_method:
+
+  Recommended multiple-group comparison procedure.
+
 ## Details
 
 This function implements a rule-based statistical decision framework for
@@ -135,12 +139,13 @@ statistical_decision(
   n_detect = 18
 )
 #> <statistical_decision>
+#> # A tibble: 1 × 12
 #>   n_used n_detect percent_censored censoring_class distribution_method
-#> 1     20       18               12   low_censoring          parametric
-#>   trend_method    trend_guidance censored_method distribution_config
-#> 1 mann_kendall formal_trend_test     as_reported     sf, norm, lnorm
-#>          interval_config decision_basis
-#> 1 0.95, Bonferroni, 1, 1  low_censoring
+#>    <dbl>    <dbl>            <dbl> <chr>           <chr>              
+#> 1     20       18               12 low_censoring   parametric         
+#> # ℹ 7 more variables: trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
+#> #   decision_basis <chr>, comparison_method <chr>
 
 statistical_decision(
   percent_censored = 75,
@@ -148,12 +153,13 @@ statistical_decision(
   n_detect = 4
 )
 #> <statistical_decision>
+#> # A tibble: 1 × 12
 #>   n_used n_detect percent_censored censoring_class distribution_method
-#> 1     16        4               75  high_censoring       nonparametric
-#>   trend_method    trend_guidance censored_method distribution_config
-#> 1 mann_kendall formal_trend_test          cenken     sf, norm, lnorm
-#>          interval_config decision_basis
-#> 1 0.95, Bonferroni, 1, 1 high_censoring
+#>    <dbl>    <dbl>            <dbl> <chr>           <chr>              
+#> 1     16        4               75 high_censoring  nonparametric      
+#> # ℹ 7 more variables: trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
+#> #   decision_basis <chr>, comparison_method <chr>
 
 statistical_decision(
   percent_censored = c(5, 25, 80),
@@ -161,16 +167,13 @@ statistical_decision(
   n_detect = c(9, 7, 2)
 )
 #> <statistical_decision>
-#>   n_used n_detect percent_censored    censoring_class distribution_method
-#> 1     10        9                5      low_censoring          parametric
-#> 2     10        7               25 moderate_censoring        ros_censored
-#> 3     10        2               80     high_censoring       nonparametric
-#>   trend_method       trend_guidance censored_method distribution_config
-#> 1 mann_kendall    formal_trend_test     as_reported     sf, norm, lnorm
-#> 2 mann_kendall    formal_trend_test          cenken     sf, norm, lnorm
-#> 3 mann_kendall insufficient_detects          cenken     sf, norm, lnorm
-#>          interval_config     decision_basis
-#> 1 0.95, Bonferroni, 1, 1      low_censoring
-#> 2 0.95, Bonferroni, 1, 1 moderate_censoring
-#> 3 0.95, Bonferroni, 1, 1     high_censoring
+#> # A tibble: 3 × 12
+#>   n_used n_detect percent_censored censoring_class    distribution_method
+#>    <dbl>    <dbl>            <dbl> <chr>              <chr>              
+#> 1     10        9                5 low_censoring      parametric         
+#> 2     10        7               25 moderate_censoring ros_censored       
+#> 3     10        2               80 high_censoring     nonparametric      
+#> # ℹ 7 more variables: trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
+#> #   decision_basis <chr>, comparison_method <chr>
 ```

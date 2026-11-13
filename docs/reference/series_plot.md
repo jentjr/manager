@@ -11,7 +11,7 @@ series_plot(df, ...)
 series_plot(
   df,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,
@@ -36,7 +36,8 @@ series_plot(
   short_name = FALSE,
   pnt = 3,
   ncol = NULL,
-  plot_type = c("split", "combined")
+  plot_type = c("split", "combined"),
+  ...
 )
 ```
 
@@ -54,7 +55,7 @@ series_plot(
 
   Location identifier column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -179,9 +180,9 @@ observations using symbol shape.
 Optional trend lines, trend annotations, analytical standards, and
 background periods may be added to aid interpretation.
 
-For \`env_schema\` objects, analyte, result, date, unit, detection
-status, and location information are obtained directly from schema
-mappings and standardized analytical fields.
+For \`env_schema\` objects, analyte, result, sample_date, unit,
+detection status, and location information are obtained directly from
+schema mappings and standardized analytical fields.
 
 ## Plot Types
 
@@ -228,7 +229,7 @@ information contained in the \`env_schema\` object.
 
 For \`env_schema\` objects, \`series_plot()\` automatically uses:
 
-- the mapped date field;
+- the mapped sample_date field;
 
 - the mapped location field;
 
@@ -506,6 +507,10 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`
@@ -697,6 +702,10 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`
@@ -743,6 +752,10 @@ series_plot(
   gw,
   plot_type = "combined"
 )
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 
 series_plot(
@@ -913,6 +926,26 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: NaNs produced
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`
@@ -1124,6 +1157,10 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`
@@ -1314,6 +1351,10 @@ series_plot(
 
 #> 
 #> $`Specific Conductance @ 25C (field)`
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_path()`).
+#> Warning: Removed 145 rows containing missing values or values outside the scale range
+#> (`geom_point()`).
 
 #> 
 #> $`Strontium, dissolved`

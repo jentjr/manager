@@ -9,7 +9,7 @@ water chemistry.
 stiff_plot(df, ...)
 
 # S3 method for class 'data.frame'
-stiff_plot(df, location, analyte, result, unit, date, ...)
+stiff_plot(df, location, analyte, result, unit, sample_date, ...)
 
 # S3 method for class 'env_schema'
 stiff_plot(
@@ -28,7 +28,8 @@ stiff_plot(
   stiff_limit = NULL,
   stiff_breaks = 1,
   lines = FALSE,
-  title = NULL
+  title = NULL,
+  ...
 )
 ```
 
@@ -58,7 +59,7 @@ stiff_plot(
 
   Reporting unit column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -168,8 +169,8 @@ characteristics, making Stiff diagrams useful for evaluating:
 
 - geochemical evolution.
 
-For \`env_schema\` objects, analyte, result, unit, date, and location
-fields are obtained directly from schema mappings.
+For \`env_schema\` objects, analyte, result, unit, sample_date, and
+location fields are obtained directly from schema mappings.
 
 ## Analyte Matching
 
@@ -194,8 +195,8 @@ diagrams.
 
 By default, one plot is generated per location.
 
-If \`group_var\` is set to the mapped date field, one plot is generated
-per sampling event.
+If \`group_var\` is set to the mapped sample_date field, one plot is
+generated per sampling event.
 
 ## Faceting
 
@@ -218,23 +219,164 @@ another indicator parameter alongside hydrochemical facies.
 data(gw)
 
 stiff_plot(gw)
-#> Error in split(df, df[[group_var]]) %>% purrr::imap(~.stiff_plot(df = .x,     group_name = .y, location_col = location_col, date_col = date_col,     analyte_matching = analyte_matching, calcium = calcium, magnesium = magnesium,     sodium = sodium, potassium = potassium, chloride = chloride,     sulfate = sulfate, alkalinity = alkalinity, scale_analyte = scale_analyte,     facet_var = facet_var, group_var = group_var, stiff_limit = stiff_limit,     stiff_breaks = stiff_breaks, lines = lines, title = title)): could not find function "%>%"
+#> $`MW-1`
+
+#> 
+#> $`MW-2`
+
+#> 
+#> $`MW-3`
+
+#> 
+#> $`MW-4`
+
+#> 
+#> $`MW-5`
+
+#> 
+#> $`MW-6`
+
+#> 
+#> $`MW-7`
+
+#> 
+#> $`MW-8`
+
+#> 
 
 stiff_plot(
   gw,
   lines = TRUE
 )
-#> Error in split(df, df[[group_var]]) %>% purrr::imap(~.stiff_plot(df = .x,     group_name = .y, location_col = location_col, date_col = date_col,     analyte_matching = analyte_matching, calcium = calcium, magnesium = magnesium,     sodium = sodium, potassium = potassium, chloride = chloride,     sulfate = sulfate, alkalinity = alkalinity, scale_analyte = scale_analyte,     facet_var = facet_var, group_var = group_var, stiff_limit = stiff_limit,     stiff_breaks = stiff_breaks, lines = lines, title = title)): could not find function "%>%"
+#> $`MW-1`
+
+#> 
+#> $`MW-2`
+
+#> 
+#> $`MW-3`
+
+#> 
+#> $`MW-4`
+
+#> 
+#> $`MW-5`
+
+#> 
+#> $`MW-6`
+
+#> 
+#> $`MW-7`
+
+#> 
+#> $`MW-8`
+
+#> 
 
 stiff_plot(
   gw,
   scale_analyte = "Total Dissolved Solids"
 )
-#> Error in split(df, df[[group_var]]) %>% purrr::imap(~.stiff_plot(df = .x,     group_name = .y, location_col = location_col, date_col = date_col,     analyte_matching = analyte_matching, calcium = calcium, magnesium = magnesium,     sodium = sodium, potassium = potassium, chloride = chloride,     sulfate = sulfate, alkalinity = alkalinity, scale_analyte = scale_analyte,     facet_var = facet_var, group_var = group_var, stiff_limit = stiff_limit,     stiff_breaks = stiff_breaks, lines = lines, title = title)): could not find function "%>%"
+#> $`MW-1`
+
+#> 
+#> $`MW-2`
+
+#> 
+#> $`MW-3`
+
+#> 
+#> $`MW-4`
+
+#> 
+#> $`MW-5`
+
+#> 
+#> $`MW-6`
+
+#> 
+#> $`MW-7`
+
+#> 
+#> $`MW-8`
+
+#> 
 
 stiff_plot(
   gw,
-  group_var = "sample_date"
+  group_var = sample_date_var(gw)
 )
-#> Error in split(df, df[[group_var]]) %>% purrr::imap(~.stiff_plot(df = .x,     group_name = .y, location_col = location_col, date_col = date_col,     analyte_matching = analyte_matching, calcium = calcium, magnesium = magnesium,     sodium = sodium, potassium = potassium, chloride = chloride,     sulfate = sulfate, alkalinity = alkalinity, scale_analyte = scale_analyte,     facet_var = facet_var, group_var = group_var, stiff_limit = stiff_limit,     stiff_breaks = stiff_breaks, lines = lines, title = title)): could not find function "%>%"
+#> Warning: No valid major-ion chemistry available for plotting.
+#> $`2007-12-20`
+
+#> 
+#> $`2008-02-20`
+
+#> 
+#> $`2008-04-24`
+
+#> 
+#> $`2008-06-18`
+
+#> 
+#> $`2008-08-26`
+
+#> 
+#> $`2008-10-28`
+
+#> 
+#> $`2008-12-16`
+
+#> 
+#> $`2009-02-25`
+
+#> 
+#> $`2009-04-29`
+
+#> 
+#> $`2009-10-21`
+
+#> 
+#> $`2009-10-22`
+
+#> 
+#> $`2010-04-13`
+
+#> 
+#> $`2010-11-02`
+
+#> 
+#> $`2011-05-17`
+
+#> 
+#> $`2011-05-18`
+
+#> 
+#> $`2011-10-05`
+
+#> 
+#> $`2012-04-03`
+
+#> 
+#> $`2012-06-20`
+
+#> 
+#> $`2012-08-22`
+
+#> 
+#> $`2012-10-01`
+#> NULL
+#> 
+#> $`2012-10-03`
+
+#> 
+#> $`2012-11-14`
+
+#> 
+#> $`2013-04-10`
+
+#> 
+#> $`2013-10-02`
+
+#> 
 ```

@@ -35,7 +35,7 @@ piper_time_plot(df, ...)
 
   : Reporting unit column.
 
-  `date`
+  `sample_date`
 
   : Sample date column.
 

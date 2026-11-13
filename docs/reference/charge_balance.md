@@ -8,10 +8,10 @@ Calculates the ionic charge balance of major-ion chemistry data.
 charge_balance(df, ...)
 
 # S3 method for class 'data.frame'
-charge_balance(df, location, analyte, result, unit, date, ...)
+charge_balance(df, location, analyte, result, unit, sample_date, ...)
 
 # S3 method for class 'env_schema'
-charge_balance(df, analyte_matching = c("exact", "strict", "normalized"))
+charge_balance(df, analyte_matching = c("exact", "strict", "normalized"), ...)
 ```
 
 ## Arguments
@@ -40,7 +40,7 @@ charge_balance(df, analyte_matching = c("exact", "strict", "normalized"))
 
   Reporting unit column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -108,8 +108,8 @@ results, whereas large positive or negative values may indicate
 analytical error, missing constituents, transcription errors, or
 unit-conversion problems.
 
-For \`env_schema\` objects, analyte, result, unit, date, and location
-fields are obtained directly from schema mappings.
+For \`env_schema\` objects, analyte, result, unit, sample_date, and
+location fields are obtained directly from schema mappings.
 
 ## Analyte Matching
 
@@ -179,16 +179,55 @@ Input data are validated for:
 data(gw)
 
 charge_balance(gw)
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> # A tibble: 150 × 5
+#>    location_id sample_date         total_cations total_anions charge_balance_pct
+#>    <chr>       <dttm>                      <dbl>        <dbl>              <dbl>
+#>  1 MW-1        2007-12-20 00:00:00          5.82         4.84               9.16
+#>  2 MW-1        2008-02-20 00:00:00          5.87         3.99              19.1 
+#>  3 MW-1        2008-04-24 00:00:00          8.70         6.34              15.6 
+#>  4 MW-1        2008-06-18 00:00:00          9.73         6.69              18.5 
+#>  5 MW-1        2008-08-26 00:00:00         10.2          6.69              21.0 
+#>  6 MW-1        2008-10-28 00:00:00         10.7          4.66              39.1 
+#>  7 MW-1        2008-12-16 00:00:00          9.34         6.75              16.1 
+#>  8 MW-1        2009-02-25 00:00:00         10.2          8.91               6.90
+#>  9 MW-1        2009-04-29 00:00:00          9.72         8.52               6.54
+#> 10 MW-1        2009-10-21 00:00:00          9.32         8.36               5.45
+#> # ℹ 140 more rows
 
 data(gw)
 
 charge_balance(gw)
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> # A tibble: 150 × 5
+#>    location_id sample_date         total_cations total_anions charge_balance_pct
+#>    <chr>       <dttm>                      <dbl>        <dbl>              <dbl>
+#>  1 MW-1        2007-12-20 00:00:00          5.82         4.84               9.16
+#>  2 MW-1        2008-02-20 00:00:00          5.87         3.99              19.1 
+#>  3 MW-1        2008-04-24 00:00:00          8.70         6.34              15.6 
+#>  4 MW-1        2008-06-18 00:00:00          9.73         6.69              18.5 
+#>  5 MW-1        2008-08-26 00:00:00         10.2          6.69              21.0 
+#>  6 MW-1        2008-10-28 00:00:00         10.7          4.66              39.1 
+#>  7 MW-1        2008-12-16 00:00:00          9.34         6.75              16.1 
+#>  8 MW-1        2009-02-25 00:00:00         10.2          8.91               6.90
+#>  9 MW-1        2009-04-29 00:00:00          9.72         8.52               6.54
+#> 10 MW-1        2009-10-21 00:00:00          9.32         8.36               5.45
+#> # ℹ 140 more rows
 
 charge_balance(
   gw,
   analyte_matching = "normalized"
 )
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> # A tibble: 150 × 5
+#>    location_id sample_date         total_cations total_anions charge_balance_pct
+#>    <chr>       <dttm>                      <dbl>        <dbl>              <dbl>
+#>  1 MW-1        2007-12-20 00:00:00          5.82         4.84               9.16
+#>  2 MW-1        2008-02-20 00:00:00          5.87         3.99              19.1 
+#>  3 MW-1        2008-04-24 00:00:00          8.70         6.34              15.6 
+#>  4 MW-1        2008-06-18 00:00:00          9.73         6.69              18.5 
+#>  5 MW-1        2008-08-26 00:00:00         10.2          6.69              21.0 
+#>  6 MW-1        2008-10-28 00:00:00         10.7          4.66              39.1 
+#>  7 MW-1        2008-12-16 00:00:00          9.34         6.75              16.1 
+#>  8 MW-1        2009-02-25 00:00:00         10.2          8.91               6.90
+#>  9 MW-1        2009-04-29 00:00:00          9.72         8.52               6.54
+#> 10 MW-1        2009-10-21 00:00:00          9.32         8.36               5.45
+#> # ℹ 140 more rows
 ```

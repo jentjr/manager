@@ -36,7 +36,7 @@ piper_time_html(df, ...)
 
   : Reporting unit column.
 
-  `date`
+  `sample_date`
 
   : Sample date column.
 

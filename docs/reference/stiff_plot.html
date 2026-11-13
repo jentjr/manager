@@ -69,7 +69,8 @@ major-ion water chemistry.</p>
 <span>  stiff_limit <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stiff_breaks <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  lines <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  title <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -260,25 +261,166 @@ or another indicator parameter alongside hydrochemical facies.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">stiff_plot</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in split(df, df[[group_var]]) %&gt;% purrr::imap(~.stiff_plot(df = .x,     group_name = .y, location_col = location_col, date_col = date_col,     analyte_matching = analyte_matching, calcium = calcium, magnesium = magnesium,     sodium = sodium, potassium = potassium, chloride = chloride,     sulfate = sulfate, alkalinity = alkalinity, scale_analyte = scale_analyte,     facet_var = facet_var, group_var = group_var, stiff_limit = stiff_limit,     stiff_breaks = stiff_breaks, lines = lines, title = title)):</span> could not find function "%&gt;%"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-1`</span>
+<span class="r-plt img"><img src="stiff_plot-1.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-2`</span>
+<span class="r-plt img"><img src="stiff_plot-2.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-3`</span>
+<span class="r-plt img"><img src="stiff_plot-3.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-4`</span>
+<span class="r-plt img"><img src="stiff_plot-4.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-5`</span>
+<span class="r-plt img"><img src="stiff_plot-5.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-6`</span>
+<span class="r-plt img"><img src="stiff_plot-6.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-7`</span>
+<span class="r-plt img"><img src="stiff_plot-7.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-8`</span>
+<span class="r-plt img"><img src="stiff_plot-8.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">stiff_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  lines <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in split(df, df[[group_var]]) %&gt;% purrr::imap(~.stiff_plot(df = .x,     group_name = .y, location_col = location_col, date_col = date_col,     analyte_matching = analyte_matching, calcium = calcium, magnesium = magnesium,     sodium = sodium, potassium = potassium, chloride = chloride,     sulfate = sulfate, alkalinity = alkalinity, scale_analyte = scale_analyte,     facet_var = facet_var, group_var = group_var, stiff_limit = stiff_limit,     stiff_breaks = stiff_breaks, lines = lines, title = title)):</span> could not find function "%&gt;%"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-1`</span>
+<span class="r-plt img"><img src="stiff_plot-9.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-2`</span>
+<span class="r-plt img"><img src="stiff_plot-10.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-3`</span>
+<span class="r-plt img"><img src="stiff_plot-11.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-4`</span>
+<span class="r-plt img"><img src="stiff_plot-12.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-5`</span>
+<span class="r-plt img"><img src="stiff_plot-13.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-6`</span>
+<span class="r-plt img"><img src="stiff_plot-14.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-7`</span>
+<span class="r-plt img"><img src="stiff_plot-15.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-8`</span>
+<span class="r-plt img"><img src="stiff_plot-16.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">stiff_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  scale_analyte <span class="op">=</span> <span class="st">"Total Dissolved Solids"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in split(df, df[[group_var]]) %&gt;% purrr::imap(~.stiff_plot(df = .x,     group_name = .y, location_col = location_col, date_col = date_col,     analyte_matching = analyte_matching, calcium = calcium, magnesium = magnesium,     sodium = sodium, potassium = potassium, chloride = chloride,     sulfate = sulfate, alkalinity = alkalinity, scale_analyte = scale_analyte,     facet_var = facet_var, group_var = group_var, stiff_limit = stiff_limit,     stiff_breaks = stiff_breaks, lines = lines, title = title)):</span> could not find function "%&gt;%"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-1`</span>
+<span class="r-plt img"><img src="stiff_plot-17.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-2`</span>
+<span class="r-plt img"><img src="stiff_plot-18.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-3`</span>
+<span class="r-plt img"><img src="stiff_plot-19.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-4`</span>
+<span class="r-plt img"><img src="stiff_plot-20.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-5`</span>
+<span class="r-plt img"><img src="stiff_plot-21.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-6`</span>
+<span class="r-plt img"><img src="stiff_plot-22.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-7`</span>
+<span class="r-plt img"><img src="stiff_plot-23.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`MW-8`</span>
+<span class="r-plt img"><img src="stiff_plot-24.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">stiff_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
-<span class="r-in"><span>  group_var <span class="op">=</span> <span class="fu">sample_date_var</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  group_var <span class="op">=</span> <span class="fu"><a href="schema_accessors.html">sample_date_var</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in sample_date_var(gw):</span> could not find function "sample_date_var"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>No valid major-ion chemistry available for plotting.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2007-12-20`</span>
+<span class="r-plt img"><img src="stiff_plot-25.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2008-02-20`</span>
+<span class="r-plt img"><img src="stiff_plot-26.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2008-04-24`</span>
+<span class="r-plt img"><img src="stiff_plot-27.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2008-06-18`</span>
+<span class="r-plt img"><img src="stiff_plot-28.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2008-08-26`</span>
+<span class="r-plt img"><img src="stiff_plot-29.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2008-10-28`</span>
+<span class="r-plt img"><img src="stiff_plot-30.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2008-12-16`</span>
+<span class="r-plt img"><img src="stiff_plot-31.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2009-02-25`</span>
+<span class="r-plt img"><img src="stiff_plot-32.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2009-04-29`</span>
+<span class="r-plt img"><img src="stiff_plot-33.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2009-10-21`</span>
+<span class="r-plt img"><img src="stiff_plot-34.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2009-10-22`</span>
+<span class="r-plt img"><img src="stiff_plot-35.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2010-04-13`</span>
+<span class="r-plt img"><img src="stiff_plot-36.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2010-11-02`</span>
+<span class="r-plt img"><img src="stiff_plot-37.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2011-05-17`</span>
+<span class="r-plt img"><img src="stiff_plot-38.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2011-05-18`</span>
+<span class="r-plt img"><img src="stiff_plot-39.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2011-10-05`</span>
+<span class="r-plt img"><img src="stiff_plot-40.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2012-04-03`</span>
+<span class="r-plt img"><img src="stiff_plot-41.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2012-06-20`</span>
+<span class="r-plt img"><img src="stiff_plot-42.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2012-08-22`</span>
+<span class="r-plt img"><img src="stiff_plot-43.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2012-10-01`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2012-10-03`</span>
+<span class="r-plt img"><img src="stiff_plot-44.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2012-11-14`</span>
+<span class="r-plt img"><img src="stiff_plot-45.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2013-04-10`</span>
+<span class="r-plt img"><img src="stiff_plot-46.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $`2013-10-02`</span>
+<span class="r-plt img"><img src="stiff_plot-47.png" alt="" width="700" height="433"></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

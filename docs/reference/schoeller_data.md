@@ -8,10 +8,10 @@ Creates Schoeller-diagram plotting data from major-ion chemistry.
 schoeller_data(df, ...)
 
 # S3 method for class 'data.frame'
-schoeller_data(df, location, analyte, result, unit, date, ...)
+schoeller_data(df, location, analyte, result, unit, sample_date, ...)
 
 # S3 method for class 'env_schema'
-schoeller_data(df, analyte_matching = c("exact", "strict", "normalized"))
+schoeller_data(df, analyte_matching = c("exact", "strict", "normalized"), ...)
 ```
 
 ## Arguments
@@ -40,7 +40,7 @@ schoeller_data(df, analyte_matching = c("exact", "strict", "normalized"))
 
   Reporting unit column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -109,8 +109,20 @@ Schoeller-axis category for a given location and sample date.
 data(gw)
 
 schoeller <- schoeller_data(gw)
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
 
 schoeller
-#> Error: object 'schoeller' not found
+#> # A tibble: 890 × 4
+#>    location_id sample_date         schoeller_axis analysis_result
+#>    <chr>       <dttm>              <ord>                    <dbl>
+#>  1 MW-1        2007-12-20 00:00:00 Alk                      2.93 
+#>  2 MW-1        2007-12-20 00:00:00 Ca                       3.23 
+#>  3 MW-1        2007-12-20 00:00:00 Cl                       0.846
+#>  4 MW-1        2007-12-20 00:00:00 Mg                       1.73 
+#>  5 MW-1        2007-12-20 00:00:00 Na + K                   0.862
+#>  6 MW-1        2007-12-20 00:00:00 SO4                      1.06 
+#>  7 MW-1        2008-02-20 00:00:00 Alk                      2.25 
+#>  8 MW-1        2008-02-20 00:00:00 Ca                       3.56 
+#>  9 MW-1        2008-02-20 00:00:00 Cl                       0.705
+#> 10 MW-1        2008-02-20 00:00:00 Mg                       1.62 
+#> # ℹ 880 more rows
 ```

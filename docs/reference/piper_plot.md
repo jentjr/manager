@@ -9,7 +9,7 @@ major-ion chemistry data.
 piper_plot(df, ...)
 
 # S3 method for class 'data.frame'
-piper_plot(df, location, analyte, result, unit, date, ...)
+piper_plot(df, location, analyte, result, unit, sample_date, ...)
 
 # S3 method for class 'env_schema'
 piper_plot(
@@ -34,7 +34,8 @@ piper_plot(
   transparency = 0.7,
   pnt_size = 3,
   label_size = 3,
-  title = NULL
+  title = NULL,
+  ...
 )
 ```
 
@@ -64,7 +65,7 @@ piper_plot(
 
   Reporting unit column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -178,8 +179,8 @@ Major ions are converted to milliequivalents per liter (meq/L),
 normalized to ionic percentages, and transformed into Piper coordinates
 before plotting.
 
-For \`env_schema\` objects, analyte, result, unit, date, and location
-fields are obtained directly from schema mappings.
+For \`env_schema\` objects, analyte, result, unit, sample_date, and
+location fields are obtained directly from schema mappings.
 
 ## Analyte Matching
 
@@ -217,23 +218,23 @@ Input data are validated for:
 data(gw)
 
 piper_plot(gw)
-#> Error in df %>% .transform_piper_data(analyte_matching = analyte_matching,     x_cation = x_cation, y_cation = y_cation, z_cation = z_cation,     x_anion = x_anion, y_anion = y_anion, z_anion = z_anion,     scale_analyte = scale_analyte): could not find function "%>%"
+
 
 piper_plot(
   gw,
   analyte_matching = "normalized"
 )
-#> Error in df %>% .transform_piper_data(analyte_matching = analyte_matching,     x_cation = x_cation, y_cation = y_cation, z_cation = z_cation,     x_anion = x_anion, y_anion = y_anion, z_anion = z_anion,     scale_analyte = scale_analyte): could not find function "%>%"
+
 
 piper_plot(
   gw,
   scale_analyte = "Total Dissolved Solids"
 )
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+
 
 piper_plot(
   gw,
   x_cation_label = "Ca~phantom()^+2"
 )
-#> Error in df %>% .transform_piper_data(analyte_matching = analyte_matching,     x_cation = x_cation, y_cation = y_cation, z_cation = z_cation,     x_anion = x_anion, y_anion = y_anion, z_anion = z_anion,     scale_analyte = scale_analyte): could not find function "%>%"
+
 ```

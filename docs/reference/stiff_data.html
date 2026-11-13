@@ -63,7 +63,8 @@ chemistry.</p>
 <span>  chloride <span class="op">=</span> <span class="st">"Chloride, total"</span>,</span>
 <span>  sulfate <span class="op">=</span> <span class="st">"Sulfate, total"</span>,</span>
 <span>  alkalinity <span class="op">=</span> <span class="st">"Alkalinity, total (lab)"</span>,</span>
-<span>  scale_analyte <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  scale_analyte <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -171,7 +172,20 @@ returned.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">stiff_data</span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %&gt;%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %&gt;%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %&gt;%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction):</span> could not find function "%&gt;%"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1,050 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    location_id sample_date         vertex ion    stiff_x stiff_y label_side</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> MW-1        2007-12-20 <span style="color: #949494;">00:00:00</span>      1 Na + K  -<span style="color: #BB0000;">0.862</span>       3 left      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> MW-1        2007-12-20 <span style="color: #949494;">00:00:00</span>      2 Cl       0.846       3 right     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> MW-1        2007-12-20 <span style="color: #949494;">00:00:00</span>      3 HCO[3]   2.93        2 right     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> MW-1        2007-12-20 <span style="color: #949494;">00:00:00</span>      4 SO[4]    1.06        1 right     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> MW-1        2007-12-20 <span style="color: #949494;">00:00:00</span>      5 Mg      -<span style="color: #BB0000;">1.73</span>        1 left      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> MW-1        2007-12-20 <span style="color: #949494;">00:00:00</span>      6 Ca      -<span style="color: #BB0000;">3.23</span>        2 left      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> MW-1        2007-12-20 <span style="color: #949494;">00:00:00</span>      7 Na + K  -<span style="color: #BB0000;">0.862</span>       3 left      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> MW-1        2008-02-20 <span style="color: #949494;">00:00:00</span>      1 Na + K  -<span style="color: #BB0000;">0.695</span>       3 left      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> MW-1        2008-02-20 <span style="color: #949494;">00:00:00</span>      2 Cl       0.705       3 right     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MW-1        2008-02-20 <span style="color: #949494;">00:00:00</span>      3 HCO[3]   2.25        2 right     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1,040 more rows</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

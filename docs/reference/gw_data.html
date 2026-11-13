@@ -111,14 +111,25 @@ processed `env_schema` example dataset.</p>
 <span class="r-in"><span><span class="va">gw</span> <span class="op">&lt;-</span> <span class="fu"><a href="env_schema.html">env_schema</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw_data</span>,</span></span>
 <span class="r-in"><span>  location <span class="op">=</span> <span class="va">location_id</span>,</span></span>
-<span class="r-in"><span>  date <span class="op">=</span> <span class="va">sample_date</span>,</span></span>
+<span class="r-in"><span>  sample_date <span class="op">=</span> <span class="va">sample_date</span>,</span></span>
 <span class="r-in"><span>  analyte <span class="op">=</span> <span class="va">param_name</span>,</span></span>
 <span class="r-in"><span>  result <span class="op">=</span> <span class="va">analysis_result</span>,</span></span>
 <span class="r-in"><span>  unit <span class="op">=</span> <span class="va">default_unit</span>,</span></span>
 <span class="r-in"><span>  reporting_flag <span class="op">=</span> <span class="va">lt_measure</span>,</span></span>
 <span class="r-in"><span>  analyte_lookup <span class="op">=</span> <span class="va">analyte_tbl</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in alias_lookup %&gt;% dplyr::count(alias) %&gt;% dplyr::filter(n &gt; 1):</span> could not find function "%&gt;%"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>13 analytes were not found in analyte metadata.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Aluminum, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Chromium, hexavalent</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Cobalt, Dis</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater Elevation (ref MSL)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater, depth from TOC</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Nitrite + Nitrate, total</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> SiO2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Strontium, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Temperature (Celsius)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Tin, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> ,</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

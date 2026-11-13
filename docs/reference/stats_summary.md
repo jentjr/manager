@@ -15,11 +15,22 @@ stats_summary(
   censored = "censored",
   analysis_result = "analysis_result",
   default_unit = "default_unit",
+  result_col = analysis_result,
+  censored_col = censored,
   na.rm = TRUE
 )
 
 # S3 method for class 'env_schema'
-stats_summary(df, na.rm = TRUE, ...)
+stats_summary(
+  df,
+  result_col = analysis_result_var(df),
+  censored_col = censored_var(df),
+  na.rm = TRUE,
+  ...
+)
+
+# S3 method for class 'grouped_df'
+stats_summary(df, ...)
 ```
 
 ## Arguments
@@ -51,6 +62,15 @@ stats_summary(df, na.rm = TRUE, ...)
 - default_unit:
 
   Reporting unit column name.
+
+- result_col:
+
+  Numerical column on which stats_summary is computed.
+
+- censored_col:
+
+  Censoring indicator column name used to calculate detection counts and
+  censoring percentages.
 
 - na.rm:
 
@@ -207,7 +227,16 @@ source column names or schema mappings used by the input data.
 
 ``` r
 stats_summary(gw)
-#> # A tibble: 387 × 26
+#> Warning: There were 16 warnings in `dplyr::summarise()`.
+#> The first warning was:
+#> ℹ In argument: `min = .safe_stat(min(.data[[".analysis_result"]], na.rm =
+#>   na.rm))`.
+#> ℹ In group 38: `location_id = "MW-1"`, `param_name = "Specific Conductance @
+#>   25C (field)"`, `.analysis_unit = "us/cm"`.
+#> Caused by warning in `min()`:
+#> ! no non-missing arguments to min; returning Inf
+#> ℹ Run dplyr::last_dplyr_warnings() to see the 15 remaining warnings.
+#> # A tibble: 387 × 27
 #>    location_id param_name  .analysis_unit     n n_used n_detect percent_censored
 #>    <chr>       <chr>       <chr>          <int>  <int>    <int>            <dbl>
 #>  1 MW-1        Alkalinity… mg/l              20     20       20              0  
@@ -221,16 +250,32 @@ stats_summary(gw)
 #>  9 MW-1        Calcium, d… mg/l              20     20       20              0  
 #> 10 MW-1        Chloride, … mg/l              20     20       20              0  
 #> # ℹ 377 more rows
-#> # ℹ 19 more variables: mean <dbl>, median <dbl>, sd <dbl>, var <dbl>,
+#> # ℹ 20 more variables: mean <dbl>, median <dbl>, sd <dbl>, var <dbl>,
 #> #   min <dbl>, max <dbl>, cv <dbl>, `25%` <dbl>, `75%` <dbl>, IQR <dbl>,
 #> #   mad <dbl>, censoring_class <chr>, distribution_method <chr>,
 #> #   trend_method <chr>, trend_guidance <chr>, censored_method <chr>,
-#> #   distribution_config <list>, interval_config <list>, decision_basis <chr>
+#> #   distribution_config <list>, interval_config <list>, decision_basis <chr>,
+#> #   comparison_method <chr>
 
 gw |>
   dplyr::group_by(location_id) |>
   stats_summary()
-#> Error in .stats_summary_core(df = df, group_cols = group_cols, result_col = analysis_result,     censored_col = censored, na.rm = na.rm): Missing required columns: censored
+#> # A tibble: 8 × 25
+#>   location_id     n n_used n_detect percent_censored  mean median    sd      var
+#>   <chr>       <int>  <int>    <int>            <dbl> <dbl>  <dbl> <dbl>    <dbl>
+#> 1 MW-1          791    772      491             35.5 143.    6.94  398.   1.58e5
+#> 2 MW-2          791    772      497             34.8 130.    5     348.   1.21e5
+#> 3 MW-3          790    771      489             35.7  84.7   5     252.   6.33e4
+#> 4 MW-4          715    697      444             35.4 168.    6.8   536.   2.87e5
+#> 5 MW-5          715    697      427             37.8 181.    6.95  829.   6.87e5
+#> 6 MW-6          715    697      412             39.9 757.    5.35 4233.   1.79e7
+#> 7 MW-7          646    630      384             38.1 481.    5    2354.   5.54e6
+#> 8 MW-8          715    697      441             35.8 151.    7.57  511.   2.61e5
+#> # ℹ 16 more variables: min <dbl>, max <dbl>, cv <dbl>, `25%` <dbl>,
+#> #   `75%` <dbl>, IQR <dbl>, mad <dbl>, censoring_class <chr>,
+#> #   distribution_method <chr>, trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
+#> #   decision_basis <chr>, comparison_method <chr>
 
 x <- env_schema(
   raw_data,
@@ -239,7 +284,7 @@ x <- env_schema(
   analyte = parameter,
   result = result_value
 )
-#> Error: object 'raw_data' not found
+#> Error in env_schema(raw_data, location = site_id, date = sample_date,     analyte = parameter, result = result_value): unused argument (date = sample_date)
 
 stats_summary(x)
 #> Error: object 'x' not found

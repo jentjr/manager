@@ -110,7 +110,14 @@ Datasets are typically converted using `as_env_schema()`.
 
 ``` r
 
-gw <- as_env_schema(raw_data)
+gw <- as_env_schema(
+  gw_data,
+  location = location_id,
+  sample_date = sample_date,
+  analyte = param_name,
+  result = analysis_result,
+  unit = default_unit
+  )
 ```
 
 The constructor:
@@ -145,8 +152,8 @@ For example:
 location(gw)
 sample_date(gw)
 analyte(gw)
-result(gw)
-unit(gw)
+analysis_result(gw)
+analysis_unit(gw)
 detect(gw)
 limit(gw)
 method(gw)
@@ -161,7 +168,7 @@ For example:
 
 dplyr::n_distinct(location(gw))
 
-mean(result(gw), na.rm = TRUE)
+mean(analysis_result(gw), na.rm = TRUE)
 ```
 
 Instead of:
@@ -170,7 +177,7 @@ Instead of:
 
 dplyr::n_distinct(gw$.location)
 
-mean(gw$.result, na.rm = TRUE)
+mean(gw$.analysis_result, na.rm = TRUE)
 ```
 
 Using accessors results in code that is more maintainable and easier to
@@ -283,15 +290,15 @@ inherits(gw_small, "env_schema")
 
 ``` r
 
-benzene <- gw %>%
-  filter(.analyte == "Benzene")
+chloride <- gw %>%
+  filter(.analyte == "Chloride, total")
 ```
 
 The filtered object retains the schema.
 
 ``` r
 
-inherits(benzene, "env_schema")
+inherits(chloride, "env_schema")
 ```
 
 ### Mutating Columns
@@ -300,7 +307,7 @@ inherits(benzene, "env_schema")
 
 gw2 <- gw %>%
   mutate(
-    result_log = log(.result)
+    result_log = log(.analysis_result)
   )
 ```
 
@@ -352,7 +359,7 @@ For example:
 gw %>%
   group_by(.analyte) %>%
   summarize(
-    mean_result = mean(.result, na.rm = TRUE)
+    mean_result = mean(.analysis_result, na.rm = TRUE)
   )
 ```
 
@@ -371,7 +378,7 @@ Prefer:
 ``` r
 
 function(x) {
-  mean(result(x), na.rm = TRUE)
+  mean(analysis_result(x), na.rm = TRUE)
 }
 ```
 
@@ -380,7 +387,7 @@ Instead of:
 ``` r
 
 function(x) {
-  mean(x$.result, na.rm = TRUE)
+  mean(x$.analysis_result, na.rm = TRUE)
 }
 ```
 
@@ -399,10 +406,10 @@ A typical analysis workflow might look like:
 
 gw %>%
   filter(
-    analyte(.) == "Benzene"
+    analyte(.) == "Chloride, total"
   ) %>%
   mutate(
-    result_ug_l = result(.)
+    result_ug_l = analysis_result(.)
   ) %>%
   arrange(
     sample_date(.)

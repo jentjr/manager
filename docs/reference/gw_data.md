@@ -78,12 +78,23 @@ head(gw_data)
 gw <- env_schema(
   gw_data,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit,
   reporting_flag = lt_measure,
   analyte_lookup = analyte_tbl
 )
-#> Error in alias_lookup %>% dplyr::count(alias) %>% dplyr::filter(n > 1): could not find function "%>%"
+#> Warning: 13 analytes were not found in analyte metadata.
+#> Aluminum, dissolved
+#> Chromium, hexavalent
+#> Cobalt, Dis
+#> Groundwater Elevation (ref MSL)
+#> Groundwater, depth from TOC
+#> Nitrite + Nitrate, total
+#> SiO2
+#> Strontium, dissolved
+#> Temperature (Celsius)
+#> Tin, dissolved
+#> ,
 ```

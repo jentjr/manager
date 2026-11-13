@@ -56,12 +56,15 @@ gw %>%
   filter(location_id == "MW-1",
          .analyte == "Chloride") %>%
   stats_summary()
-#> # A tibble: 1 × 16
-#>   location_id param_name      .analysis_unit     n percent_censored  mean median
-#>   <chr>       <chr>           <chr>          <int>            <dbl> <dbl>  <dbl>
-#> 1 MW-1        Chloride, total mg/l              20                0  22.0   21.9
-#> # ℹ 9 more variables: sd <dbl>, var <dbl>, min <dbl>, max <dbl>, cv <dbl>,
-#> #   `25%` <dbl>, `75%` <dbl>, IQR <dbl>, mad <dbl>
+#> # A tibble: 1 × 26
+#>   location_id param_name   .analysis_unit     n n_used n_detect percent_censored
+#>   <chr>       <chr>        <chr>          <int>  <int>    <int>            <dbl>
+#> 1 MW-1        Chloride, t… mg/l              20     20       20                0
+#> # ℹ 19 more variables: mean <dbl>, median <dbl>, sd <dbl>, var <dbl>,
+#> #   min <dbl>, max <dbl>, cv <dbl>, `25%` <dbl>, `75%` <dbl>, IQR <dbl>,
+#> #   mad <dbl>, censoring_class <chr>, distribution_method <chr>,
+#> #   trend_method <chr>, trend_guidance <chr>, censored_method <chr>,
+#> #   distribution_config <list>, interval_config <list>, decision_basis <chr>
 ```
 
 ## Environmental Data Standard
@@ -72,21 +75,11 @@ Datasets in `manager` use the `env_schema` class:
 
 gw
 #> <env_schema>
-#> 5878 rows x 41 columns
+#> 5878 rows x 44 columns
 #> Locations: 8 
 #> Analytes: 49 
 #> Valid: TRUE 
 #> Version: 0.5.0
-```
-
-Output:
-
-``` R
-12345 rows × 15 columns
-Locations: 48
-Analytes: 72
-Date range: 2015-01-01 to 2024-12-31
-Class: env_schema
 ```
 
 Core environmental variables include:

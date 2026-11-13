@@ -10,7 +10,7 @@ env_schema(
   df,
   site = NULL,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,
@@ -25,7 +25,8 @@ env_schema(
   analysis_date = NULL,
   matrix = NULL,
   lab_name = NULL,
-  metadata = NULL,
+  analysis_metadata = NULL,
+  source_metadata = NULL,
   qualifier_table = NULL,
   display_options = default_display_options(),
   analyte_lookup = analyte_tbl
@@ -46,7 +47,7 @@ env_schema(
 
   Location identifier column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -106,10 +107,16 @@ env_schema(
 
   Laboratory column.
 
-- metadata:
+- analysis_metadata:
 
-  Optional tidyselect specification identifying columns containing
-  method-specific metadata.
+  Optional tidyselect specification identifying analysis-context
+  metadata columns (for example analytical methods, laboratories,
+  matrices, measurement uncertainty, or other analytical metadata).
+
+- source_metadata:
+
+  Optional tidyselect specification identifying source-system-specific
+  metadata columns.
 
 - qualifier_table:
 
@@ -172,7 +179,7 @@ For example:
     env_schema(
       data,
       location = location_id,
-      date = sample_date,
+      sample_date = sample_date,
       analyte = parameter,
       result = concentration
     )
@@ -194,7 +201,7 @@ if (FALSE) { # \dontrun{
 gw <- env_schema(
   my_data,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit

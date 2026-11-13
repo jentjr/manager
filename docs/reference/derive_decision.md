@@ -6,7 +6,11 @@ Calculates censoring metrics from a dataset and returns a corresponding
 ## Usage
 
 ``` r
-derive_decision(df)
+derive_decision(
+  df,
+  result_col = analysis_result_var(df),
+  censored_col = censored_var(df)
+)
 ```
 
 ## Arguments

@@ -15,7 +15,7 @@ boxplot(
   location,
   analyte,
   result,
-  date = NULL,
+  sample_date = NULL,
   reporting_flag = NULL,
   unit = NULL,
   ...
@@ -62,7 +62,7 @@ boxplot(
 
   Analytical result column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -219,5 +219,17 @@ plots <- boxplot(
   analyte = param_name,
   result = analysis_result
 )
-#> Error in alias_lookup %>% dplyr::count(alias) %>% dplyr::filter(n > 1): could not find function "%>%"
+#> Warning: 13 analytes were not found in analyte metadata.
+#> Aluminum, dissolved
+#> Chromium, hexavalent
+#> Cobalt, Dis
+#> Groundwater Elevation (ref MSL)
+#> Groundwater, depth from TOC
+#> Nitrite + Nitrate, total
+#> SiO2
+#> Strontium, dissolved
+#> Temperature (Celsius)
+#> Tin, dissolved
+#> ,
+#> Error in validate_env_schema(out): Missing mapped columns: sample_date
 ```

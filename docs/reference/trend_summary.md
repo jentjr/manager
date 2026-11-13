@@ -23,9 +23,11 @@ trend_summary(
 # S3 method for class 'env_schema'
 trend_summary(
   df,
+  result_col = analysis_result_var(df),
   method = "mann_kendall",
   censored_method = "auto",
-  conf.level = 0.95
+  conf.level = 0.95,
+  ...
 )
 ```
 
@@ -245,7 +247,23 @@ trend_summary(gw)
 gw |>
   dplyr::group_by(location_id) |>
   trend_summary()
-#> Error in alias_lookup %>% dplyr::count(alias) %>% dplyr::filter(n > 1): could not find function "%>%"
+#> # A tibble: 8 × 21
+#>   location_id     n first_date          last_date           date_range_days
+#>   <chr>       <int> <dttm>              <dttm>                        <dbl>
+#> 1 MW-1          791 2007-12-20 00:00:00 2013-10-02 00:00:00            2113
+#> 2 MW-2          791 2007-12-20 00:00:00 2013-10-02 00:00:00            2113
+#> 3 MW-3          790 2007-12-20 00:00:00 2013-10-02 00:00:00            2113
+#> 4 MW-4          715 2007-12-20 00:00:00 2013-10-02 00:00:00            2113
+#> 5 MW-5          715 2007-12-20 00:00:00 2013-10-02 00:00:00            2113
+#> 6 MW-6          715 2007-12-20 00:00:00 2013-10-02 00:00:00            2113
+#> 7 MW-7          646 2008-04-24 00:00:00 2013-10-02 00:00:00            1987
+#> 8 MW-8          715 2007-12-20 00:00:00 2013-10-02 00:00:00            2113
+#> # ℹ 16 more variables: date_range_years <dbl>, sampling_frequency <dbl>,
+#> #   minimum_concentration <dbl>, median_concentration <dbl>,
+#> #   mean_concentration <dbl>, maximum_concentration <dbl>,
+#> #   standard_deviation <dbl>, coefficient_of_variation <dbl>,
+#> #   trend_method <chr>, censored_method <chr>, slope <dbl>, p_value <dbl>,
+#> #   conf_low <dbl>, conf_high <dbl>, significant <lgl>, trend_direction <chr>
 
 trend_summary(
   gw,

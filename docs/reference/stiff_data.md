@@ -8,7 +8,7 @@ Creates Stiff-diagram polygon coordinates from major-ion chemistry.
 stiff_data(df, ...)
 
 # S3 method for class 'data.frame'
-stiff_data(df, location, analyte, result, unit, date, ...)
+stiff_data(df, location, analyte, result, unit, sample_date, ...)
 
 # S3 method for class 'env_schema'
 stiff_data(
@@ -21,7 +21,8 @@ stiff_data(
   chloride = "Chloride, total",
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
-  scale_analyte = NULL
+  scale_analyte = NULL,
+  ...
 )
 ```
 
@@ -51,7 +52,7 @@ stiff_data(
 
   Reporting unit column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -131,5 +132,18 @@ returned.
 data(gw)
 
 stiff_data(gw)
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> # A tibble: 1,050 × 7
+#>    location_id sample_date         vertex ion    stiff_x stiff_y label_side
+#>    <chr>       <dttm>               <dbl> <chr>    <dbl>   <dbl> <chr>     
+#>  1 MW-1        2007-12-20 00:00:00      1 Na + K  -0.862       3 left      
+#>  2 MW-1        2007-12-20 00:00:00      2 Cl       0.846       3 right     
+#>  3 MW-1        2007-12-20 00:00:00      3 HCO[3]   2.93        2 right     
+#>  4 MW-1        2007-12-20 00:00:00      4 SO[4]    1.06        1 right     
+#>  5 MW-1        2007-12-20 00:00:00      5 Mg      -1.73        1 left      
+#>  6 MW-1        2007-12-20 00:00:00      6 Ca      -3.23        2 left      
+#>  7 MW-1        2007-12-20 00:00:00      7 Na + K  -0.862       3 left      
+#>  8 MW-1        2008-02-20 00:00:00      1 Na + K  -0.695       3 left      
+#>  9 MW-1        2008-02-20 00:00:00      2 Cl       0.705       3 right     
+#> 10 MW-1        2008-02-20 00:00:00      3 HCO[3]   2.25        2 right     
+#> # ℹ 1,040 more rows
 ```

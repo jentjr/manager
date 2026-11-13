@@ -66,7 +66,8 @@ monitoring data.</p>
 <span>  type <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  opposite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  two_sided <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  keep_data_object <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  keep_data_object <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -174,7 +175,33 @@ standardized analytical results stored in `.analysis_result`.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">dixon_test</span><span class="op">(</span><span class="va">gw_data</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in alias_lookup %&gt;% dplyr::count(alias) %&gt;% dplyr::filter(n &gt; 1):</span> could not find function "%&gt;%"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>13 analytes were not found in analyte metadata.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Aluminum, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Chromium, hexavalent</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Cobalt, Dis</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater Elevation (ref MSL)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater, depth from TOC</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Nitrite + Nitrate, total</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> SiO2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Strontium, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Temperature (Celsius)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Tin, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> ,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   location_id, param_name, .analysis_unit [387]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    location_id param_name           .analysis_unit alternative           p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> MW-2        Magnesium, dissolved mg/l           lowest value 26.7 is…  0.876 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> MW-2        Sodium, dissolved    mg/l           highest value 27.4 i…  0.027<span style="text-decoration: underline;">6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> MW-2        Potassium, dissolved mg/l           highest value 0.8 is…  0.351 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> MW-2        Chloride, total      mg/l           highest value 31.6 i…  0.861 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> MW-2        Sulfate, total       mg/l           highest value 200 is…  0.063<span style="text-decoration: underline;">5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> MW-2        Fluoride, total      mg/l           highest value 1 is a…  0     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> MW-2        Arsenic, dissolved   ug/l           highest value 10 is …  0     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> MW-2        Barium, dissolved    ug/l           highest value 134 is…  0.064<span style="text-decoration: underline;">8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> MW-2        Beryllium, dissolved ug/l           <span style="color: #BB0000;">NA</span>                    <span style="color: #BB0000;">NA</span>     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MW-2        Boron, dissolved     ug/l           lowest value 1200 is…  0.936 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 377 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">schema</span> <span class="op">&lt;-</span> <span class="fu"><a href="env_schema.html">env_schema</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw_data</span>,</span></span>
@@ -184,15 +211,51 @@ standardized analytical results stored in `.analysis_result`.</p>
 <span class="r-in"><span>  result <span class="op">=</span> <span class="va">analysis_result</span>,</span></span>
 <span class="r-in"><span>  unit <span class="op">=</span> <span class="va">default_unit</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in env_schema(gw_data, location = location_id, sample_date = sample_date,     analyte = param_name, result = analysis_result, unit = default_unit):</span> unused argument (sample_date = sample_date)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>13 analytes were not found in analyte metadata.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Aluminum, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Chromium, hexavalent</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Cobalt, Dis</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater Elevation (ref MSL)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Groundwater, depth from TOC</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Nitrite + Nitrate, total</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> SiO2</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Strontium, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Temperature (Celsius)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Tin, dissolved</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> ,</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dixon_test</span><span class="op">(</span><span class="va">schema</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'schema' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   location_id, param_name, .analysis_unit [387]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    location_id param_name           .analysis_unit alternative           p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> MW-2        Magnesium, dissolved mg/l           lowest value 26.7 is…  0.876 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> MW-2        Sodium, dissolved    mg/l           highest value 27.4 i…  0.027<span style="text-decoration: underline;">6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> MW-2        Potassium, dissolved mg/l           highest value 0.8 is…  0.351 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> MW-2        Chloride, total      mg/l           highest value 31.6 i…  0.861 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> MW-2        Sulfate, total       mg/l           highest value 200 is…  0.063<span style="text-decoration: underline;">5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> MW-2        Fluoride, total      mg/l           highest value 1 is a…  0     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> MW-2        Arsenic, dissolved   ug/l           highest value 10 is …  0     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> MW-2        Barium, dissolved    ug/l           highest value 134 is…  0.064<span style="text-decoration: underline;">8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> MW-2        Beryllium, dissolved ug/l           <span style="color: #BB0000;">NA</span>                    <span style="color: #BB0000;">NA</span>     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MW-2        Boron, dissolved     ug/l           lowest value 1200 is…  0.936 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 377 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">schema</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">location_id</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">dixon_test</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'schema' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 8 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   location_id [8]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   location_id alternative p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> MW-2        <span style="color: #BB0000;">NA</span>               <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> MW-1        <span style="color: #BB0000;">NA</span>               <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> MW-3        <span style="color: #BB0000;">NA</span>               <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> MW-4        <span style="color: #BB0000;">NA</span>               <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> MW-5        <span style="color: #BB0000;">NA</span>               <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> MW-6        <span style="color: #BB0000;">NA</span>               <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">7</span> MW-7        <span style="color: #BB0000;">NA</span>               <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">8</span> MW-8        <span style="color: #BB0000;">NA</span>               <span style="color: #BB0000;">NA</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

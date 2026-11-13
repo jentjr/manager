@@ -34,10 +34,11 @@ decision <- statistical_decision(
 
 print(decision)
 #> <statistical_decision>
-#>   n_used n_detect percent_censored    censoring_class distribution_method
-#> 1     12        9               25 moderate_censoring        ros_censored
-#>   trend_method    trend_guidance censored_method distribution_config
-#> 1 mann_kendall formal_trend_test          cenken     sf, norm, lnorm
-#>          interval_config     decision_basis
-#> 1 0.95, Bonferroni, 1, 1 moderate_censoring
+#> # A tibble: 1 × 12
+#>   n_used n_detect percent_censored censoring_class    distribution_method
+#>    <dbl>    <dbl>            <dbl> <chr>              <chr>              
+#> 1     12        9               25 moderate_censoring ros_censored       
+#> # ℹ 7 more variables: trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
+#> #   decision_basis <chr>, comparison_method <chr>
 ```

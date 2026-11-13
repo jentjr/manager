@@ -9,7 +9,7 @@ Build env_schema call safely
   data,
   site = NULL,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   unit = NULL,
@@ -24,7 +24,8 @@ Build env_schema call safely
   analysis_date = NULL,
   matrix = NULL,
   lab_name = NULL,
-  metadata = NULL,
+  analysis_metadata = NULL,
+  source_metadata = NULL,
   qualifier_table = NULL,
   analyte_lookup = analyte_tbl
 )

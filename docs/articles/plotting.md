@@ -39,7 +39,7 @@ For example:
 series_plot(
   groundwater_data,
   location = well_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = constituent,
   result = concentration
 )
@@ -52,7 +52,7 @@ internally becomes:
 env_schema(
   groundwater_data,
   location = well_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = constituent,
   result = concentration
 )
@@ -64,10 +64,10 @@ hard-coded column names:
 ``` r
 
 location_var()
-date_var()
+sample_date_var()
 analyte_var()
-result_var()
-unit_var()
+analysis_result_var()
+analysis_unit_var()
 reporting_flag_var()
 ```
 
@@ -92,12 +92,26 @@ library(manager)
 data(gw)
 
 gw
-#> <env_schema>
-#> 5878 rows x 44 columns
-#> Locations: 8 
-#> Analytes: 49 
-#> Valid: TRUE 
-#> Version: 0.5.0
+#> # A tibble: 5,878 × 44
+#>    .source_analyte    .normalized_input .analyte .analyte_id .normalized_analyte
+#>  * <chr>              <chr>             <chr>    <chr>       <chr>              
+#>  1 Magnesium, dissol… magnesium dissol… Magnesi… magnesium   magnesium          
+#>  2 Sodium, dissolved  sodium dissolved  Sodium   sodium      sodium             
+#>  3 Potassium, dissol… potassium dissol… Potassi… potassium   potassium          
+#>  4 Chloride, total    chloride total    Chloride chloride    chloride           
+#>  5 Sulfate, total     sulfate total     Sulfate  sulfate     sulfate            
+#>  6 Fluoride, total    fluoride total    Fluoride fluoride    fluoride           
+#>  7 Arsenic, dissolved arsenic dissolved Arsenic  arsenic     arsenic            
+#>  8 Barium, dissolved  barium dissolved  Barium   barium      barium             
+#>  9 Beryllium, dissol… beryllium dissol… Berylli… beryllium   beryllium          
+#> 10 Boron, dissolved   boron dissolved   Boron    boron       boron              
+#> # ℹ 5,868 more rows
+#> # ℹ 39 more variables: .fraction <chr>, .is_known_analyte <lgl>,
+#> #   location_id <chr>, sample_date <dttm>, analysis_result <dbl>,
+#> #   lt_measure <chr>, default_unit <chr>, param_name <chr>, .result_type <chr>,
+#> #   .detected <lgl>, .censored <lgl>, .estimated <lgl>, .rejected <lgl>,
+#> #   .usable <lgl>, .original_lab_result <dbl>, .analysis_result <dbl>,
+#> #   .analysis_method <chr>, .original_lab_unit <chr>, .analysis_unit <chr>, …
 ```
 
 Because `gw` is already an `env_schema`, no additional mapping is
@@ -157,7 +171,7 @@ Raw datasets can be converted into an `env_schema` object.
 gw_schema <- env_schema(
   gw_subset,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit,
@@ -165,12 +179,26 @@ gw_schema <- env_schema(
 )
 
 gw_schema
-#> <env_schema>
-#> 2372 rows x 44 columns
-#> Locations: 3 
-#> Analytes: 49 
-#> Valid: TRUE 
-#> Version: 0.5.0
+#> # A tibble: 2,372 × 44
+#>    location_id param_name       sample_date         analysis_result default_unit
+#>  * <chr>       <chr>            <dttm>                        <dbl> <chr>       
+#>  1 MW-2        Magnesium, diss… 2008-10-28 00:00:00           36.3  mg/L        
+#>  2 MW-2        Sodium, dissolv… 2008-10-28 00:00:00           18.9  mg/L        
+#>  3 MW-2        Potassium, diss… 2008-10-28 00:00:00            0.5  mg/L        
+#>  4 MW-2        Chloride, total  2008-10-28 00:00:00           24.9  mg/L        
+#>  5 MW-2        Sulfate, total   2008-10-28 00:00:00          170    mg/L        
+#>  6 MW-2        Fluoride, total  2008-10-28 00:00:00            0.29 mg/L        
+#>  7 MW-2        Arsenic, dissol… 2008-10-28 00:00:00            1.9  ug/L        
+#>  8 MW-2        Barium, dissolv… 2008-10-28 00:00:00          107    ug/L        
+#>  9 MW-2        Beryllium, diss… 2008-10-28 00:00:00            0.5  ug/L        
+#> 10 MW-2        Boron, dissolved 2008-10-28 00:00:00            2.34 mg/L        
+#> # ℹ 2,362 more rows
+#> # ℹ 39 more variables: lt_measure <chr>, .analysis_result <dbl>,
+#> #   .analysis_unit <chr>, .censored <lgl>, .source_analyte <chr>,
+#> #   .normalized_input <chr>, .analyte <chr>, .analyte_id <chr>,
+#> #   .normalized_analyte <chr>, .fraction <chr>, .is_known_analyte <lgl>,
+#> #   .result_type <chr>, .detected <lgl>, .estimated <lgl>, .rejected <lgl>,
+#> #   .usable <lgl>, .original_lab_result <dbl>, .analysis_method <chr>, …
 ```
 
 ## Time Series Plots
@@ -417,7 +445,7 @@ schoeller_plot(gw)
 
 schoeller_plot(
   gw,
-  facet_var = "location"
+  facet_var = location_var(gw)
 )
 ```
 
@@ -429,7 +457,7 @@ schoeller_plot(
 
 schoeller_plot(
   gw,
-  facet_var = "date"
+  facet_var = sample_date_var(gw)
 )
 ```
 
@@ -478,7 +506,7 @@ plots[[1]]
 
 plots <- stiff_plot(
   gw,
-  group_var = "sample_date"
+  group_var = sample_date_var(gw)
 )
 
 plots[[1]]
@@ -609,7 +637,7 @@ used throughout the package.
 my_plot.data.frame <- function(
   df,
   location,
-  date,
+  sample_date,
   analyte,
   result,
   ...
@@ -618,7 +646,7 @@ my_plot.data.frame <- function(
   df <- env_schema(
     df,
     location = {{ location }},
-    date = {{ date }},
+    sample_date = {{ sample_date }},
     analyte = {{ analyte }},
     result = {{ result }}
   )
@@ -638,7 +666,7 @@ my_plot.env_schema <- function(
 
   location_col <- location_var(df)
 
-  date_col <- date_var(df)
+  sample_date_col <- sample_date_var(df)
 
   analyte_col <- analyte_var(df)
 
@@ -698,7 +726,7 @@ sessionInfo()
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6       beeswarm_0.4.0     xfun_0.62          bslib_0.12.0      
 #>  [5] ggplot2_4.0.3      htmlwidgets_1.6.4  vctrs_0.7.3        tools_4.6.1       
-#>  [9] generics_0.1.4     tibble_3.3.1       cluster_2.1.8.2    pkgconfig_2.0.3   
+#>  [9] generics_0.1.4     tibble_3.3.1       cluster_2.1.8.3    pkgconfig_2.0.3   
 #> [13] data.table_1.18.99 checkmate_2.3.4    RColorBrewer_1.1-3 S7_0.2.2          
 #> [17] desc_1.4.3         lifecycle_1.0.5    compiler_4.6.1     farver_2.1.2      
 #> [21] stringr_1.6.0      textshaping_1.0.5  vipor_0.4.7        htmltools_0.5.9   
@@ -707,11 +735,11 @@ sessionInfo()
 #> [33] viridis_0.6.5      Hmisc_5.3-0        rpart_4.1.27       tidyselect_1.2.1  
 #> [37] digest_0.6.39      stringi_1.8.9      purrr_1.2.2        labeling_0.4.3    
 #> [41] cowplot_1.2.0      fastmap_1.2.0      grid_4.6.1         colorspace_2.1-4  
-#> [45] cli_3.6.6          magrittr_2.0.5     base64enc_0.1-6    foreign_0.8-91    
-#> [49] withr_3.0.3        scales_1.4.0       backports_1.5.1    ggbeeswarm_0.7.3  
-#> [53] rmarkdown_2.32     otel_0.2.0         nnet_7.3-20        gridExtra_2.3.1   
-#> [57] ragg_1.5.2         evaluate_1.0.5     knitr_1.52         EnvStats_3.1.0    
-#> [61] viridisLite_0.4.3  rlang_1.3.0        Rcpp_1.1.2         glue_1.8.1        
-#> [65] rstudioapi_0.19.0  jsonlite_2.0.0     R6_2.6.1           systemfonts_1.3.2 
-#> [69] fs_2.1.0           units_1.0-1.6
+#> [45] cli_3.6.6          magrittr_2.0.5     base64enc_0.1-6    utf8_1.2.6        
+#> [49] foreign_0.8-92     withr_3.0.3        scales_1.4.0       backports_1.5.1   
+#> [53] ggbeeswarm_0.7.3   rmarkdown_2.32     otel_0.3.0         nnet_7.3-21       
+#> [57] gridExtra_2.3.1    ragg_1.5.2         evaluate_1.0.5     knitr_1.52        
+#> [61] EnvStats_3.1.0     viridisLite_0.4.3  rlang_1.3.0        Rcpp_1.1.2        
+#> [65] glue_1.8.1         rstudioapi_0.19.0  jsonlite_2.0.0     R6_2.6.1          
+#> [69] systemfonts_1.3.2  fs_2.1.0           units_1.0-1.6
 ```

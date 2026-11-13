@@ -47,7 +47,11 @@ censoring-aware statistical decision rules.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">estimate_distribution</span><span class="op">(</span><span class="va">df</span>, distribution_config <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">estimate_distribution</span><span class="op">(</span></span>
+<span>  <span class="va">df</span>,</span>
+<span>  distribution_config <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  result_col <span class="op">=</span> <span class="fu"><a href="schema_accessors.html">analysis_result_var</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -173,12 +177,82 @@ downstream analyses.</p>
 <span class="r-in"><span>    <span class="va">default_unit</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">estimate_distribution</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in df %&gt;% dplyr::group_modify(~.estimate_distribution_group(.x,     distribution_config = distribution_config)) %&gt;% dplyr::ungroup():</span> could not find function "%&gt;%"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 18</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    location_id param_name default_unit n_detect percent_censored censoring_class</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> MW-1        Alkalinit… mg/L               20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> MW-1        Aluminum,… ug/L                6             68.4 high_censoring </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> MW-1        Antimony,… ug/L                3             85   high_censoring </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> MW-1        Arsenic, … ug/L               17             19.0 moderate_censo…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> MW-1        Barium, d… ug/L               20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> MW-1        Beryllium… ug/L                0            100   extreme_censor…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> MW-1        Boron, di… mg/L               20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> MW-1        Cadmium, … ug/L                1             95   extreme_censor…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> MW-1        Calcium, … mg/L               20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MW-1        Chloride,… mg/L               20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 377 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 12 more variables: distribution_method &lt;chr&gt;, trend_method &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   trend_guidance &lt;chr&gt;, censored_method &lt;chr&gt;, distribution_config &lt;list&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   interval_config &lt;list&gt;, decision_basis &lt;chr&gt;, comparison_method &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   distribution &lt;chr&gt;, n_used &lt;int&gt;, result &lt;list&gt;, data &lt;list&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gw</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">param_name</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">estimate_distribution</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in df %&gt;% dplyr::group_modify(~.estimate_distribution_group(.x,     distribution_config = distribution_config)) %&gt;% dplyr::ungroup():</span> could not find function "%&gt;%"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 49 × 16</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    param_name      n_detect percent_censored censoring_class distribution_method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Alkalinity, to…      149            0     low_censoring   parametric         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Aluminum, diss…       34           75.9   high_censoring  nonparametric      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Antimony, diss…        5           96.6   extreme_censor… descriptive_only   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Arsenic, disso…      126           15.4   moderate_censo… ros_censored       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Barium, dissol…      147            0.676 low_censoring   parametric         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Beryllium, dis…        0          100     extreme_censor… descriptive_only   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Boron, dissolv…      147            0.676 low_censoring   parametric         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Cadmium, disso…        7           95.3   extreme_censor… descriptive_only   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Calcium, disso…      148            0     low_censoring   parametric         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Chloride, total      149            0     low_censoring   parametric         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 39 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 11 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   censored_method &lt;chr&gt;, distribution_config &lt;list&gt;, interval_config &lt;list&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   decision_basis &lt;chr&gt;, comparison_method &lt;chr&gt;, distribution &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   n_used &lt;int&gt;, result &lt;list&gt;, data &lt;list&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">estimate_distribution</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span> <span class="op">|&gt;</span></span></span>
@@ -187,7 +261,60 @@ downstream analyses.</p>
 <span class="r-in"><span>      <span class="va">param_name</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in df %&gt;% dplyr::group_modify(~.estimate_distribution_group(.x,     distribution_config = distribution_config)) %&gt;% dplyr::ungroup():</span> could not find function "%&gt;%"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>NA/NaN function evaluation</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Too few or too many observations.  This approximation only works if the number of observations is between 20 and 5000.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 387 × 17</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    location_id param_name              n_detect percent_censored censoring_class</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> MW-1        Alkalinity, total (lab)       20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> MW-1        Aluminum, dissolved            6             68.4 high_censoring </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> MW-1        Antimony, dissolved            3             85   high_censoring </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> MW-1        Arsenic, dissolved            17             19.0 moderate_censo…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> MW-1        Barium, dissolved             20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> MW-1        Beryllium, dissolved           0            100   extreme_censor…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> MW-1        Boron, dissolved              20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> MW-1        Cadmium, dissolved             1             95   extreme_censor…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> MW-1        Calcium, dissolved            20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> MW-1        Chloride, total               20              0   low_censoring  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 377 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 12 more variables: distribution_method &lt;chr&gt;, trend_method &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   trend_guidance &lt;chr&gt;, censored_method &lt;chr&gt;, distribution_config &lt;list&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   interval_config &lt;list&gt;, decision_basis &lt;chr&gt;, comparison_method &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   distribution &lt;chr&gt;, n_used &lt;int&gt;, result &lt;list&gt;, data &lt;list&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

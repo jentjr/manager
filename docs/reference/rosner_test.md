@@ -20,7 +20,14 @@ rosner_test(
 )
 
 # S3 method for class 'env_schema'
-rosner_test(df, k = 3, alpha = 0.05, warn = TRUE, keep_data_object = FALSE)
+rosner_test(
+  df,
+  k = 3,
+  alpha = 0.05,
+  warn = TRUE,
+  keep_data_object = FALSE,
+  ...
+)
 ```
 
 ## Arguments
@@ -128,18 +135,57 @@ not grouped, tests are performed by:
 schema <- env_schema(
   gw_data,
   location = location_id,
-  date = sample_date,
+  sample_date = sample_date,
   analyte = param_name,
   result = analysis_result,
   unit = default_unit
 )
-#> Error in alias_lookup %>% dplyr::count(alias) %>% dplyr::filter(n > 1): could not find function "%>%"
+#> Warning: 13 analytes were not found in analyte metadata.
+#> Aluminum, dissolved
+#> Chromium, hexavalent
+#> Cobalt, Dis
+#> Groundwater Elevation (ref MSL)
+#> Groundwater, depth from TOC
+#> Nitrite + Nitrate, total
+#> SiO2
+#> Strontium, dissolved
+#> Temperature (Celsius)
+#> Tin, dissolved
+#> ,
 
 rosner_test(schema)
-#> Error: object 'schema' not found
+#> # A tibble: 1,015 × 5
+#> # Groups:   location_id, param_name, .analysis_unit [347]
+#>    location_id param_name           .analysis_unit Value Outlier
+#>    <chr>       <chr>                <chr>          <dbl> <lgl>  
+#>  1 MW-2        Magnesium, dissolved mg/l            26.7 FALSE  
+#>  2 MW-2        Magnesium, dissolved mg/l            27.3 FALSE  
+#>  3 MW-2        Magnesium, dissolved mg/l            28.7 FALSE  
+#>  4 MW-2        Sodium, dissolved    mg/l            27.4 TRUE   
+#>  5 MW-2        Sodium, dissolved    mg/l            24.1 FALSE  
+#>  6 MW-2        Sodium, dissolved    mg/l            16.2 FALSE  
+#>  7 MW-2        Potassium, dissolved mg/l             0.8 FALSE  
+#>  8 MW-2        Potassium, dissolved mg/l             0.4 FALSE  
+#>  9 MW-2        Potassium, dissolved mg/l             0.4 FALSE  
+#> 10 MW-2        Chloride, total      mg/l            31.6 FALSE  
+#> # ℹ 1,005 more rows
 
 schema |>
   dplyr::group_by(location_id) |>
   rosner_test()
-#> Error: object 'schema' not found
+#> # A tibble: 24 × 3
+#> # Groups:   location_id [8]
+#>    location_id Value Outlier
+#>    <chr>       <dbl> <lgl>  
+#>  1 MW-2         2420 TRUE   
+#>  2 MW-2         2400 TRUE   
+#>  3 MW-2         2340 TRUE   
+#>  4 MW-1         3500 TRUE   
+#>  5 MW-1         2790 TRUE   
+#>  6 MW-1         2560 TRUE   
+#>  7 MW-3         2000 TRUE   
+#>  8 MW-3         1780 TRUE   
+#>  9 MW-3         1680 TRUE   
+#> 10 MW-4         6110 TRUE   
+#> # ℹ 14 more rows
 ```

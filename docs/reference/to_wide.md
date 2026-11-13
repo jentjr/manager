@@ -87,5 +87,5 @@ geochemical calculations.
 
 ## env_schema Method
 
-For \`env_schema\` objects, location, date, analyte, and result fields
-are obtained automatically from schema mappings.
+For \`env_schema\` objects, location, sample_date, analyte, and result
+fields are obtained automatically from schema mappings.

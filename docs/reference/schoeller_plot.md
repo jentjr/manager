@@ -9,7 +9,7 @@ groundwater or surface water samples.
 schoeller_plot(df, ...)
 
 # S3 method for class 'data.frame'
-schoeller_plot(df, location, analyte, result, unit, date, ...)
+schoeller_plot(df, location, analyte, result, unit, sample_date, ...)
 
 # S3 method for class 'env_schema'
 schoeller_plot(
@@ -22,9 +22,10 @@ schoeller_plot(
   sulfate = "Sulfate, total",
   alkalinity = "Alkalinity, total (lab)",
   analyte_matching = c("exact", "strict", "normalized"),
-  facet_var = c("location", "date"),
+  facet_var = NULL,
   title = NULL,
-  lwt = 1
+  lwt = 1,
+  ...
 )
 ```
 
@@ -54,7 +55,7 @@ schoeller_plot(
 
   Reporting unit column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -93,7 +94,8 @@ schoeller_plot(
 
 - facet_var:
 
-  Faceting variable. One of \`"location"\` or \`"date"\`.
+  Column used for faceting. Must be either the mapped location field or
+  mapped sample_date field. Defaults to the mapped location field.
 
 - title:
 
@@ -132,8 +134,8 @@ following conventional Schoeller diagram practice.
 
 Missing analytes are permitted and omitted from the resulting profile.
 
-For \`env_schema\` objects, analyte, result, unit, date, and location
-fields are determined from schema mappings.
+For \`env_schema\` objects, analyte, result, unit, sample_date, and
+location fields are determined from schema mappings.
 
 ## Analyte Matching
 
@@ -153,11 +155,13 @@ fields are determined from schema mappings.
 
 ## Faceting
 
-If \`facet_var = "location"\`, each location is displayed in a separate
-panel and sample events are drawn as individual profiles.
+If \`facet_var\` is the mapped location field, each location is
+displayed in a separate panel and sample events are drawn as individual
+profiles.
 
-If \`facet_var = "date"\`, each sampling event is displayed in a
-separate panel and locations are drawn as individual profiles.
+If \`facet_var\` is the mapped sample_date field, each sampling event is
+displayed in a separate panel and locations are drawn as individual
+profiles.
 
 ## Validation
 
@@ -177,24 +181,27 @@ Input data are validated for:
 data(gw)
 
 schoeller_plot(gw)
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+
+
 
 schoeller_plot(
   gw,
-  facet_var = "date"
+  facet_var = sample_date_var(gw)
 )
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> `geom_line()`: Each group consists of only one observation.
+#> ℹ Do you need to adjust the group aesthetic?
+
 
 schoeller_plot(
   gw,
   analyte_matching = "normalized"
 )
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+
 
 schoeller_plot(
   gw,
   title = "Major Ion Chemistry",
   lwt = 1.5
 )
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+
 ```

@@ -9,7 +9,7 @@ hydrogeochemical analysis.
 major_ion_chemistry(df, ...)
 
 # S3 method for class 'data.frame'
-major_ion_chemistry(df, location, analyte, result, unit, date, ...)
+major_ion_chemistry(df, location, analyte, result, unit, sample_date, ...)
 
 # S3 method for class 'env_schema'
 major_ion_chemistry(
@@ -17,7 +17,8 @@ major_ion_chemistry(
   analytes = c("Calcium, dissolved", "Magnesium, dissolved", "Sodium, dissolved",
     "Potassium, dissolved", "Chloride, total", "Sulfate, total",
     "Alkalinity, total (lab)"),
-  analyte_matching = c("exact", "strict", "normalized")
+  analyte_matching = c("exact", "strict", "normalized"),
+  ...
 )
 ```
 
@@ -47,7 +48,7 @@ major_ion_chemistry(
 
   Reporting unit column.
 
-- date:
+- sample_date:
 
   Sample date column.
 
@@ -130,19 +131,69 @@ calculations.
 data(gw)
 
 chem <- major_ion_chemistry(gw)
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
 
 chem
-#> Error: object 'chem' not found
+#> # A tibble: 1,038 × 15
+#>    location_id sample_date         analyte      .analyte_id .original_lab_result
+#>  * <chr>       <dttm>              <chr>        <chr>                      <dbl>
+#>  1 MW-1        2007-12-20 00:00:00 Bicarbonate… bicarbonate               179   
+#>  2 MW-1        2007-12-20 00:00:00 Calcium, di… calcium                    64.7 
+#>  3 MW-1        2007-12-20 00:00:00 Chloride, t… chloride                   30   
+#>  4 MW-1        2007-12-20 00:00:00 Magnesium, … magnesium                  21   
+#>  5 MW-1        2007-12-20 00:00:00 Potassium, … potassium                   3.25
+#>  6 MW-1        2007-12-20 00:00:00 Sodium, dis… sodium                     17.9 
+#>  7 MW-1        2007-12-20 00:00:00 Sulfate, to… sulfate                    51   
+#>  8 MW-1        2008-02-20 00:00:00 Bicarbonate… bicarbonate               137   
+#>  9 MW-1        2008-02-20 00:00:00 Calcium, di… calcium                    71.3 
+#> 10 MW-1        2008-02-20 00:00:00 Chloride, t… chloride                   25   
+#> # ℹ 1,028 more rows
+#> # ℹ 10 more variables: .original_lab_unit <chr>, .analysis_result <dbl>,
+#> #   .analysis_unit <chr>, .detected <lgl>, .censored <lgl>, .estimated <lgl>,
+#> #   .rejected <lgl>, .usable <lgl>, .analysis_result_meq <dbl>,
+#> #   .analysis_unit_meq <chr>
 
 data(gw)
 
 major_ion_chemistry(gw)
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> # A tibble: 1,038 × 15
+#>    location_id sample_date         analyte      .analyte_id .original_lab_result
+#>  * <chr>       <dttm>              <chr>        <chr>                      <dbl>
+#>  1 MW-1        2007-12-20 00:00:00 Bicarbonate… bicarbonate               179   
+#>  2 MW-1        2007-12-20 00:00:00 Calcium, di… calcium                    64.7 
+#>  3 MW-1        2007-12-20 00:00:00 Chloride, t… chloride                   30   
+#>  4 MW-1        2007-12-20 00:00:00 Magnesium, … magnesium                  21   
+#>  5 MW-1        2007-12-20 00:00:00 Potassium, … potassium                   3.25
+#>  6 MW-1        2007-12-20 00:00:00 Sodium, dis… sodium                     17.9 
+#>  7 MW-1        2007-12-20 00:00:00 Sulfate, to… sulfate                    51   
+#>  8 MW-1        2008-02-20 00:00:00 Bicarbonate… bicarbonate               137   
+#>  9 MW-1        2008-02-20 00:00:00 Calcium, di… calcium                    71.3 
+#> 10 MW-1        2008-02-20 00:00:00 Chloride, t… chloride                   25   
+#> # ℹ 1,028 more rows
+#> # ℹ 10 more variables: .original_lab_unit <chr>, .analysis_result <dbl>,
+#> #   .analysis_unit <chr>, .detected <lgl>, .censored <lgl>, .estimated <lgl>,
+#> #   .rejected <lgl>, .usable <lgl>, .analysis_result_meq <dbl>,
+#> #   .analysis_unit_meq <chr>
 
 major_ion_chemistry(
   gw,
   analyte_matching = "normalized"
 )
-#> Error in tibble::tibble(source_analyte = source_analyte, alias = normalized) %>%     dplyr::left_join(alias_lookup, by = "alias", relationship = "many-to-one") %>%     dplyr::mutate(fraction = dplyr::coalesce(fraction, .extract_fraction(source_analyte))) %>%     dplyr::transmute(source_analyte, normalized_input = normalized,         is_known_analyte = !is.na(analyte_id), analyte_id = dplyr::coalesce(analyte_id,             normalized), analyte = dplyr::coalesce(analyte, source_analyte),         normalized_analyte = dplyr::coalesce(normalized_analyte,             analyte_id, normalized), fraction): could not find function "%>%"
+#> # A tibble: 1,038 × 15
+#>    location_id sample_date         analyte     .analyte_id .original_lab_result
+#>  * <chr>       <dttm>              <chr>       <chr>                      <dbl>
+#>  1 MW-1        2007-12-20 00:00:00 bicarbonate bicarbonate               179   
+#>  2 MW-1        2007-12-20 00:00:00 calcium     calcium                    64.7 
+#>  3 MW-1        2007-12-20 00:00:00 chloride    chloride                   30   
+#>  4 MW-1        2007-12-20 00:00:00 magnesium   magnesium                  21   
+#>  5 MW-1        2007-12-20 00:00:00 potassium   potassium                   3.25
+#>  6 MW-1        2007-12-20 00:00:00 sodium      sodium                     17.9 
+#>  7 MW-1        2007-12-20 00:00:00 sulfate     sulfate                    51   
+#>  8 MW-1        2008-02-20 00:00:00 bicarbonate bicarbonate               137   
+#>  9 MW-1        2008-02-20 00:00:00 calcium     calcium                    71.3 
+#> 10 MW-1        2008-02-20 00:00:00 chloride    chloride                   25   
+#> # ℹ 1,028 more rows
+#> # ℹ 10 more variables: .original_lab_unit <chr>, .analysis_result <dbl>,
+#> #   .analysis_unit <chr>, .detected <lgl>, .censored <lgl>, .estimated <lgl>,
+#> #   .rejected <lgl>, .usable <lgl>, .analysis_result_meq <dbl>,
+#> #   .analysis_unit_meq <chr>
 ```

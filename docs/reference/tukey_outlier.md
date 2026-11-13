@@ -20,7 +20,7 @@ tukey_outlier(
 )
 
 # S3 method for class 'env_schema'
-tukey_outlier(df, k = 3, na.rm = FALSE, type = 6)
+tukey_outlier(df, k = 3, na.rm = FALSE, type = 6, ...)
 ```
 
 ## Arguments

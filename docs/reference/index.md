@@ -6,32 +6,32 @@
   : Return achieved minimum detectable concentrations
 - [`analysis_analyte()`](https://jentjr.github.io/manager/reference/analysis_analyte.md)
   : Return resolved analyte values
+- [`analysis_date()`](https://jentjr.github.io/manager/reference/analysis_date.md)
+  : Return sample analysis dates
+- [`analysis_metadata()`](https://jentjr.github.io/manager/reference/analysis_metadata.md)
+  : Return measurement metadata
 - [`analysis_method()`](https://jentjr.github.io/manager/reference/analysis_method.md)
   : Return standardized analytical methods
 - [`analysis_result()`](https://jentjr.github.io/manager/reference/analysis_result.md)
   : Return standardized analytical results
 - [`analysis_result_meq()`](https://jentjr.github.io/manager/reference/analysis_result_meq.md)
   : Extract milliequivalent results
-- [`analysis_result_meq_var()`](https://jentjr.github.io/manager/reference/analysis_result_meq_var.md)
-  : MEQ result column
 - [`analysis_unit()`](https://jentjr.github.io/manager/reference/analysis_unit.md)
   : Return standardized analytical units
 - [`analysis_unit_meq()`](https://jentjr.github.io/manager/reference/analysis_unit_meq.md)
   : Extract milliequivalent units
-- [`analysis_unit_meq_var()`](https://jentjr.github.io/manager/reference/analysis_unit_meq_var.md)
-  : MEQ unit column
 - [`analyte()`](https://jentjr.github.io/manager/reference/analyte.md) :
   Return analyte values
+- [`analyte_id()`](https://jentjr.github.io/manager/reference/analyte_id.md)
+  : Return analyte_id values
 - [`analyte_label()`](https://jentjr.github.io/manager/reference/analyte_label.md)
   : Return analyte labels
-- [`anova()`](https://jentjr.github.io/manager/reference/anova.md) :
-  Analysis of Variance
 - [`assign_standards()`](https://jentjr.github.io/manager/reference/assign_standards.md)
   : Assign regulatory standards
 - [`as_standards_schema()`](https://jentjr.github.io/manager/reference/as_standards_schema.md)
   : Coerce to standards schema
 - [`boxcox_transform()`](https://jentjr.github.io/manager/reference/boxcox_transform.md)
-  : Boxcox transformation
+  : Box-Cox Transformation
 - [`boxplot()`](https://jentjr.github.io/manager/reference/boxplot.md) :
   Environmental Boxplots
 - [`censored()`](https://jentjr.github.io/manager/reference/censored.md)
@@ -40,16 +40,10 @@
   : Charge Balance Calculation
 - [`conf_int()`](https://jentjr.github.io/manager/reference/conf_int.md)
   : Function to calculate confidence intervals
-- [`connect_manages3()`](https://jentjr.github.io/manager/reference/connect_manages3.md)
-  : Connect to a MANAGES 3.x Site.mdb database
-- [`connect_manages4()`](https://jentjr.github.io/manager/reference/connect_manages4.md)
-  : Function to connect to MANAGES 4.0 database
 - [`convert_analytes_to_meq()`](https://jentjr.github.io/manager/reference/convert_analytes_to_meq.md)
   : Convert standardized analytes to milliequivalents per liter
 - [`corr_plot()`](https://jentjr.github.io/manager/reference/corr_plot.md)
   : Create a correlation plot
-- [`date()`](https://jentjr.github.io/manager/reference/date.md) :
-  Return sample dates
 - [`derive_decision()`](https://jentjr.github.io/manager/reference/derive_decision.md)
   : Derive Statistical Decision Guidance from Data
 - [`detected()`](https://jentjr.github.io/manager/reference/detected.md)
@@ -76,10 +70,6 @@
   : Return estimation flags
 - [`estimate_distribution()`](https://jentjr.github.io/manager/reference/estimate_distribution.md)
   : Estimate Distributions Using Statistical Decision Guidance
-- [`from_csv()`](https://jentjr.github.io/manager/reference/from_csv.md)
-  : Import environmental data from CSV
-- [`from_excel()`](https://jentjr.github.io/manager/reference/from_excel.md)
-  : Import environmental data from Excel
 - [`grubbs_test()`](https://jentjr.github.io/manager/reference/grubbs_test.md)
   : Grubbs Test
 - [`guidance_options()`](https://jentjr.github.io/manager/reference/guidance_options.md)
@@ -102,8 +92,6 @@
   : Major Ion Chemistry
 - [`manager()`](https://jentjr.github.io/manager/reference/manager.md) :
   Function to launch shiny app for MANAGER
-- [`measurement_metadata()`](https://jentjr.github.io/manager/reference/measurement_metadata.md)
-  : Return measurement metadata
 - [`method()`](https://jentjr.github.io/manager/reference/method.md) :
   Return analytical methods
 - [`name_units()`](https://jentjr.github.io/manager/reference/name_units.md)
@@ -144,6 +132,8 @@
   Return original result values
 - [`rosner_test()`](https://jentjr.github.io/manager/reference/rosner_test.md)
   : Rosner Test
+- [`sample_date()`](https://jentjr.github.io/manager/reference/sample_date.md)
+  : Return sample dates
 - [`sample_id()`](https://jentjr.github.io/manager/reference/sample_id.md)
   : Return sample identifiers
 - [`schema_created()`](https://jentjr.github.io/manager/reference/schema_created.md)
@@ -172,6 +162,8 @@
   : Helper function to split parameter names
 - [`site()`](https://jentjr.github.io/manager/reference/site.md) :
   Return site values
+- [`source_metadata()`](https://jentjr.github.io/manager/reference/source_metadata.md)
+  : Return source metadata columns
 - [`sp_plot()`](https://jentjr.github.io/manager/reference/sp_plot.md) :
   Spatial Plot
 - [`standards_schema()`](https://jentjr.github.io/manager/reference/standards_schema.md)
@@ -192,6 +184,8 @@
   : Save animated Stiff Diagram to HTML
 - [`stiff_time_plot()`](https://jentjr.github.io/manager/reference/stiff_time_plot.md)
   : Animate Stiff Diagrams
+- [`threshold_metadata()`](https://jentjr.github.io/manager/reference/threshold_metadata.md)
+  : Return threshold metadata
 - [`tol_int()`](https://jentjr.github.io/manager/reference/tol_int.md) :
   Function to calculate tolernace intervals
 - [`to_spatial()`](https://jentjr.github.io/manager/reference/to_spatial.md)
