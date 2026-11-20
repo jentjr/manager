@@ -1,3 +1,43 @@
+#' @keywords internal
+.resolve_analysis_columns <- function(
+  df,
+  result_col = NULL,
+  censored_col = NULL
+) {
+  if (is.null(result_col)) {
+    result_col <- if (inherits(df, "env_schema")) {
+      analysis_result_var(df)
+    } else {
+      "analysis_result"
+    }
+  }
+
+  if (is.null(censored_col)) {
+    censored_col <- if (inherits(df, "env_schema")) {
+      censored_var(df)
+    } else {
+      "censored"
+    }
+  }
+
+  required_cols <- c(result_col, censored_col)
+  missing_cols <- setdiff(required_cols, names(df))
+
+  if (length(missing_cols) > 0L) {
+    rlang::abort(
+      paste0(
+        "Missing required columns: ",
+        paste(missing_cols, collapse = ", ")
+      )
+    )
+  }
+
+  list(
+    result_col = result_col,
+    censored_col = censored_col
+  )
+}
+
 #' Attach nested group data
 #'
 #' @param result Result tibble.

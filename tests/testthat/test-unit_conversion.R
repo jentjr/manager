@@ -459,3 +459,60 @@ test_that("stiff_data handles incomplete chemistry", {
     stiff_data(schema)
   )
 })
+
+test_that("temperature unit aliases normalize to degC", {
+  expect_identical(
+    .normalize_unit(
+      c("degrees C", "degree C", "degrees Celsius", "°C", "degC")
+    ),
+    rep("degC", 5)
+  )
+})
+
+test_that("standard unit sentinels are treated as missing units", {
+  expect_true(
+    all(
+      is.na(
+        .normalize_unit(
+          c("std", "standard", "standard unit", "standardized")
+        )
+      )
+    )
+  )
+})
+
+test_that("std source unit falls back to the lookup unit", {
+  x <- tibble::tibble(
+    value = 7,
+    source_unit = "std",
+    standard_unit = "pH"
+  )
+
+  result <- manager:::.standardize_schema_value(
+    value = x$value,
+    source_unit = x$source_unit,
+    standard_unit = x$standard_unit,
+    value_label = "result"
+  )
+
+  expect_equal(result$value, 7)
+  expect_equal(result$unit, "ph")
+})
+
+test_that("STD is treated as a missing source unit", {
+  expect_true(
+    all(is.na(.normalize_unit(c("STD", "std", "Standard"))))
+  )
+})
+
+test_that("STD pH values use the lookup standard unit", {
+  result <- manager:::.standardize_schema_value(
+    value = 7,
+    source_unit = "STD",
+    standard_unit = "pH",
+    value_label = "analytical result"
+  )
+
+  expect_equal(result$value, 7)
+  expect_equal(result$unit, "ph")
+})

@@ -1,550 +1,3 @@
-#' Statistical Decision Guidance
-#'
-#' Selects recommended statistical methods based on sample size and
-#' the degree of censoring.
-#'
-#' This function implements a rule-based statistical decision framework
-#' for environmental monitoring data. Recommendations are based on the
-#' percentage of censored observations and the number of observations
-#' available for evaluation.
-#'
-#' Returned guidance can be used to select:
-#'
-#' \itemize{
-#'   \item distribution estimation methods
-#'   \item trend analysis approaches
-#'   \item censored-data handling methods
-#'   \item interval estimation settings
-#' }
-#'
-#' The default profile follows EPA-style guidance in which
-#' parametric methods are preferred for low censoring, regression-on-order
-#' statistics (ROS) is preferred for moderate censoring, and
-#' nonparametric methods are preferred when censoring becomes extensive.
-#'
-#' @param percent_censored Numeric percentage of censored observations.
-#' @param n_used Number of non-missing observations available for
-#'   statistical evaluation.
-#' @param n_detect Number of detected (non-censored) observations.
-#' @param profile A guidance profile created by
-#'   [guidance_profile()].
-#'
-#' @returns
-#' A tibble with class `"statistical_decision"`.
-#'
-#' The returned object contains:
-#'
-#' \describe{
-#'   \item{n_used}{
-#'     Number of analytical results used in evaluation.
-#'   }
-#'
-#'   \item{n_detect}{
-#'     Number of uncensored observations.
-#'   }
-#'
-#'   \item{percent_censored}{
-#'     Percentage of observations classified as censored.
-#'   }
-#'
-#'   \item{censoring_class}{
-#'     Censoring category:
-#'     `"low_censoring"`,
-#'     `"moderate_censoring"`,
-#'     `"high_censoring"`,
-#'     or `"extreme_censoring"`.
-#'   }
-#'
-#'   \item{distribution_method}{
-#'     Recommended distributional analysis approach.
-#'   }
-#'
-#'   \item{trend_method}{
-#'     Recommended trend evaluation method.
-#'   }
-#'
-#'   \item{trend_guidance}{
-#'     Recommended interpretation of trend results.
-#'   }
-#'
-#'   \item{censored_method}{
-#'     Recommended censored-data treatment method for trend analyses.
-#'   }
-#'
-#'   \item{distribution_config}{
-#'     Configuration list suitable for
-#'     [estimate_distribution()].
-#'   }
-#'
-#'   \item{interval_config}{
-#'     Configuration list suitable for interval estimation
-#'     functions.
-#'   }
-#'
-#'   \item{decision_basis}{
-#'     Primary basis for the recommendation.
-#'   }
-#'   \item{comparison_method}{
-#'     Recommended multiple-group comparison procedure.
-#'   }
-#' }
-#'
-#' @details
-#' Distribution recommendations are assigned as follows:
-#'
-#' \tabular{lll}{
-#' Condition \tab Recommendation \tab Method \cr
-#' n_used < 4 \tab insufficient_data \tab no distribution fit \cr
-#' low censoring \tab parametric \tab normal/lognormal evaluation \cr
-#' moderate censoring \tab ros_censored \tab censored distribution fitting \cr
-#' high censoring \tab nonparametric \tab nonparametric methods \cr
-#' extreme censoring \tab descriptive_only \tab descriptive summaries only
-#' }
-#'
-#' Trend recommendations always use a Mann-Kendall framework,
-#' although interpretation guidance may recommend screening-level
-#' evaluation when censoring is extensive.
-#'
-#' @seealso
-#' [derive_decision()],
-#' [estimate_distribution()],
-#' [guidance_profile()],
-#' [guidance_options()]
-#'
-#' @examples
-#' statistical_decision(
-#'   percent_censored = 12,
-#'   n_used = 20,
-#'   n_detect = 18
-#' )
-#'
-#' statistical_decision(
-#'   percent_censored = 75,
-#'   n_used = 16,
-#'   n_detect = 4
-#' )
-#'
-#' statistical_decision(
-#'   percent_censored = c(5, 25, 80),
-#'   n_used = c(10, 10, 10),
-#'   n_detect = c(9, 7, 2)
-#' )
-#'
-#' @export
-statistical_decision <- function(
-  percent_censored,
-  n_used,
-  n_detect,
-  profile = guidance_profile("epa_unified")
-) {
-  low_threshold <- profile$low_threshold
-  moderate_threshold <- profile$moderate_threshold
-  high_threshold <- profile$high_threshold
-
-  out <- tibble::tibble(
-    n_used = n_used,
-    n_detect = n_detect,
-    percent_censored = percent_censored,
-
-    censoring_class = dplyr::case_when(
-      is.na(percent_censored) ~ NA_character_,
-      percent_censored < low_threshold ~
-        "low_censoring",
-      percent_censored < moderate_threshold ~
-        "moderate_censoring",
-      percent_censored < high_threshold ~
-        "high_censoring",
-      TRUE ~
-        "extreme_censoring"
-    ),
-
-    distribution_method = dplyr::case_when(
-      n_used < 4 ~
-        "insufficient_data",
-
-      percent_censored < low_threshold ~
-        "parametric",
-
-      percent_censored < moderate_threshold ~
-        "ros_censored",
-
-      percent_censored < high_threshold ~
-        "nonparametric",
-
-      TRUE ~
-        "descriptive_only"
-    ),
-
-    trend_method = "mann_kendall",
-
-    trend_guidance = dplyr::case_when(
-      is.na(percent_censored) ~
-        NA_character_,
-
-      n_detect < 4 ~
-        "insufficient_detects",
-
-      percent_censored < high_threshold ~
-        "formal_trend_test",
-
-      TRUE ~
-        "screening_only"
-    ),
-
-    censored_method = dplyr::case_when(
-      is.na(percent_censored) ~ NA_character_,
-      percent_censored < low_threshold ~
-        "as_reported",
-      TRUE ~
-        "cenken"
-    ),
-
-    distribution_config = purrr::map(
-      percent_censored,
-      ~ list(
-        method = "sf",
-        choices = c("norm", "lnorm")
-      )
-    ),
-
-    interval_config = purrr::map(
-      percent_censored,
-      ~ list(
-        conf_level = 0.95,
-        method = "Bonferroni",
-        k = 1,
-        n_mean = 1
-      )
-    ),
-    decision_basis = dplyr::case_when(
-      is.na(percent_censored) ~ NA_character_,
-      n_used < 4 ~
-        "fewer_than_4_observations",
-
-      percent_censored < low_threshold ~
-        "low_censoring",
-
-      percent_censored < moderate_threshold ~
-        "moderate_censoring",
-
-      percent_censored < high_threshold ~
-        "high_censoring",
-
-      TRUE ~
-        "extreme_censoring"
-    ),
-    comparison_method = dplyr::case_when(
-      n_used < 4 ~
-        "insufficient_data",
-
-      percent_censored < low_threshold ~
-        "anova",
-
-      percent_censored < high_threshold ~
-        "kruskal",
-
-      TRUE ~
-        "insufficient_data"
-    )
-  )
-
-  class(out) <- c(
-    "statistical_decision",
-    class(out)
-  )
-
-  out
-}
-
-#' Derive Statistical Decision Guidance from Data
-#'
-#' Calculates censoring metrics from a dataset and returns a
-#' corresponding [statistical_decision()] object.
-#'
-#' The input must contain standardized analytical fields:
-#'
-#' \itemize{
-#'   \item `.analysis_result`
-#'   \item `.censored`
-#' }
-#'
-#' @param df Data frame containing analytical results.
-#'
-#' @returns
-#' A `"statistical_decision"` object.
-#'
-#' @details
-#' The following quantities are calculated automatically:
-#'
-#' \describe{
-#'   \item{n_used}{
-#'     Number of non-missing analytical results.
-#'   }
-#'
-#'   \item{n_detect}{
-#'     Number of detected observations.
-#'   }
-#'
-#'   \item{percent_censored}{
-#'     Percentage of observations flagged as censored.
-#'   }
-#' }
-#'
-#' These values are supplied to [statistical_decision()]
-#' to obtain method-selection guidance.
-#'
-#' @seealso
-#' [statistical_decision()],
-#' [estimate_distribution()]
-#'
-#' @examples
-#' derive_decision(gw_schema)
-#'
-#' gw_schema |>
-#'   dplyr::filter(param_name == "Arsenic, dissolved") |>
-#'   derive_decision()
-#'
-#' @export
-derive_decision <- function(
-  df,
-  result_col = analysis_result_var(df),
-  censored_col = censored_var(df)
-) {
-  n_used <- sum(
-    !is.na(df[[result_col]])
-  )
-
-  n_detect <- sum(
-    !df[[censored_col]] &
-      !is.na(df[[result_col]]),
-    na.rm = TRUE
-  )
-
-  pct <- mean(
-    df[[censored_col]],
-    na.rm = TRUE
-  ) *
-    100
-
-  statistical_decision(
-    percent_censored = pct,
-    n_used = n_used,
-    n_detect = n_detect
-  )
-}
-
-#' Print Statistical Decision Object
-#'
-#' Prints a compact summary of a
-#' `"statistical_decision"` object.
-#'
-#' @param x A `"statistical_decision"` object.
-#' @param ... Unused.
-#'
-#' @returns
-#' The input object, invisibly.
-#'
-#' @examples
-#' decision <- statistical_decision(
-#'   percent_censored = 25,
-#'   n_used = 12,
-#'   n_detect = 9
-#' )
-#'
-#' print(decision)
-#'
-#' @export
-print.statistical_decision <- function(
-  x,
-  ...
-) {
-  cat(
-    "<statistical_decision>\n"
-  )
-
-  print(
-    tibble::as_tibble(x)
-  )
-
-  invisible(x)
-}
-
-#' Guidance Options
-#'
-#' Retrieves the active statistical guidance options used to classify
-#' censoring severity and select recommended analytical methods.
-#'
-#' Guidance options are read from the global package option
-#' `"manager.guidance"`. If no option has been set, EPA-style default
-#' thresholds are returned.
-#'
-#' These thresholds are used by [statistical_decision()] to classify
-#' censoring as low, moderate, high, or extreme and to determine
-#' recommended distribution fitting, trend analysis, and censored-data
-#' handling approaches.
-#'
-#' @returns
-#' A named list containing:
-#'
-#' \describe{
-#'   \item{low_threshold}{
-#'     Threshold separating low and moderate censoring.
-#'   }
-#'
-#'   \item{moderate_threshold}{
-#'     Threshold separating moderate and high censoring.
-#'   }
-#'
-#'   \item{high_threshold}{
-#'     Threshold separating high and extreme censoring.
-#'   }
-#' }
-#'
-#' @details
-#' The default values are:
-#'
-#' \itemize{
-#'   \item `low_threshold = 15`
-#'   \item `moderate_threshold = 50`
-#'   \item `high_threshold = 90`
-#' }
-#'
-#' These defaults correspond to the thresholds used by the
-#' `"epa_unified"` [guidance_profile()].
-#'
-#' Users may override the defaults using [options()]:
-#'
-#' \preformatted{
-#' options(
-#'   manager.guidance = list(
-#'     low_threshold = 10,
-#'     moderate_threshold = 25,
-#'     high_threshold = 75
-#'   )
-#' )
-#' }
-#'
-#' @examples
-#' guidance_options()
-#'
-#' options(
-#'   manager.guidance = list(
-#'     low_threshold = 10,
-#'     moderate_threshold = 25,
-#'     high_threshold = 75
-#'   )
-#' )
-#'
-#' guidance_options()
-#'
-#' @seealso
-#' [guidance_profile()],
-#' [statistical_decision()]
-#'
-#' @export
-guidance_options <- function() {
-  getOption(
-    "manager.guidance",
-    guidance_profile("epa_unified")
-  )
-}
-
-#' Guidance Profiles
-#'
-#' Returns predefined statistical decision thresholds used by
-#' [statistical_decision()].
-#'
-#' Guidance profiles control the censoring levels used to distinguish
-#' between low, moderate, high, and extreme censoring conditions.
-#'
-#' @param profile Character value specifying the profile.
-#' One of:
-#'
-#' \itemize{
-#'   \item `"epa_unified"`
-#'   \item `"conservative"`
-#'   \item `"site_specific"`
-#' }
-#'
-#' @returns
-#' A named list containing:
-#'
-#' \describe{
-#'   \item{low_threshold}{
-#'     Boundary between low and moderate censoring.
-#'   }
-#'
-#'   \item{moderate_threshold}{
-#'     Boundary between moderate and high censoring.
-#'   }
-#'
-#'   \item{high_threshold}{
-#'     Boundary between high and extreme censoring.
-#'   }
-#' }
-#'
-#' @details
-#' The built-in profiles are:
-#'
-#' \describe{
-#'   \item{epa_unified}{
-#'     15%, 50%, 90%
-#'   }
-#'
-#'   \item{conservative}{
-#'     10%, 25%, 75%
-#'   }
-#'
-#'   \item{site_specific}{
-#'     20%, 60%, 90%
-#'   }
-#' }
-#'
-#' These profiles influence recommended distribution fitting,
-#' trend interpretation, and censored-data handling methods.
-#'
-#' @seealso
-#' [guidance_options()],
-#' [statistical_decision()]
-#'
-#' @examples
-#' guidance_profile()
-#'
-#' guidance_profile("conservative")
-#'
-#' @export
-guidance_profile <- function(
-  profile = c(
-    "epa_unified",
-    "conservative",
-    "site_specific"
-  )
-) {
-  profile <- match.arg(profile)
-
-  switch(
-    profile,
-
-    epa_unified = list(
-      low_threshold = 15,
-      moderate_threshold = 50,
-      high_threshold = 90
-    ),
-
-    conservative = list(
-      low_threshold = 10,
-      moderate_threshold = 25,
-      high_threshold = 75
-    ),
-
-    site_specific = list(
-      low_threshold = 20,
-      moderate_threshold = 60,
-      high_threshold = 90
-    )
-  )
-}
-
 #' Estimate Distributions Using Statistical Decision Guidance
 #'
 #' Estimates an appropriate distributional model for each group using
@@ -577,6 +30,14 @@ guidance_profile <- function(
 #'
 #' If `"auto"` (the default), configuration settings are obtained from
 #' the group's [statistical_decision()] object.
+#'
+#' @param result_col Name of the numeric analytical-result column.
+#' Defaults to `"analysis_result"` for ordinary data frames and the
+#' schema-defined analytical-result column for `env_schema` objects.
+#'
+#' @param censored_col Name of the logical censoring-indicator column.
+#' Defaults to `"censored"` for ordinary data frames and the schema-defined
+#' censoring column for `env_schema` objects.
 #'
 #' @returns
 #' A tibble containing one row per group.
@@ -696,38 +157,131 @@ guidance_profile <- function(
 #' [guidance_options()]
 #'
 #' @export
-estimate_distribution <- function(
+estimate_distribution <- function(df, ...) {
+  UseMethod("estimate_distribution")
+}
+
+#' @export
+estimate_distribution.data.frame <- function(
   df,
   distribution_config = "auto",
-  result_col = analysis_result_var(df)
+  result_col = NULL,
+  censored_col = NULL,
+  ...
+) {
+  .estimate_distribution_grouped(
+    df = df,
+    distribution_config = distribution_config,
+    result_col = result_col,
+    censored_col = censored_col
+  )
+}
+
+#' @keywords internal
+.estimate_distribution_grouped <- function(
+  df,
+  distribution_config = "auto",
+  result_col = NULL,
+  censored_col = NULL
 ) {
   if (!dplyr::is_grouped_df(df)) {
     rlang::abort(
       paste(
         "estimate_distribution() requires grouped data.",
-        "Use group_by() before calling this function."
+        "Call dplyr::group_by() before calling it."
       )
     )
   }
 
-  df |>
-    dplyr::group_modify(
-      ~ .estimate_distribution_group(
-        .x,
+  if (
+    !identical(distribution_config, "auto") &&
+      !is.list(distribution_config)
+  ) {
+    rlang::abort(
+      "`distribution_config` must be either \"auto\" or a named list."
+    )
+  }
+
+  columns <- .resolve_analysis_columns(
+    df = df,
+    result_col = result_col,
+    censored_col = censored_col
+  )
+
+  dplyr::group_modify(
+    .data = df,
+    .f = function(.x, .y) {
+      .estimate_distribution_group(
+        df = .x,
         distribution_config = distribution_config,
-        result_col = result_col
+        result_col = columns$result_col,
+        censored_col = columns$censored_col
       )
-    ) |>
+    }
+  ) |>
     dplyr::ungroup()
+}
+
+#' @export
+estimate_distribution.grouped_df <- function(
+  df,
+  distribution_config = "auto",
+  result_col = NULL,
+  censored_col = NULL,
+  ...
+) {
+  .estimate_distribution_grouped(
+    df = df,
+    distribution_config = distribution_config,
+    result_col = result_col,
+    censored_col = censored_col
+  )
+}
+
+#' @export
+estimate_distribution.env_schema <- function(
+  df,
+  distribution_config = "auto",
+  result_col = NULL,
+  censored_col = NULL,
+  ...
+) {
+  .estimate_distribution_grouped(
+    df = df,
+    distribution_config = distribution_config,
+    result_col = result_col,
+    censored_col = censored_col
+  )
+}
+
+#' @export
+estimate_distribution.grouped_env_schema <- function(
+  df,
+  distribution_config = "auto",
+  result_col = NULL,
+  censored_col = NULL,
+  ...
+) {
+  .estimate_distribution_grouped(
+    df = df,
+    distribution_config = distribution_config,
+    result_col = result_col,
+    censored_col = censored_col
+  )
 }
 
 #' @keywords internal
 .estimate_distribution_group <- function(
   df,
   distribution_config,
-  result_col
+  result_col,
+  censored_col
 ) {
-  decision_obj <- derive_decision(df, result_col = result_col)
+  decision_obj <- derive_decision(
+    df = df,
+    result_col = result_col,
+    censored_col = censored_col
+  )
 
   if (identical(distribution_config, "auto")) {
     distribution_config <-
@@ -744,9 +298,7 @@ estimate_distribution <- function(
       .attach_nested_data(
         result = .make_dist_result(
           distribution = "insufficient_data",
-          n_used = sum(
-            !is.na(df[[result_col]])
-          ),
+          n_used = decision_obj$n_used[[1L]],
           return_result = TRUE
         ),
         data = df
@@ -767,7 +319,8 @@ estimate_distribution <- function(
         df,
         return_result = TRUE,
         distribution_config = distribution_config,
-        result_col = result_col
+        result_col = result_col,
+        censored_col = censored_col
       )
     },
 
@@ -775,9 +328,7 @@ estimate_distribution <- function(
       .attach_nested_data(
         result = .make_dist_result(
           distribution = "Nonparametric",
-          n_used = sum(
-            !is.na(df[[result_col]])
-          ),
+          n_used = decision_obj$n_used[[1L]],
           return_result = TRUE
         ),
         data = df
@@ -788,14 +339,15 @@ estimate_distribution <- function(
       .attach_nested_data(
         result = .make_dist_result(
           distribution = "Descriptive Only",
-          n_used = sum(
-            !is.na(df[[result_col]])
-          ),
+          n_used = decision_obj$n_used[[1L]],
           return_result = TRUE
         ),
         data = df
       )
-    }
+    },
+    rlang::abort(
+      sprintf("Unsupported distribution method: `%s`.", method)
+    )
   )
 
   dplyr::bind_cols(
@@ -926,6 +478,7 @@ stats_summary <- function(df, ...) {
 }
 
 #' @rdname stats_summary
+#'
 #' @param location_id Location column name.
 #' @param param_name Analyte column name.
 #' @param censored Censoring indicator column name.
@@ -964,6 +517,7 @@ stats_summary.data.frame <- function(
 #' @rdname stats_summary
 #'
 #' @section env_schema Method:
+#'
 #' For `env_schema` objects, `stats_summary()` automatically uses
 #' the schema mappings and standardized analytical fields:
 #'
@@ -979,11 +533,18 @@ stats_summary.data.frame <- function(
 #' @export
 stats_summary.env_schema <- function(
   df,
-  result_col = analysis_result_var(df),
-  censored_col = censored_var(df),
+  result_col = NULL,
+  censored_col = NULL,
   na.rm = TRUE,
   ...
 ) {
+  if (is.null(result_col)) {
+    result_col <- analysis_result_var(df)
+  }
+
+  if (is.null(censored_col)) {
+    censored_col <- censored_var(df)
+  }
   group_cols <- if (dplyr::is_grouped_df(df)) {
     dplyr::group_vars(df)
   } else {
@@ -1004,6 +565,7 @@ stats_summary.env_schema <- function(
 }
 
 #' @rdname stats_summary
+#'
 #' @export
 stats_summary.grouped_df <- function(df, ...) {
   if (inherits(df, "env_schema")) {
@@ -1080,12 +642,15 @@ stats_summary.grouped_df <- function(df, ...) {
       ),
 
       percent_censored = {
-        censor_values <- .data[[censored_col]]
+        keep <- !is.na(.data[[result_col]]) &
+          !is.na(.data[[censored_col]])
 
-        if (all(is.na(censor_values))) {
+        censor_values <- .data[[censored_col]][keep]
+
+        if (length(censor_values) == 0L) {
           NA_real_
         } else {
-          mean(censor_values, na.rm = TRUE) * 100
+          mean(censor_values) * 100
         }
       },
 
@@ -1207,6 +772,7 @@ stats_summary.grouped_df <- function(df, ...) {
 
   as.numeric(value)
 }
+
 #' Trend Summary Statistics
 #'
 #' Computes trend statistics and monitoring-period summary metrics
@@ -1310,6 +876,7 @@ trend_summary <- function(df, ...) {
 }
 
 #' @rdname trend_summary
+#'
 #' @param location_id Location column name.
 #' @param param_name Analyte column name.
 #' @param sample_date Sample date column name.
@@ -1342,6 +909,7 @@ trend_summary.data.frame <- function(
 #' @rdname trend_summary
 #'
 #' @section env_schema Method:
+#'
 #' For `env_schema` objects, `trend_summary()` automatically uses
 #' the schema mappings and standardized analytical fields:
 #'
@@ -1359,12 +927,29 @@ trend_summary.data.frame <- function(
 #' @export
 trend_summary.env_schema <- function(
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
+  censored_col = NULL,
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95,
   ...
 ) {
+  if (is.null(result_col)) {
+    result_col <- if (".analysis_result" %in% names(df)) {
+      ".analysis_result"
+    } else {
+      analysis_result_var(df)
+    }
+  }
+
+  if (is.null(censored_col)) {
+    censored_col <- if (".censored" %in% names(df)) {
+      ".censored"
+    } else {
+      censored_var(df)
+    }
+  }
+
   validate_env_schema(df)
 
   alpha <- 1 - conf.level
@@ -1384,6 +969,7 @@ trend_summary.env_schema <- function(
         .x,
         sample_date_col = sample_date_col,
         result_col = result_col,
+        censored_col = censored_col,
         method = method,
         censored_method = censored_method,
         alpha = alpha,
@@ -1398,6 +984,7 @@ trend_summary.env_schema <- function(
   df,
   sample_date_col,
   result_col,
+  censored_col,
   method,
   censored_method,
   alpha,
@@ -1472,6 +1059,7 @@ trend_summary.env_schema <- function(
     df = df,
     sample_date_col = sample_date_col,
     result_col = result_col,
+    censored_col = censored_col,
     method = method,
     censored_method = censored_method,
     conf.level = conf.level
@@ -1543,27 +1131,32 @@ trend_summary.env_schema <- function(
   df,
   sample_date_col,
   result_col,
-  censored_method = "cenken"
+  censored_col,
+  censored_method = "auto"
 ) {
+  required_cols <- c(
+    sample_date_col,
+    result_col,
+    censored_col
+  )
+
+  .validate_required_cols(df, required_cols)
+
   out <- df |>
     dplyr::filter(
       !is.na(.data[[sample_date_col]]),
-      !is.na(.data[[result_col]])
+      !is.na(.data[[result_col]]),
+      !is.na(.data[[censored_col]])
     ) |>
     dplyr::arrange(
       .data[[sample_date_col]]
     )
 
-  if (nrow(out) < 3) {
+  if (nrow(out) < 3L) {
     return(NULL)
   }
 
-  if (
-    dplyr::n_distinct(
-      out[[result_col]]
-    ) <
-      2
-  ) {
+  if (dplyr::n_distinct(out[[result_col]]) < 2L) {
     return(NULL)
   }
 
@@ -1618,6 +1211,7 @@ kendall_trend <- function(df, ...) {
 }
 
 #' @rdname kendall_trend
+#'
 #' @param location_id Location column name.
 #' @param param_name Analyte column name.
 #' @param sample_date Sample date column name.
@@ -1647,6 +1241,7 @@ kendall_trend.data.frame <- function(
 #' @rdname kendall_trend
 #'
 #' @section env_schema Method:
+#'
 #' For `env_schema` objects, the test is performed using:
 #'
 #' \itemize{
@@ -1657,10 +1252,18 @@ kendall_trend.data.frame <- function(
 #' @export
 kendall_trend.env_schema <- function(
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
+  censored_col = NULL,
   conf.level = 0.95,
   ...
 ) {
+  if (is.null(result_col)) {
+    result_col <- analysis_result_var(df)
+  }
+
+  if (is.null(censored_col)) {
+    censored_col <- censored_var(df)
+  }
   validate_env_schema(df)
 
   sample_date_col <- sample_date_var(df)
@@ -1731,6 +1334,54 @@ kendall_trend.env_schema <- function(
   )
 }
 
+#' Resolve the trend method for a data set
+#'
+#' @keywords internal
+.resolve_trend_censored_method <- function(
+  censored,
+  censored_method = "auto"
+) {
+  if (
+    !is.logical(censored) ||
+      anyNA(censored)
+  ) {
+    rlang::abort(
+      "`censored` must be a logical vector without missing values."
+    )
+  }
+
+  censored_method <- rlang::arg_match(
+    censored_method,
+    c("auto", "cenken", "as_reported")
+  )
+
+  has_censored <- any(censored)
+
+  if (censored_method == "auto") {
+    return(
+      if (has_censored) {
+        "cenken"
+      } else {
+        "as_reported"
+      }
+    )
+  }
+
+  if (
+    censored_method == "as_reported" &&
+      has_censored
+  ) {
+    rlang::abort(
+      paste(
+        "`censored_method = \"as_reported\"` cannot be used",
+        "when censored observations are present."
+      )
+    )
+  }
+
+  censored_method
+}
+
 #' Compute Trend Information
 #'
 #' Internal helper used by plotting functions.
@@ -1745,15 +1396,24 @@ kendall_trend.env_schema <- function(
 .compute_trend <- function(
   df,
   sample_date_col,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
+  censored_col = NULL,
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95
 ) {
+  if (is.null(result_col)) {
+    result_col <- analysis_result_var(df)
+  }
+
+  if (is.null(censored_col)) {
+    censored_col <- censored_var(df)
+  }
   df <- .prepare_trend_data(
     df = df,
     sample_date_col = sample_date_col,
     result_col = result_col,
+    censored_col = censored_col,
     censored_method = censored_method
   )
 
@@ -1772,18 +1432,56 @@ kendall_trend.env_schema <- function(
     )
   )
 
-  censored_method <- rlang::arg_match(
-    censored_method,
-    c(
-      "auto",
-      "cenken",
-      "as_reported"
+  if (!censored_col %in% names(df)) {
+    rlang::abort(
+      sprintf(
+        "Censoring column `%s` was not found.",
+        censored_col
+      )
     )
+  }
+
+  censored <- df[[censored_col]]
+
+  if (!is.logical(censored)) {
+    rlang::abort(
+      sprintf(
+        "`%s` must be logical.",
+        censored_col
+      )
+    )
+  }
+
+  censored_method <- .resolve_trend_censored_method(
+    censored = censored,
+    censored_method = censored_method
   )
+
+  has_censored <- any(censored, na.rm = TRUE)
+
+  # Ordinary regression and smoothing methods do not account for
+  # censored observations. Do not silently treat nondetects as detects.
+  if (
+    has_censored &&
+      method %in% c("lm", "loess", "gam")
+  ) {
+    rlang::abort(
+      c(
+        paste0(
+          "`method = \"",
+          method,
+          "\"` is not supported for censored data."
+        ),
+        "i" = "Use `method = \"mann_kendall\"` with `censored_method = \"cenken\"`."
+      )
+    )
+  }
+
   if (censored_method == "auto") {
     decision <- derive_decision(
       df,
-      result_col = result_col
+      result_col = result_col,
+      censored_col = censored_col
     )
 
     censored_method <-
@@ -1983,7 +1681,7 @@ kendall_trend.env_schema <- function(
       tryCatch(
         NADA2::cenken(
           y = df[[result_col]],
-          ycen = df$.censored,
+          ycen = df[[censored_col]],
           x = as.numeric(df[[sample_date_col]])
         ),
         error = function(e) NULL
@@ -2032,7 +1730,8 @@ kendall_trend.env_schema <- function(
 .add_trend <- function(
   p,
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
+  censored_col = NULL,
   trend = "none",
   trend_ci = FALSE,
   trend_conf_level = 0.95,
@@ -2041,6 +1740,14 @@ kendall_trend.env_schema <- function(
   censored_method = "cenken",
   plot_type = "split"
 ) {
+  if (is.null(result_col)) {
+    result_col <- analysis_result_var(df)
+  }
+
+  if (is.null(censored_col)) {
+    censored_col <- censored_var(df)
+  }
+
   censored_method <- rlang::arg_match(
     censored_method,
     c(
@@ -2252,11 +1959,20 @@ kendall_trend.env_schema <- function(
 #' @noRd
 .compute_group_trends <- function(
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
+  censored_col = NULL,
   method = "mann_kendall",
   censored_method = "cenken",
   conf.level = 0.95
 ) {
+  if (is.null(result_col)) {
+    result_col <- analysis_result_var(df)
+  }
+
+  if (is.null(censored_col)) {
+    censored_col <- censored_var(df)
+  }
+
   sample_date_col <- sample_date_var(df)
 
   group_cols <- .get_trend_group_cols(df)
@@ -2273,6 +1989,7 @@ kendall_trend.env_schema <- function(
           df = .x,
           sample_date_col = sample_date_col,
           result_col = result_col,
+          censored_col = censored_col,
           method = method,
           censored_method = censored_method,
           conf.level = conf.level
@@ -2975,7 +2692,7 @@ rosner_test.data.frame <- function(
 #' @param warn Logical indicating whether Rosner test warnings
 #' should be returned.
 #' @param keep_data_object Logical indicating whether the complete
-#' Rosner result object should be retained.
+#' Rosner result object should be returned.
 #'
 #' @section env_schema Method:
 #'
@@ -3124,6 +2841,7 @@ tukey_outlier <- function(df, ...) {
 }
 
 #' @rdname tukey_outlier
+#'
 #' @export
 tukey_outlier.data.frame <- function(
   df,
@@ -3246,7 +2964,7 @@ tukey_outlier.env_schema <- function(
 #' @param objective_name Character string specifying the optimization
 #'   criterion passed to [EnvStats::boxcox()].
 #' @param keep_data_object Logical indicating whether the complete
-#'   Box-Cox result object should be retained.
+#'   Box-Cox result object should be returned.
 #' @param ... Additional arguments passed to methods.
 #'
 #' @returns
@@ -3284,6 +3002,7 @@ boxcox_transform <- function(df, ...) {
 }
 
 #' @rdname boxcox_transform
+#'
 #' @export
 boxcox_transform.data.frame <- function(
   df,
@@ -3293,7 +3012,6 @@ boxcox_transform.data.frame <- function(
   analysis_result = "analysis_result",
   default_unit = "default_unit",
   objective_name = "PPCC",
-  result_col = analysis_result_var(df),
   keep_data_object = FALSE,
   ...
 ) {
@@ -3305,6 +3023,8 @@ boxcox_transform.data.frame <- function(
     result = !!rlang::sym(analysis_result),
     unit = !!rlang::sym(default_unit)
   )
+
+  result_col <- analysis_result_var(df)
 
   boxcox_transform(
     df = df,
@@ -3337,11 +3057,15 @@ boxcox_transform.data.frame <- function(
 #' @export
 boxcox_transform.env_schema <- function(
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
   objective_name = "PPCC",
   keep_data_object = FALSE,
   ...
 ) {
+  if (is.null(result_col)) {
+    result_col <- analysis_result_var(df)
+  }
+
   validate_env_schema(df)
 
   template <- df
@@ -3458,11 +3182,179 @@ boxcox_transform.env_schema <- function(
   out
 }
 
+#' Compare Analytical Results Among Groups
+#'
+#' Performs multiple-group statistical comparisons on environmental
+#' analytical results.
+#'
+#' `compare_groups()` automatically selects a recommended comparison
+#' procedure using [derive_decision()] and
+#' [statistical_decision()].
+#'
+#' Recommended methods are based primarily on the degree of censoring:
+#'
+#' \itemize{
+#'   \item `anova` for low-censoring datasets
+#'   \item `kruskal` for moderate or high censoring
+#'   \item `insufficient_data` when too few observations are available
+#' }
+#'
+#' Explicit alternatives are available through:
+#'
+#' \itemize{
+#'   \item [anova_test()]
+#'   \item [welch_test()]
+#'   \item [kruskal_test()]
+#' }
+#'
+#' Existing grouping created with [dplyr::group_by()] is respected.
+#' Comparisons are performed independently within each grouping level.
+#'
+#' For ungrouped `env_schema` objects, comparisons are performed
+#' separately for each analyte and analysis unit.
+#'
+#' @param df A data frame or `env_schema` object.
+#' @param compare Character column name identifying the grouping
+#'   factor to compare.
+#' @param result_col Analytical result column.
+#' @param keep_data_object Logical indicating whether the complete
+#' statistical test object should be retained in the returned output.
+#' @param variance_alpha Significance level used by Levene's test to
+#' determine whether group variances are considered unequal.
+#' Defaults to `0.05`.
+#' @param levene_center Centering method for Levene's test. `"median"`
+#' performs the Brown-Forsythe version and is the default. `"mean"` performs
+#' the classical mean-centered version.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @returns
+#' A tibble containing one row per comparison group.
+#'
+#' The returned table includes:
+#'
+#' \describe{
+#'   \item{comparison_method}{
+#'     Statistical procedure used.
+#'   }
+#'
+#'   \item{statistic}{
+#'     Test statistic returned by the selected procedure.
+#'   }
+#'
+#'   \item{p_value}{
+#'     P-value associated with the test statistic.
+#'   }
+#'
+#'   \item{test}{
+#'     Full statistical test object when
+#'     `keep_data_object = TRUE`.
+#'   }
+#' }
+#'
+#' @details
+#'
+#' Automatic method selection follows the active
+#' [statistical_decision()] framework.
+#'
+#' Under the default EPA-style profile:
+#'
+#' \tabular{llll}{
+#' Condition \tab Variance test \tab Recommendation \tab Method \cr
+#' <15\% censored \tab p >= alpha \tab Equal variance \tab ANOVA \cr
+#' <15\% censored \tab p < alpha \tab Unequal variance \tab Welch \cr
+#' 15-90\% \tab Not used \tab Nonparametric comparison \tab Kruskal-Wallis \cr
+#' >=90\% \tab Not used \tab Insufficient information \tab No comparison
+#' }
+#'
+#' Comparisons require at least two distinct comparison groups.
+#'
+#' If the comparison variable contains only one level,
+#' test statistics and p-values are returned as `NA`.
+#'
+#' The comparison variable cannot also be an active grouping variable.
+#'
+#' Existing grouping controls the strata within which comparisons
+#' are performed.
+#'
+#' For example:
+#'
+#' \preformatted{
+#' gw |>
+#'   dplyr::group_by(param_name) |>
+#'   compare_groups(compare = "location_id")
+#' }
+#'
+#' compares locations separately within each analyte.
+#'
+#' \preformatted{
+#' gw |>
+#'   dplyr::group_by(well_class) |>
+#'   compare_groups(compare = "location_id")
+#' }
+#'
+#' compares locations separately within each well classification.
+#'
+#' Under the default EPA-style guidance profile,
+#' `compare_groups()` recommends classical ANOVA for low-censored
+#' datasets and Kruskal-Wallis tests for datasets with moderate
+#' or high censoring.
+#'
+#' Explicit method-selection functions are available for users who
+#' wish to override the automatic recommendation framework:
+#'
+#' \itemize{
+#'   \item [anova_test()]
+#'   \item [welch_test()]
+#'   \item [kruskal_test()]
+#' }
+#'
+#' @seealso
+#' [statistical_decision()],
+#' [derive_decision()],
+#' [anova_test()],
+#' [welch_test()],
+#' [kruskal_test()]
+#'
+#' @examples
+#' compare_groups(
+#'   gw,
+#'   compare = "location_id"
+#' )
+#'
+#' anova_test(
+#'   gw,
+#'   compare = "location_id"
+#' )
+#'
+#' welch_test(
+#'   gw,
+#'   compare = "location_id"
+#' )
+#'
+#' kruskal_test(
+#'   gw,
+#'   compare = "location_id"
+#' )
+#'
+#' gw |>
+#'   dplyr::group_by(param_name) |>
+#'   compare_groups(
+#'     compare = "location_id"
+#'   )
+#'
+#' gw |>
+#'   dplyr::group_by(well_class) |>
+#'   compare_groups(
+#'     compare = "location_id"
+#'   )
+#'
 #' @export
 compare_groups <- function(df, ...) {
   UseMethod("compare_groups")
 }
 
+#' @rdname compare_groups
+#'
 #' @export
 compare_groups.data.frame <- function(
   df,
@@ -3492,30 +3384,47 @@ compare_groups.data.frame <- function(
   )
 }
 
+#' @rdname compare_groups
+#'
+#' @export
+compare_groups.grouped_df <- function(df, ...) {
+  if (inherits(df, "env_schema")) {
+    compare_groups.env_schema(df, ...)
+  } else {
+    compare_groups.data.frame(df, ...)
+  }
+}
+
+#' @rdname compare_groups
+#'
 #' @export
 compare_groups.env_schema <- function(
   df,
-  compare = location_var(df),
-  result_col = analysis_result_var(df),
+  compare = NULL,
+  result_col = NULL,
+  censored_col = NULL,
   keep_data_object = FALSE,
   ...
 ) {
-  validate_env_schema(df)
-
-  group_cols <- if (dplyr::is_grouped_df(df)) {
-    dplyr::group_vars(df)
-  } else {
-    c(
-      analyte_var(df),
-      analysis_unit_var(df)
-    )
+  if (is.null(compare)) {
+    compare <- location_var(df)
   }
+  if (is.null(result_col)) {
+    result_col <- analysis_result_var(df)
+  }
+
+  if (is.null(censored_col)) {
+    censored_col <- censored_var(df)
+  }
+
+  validate_env_schema(df)
 
   .compare_groups_core(
     df = df,
-    group_cols = group_cols,
     compare = compare,
     result_col = result_col,
+    censored_col = censored_col,
+    method = "auto",
     keep_data_object = keep_data_object
   )
 }
@@ -3523,12 +3432,50 @@ compare_groups.env_schema <- function(
 #' @keywords internal
 .compare_groups_core <- function(
   df,
-  group_cols,
   compare,
   result_col,
-  method = "auto",
+  censored_col,
+  method = c(
+    "auto",
+    "anova",
+    "welch",
+    "kruskal",
+    "cenperm2",
+    "cen2means",
+    "cenanova",
+    "censored_nonparametric"
+  ),
   keep_data_object = FALSE
 ) {
+  method <- match.arg(
+    method,
+    c(
+      "auto",
+      "anova",
+      "welch",
+      "kruskal",
+      "cen2perm",
+      "cen2means",
+      "cenanova",
+      "censored_nonparametric"
+    )
+  )
+
+  if (
+    !is.character(compare) ||
+      length(compare) != 1L ||
+      is.na(compare) ||
+      !nzchar(compare)
+  ) {
+    rlang::abort("`compare` must be a single column name.")
+  }
+
+  if (!compare %in% names(df)) {
+    rlang::abort(
+      sprintf("Comparison column `%s` was not found.", compare)
+    )
+  }
+
   group_cols <- if (dplyr::is_grouped_df(df)) {
     dplyr::group_vars(df)
   } else {
@@ -3538,40 +3485,76 @@ compare_groups.env_schema <- function(
     )
   }
 
-  nested <- df |>
-    dplyr::group_by(
-      dplyr::across(
-        dplyr::all_of(group_cols)
+  group_cols <- unique(
+    group_cols[group_cols %in% names(df)]
+  )
+
+  if (compare %in% group_cols) {
+    rlang::abort(
+      sprintf(
+        "`compare` ('%s') cannot also be a grouping variable.",
+        compare
       )
-    ) |>
-    tidyr::nest()
+    )
+  }
+
+  nested <- if (length(group_cols) == 0L) {
+    tibble::tibble(data = list(df))
+  } else {
+    df |>
+      dplyr::group_by(
+        dplyr::across(
+          dplyr::all_of(group_cols)
+        )
+      ) |>
+      tidyr::nest()
+  }
 
   nested |>
     dplyr::mutate(
       decision = purrr::map(
         data,
         derive_decision,
-        result_col = result_col
+        result_col = result_col,
+        censored_col = censored_col
       ),
 
       comparison_method = if (identical(method, "auto")) {
         purrr::map_chr(
           decision,
-          ~ .x$comparison_method[[1]]
+          ~ .x$comparison_method[[1L]]
         )
       } else {
-        rep(method, nrow(nested))
+        rep(method, dplyr::n())
       },
 
-      test = purrr::map2(
-        data,
-        comparison_method,
-        ~ .run_comparison_test(
-          df = .x,
-          method = .y,
-          compare = compare,
-          result_col = result_col
-        )
+      test = purrr::pmap(
+        list(data, comparison_method),
+        function(data, selected_method) {
+          if (
+            selected_method %in%
+              c(
+                "cenanova",
+                "cenperm2",
+                "censored_nonparametric"
+              )
+          ) {
+            .run_censored_comparison_test(
+              df = data,
+              method = selected_method,
+              compare = compare,
+              result_col = result_col,
+              censored_col = censored_col
+            )
+          } else {
+            .run_comparison_test(
+              df = data,
+              method = selected_method,
+              compare = compare,
+              result_col = result_col
+            )
+          }
+        }
       )
     ) |>
     .extract_comparison_results(
@@ -3586,14 +3569,16 @@ compare_groups.env_schema <- function(
   compare,
   result_col
 ) {
-  if (
-    dplyr::n_distinct(
-      df[[compare]]
-    ) <
-      2
-  ) {
+  keep <- !is.na(df[[compare]]) &
+    !is.na(df[[result_col]])
+
+  df <- df[keep, , drop = FALSE]
+
+  if (dplyr::n_distinct(df[[compare]]) < 2L) {
     return(NULL)
   }
+
+  df[[compare]] <- droplevels(factor(df[[compare]]))
 
   frm <- stats::reformulate(
     compare,
@@ -3619,64 +3604,154 @@ compare_groups.env_schema <- function(
       data = df
     ),
 
-    NULL
+    rlang::abort(
+      sprintf("Unsupported comparison method: `%s`.", method)
+    )
   )
 }
 
+#' @rdname compare_groups
+#'
+#' @section ANOVA Method:
+#'
+#' `anova_test()` performs a classical one-way analysis of variance
+#' using [stats::aov()].
+#'
+#' This method assumes:
+#'
+#' \itemize{
+#'   \item approximately normal residuals
+#'   \item homogeneous variances among groups
+#'   \item independent observations
+#' }
+#'
+#' This function bypasses automatic method selection and always
+#' performs ANOVA.
+#'
 #' @export
 anova_test <- function(df, ...) {
   UseMethod("anova_test")
 }
 
+#' @rdname compare_groups
+#'
 #' @export
-anova_test.env_schema <- function(
+anova_test.data.frame <- function(
   df,
-  compare = location_var(df),
-  result_col = analysis_result_var(df),
+  location = "location_id",
+  analyte = "param_name",
+  sample_date = "sample_date",
+  result = "analysis_result",
+  unit = "default_unit",
+  compare = location,
   keep_data_object = FALSE,
   ...
 ) {
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location),
+    analyte = !!rlang::sym(analyte),
+    sample_date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(result),
+    unit = !!rlang::sym(unit)
+  )
+
+  result_col <- analysis_result_var(df)
+  censored_col <- censored_var(df)
+
   .compare_groups_core(
     df = df,
     compare = compare,
     result_col = result_col,
+    censored_col = censored_col,
     method = "anova",
     keep_data_object = keep_data_object
   )
 }
 
+#' @rdname compare_groups
+#'
+#' @export
+anova_test.env_schema <- function(
+  df,
+  compare = location_var(df),
+  result_col = analysis_result_var(df),
+  censored_col = censored_var(df),
+  keep_data_object = FALSE,
+  ...
+) {
+  .compare_groups_core(
+    df = df,
+    compare = compare,
+    result_col = result_col,
+    censored_col = censored_col,
+    method = "anova",
+    keep_data_object = keep_data_object
+  )
+}
+
+#' @rdname compare_groups
+#'
+#' @section Welch Method:
+#'
+#' `welch_test()` performs Welch's unequal-variance analysis of
+#' variance using [stats::oneway.test()].
+#'
+#' Welch's ANOVA relaxes the equal-variance assumption required by
+#' classical ANOVA and is provided as an explicit analyst override.
+#'
+#' This method is not selected automatically by
+#' [compare_groups()].
+#'
 #' @export
 welch_test <- function(df, ...) {
   UseMethod("welch_test")
 }
 
+#' @rdname compare_groups
+#'
 #' @export
-welch_test.env_schema <- function(
+welch_test.data.frame <- function(
   df,
-  compare = location_var(df),
-  result_col = analysis_result_var(df),
+  location = "location_id",
+  analyte = "param_name",
+  sample_date = "sample_date",
+  result = "analysis_result",
+  unit = "default_unit",
+  compare = location,
   keep_data_object = FALSE,
   ...
 ) {
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location),
+    analyte = !!rlang::sym(analyte),
+    sample_date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(result),
+    unit = !!rlang::sym(unit)
+  )
+
+  result_col <- analysis_result_var(df)
+  censored_col <- censored_var(df)
+
   .compare_groups_core(
     df = df,
     compare = compare,
     result_col = result_col,
+    censored_col = censored_col,
     method = "welch",
     keep_data_object = keep_data_object
   )
 }
 
+#' @rdname compare_groups
+#'
 #' @export
-kruskal_test <- function(df, ...) {
-  UseMethod("kruskal_test")
-}
-
-#' @export
-kruskal_test.env_schema <- function(
+welch_test.env_schema <- function(
   df,
   compare = location_var(df),
   result_col = analysis_result_var(df),
+  censored_col = censored_var(df),
   keep_data_object = FALSE,
   ...
 ) {
@@ -3684,8 +3759,132 @@ kruskal_test.env_schema <- function(
     df = df,
     compare = compare,
     result_col = result_col,
+    censored_col = censored_col,
+    method = "welch",
+    keep_data_object = keep_data_object
+  )
+}
+
+#' @rdname compare_groups
+#'
+#' @section Kruskal-Wallis Method:
+#'
+#' `kruskal_test()` performs a Kruskal-Wallis rank-sum test using
+#' [stats::kruskal.test()].
+#'
+#' This nonparametric method is appropriate when normality or
+#' variance assumptions are not satisfied and is commonly
+#' recommended for datasets with moderate or extensive censoring.
+#'
+#' This function bypasses automatic method selection and always
+#' performs a Kruskal-Wallis comparison.
+#'
+#' @export
+kruskal_test <- function(df, ...) {
+  UseMethod("kruskal_test")
+}
+
+#' @rdname compare_groups
+#'
+#' @export
+kruskal_test.data.frame <- function(
+  df,
+  location = "location_id",
+  analyte = "param_name",
+  sample_date = "sample_date",
+  result = "analysis_result",
+  unit = "default_unit",
+  compare = location,
+  keep_data_object = FALSE,
+  ...
+) {
+  df <- env_schema(
+    df,
+    location = !!rlang::sym(location),
+    analyte = !!rlang::sym(analyte),
+    sample_date = !!rlang::sym(sample_date),
+    result = !!rlang::sym(result),
+    unit = !!rlang::sym(unit)
+  )
+
+  result_col <- analysis_result_var(df)
+  censored_col <- censored_var(df)
+
+  .compare_groups_core(
+    df = df,
+    compare = compare,
+    result_col = result_col,
+    censored_col = censored_col,
     method = "kruskal",
     keep_data_object = keep_data_object
+  )
+}
+
+#' @rdname compare_groups
+#'
+#' @export
+kruskal_test.env_schema <- function(
+  df,
+  compare = location_var(df),
+  result_col = analysis_result_var(df),
+  censored_col = censored_var(df),
+  keep_data_object = FALSE,
+  ...
+) {
+  .compare_groups_core(
+    df = df,
+    compare = compare,
+    result_col = result_col,
+    censored_col = censored_col,
+    method = "kruskal",
+    keep_data_object = keep_data_object
+  )
+}
+
+#' Extract a test statistic and p-value
+#'
+#' Supports standard `aov` and `htest` objects, as well as censored-test
+#' result objects returned by NADA/NADA2.
+#'
+#' @keywords internal
+.extract_test_results <- function(test) {
+  missing_result <- list(
+    statistic = NA_real_,
+    p_value = NA_real_
+  )
+
+  if (is.null(test)) {
+    return(missing_result)
+  }
+
+  if (inherits(test, "aov")) {
+    table <- summary(test)[[1L]]
+
+    return(list(
+      statistic = .as_scalar_numeric(table[["F value"]][1L]),
+      p_value = .as_scalar_numeric(table[["Pr(>F)"]][1L])
+    ))
+  }
+
+  if (inherits(test, "htest")) {
+    return(list(
+      statistic = .as_scalar_numeric(test$statistic),
+      p_value = .as_scalar_numeric(test$p.value)
+    ))
+  }
+
+  # NADA/NADA2 result objects use package-specific field names.
+  statistic <- test$statistic %||%
+    test$test.statistic %||%
+    test$F.statistic
+
+  p_value <- test$p.value %||%
+    test$p %||%
+    test$P.Value
+
+  list(
+    statistic = .as_scalar_numeric(statistic),
+    p_value = .as_scalar_numeric(p_value)
   )
 }
 
@@ -3694,44 +3893,631 @@ kruskal_test.env_schema <- function(
   x,
   keep_data_object = FALSE
 ) {
-  out <- x |>
-    dplyr::mutate(
-      statistic = purrr::map_dbl(
-        test,
-        ~ if (is.null(.x)) NA_real_ else unname(.x$statistic[[1]])
-      ),
+  out <- dplyr::ungroup(x)
 
-      p_value = purrr::map_dbl(
-        test,
-        ~ if (is.null(.x)) NA_real_ else .x$p.value
-      )
-    )
+  extracted <- purrr::map(
+    out$test,
+    .extract_test_results
+  )
+
+  out$statistic <- purrr::map_dbl(
+    extracted,
+    ~ .x$statistic
+  )
+
+  out$p_value <- purrr::map_dbl(
+    extracted,
+    ~ .x$p_value
+  )
 
   if (!keep_data_object) {
     out <- dplyr::select(
       out,
-      -data,
-      -test
+      -dplyr::any_of(c("data", "test", "decision"))
     )
   }
 
   out
 }
 
+#' Run NADA2 censored ANOVA
+#'
 #' @keywords internal
-.extract_comparison_statistic <- function(x) {
-  if (inherits(x, "aov")) {
-    tbl <- summary(x)[[1]]
+.run_cenanova <- function(
+  values,
+  censored,
+  groups,
+  log_transform = TRUE,
+  printstat = FALSE
+) {
+  if (!is.numeric(values)) {
+    rlang::abort("`values` must be numeric.")
+  }
 
-    return(list(
-      statistic = tbl[["F value"]][1],
-      p_value = tbl[["Pr(>F)"]][1]
-    ))
+  if (!is.logical(censored)) {
+    rlang::abort("`censored` must be logical.")
+  }
+
+  if (
+    length(values) != length(censored) ||
+      length(values) != length(groups)
+  ) {
+    rlang::abort(
+      "`values`, `censored`, and `groups` must have equal lengths."
+    )
+  }
+
+  keep <- !is.na(values) &
+    !is.na(censored) &
+    !is.na(groups)
+
+  values <- values[keep]
+  censored <- censored[keep]
+  groups <- droplevels(factor(groups[keep]))
+
+  if (nlevels(groups) < 2L) {
+    return(NULL)
+  }
+
+  # NADA2::cenanova() should not be called for small samples.
+  if (length(values) < 20L || length(values) > 5000L) {
+    return(NULL)
+  }
+
+  # NADA2 cannot fit a censored model when there are no censored
+  # observations.
+  if (!any(censored)) {
+    return(NULL)
+  }
+
+  if (sum(!censored) < 4L) {
+    return(NULL)
+  }
+
+  group_counts <- table(groups)
+
+  if (any(group_counts < 2L)) {
+    return(NULL)
+  }
+
+  detected_by_group <- tapply(
+    !censored,
+    groups,
+    sum
+  )
+
+  if (any(detected_by_group < 1L)) {
+    return(NULL)
+  }
+
+  result <- NULL
+
+  # NADA2 has a bug with printstat = FALSE: some versions reference
+  # an internal object that is only created by the printing branch.
+  # Capture the output while always using printstat = TRUE.
+  utils::capture.output(
+    result <- NADA2::cenanova(
+      x1 = values,
+      x2 = censored,
+      group = groups,
+      LOG = isTRUE(log_transform),
+      printstat = TRUE
+    )
+  )
+
+  result
+}
+
+#' @keywords internal
+.extract_censored_test_results <- function(test) {
+  if (is.null(test)) {
+    return(
+      list(
+        statistic = NA_real_,
+        p_value = NA_real_
+      )
+    )
+  }
+
+  statistic <- test$statistic %||%
+    test$test.statistic %||%
+    test$F.statistic
+
+  p_value <- test$p.value %||%
+    test$p %||%
+    test$P.Value
+
+  list(
+    statistic = .as_scalar_numeric(statistic),
+    p_value = .as_scalar_numeric(p_value)
+  )
+}
+
+#' @keywords internal
+.as_scalar_numeric <- function(x) {
+  if (is.null(x) || length(x) == 0L) {
+    return(NA_real_)
+  }
+
+  value <- suppressWarnings(as.numeric(x[[1L]]))
+
+  if (length(value) == 0L || is.na(value)) {
+    NA_real_
+  } else {
+    unname(value[[1L]])
+  }
+}
+
+#' Levene's Test for Homogeneity of Variance
+#'
+#' @param df A data frame, grouped data frame, or `env_schema` object.
+#' @param result_col Name of the numeric analytical-result column.
+#' @param group_col Optional grouping column or columns. If omitted for a
+#'   grouped data frame, the columns created by `dplyr::group_by()` are used.
+#' @param center Centering method. `"median"` performs the Brown-Forsythe
+#'   version of Levene's test and is generally more robust.
+#'
+#' @returns A tibble containing the Levene test results.
+#'
+#' @export
+levene_test <- function(
+  df,
+  result_col = NULL,
+  group_col = NULL,
+  center = "median",
+  alpha = 0.05
+) {
+  UseMethod("levene_test")
+}
+
+#' @export
+levene_test.data.frame <- function(
+  df,
+  result_col = NULL,
+  group_col = NULL,
+  center = "median",
+  alpha = 0.05
+) {
+  columns <- .resolve_levene_columns(
+    df = df,
+    result_col = result_col,
+    group_col = group_col
+  )
+
+  .levene_test_core(
+    df = df,
+    result_col = columns$result_col,
+    group_col = columns$group_col,
+    center = center,
+    alpha = alpha
+  )
+}
+
+#' @export
+levene_test.grouped_df <- function(
+  df,
+  result_col = NULL,
+  group_col = NULL,
+  center = "median",
+  alpha = 0.05
+) {
+  columns <- .resolve_levene_columns(
+    df = df,
+    result_col = result_col,
+    group_col = group_col
+  )
+
+  # group_vars() are metadata for the test and should not be passed
+  # as grouping structure to downstream operations.
+  df <- dplyr::ungroup(df)
+
+  .levene_test_core(
+    df = df,
+    result_col = columns$result_col,
+    group_col = columns$group_col,
+    center = center,
+    alpha = alpha
+  )
+}
+
+#' @export
+levene_test.env_schema <- function(
+  df,
+  result_col = NULL,
+  group_col = NULL,
+  center = "median"
+) {
+  columns <- .resolve_levene_columns(
+    df = df,
+    result_col = result_col,
+    group_col = group_col
+  )
+
+  .levene_test_core(
+    df = dplyr::ungroup(df),
+    result_col = columns$result_col,
+    group_col = columns$group_col,
+    center = center,
+    alpha = alpha
+  )
+}
+
+#' @export
+levene_test.grouped_env_schema <- function(
+  df,
+  result_col = NULL,
+  group_col = NULL,
+  center = "median"
+) {
+  levene_test.env_schema(
+    df = df,
+    result_col = result_col,
+    group_col = group_col,
+    center = center,
+    alpha = alpha
+  )
+}
+
+#' @keywords internal
+.resolve_levene_columns <- function(
+  df,
+  result_col = NULL,
+  group_col = NULL
+) {
+  if (is.null(result_col)) {
+    result_col <- if (inherits(df, "env_schema")) {
+      analysis_result_var(df)
+    } else {
+      "analysis_result"
+    }
+  }
+
+  if (is.null(group_col)) {
+    if (!dplyr::is_grouped_df(df)) {
+      rlang::abort(
+        "`group_col` must be supplied when `df` is not grouped."
+      )
+    }
+
+    group_col <- dplyr::group_vars(df)
+  }
+
+  if (length(group_col) == 0L) {
+    rlang::abort(
+      "At least one grouping column is required for Levene's test."
+    )
+  }
+
+  required_cols <- c(result_col, group_col)
+  missing_cols <- setdiff(required_cols, names(df))
+
+  if (length(missing_cols) > 0L) {
+    rlang::abort(
+      paste0(
+        "Missing required columns: ",
+        paste(missing_cols, collapse = ", ")
+      )
+    )
   }
 
   list(
-    statistic = unname(x$statistic[[1]]),
-    p_value = x$p.value
+    result_col = result_col,
+    group_col = group_col
+  )
+}
+
+#' @keywords internal
+.levene_test_core <- function(
+  df,
+  result_col,
+  group_col,
+  center = c("median", "mean"),
+  alpha = 0.05
+) {
+  center <- match.arg(center)
+
+  if (
+    !is.numeric(alpha) ||
+      length(alpha) != 1L ||
+      is.na(alpha) ||
+      alpha <= 0 ||
+      alpha >= 1
+  ) {
+    rlang::abort("`alpha` must be between 0 and 1.")
+  }
+
+  values <- df[[result_col]]
+
+  # Use all grouping columns together when multiple grouping variables
+  # were supplied to group_by().
+  groups <- interaction(
+    df[group_col],
+    drop = TRUE,
+    lex.order = TRUE,
+    sep = " : "
+  )
+
+  keep <- !is.na(values) & !is.na(groups)
+
+  values <- values[keep]
+  groups <- droplevels(groups[keep])
+
+  if (length(values) == 0L) {
+    return(tibble::tibble(
+      levene_statistic = NA_real_,
+      levene_p_value = NA_real_,
+      levene_df_between = NA_integer_,
+      levene_df_within = NA_integer_,
+      levene_n = 0L,
+      levene_n_groups = 0L,
+      unequal_variance = NA
+    ))
+  }
+
+  if (nlevels(groups) < 2L) {
+    return(tibble::tibble(
+      levene_statistic = NA_real_,
+      levene_p_value = NA_real_,
+      levene_df_between = NA_integer_,
+      levene_df_within = NA_integer_,
+      levene_n = length(values),
+      levene_n_groups = nlevels(groups),
+      unequal_variance = NA
+    ))
+  }
+
+  group_sizes <- table(groups)
+
+  if (any(group_sizes < 2L)) {
+    rlang::abort(
+      "Each group must contain at least two non-missing observations."
+    )
+  }
+
+  centers <- tapply(
+    values,
+    groups,
+    switch(
+      center,
+      median = stats::median,
+      mean = mean
+    )
+  )
+
+  absolute_deviations <- abs(
+    values - centers[as.character(groups)]
+  )
+
+  levene_fit <- stats::lm(
+    absolute_deviations ~ groups
+  )
+
+  anova_result <- stats::anova(levene_fit)
+
+  statistic <- unname(anova_result$`F value`[[1L]])
+  p_value <- unname(anova_result$`Pr(>F)`[[1L]])
+
+  tibble::tibble(
+    levene_statistic = statistic,
+    levene_p_value = p_value,
+    levene_df_between = as.integer(anova_result$Df[[1L]]),
+    levene_df_within = as.integer(anova_result$Df[[2L]]),
+    levene_n = length(values),
+    levene_n_groups = nlevels(groups),
+    unequal_variance = p_value < alpha
+  )
+}
+
+#' @keywords internal
+.compute_levene_test <- function(
+  values,
+  groups,
+  center = c("median", "mean"),
+  alpha = 0.05
+) {
+  center <- match.arg(center)
+
+  if (!is.numeric(values)) {
+    rlang::abort("`values` must be numeric.")
+  }
+
+  if (length(values) != length(groups)) {
+    rlang::abort("`values` and `groups` must have equal lengths.")
+  }
+
+  keep <- !is.na(values) & !is.na(groups)
+
+  values <- values[keep]
+  groups <- droplevels(as.factor(groups[keep]))
+
+  if (length(values) == 0L || nlevels(groups) < 2L) {
+    return(tibble::tibble(
+      levene_statistic = NA_real_,
+      levene_p_value = NA_real_,
+      levene_df_between = NA_integer_,
+      levene_df_within = NA_integer_,
+      levene_n = length(values),
+      levene_n_groups = nlevels(groups),
+      unequal_variance = NA
+    ))
+  }
+
+  group_sizes <- table(groups)
+
+  if (any(group_sizes < 2L)) {
+    return(tibble::tibble(
+      levene_statistic = NA_real_,
+      levene_p_value = NA_real_,
+      levene_df_between = NA_integer_,
+      levene_df_within = NA_integer_,
+      levene_n = length(values),
+      levene_n_groups = nlevels(groups),
+      unequal_variance = NA
+    ))
+  }
+
+  centers <- tapply(
+    values,
+    groups,
+    switch(
+      center,
+      median = stats::median,
+      mean = mean
+    )
+  )
+
+  absolute_deviations <- abs(
+    values - centers[as.character(groups)]
+  )
+
+  fit <- stats::lm(
+    absolute_deviations ~ groups
+  )
+
+  result <- stats::anova(fit)
+  p_value <- unname(result$`Pr(>F)`[[1L]])
+
+  tibble::tibble(
+    levene_statistic = unname(result$`F value`[[1L]]),
+    levene_p_value = p_value,
+    levene_df_between = as.integer(result$Df[[1L]]),
+    levene_df_within = as.integer(result$Df[[2L]]),
+    levene_n = length(values),
+    levene_n_groups = nlevels(groups),
+    unequal_variance = p_value < alpha
+  )
+}
+
+#' @keywords internal
+.run_censored_comparison_test <- function(
+  df,
+  method,
+  compare,
+  result_col,
+  censored_col,
+  log_transform = TRUE,
+  printstat = FALSE
+) {
+  required_cols <- c(
+    compare,
+    result_col,
+    censored_col
+  )
+
+  missing_cols <- setdiff(
+    required_cols,
+    names(df)
+  )
+
+  if (length(missing_cols) > 0L) {
+    rlang::abort(
+      paste0(
+        "Missing required columns: ",
+        paste(missing_cols, collapse = ", ")
+      )
+    )
+  }
+
+  values <- df[[result_col]]
+  censored <- df[[censored_col]]
+  groups <- df[[compare]]
+
+  if (!is.numeric(values)) {
+    rlang::abort(
+      sprintf("`%s` must be numeric.", result_col)
+    )
+  }
+
+  if (!is.logical(censored)) {
+    rlang::abort(
+      sprintf("`%s` must be logical.", censored_col)
+    )
+  }
+
+  keep <- !is.na(values) &
+    !is.na(censored) &
+    !is.na(groups)
+
+  values <- values[keep]
+  censored <- censored[keep]
+  groups <- droplevels(factor(groups[keep]))
+
+  n_groups <- nlevels(groups)
+
+  if (n_groups < 2L) {
+    return(NULL)
+  }
+
+  # NADA2 expects TRUE for censored observations and FALSE for detected
+  if (anyNA(censored)) {
+    rlang::abort(
+      "The censoring indicator cannot contain missing values."
+    )
+  }
+
+  group_counts <- table(groups)
+  detected_by_group <- tapply(
+    !censored,
+    groups,
+    sum
+  )
+
+  # Require at least two observations per comparison group.
+  if (any(group_counts < 2L)) {
+    return(NULL)
+  }
+
+  # Require at least one detected observation in each group.
+  # This prevents groups composed entirely of censored values
+  # from being treated as ordinary comparison groups.
+  if (any(detected_by_group < 1L)) {
+    return(NULL)
+  }
+
+  if (sum(!censored) < 4L) {
+    return(NULL)
+  }
+
+  if (identical(method, "censored_nonparametric")) {
+    method <- if (n_groups == 2L) {
+      "cenperm2"
+    } else {
+      "cenanova"
+    }
+  }
+
+  switch(
+    method,
+
+    cenperm2 = {
+      if (n_groups != 2L) {
+        rlang::abort(
+          "`cenperm2` requires exactly two groups."
+        )
+      }
+
+      NADA2::cenperm2(
+        y1 = values,
+        y2 = censored,
+        grp = groups,
+        printstat = printstat
+      )
+    },
+
+    cenanova = .run_cenanova(
+      values = values,
+      censored = censored,
+      groups = groups,
+      log_transform = log_transform,
+      printstat = printstat
+    ),
+
+    rlang::abort(
+      sprintf(
+        "Unsupported censored comparison method: `%s`.",
+        method
+      )
+    )
   )
 }
 
@@ -3791,10 +4577,12 @@ kruskal_test.env_schema <- function(
   df,
   return_result = FALSE,
   distribution_config,
-  result_col
+  result_col,
+  censored_col
 ) {
   x <- df[[result_col]]
-  censored <- df$.censored
+
+  censored <- df[[censored_col]]
 
   keep <- !is.na(x)
 
@@ -3845,7 +4633,8 @@ kruskal_test.env_schema <- function(
   df,
   return_result,
   distribution_config,
-  result_col
+  result_col,
+  censored_col
 ) {
   df |>
     dplyr::group_modify(
@@ -3853,7 +4642,8 @@ kruskal_test.env_schema <- function(
         df = .x,
         return_result = return_result,
         distribution_config = distribution_config,
-        result_col = result_col
+        result_col = result_col,
+        censored_col = censored_col
       )
     )
 }
@@ -3979,10 +4769,116 @@ kruskal_test.env_schema <- function(
   )
 }
 
+#' @keywords internal
+#' @noRd
+.pred_int_call <- function(
+  values,
+  distribution,
+  simultaneous = FALSE,
+  method = "Bonferroni",
+  n_mean = 1,
+  k = 1,
+  m = 2,
+  r = 1,
+  rule = "k.of.m",
+  pi_type = "upper",
+  conf_level = 0.95
+) {
+  if (!is.numeric(values)) {
+    rlang::abort("Prediction-interval values must be numeric.")
+  }
+
+  if (simultaneous) {
+    rule <- match.arg(
+      rule,
+      c("k.of.m", "CA", "Modified.CA")
+    )
+
+    return(
+      switch(
+        distribution,
+
+        Normal = EnvStats::predIntNormSimultaneous(
+          x = values,
+          n.mean = n_mean,
+          k = k,
+          m = m,
+          r = r,
+          rule = rule,
+          pi.type = pi_type,
+          conf.level = conf_level
+        ),
+
+        Lognormal = EnvStats::predIntLnormSimultaneous(
+          x = values,
+          n.geomean = n_mean,
+          k = k,
+          m = m,
+          r = r,
+          rule = rule,
+          pi.type = pi_type,
+          conf.level = conf_level
+        ),
+
+        Nonparametric = EnvStats::predIntNparSimultaneous(
+          x = values,
+          n.median = n_mean,
+          k = k,
+          m = m,
+          r = r,
+          rule = rule,
+          pi.type = pi_type
+        ),
+
+        rlang::abort(
+          sprintf(
+            "Unsupported prediction-interval distribution: `%s`.",
+            distribution
+          )
+        )
+      )
+    )
+  }
+
+  switch(
+    distribution,
+
+    Normal = EnvStats::predIntNorm(
+      x = values,
+      k = k,
+      pi.type = pi_type,
+      conf.level = conf_level,
+      method = method,
+      n.mean = n_mean
+    ),
+
+    Lognormal = EnvStats::predIntLnorm(
+      x = values,
+      k = k,
+      pi.type = pi_type,
+      conf.level = conf_level,
+      method = method,
+      n.geomean = n_mean
+    ),
+
+    Nonparametric = EnvStats::predIntNpar(
+      x = values,
+      k = k,
+      pi.type = pi_type
+    ),
+
+    rlang::abort(
+      sprintf(
+        "Unsupported prediction-interval distribution: `%s`.",
+        distribution
+      )
+    )
+  )
+}
+
 #' Compute prediction intervals
 #'
 #' @keywords internal
-#'
 #' @noRd
 .compute_pred_int <- function(
   df,
@@ -3990,9 +4886,25 @@ kruskal_test.env_schema <- function(
   method = "Bonferroni",
   n_mean = 1,
   k = 1,
+  m = 1,
+  r = 1,
+  rule = "k.of.m",
   pi_type = "upper",
   conf_level = 0.95
 ) {
+  .valid_pred_int_rules <- c(
+    "k.of.m",
+    "CA",
+    "Modified.CA"
+  )
+
+  if (simultaneous) {
+    rule <- match.arg(
+      rule,
+      choices = .valid_pred_int_rules
+    )
+  }
+
   .validate_interval_distribution(df$distribution)
   .validate_est_dist_output(df)
 
@@ -4001,114 +4913,46 @@ kruskal_test.env_schema <- function(
     c("upper", "lower", "two-sided")
   )
 
-  if (
-    !is.numeric(n_mean) ||
-      length(n_mean) != 1 ||
-      is.na(n_mean) ||
-      n_mean < 1 ||
-      n_mean != as.integer(n_mean)
-  ) {
-    rlang::abort(
-      "`n_mean` must be a positive integer."
-    )
+  .validate_positive_integer(n_mean, "n_mean")
+  .validate_positive_integer(k, "k")
+
+  if (simultaneous) {
+    .validate_positive_integer(m, "m")
+    .validate_positive_integer(r, "r")
+
+    if (
+      length(rule) != 1L ||
+        !is.character(rule) ||
+        is.na(rule)
+    ) {
+      rlang::abort("`rule` must be a non-missing character scalar.")
+    }
   }
 
-  if (
-    !is.numeric(k) ||
-      length(k) != 1 ||
-      is.na(k) ||
-      k < 1 ||
-      k != as.integer(k)
-  ) {
-    rlang::abort(
-      "`k` must be a positive integer."
-    )
-  }
+  .validate_probability(conf_level, "conf_level")
 
-  if (
-    !is.numeric(conf_level) ||
-      length(conf_level) != 1 ||
-      is.na(conf_level) ||
-      conf_level <= 0 ||
-      conf_level >= 1
-  ) {
-    rlang::abort(
-      "`conf_level` must be between 0 and 1."
-    )
-  }
-
-  pred_fun <- function(data, distribution) {
-    values <- data$.analysis_result
-
-    switch(
-      distribution,
-
-      "Normal" = {
-        if (simultaneous) {
-          EnvStats::predIntNormSimultaneous(
-            x = values,
-            n.mean = n_mean,
-            k = k,
-            pi.type = pi_type,
-            conf.level = conf_level
-          )
-        } else {
-          EnvStats::predIntNorm(
-            x = values,
-            method = method,
-            n.mean = n_mean,
-            k = k,
-            pi.type = pi_type,
-            conf.level = conf_level
-          )
-        }
-      },
-
-      "Lognormal" = {
-        if (simultaneous) {
-          EnvStats::predIntLnormSimultaneous(
-            x = values,
-            n.geomean = n_mean,
-            k = k,
-            pi.type = pi_type,
-            conf.level = conf_level
-          )
-        } else {
-          EnvStats::predIntLnorm(
-            x = values,
-            method = method,
-            n.geomean = n_mean,
-            k = k,
-            pi.type = pi_type,
-            conf.level = conf_level
-          )
-        }
-      },
-
-      "Nonparametric" = {
-        if (simultaneous) {
-          EnvStats::predIntNparSimultaneous(
-            x = values,
-            pi.type = pi_type
-          )
-        } else {
-          EnvStats::predIntNpar(
-            x = values,
-            pi.type = pi_type
-          )
-        }
-      }
-    )
-  }
+  pred_int <- purrr::map2(
+    df$data,
+    df$distribution,
+    function(data, distribution) {
+      .pred_int_call(
+        values = data$.analysis_result,
+        distribution = distribution,
+        simultaneous = simultaneous,
+        method = method,
+        n_mean = n_mean,
+        k = k,
+        m = m,
+        r = r,
+        rule = rule,
+        pi_type = pi_type,
+        conf_level = conf_level
+      )
+    }
+  )
 
   df |>
-    dplyr::mutate(
-      pred_int = purrr::map2(
-        data,
-        distribution,
-        pred_fun
-      )
-    ) |>
+    dplyr::mutate(pred_int = pred_int) |>
     dplyr::mutate(
       sample_size = purrr::map_dbl(
         pred_int,
@@ -4127,153 +4971,460 @@ kruskal_test.env_schema <- function(
         ~ unname(.x$interval$limits["UPL"])
       )
     ) |>
-    dplyr::select(-data, -pred_int)
+    dplyr::select(
+      -data,
+      -pred_int
+    )
 }
 
-#' Function to calculate confidence intervals
+#' Compute one confidence interval
 #'
-#' @param df df data frame of groundwater data in tidy format
-#' @param analysis_result the analysis result column
-#' @param distribution the distribution column
-#' @param ci_type character string indicating what kind of confidence interval
-#' to compute. The possible values are ci_type="two-sided" (the default),
-#' ci_type="lower", and ci_type = "upper
-#' @param conf_level a scalar between 0 and 1 indicating the confidence level
-#' of the prediction interval. The default value is conf_level = 0.95
-#' @param method character string specifying the method of estimation.
-#' Possible values are "mvue" (minimum variance unbiased; the default),
-#' and "mle/mme" (maximum likelihood/method of moments).
-#'
-#' @examples
-#' data("gw_data")
-
-#' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
-
-#' params <- c("Sulfate, total",
-#'             "Arsenic, dissolved",
-#'             "Boron, dissolved")
-#'
-#' background <- lubridate::ymd(c("2007-12-20", "2012-01-01"), tz = "UTC")
-
-#' # first group data by location, param, and background
-#' # estimate percent less than and distribution
-#' background_data <- gw_data |>
-#'  filter(location_id %in% wells, param_name %in% params,
-#'          sample_date >= background[1] & sample_date <= background[2]) |>
-#'   group_by(location_id, param_name, default_unit) |>
-#'   percent_lt() |>
-#'   est_dist(keep_data_object = TRUE) |>
-#'   arrange(location_id, param_name)
-#'
-#' background_data |>
-#' conf_int(., ci_type = "lower", conf_level = 0.99)
-#'
-#' @export
-
-conf_int <- function(
-  df,
-  analysis_result = "analysis_result",
-  distribution = "distribution",
-  method = "mvue",
-  ci_type = "two-sided",
-  conf_level = 0.95
+#' @keywords internal
+#' @noRd
+.compute_conf_int_one <- function(
+  values,
+  distribution,
+  censored = NULL,
+  method,
+  ci_type,
+  ci_param,
+  conf_level,
+  nonparametric_args,
+  censored_args
 ) {
-  .validate_interval_distribution(
-    df$distribution
-  )
+  has_censored <- !is.null(censored) && any(censored)
 
-  conf_int <- df |>
-    mutate(
-      conf_int = case_when(
-        distribution == "Normal" ~ map(
-          .x = data,
-          ~ EnvStats::enorm(
-            x = .x$analysis_result,
-            method = method,
-            ci = TRUE,
-            ci.type = ci_type,
-            conf.level = conf_level,
-            ci.param = "mean"
-          )
-        ),
-        distribution == "Lognormal" ~ map(
-          .x = data,
-          ~ EnvStats::elnormAlt(
-            x = .x$analysis_result,
-            ci = TRUE,
-            ci.type = ci_type,
-            ci.method = "land",
-            conf.level = conf_level
-          )
-        ),
-        distribution == "Nonparametric" ~ map(
-          .x = data,
-          ~ EnvStats::eqnpar(
-            x = .x$analysis_result,
-            ci = TRUE,
-            ci.type = ci_type,
-            ci.method = "interpolate",
-            approx.conf.level = conf_level
-          )
+  if (has_censored && distribution == "Nonparametric") {
+    rlang::abort(
+      paste(
+        "Censored nonparametric confidence intervals are not",
+        "provided by this dispatcher."
+      )
+    )
+  }
+
+  if (has_censored) {
+    function_name <- switch(
+      distribution,
+      Normal = "enormCensored",
+      Lognormal = "elnormCensored",
+      rlang::abort(
+        sprintf(
+          "Censored confidence intervals are not supported for `%s`.",
+          distribution
         )
       )
     )
 
-  conf_int |>
-    mutate(
-      distribution = distribution,
-      sample_size = map(.x = conf_int, ~ .x$sample.size),
-      lcl = map(.x = conf_int, ~ round(.x$interval$limits["LCL"], 3)),
-      ucl = map(.x = conf_int, ~ .x$interval$limits["UCL"]),
-      conf_level = map(.x = conf_int, ~ .x$interval$conf.level)
-    ) |>
-    select(-data, -conf_int) |>
-    unnest()
+    if (
+      !exists(
+        function_name,
+        envir = asNamespace("EnvStats"),
+        inherits = FALSE
+      )
+    ) {
+      rlang::abort(
+        sprintf(
+          "`EnvStats::%s()` is not available in the installed EnvStats version.",
+          function_name
+        )
+      )
+    }
+
+    args <- c(
+      list(
+        x = values,
+        censored = censored,
+        method = method,
+        ci = TRUE,
+        ci.type = ci_type,
+        ci.param = ci_param,
+        conf.level = conf_level
+      ),
+      censored_args
+    )
+
+    return(
+      do.call(
+        getExportedValue("EnvStats", function_name),
+        args
+      )
+    )
+  }
+
+  switch(
+    distribution,
+
+    Normal = EnvStats::enorm(
+      x = values,
+      method = method,
+      ci = TRUE,
+      ci.type = ci_type,
+      ci.param = ci_param,
+      conf.level = conf_level
+    ),
+
+    Lognormal = EnvStats::elnorm(
+      x = values,
+      method = method,
+      ci = TRUE,
+      ci.method = "exact",
+      ci.type = ci_type,
+      ci.param = ci_param,
+      conf.level = conf_level
+    ),
+
+    Nonparametric = do.call(
+      EnvStats::eqnpar,
+      c(
+        list(
+          x = values,
+          approx.conf.level = conf_level
+        ),
+        nonparametric_args
+      )
+    ),
+
+    rlang::abort(
+      sprintf(
+        "Unsupported confidence-interval distribution: `%s`.",
+        distribution
+      )
+    )
+  )
 }
 
-#' Function to calculate prediction interval
+#' Compute confidence intervals
 #'
-#' @param df df data frame of groundwater data in tidy format
-#' @param analysis_result the analysis result column
-#' @param distribution the distribution column
-#' @param n_mean n.mean positive integer specifying the sample size associated
-#' with the future averages.
-#' The default value is n.mean=1 (i.e., individual observations).
-#' Note that all future averages must be based on the same sample size.
-#' @param k k positive integer specifying the number of future observations or
-#' averages the prediction interval should contain with confidence level
-#' conf.level. The default value is k=1.
-#' @param method default is "Bonferroni"
-#' @param pi_type character string indicating what kind of prediction interval
-#' to compute. The possible values are pi_type="two-sided" (the default),
-#' pi_type="upper", and pi_type="lower".
-#' @param conf_level a scalar between 0 and 1 indicating the confidence level
-#' of the prediction interval. The default value is conf.level=0.95
+#' @keywords internal
+#' @noRd
+.compute_conf_int <- function(
+  df,
+  method = "mvue",
+  ci_type = "lower",
+  ci_param = "mean",
+  conf_level = 0.95,
+  nonparametric_args = list(
+    p = 0.5,
+    type = 7,
+    lcl.rank = NULL,
+    ucl.rank = NULL,
+    lb = -Inf,
+    ub = Inf,
+    ci.method = "interpolate",
+    min.coverage = TRUE,
+    tol = 0
+  ),
+  censored_col = NULL,
+  censored_args = list(
+    censoring.side = "left"
+  ),
+  analysis_result = ".analysis_result"
+) {
+  .validate_est_dist_output(df)
+
+  if (!distribution %in% names(df)) {
+    rlang::abort("The input must contain a `distribution` column.")
+  }
+
+  if (
+    !is.character(analysis_result) ||
+      length(analysis_result) != 1L
+  ) {
+    rlang::abort("`analysis_result` must be a column name.")
+  }
+
+  .validate_conf_int_args(
+    conf_level = conf_level,
+    ci_type = ci_type,
+    ci_param = ci_param,
+    nonparametric_args = nonparametric_args,
+    censored_args = censored_args
+  )
+
+  if (
+    !is.null(censored_col) &&
+      !all(vapply(
+        df$data,
+        function(x) censored_col %in% names(x),
+        logical(1)
+      ))
+  ) {
+    rlang::abort(
+      sprintf(
+        "Column `%s` was not found in every nested data frame.",
+        censored_col
+      )
+    )
+  }
+
+  conf_int <- purrr::map2(
+    df$data,
+    df$distribution,
+    function(data, selected_distribution) {
+      values <- data[[analysis_result]]
+
+      censored <- if (is.null(censored_col)) {
+        NULL
+      } else {
+        data[[censored_col]]
+      }
+
+      keep <- !is.na(values)
+
+      values <- values[keep]
+
+      if (!is.null(censored)) {
+        censored <- censored[keep]
+
+        if (!is.logical(censored)) {
+          rlang::abort(
+            sprintf(
+              "`%s` must be logical.",
+              censored_col
+            )
+          )
+        }
+
+        if (anyNA(censored)) {
+          rlang::abort(
+            sprintf(
+              "`%s` cannot contain missing values.",
+              censored_col
+            )
+          )
+        }
+      }
+
+      .compute_conf_int_one(
+        values = values,
+        distribution = selected_distribution,
+        censored = censored,
+        method = method,
+        ci_type = ci_type,
+        ci_param = ci_param,
+        conf_level = conf_level,
+        nonparametric_args = nonparametric_args,
+        censored_args = censored_args
+      )
+    }
+  )
+
+  df |>
+    dplyr::mutate(
+      .conf_int = conf_int,
+      sample_size = purrr::map_dbl(
+        .conf_int,
+        ~ .x$sample.size
+      ),
+      conf_level = purrr::map_dbl(
+        .conf_int,
+        ~ .x$interval$conf.level
+      ),
+      lcl = purrr::map_dbl(
+        .conf_int,
+        ~ unname(.x$interval$limits["LCL"])
+      ),
+      ucl = purrr::map_dbl(
+        .conf_int,
+        ~ unname(.x$interval$limits["UCL"])
+      )
+    ) |>
+    dplyr::select(
+      -data,
+      -.conf_int
+    )
+}
+
+#' Calculate confidence intervals
+#'
+#' Calculates confidence intervals for each distribution-estimation result in
+#' `df`. Normal, Lognormal, and Nonparametric distributions are dispatched to
+#' the corresponding EnvStats estimation function. Censored Normal and
+#' Lognormal data are dispatched to the corresponding censored-data method
+#' when `censored_col` identifies censored observations.
+#'
+#' The input must be generated by [est_dist()] with
+#' `keep_data_object = TRUE`.
+#'
+#' @param df A data frame returned by [est_dist()] with
+#'   `keep_data_object = TRUE`.
+#' @param method Character string specifying the estimation method passed to
+#'   EnvStats.
+#' @param ci_type Character string specifying the confidence-interval type.
+#'   Supported values are `"two-sided"`, `"upper"`, and `"lower"`.
+#' @param ci_param Character string specifying the parameter for which the
+#'   interval is calculated, such as `"mean"`, `"median"`, `"quantile"`, or
+#'   `"geometric.mean"`, depending on the selected EnvStats function.
+#' @param conf_level A scalar between 0 and 1 specifying the confidence level.
+#' @param analysis_result Character scalar giving the name of the result column
+#'   inside each nested data frame.
+#' @param censored_col Optional character scalar giving the name of a logical
+#'   censoring-indicator column inside each nested data frame. `TRUE` identifies
+#'   a censored observation.
+#' @param censored_args Named list of additional arguments passed to the
+#'   censored EnvStats function. For left-censored groundwater data, use
+#'   `list(censoring.side = "left")`.
+#' @param nonparametric_args Named list of additional arguments passed to
+#'   [EnvStats::eqnpar()].
+#'
+#' @return A data frame containing the grouping columns from `df`, the
+#'   estimated distribution, sample size, confidence level, and confidence
+#'   limits:
+#'   \itemize{
+#'     \item `lcl`: lower confidence limit;
+#'     \item `ucl`: upper confidence limit;
+#'     \item `sample_size`: number of observations used;
+#'     \item `conf_level`: confidence level.
+#'   }
+#'
+#' @seealso [est_dist()], [tol_int()],
+#'   [EnvStats::enorm()], [EnvStats::elnorm()], [EnvStats::eqnpar()]
 #'
 #' @examples
+#' \donttest{
+#' data("gw_data")
+#'
+#' background_data <- gw_data |>
+#'   dplyr::filter(
+#'     location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4"),
+#'     param_name %in% c(
+#'       "Sulfate, total",
+#'       "Arsenic, dissolved",
+#'       "Boron, dissolved"
+#'     ),
+#'     sample_date >= lubridate::ymd("2007-12-20"),
+#'     sample_date <= lubridate::ymd("2012-01-01")
+#'   ) |>
+#'   dplyr::group_by(
+#'     location_id,
+#'     param_name,
+#'     default_unit
+#'   ) |>
+#'   percent_lt() |>
+#'   est_dist(keep_data_object = TRUE)
+#'
+#' conf_int(
+#'   background_data,
+#'   ci_type = "upper",
+#'   ci_param = "mean",
+#'   conf_level = 0.99
+#' )
+#' }
+#'
+#' @export
+conf_int <- function(
+  df,
+  method = "mvue",
+  ci_type = "lower",
+  ci_param = "mean",
+  conf_level = 0.95,
+  analysis_result = ".analysis_result",
+  censored_col = NULL,
+  censored_args = list(
+    censoring.side = "left"
+  ),
+  nonparametric_args = list(
+    p = 0.5,
+    type = 7,
+    lcl.rank = NULL,
+    ucl.rank = NULL,
+    lb = -Inf,
+    ub = Inf,
+    ci.method = "interpolate",
+    min.coverage = TRUE,
+    tol = 0
+  )
+) {
+  .validate_interval_distribution(df$distribution)
+
+  .compute_conf_int(
+    df = df,
+    method = method,
+    ci_type = ci_type,
+    ci_param = ci_param,
+    conf_level = conf_level,
+    analysis_result = analysis_result,
+    censored_col = censored_col,
+    censored_args = censored_args,
+    nonparametric_args = nonparametric_args
+  )
+}
+
+#' Calculate prediction intervals
+#'
+#' Calculates prediction intervals for each distribution-estimation result in
+#' `df`. Normal, Lognormal, and Nonparametric distributions are dispatched to
+#' the corresponding EnvStats prediction-interval function.
+#'
+#' The input must be generated by [est_dist()] with
+#' `keep_data_object = TRUE`.
+#'
+#' @param df A data frame returned by [est_dist()] with
+#'   `keep_data_object = TRUE`.
+#' @param method Character string specifying the method used to calculate a
+#'   parametric prediction interval. The value is passed to
+#'   [EnvStats::predIntNorm()] or [EnvStats::predIntLnorm()].
+#' @param n_mean Positive integer specifying the number of observations used to
+#'   calculate each future mean or geometric mean. The default, `1`, calculates
+#'   an interval for individual future observations.
+#' @param k Positive integer specifying the number of future observations or
+#'   means the interval should contain.
+#' @param pi_type Character string specifying the interval type. Supported
+#'   values are `"two-sided"`, `"upper"`, and `"lower"`.
+#' @param conf_level A scalar between 0 and 1 specifying the confidence level.
+#'
+#' @return A data frame containing the grouping columns from `df`, the
+#'   estimated distribution, sample size, confidence level, and prediction
+#'   limits:
+#'   \itemize{
+#'     \item `lpl`: lower prediction limit;
+#'     \item `upl`: upper prediction limit;
+#'     \item `sample_size`: number of observations used;
+#'     \item `conf_level`: confidence level.
+#'   }
+#'
+#' @seealso [pred_int_sim()], [est_dist()],
+#'   [EnvStats::predIntNorm()], [EnvStats::predIntLnorm()],
+#'   [EnvStats::predIntNpar()]
+#'
+#' @examples
+#' \donttest{
 #' data("gw_data")
 #'
 #' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
+#' params <- c(
+#'   "Sulfate, total",
+#'   "Arsenic, dissolved",
+#'   "Boron, dissolved"
+#' )
 #'
-#' params <- c("Sulfate, total",
-#'             "Arsenic, dissolved",
-#'             "Boron, dissolved")
+#' background <- lubridate::ymd(
+#'   c("2007-12-20", "2012-01-01"),
+#'   tz = "UTC"
+#' )
 #'
-#' background <- lubridate::ymd(c("2007-12-20", "2012-01-01"), tz = "UTC")
-#'
-#' # first group data by location, param, and background
-#' # estimate percent less than and distribution
 #' background_data <- gw_data |>
-#'  filter(location_id %in% wells, param_name %in% params,
-#'          sample_date >= background[1] & sample_date <= background[2]) |>
-#'   group_by(location_id, param_name, default_unit) |>
+#'   dplyr::filter(
+#'     location_id %in% wells,
+#'     param_name %in% params,
+#'     sample_date >= background[1],
+#'     sample_date <= background[2]
+#'   ) |>
+#'   dplyr::group_by(
+#'     location_id,
+#'     param_name,
+#'     default_unit
+#'   ) |>
 #'   percent_lt() |>
-#'   est_dist(keep_data_object = TRUE) |>
-#'   arrange(location_id, param_name)
+#'   est_dist(keep_data_object = TRUE)
 #'
-#' background_data |>
-#' pred_int(., pi_type = "upper", conf_level = 0.99)
-#'
+#' pred_int(
+#'   background_data,
+#'   pi_type = "upper",
+#'   conf_level = 0.99
+#' )
+#' }
 #'
 #' @export
 pred_int <- function(
@@ -4284,10 +5435,6 @@ pred_int <- function(
   pi_type = "upper",
   conf_level = 0.95
 ) {
-  .validate_interval_distribution(
-    df$distribution
-  )
-
   .compute_pred_int(
     df = df,
     simultaneous = FALSE,
@@ -4299,163 +5446,443 @@ pred_int <- function(
   )
 }
 
-#' Function to calculate simultaneous prediction interval
+#' Calculate simultaneous prediction intervals
 #'
-#' @param df df data frame of groundwater data in tidy format
-#' @param analysis_result the analysis result column
-#' @param distribution the distribution column
-#' @param n_mean n.mean positive integer specifying the sample size associated
-#' with the future averages.
-#' The default value is n.mean=1 (i.e., individual observations).
-#' Note that all future averages must be based on the same sample size.
-#' @param k k positive integer specifying the number of future observations or
-#' averages the prediction interval should contain with confidence level
-#' conf.level. The default value is k=1.
-#' @param m m if m = 1, then same results as predInt
-#' @param r r
-#' @param rule rule "k.of.m"
-#' @param pi_type character string indicating what kind of prediction interval
-#' to compute. The possible values are pi_type="upper" (the default),
-#' and pi_type="lower".
-#' @param conf_level a scalar between 0 and 1 indicating the confidence level
-#' of the prediction interval. The default value is conf.level=0.95
+#' Calculates simultaneous prediction intervals for each
+#' distribution-estimation result in `df`. The calculation is delegated to the
+#' corresponding EnvStats simultaneous prediction-interval function.
+#'
+#' The input must be generated by [est_dist()] with
+#' `keep_data_object = TRUE`.
+#'
+#' @param df A data frame returned by [est_dist()] with
+#'   `keep_data_object = TRUE`.
+#' @param n_mean Positive integer specifying the number of observations used to
+#'   calculate each future mean or geometric mean.
+#' @param k Positive integer specifying the number of future observations or
+#'   means in each future set.
+#' @param m Positive integer specifying the number of future sets.
+#' @param r Positive integer specifying the number of future sets that must be
+#'   covered when using an `r.of.m` coverage rule.
+#' @param rule Character string specifying the simultaneous-coverage rule
+#'   accepted by EnvStats, such as `"all.of.m"` or `"r.of.m"`.
+#' @param pi_type Character string specifying the interval type. Supported
+#'   values are `"two-sided"`, `"upper"`, and `"lower"`.
+#' @param conf_level A scalar between 0 and 1 specifying the confidence level.
+#'
+#' @return A data frame containing the grouping columns from `df`, the
+#'   estimated distribution, sample size, confidence level, and simultaneous
+#'   prediction limits.
+#'
+#' @seealso [pred_int()], [est_dist()],
+#'   [EnvStats::predIntNormSimultaneous()],
+#'   [EnvStats::predIntLnormSimultaneous()],
+#'   [EnvStats::predIntNparSimultaneous()]
 #'
 #' @examples
+#' \donttest{
 #' data("gw_data")
 #'
-#' wells <- c("MW-1", "MW-2", "MW-3", "MW-4")
-#'
-#' params <- c("Sulfate, total",
-#'             "Arsenic, dissolved",
-#'             "Boron, dissolved")
-#'
-#' background <- lubridate::ymd(c("2007-12-20", "2012-01-01"), tz = "UTC")
-#'
-#' # first group data by location, param, and background
-#' # estimate percent less than and distribution
 #' background_data <- gw_data |>
-#'  filter(location_id %in% wells, param_name %in% params,
-#'          sample_date >= background[1] & sample_date <= background[2]) |>
-#'   group_by(location_id, param_name, default_unit) |>
+#'   dplyr::filter(
+#'     location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4"),
+#'     param_name %in% c(
+#'       "Sulfate, total",
+#'       "Arsenic, dissolved",
+#'       "Boron, dissolved"
+#'     ),
+#'     sample_date >= lubridate::ymd("2007-12-20"),
+#'     sample_date <= lubridate::ymd("2012-01-01")
+#'   ) |>
+#'   dplyr::group_by(
+#'     location_id,
+#'     param_name,
+#'     default_unit
+#'   ) |>
 #'   percent_lt() |>
-#'   est_dist(., keep_data_object = TRUE) |>
-#'   arrange(location_id, param_name)
+#'   est_dist(keep_data_object = TRUE)
 #'
-#' background_data |>
-#' pred_int_sim(pi_type = "upper", conf_level = 0.99)
+#' pred_int_sim(
+#'   background_data,
+#'   k = 1,
+#'   m = 4,
+#'   r = 4,
+#'   rule = "r.of.m",
+#'   pi_type = "upper",
+#'   conf_level = 0.99
+#' )
+#' }
 #'
 #' @export
-
 pred_int_sim <- function(
   df,
   n_mean = 1,
   k = 1,
+  m = 2,
+  r = 1,
+  rule = "k.of.m",
   pi_type = "upper",
   conf_level = 0.95
 ) {
-  .validate_interval_distribution(
-    df$distribution
-  )
-
   .compute_pred_int(
     df = df,
     simultaneous = TRUE,
     n_mean = n_mean,
     k = k,
+    m = m,
+    r = r,
+    rule = rule,
     pi_type = pi_type,
     conf_level = conf_level
   )
 }
 
-#' Function to calculate tolernace intervals
+#' Calculate tolerance intervals
 #'
-#' @param df df data frame of groundwater data in tidy format
-#' @param analysis_result the analysis result column
-#' @param distribution the distribution column
-#' @param coverage a scalar between 0 and 1 indicating the desired coverage of
-#' the tolerance interval. The default value is coverage=0.95.
-#' If cov.type="expectation", this argument is ignored
-#' @param cov_type character string specifying the coverage type for the
-#' tolerance interval. The possible values are "content"
-#' (β-content; the default), and "expectation" (β-expectation).
-#' @param method for the case of a two-sided tolerance interval, a character
-#' string specifying the method for constructing the tolerance interval.
-#' This argument is ignored if ti.type="lower" or ti.type="upper".
-#' The possible values are "exact" (the default) and
-#' "wald.wolfowitz" (the Wald-Wolfowitz approximation).
-#' @param ti_type character string indicating what kind of tolerance interval
-#' to compute. The possible values are ti_type="two-sided",
-#' ti_type="upper", and ti_type="lower" (the default).
-#' @param conf_level a scalar between 0 and 1 indicating the confidence level
-#' of the tolerance interval. The default value is conf.level=0.95
-#' @param est_method for tolIntLnormAlt, a character string specifying the
-#' method of estimating the mean and coefficient of variation.
-#' This argument has no effect on the method of constructing the
-#' tolerance interval. Possible values are "mvue" (minimum variance unbiased;
-#' the default), "qmle" (quasi maximum likelihood), "mle" (maximum likelihood),
-#'  "mme" (method of moments), and "mmue" (method of moments based on the
-#'  unbiased estimate of variance).
+#' Calculates tolerance intervals for each distribution-estimation result in
+#' `df`. Uncensored observations are dispatched to the corresponding EnvStats
+#' tolerance-interval function. When `censored_col` is supplied and contains
+#' censored observations, the appropriate censored EnvStats function is used
+#' when available.
+#'
+#' The input must be generated by [est_dist()] with
+#' `keep_data_object = TRUE`.
+#'
+#' @param df A data frame returned by [est_dist()] with
+#'   `keep_data_object = TRUE`.
+#' @param analysis_result Character scalar giving the name of the result column
+#'   inside each nested data frame.
+#' @param distribution Character scalar giving the name of the distribution
+#'   column in `df`.
+#' @param censored_col Optional character scalar giving the name of a logical
+#'   censoring-indicator column inside each nested data frame. `TRUE` identifies
+#'   a censored observation.
+#' @param coverage A scalar between 0 and 1 specifying the desired population
+#'   coverage. For `cov_type = "expectation"`, EnvStats may ignore this
+#'   argument.
+#' @param cov_type Coverage type. Supported values are `"content"` and
+#'   `"expectation"`.
+#' @param ti_type Tolerance-interval type. Supported values are `"two-sided"`,
+#'   `"upper"`, and `"lower"`.
+#' @param method Character string specifying the method used for parametric
+#'   tolerance intervals.
+#' @param conf_level A scalar between 0 and 1 specifying the confidence level
+#'   of the tolerance interval.
+#' @param censoring_side Character string specifying the censoring direction
+#'   passed to EnvStats. Use `"left"` for typical groundwater nondetect data.
+#'
+#' @return A data frame containing the grouping columns from `df`, the
+#'   estimated distribution, sample size, confidence level, and tolerance
+#'   limits:
+#'   \itemize{
+#'     \item `ltl`: lower tolerance limit;
+#'     \item `utl`: upper tolerance limit;
+#'     \item `sample_size`: number of observations used;
+#'     \item `conf_level`: confidence level.
+#'   }
+#'
+#' @seealso [est_dist()], [conf_int()],
+#'   [EnvStats::tolIntNorm()], [EnvStats::tolIntLnorm()],
+#'   [EnvStats::tolIntNpar()], [EnvStats::tolIntNormCensored()]
+#'
+#' @examples
+#' \donttest{
+#' data("gw_data")
+#'
+#' background_data <- gw_data |>
+#'   dplyr::filter(
+#'     location_id %in% c("MW-1", "MW-2", "MW-3", "MW-4"),
+#'     param_name %in% c(
+#'       "Sulfate, total",
+#'       "Arsenic, dissolved",
+#'       "Boron, dissolved"
+#'     ),
+#'     sample_date >= lubridate::ymd("2007-12-20"),
+#'     sample_date <= lubridate::ymd("2012-01-01")
+#'   ) |>
+#'   dplyr::group_by(
+#'     location_id,
+#'     param_name,
+#'     default_unit
+#'   ) |>
+#'   percent_lt() |>
+#'   est_dist(keep_data_object = TRUE)
+#'
+#' tol_int(
+#'   background_data,
+#'   coverage = 0.95,
+#'   cov_type = "content",
+#'   ti_type = "upper",
+#'   conf_level = 0.99
+#' )
+#' }
 #'
 #' @export
-
 tol_int <- function(
   df,
   analysis_result = "analysis_result",
   distribution = "distribution",
+  censored_col = NULL,
   coverage = 0.95,
   cov_type = "content",
   ti_type = "two-sided",
-  method = "exact"
+  method = "exact",
+  conf_level = 0.95,
+  censoring_side = "left"
 ) {
-  .validate_interval_distribution(
-    df$distribution
+  required_cols <- c(
+    analysis_result,
+    distribution,
+    censored_col
   )
 
-  tol_int <- df |>
-    mutate(
-      tol_int = case_when(
-        distribution == "Normal" ~ map(
-          .x = data,
-          ~ EnvStats::tolIntNorm(
-            x = .x$analysis_result,
-            coverage = coverage,
-            cov.type = cov_type,
-            ti.type = ti_type,
-            method = method
+  missing_cols <- setdiff(
+    required_cols,
+    names(df)
+  )
+
+  if (length(missing_cols) > 0L) {
+    rlang::abort(
+      paste0(
+        "Missing required columns: ",
+        paste(missing_cols, collapse = ", ")
+      )
+    )
+  }
+
+  if (!is.character(df[[distribution]])) {
+    rlang::abort(
+      sprintf("`%s` must be a character column.", distribution)
+    )
+  }
+
+  .validate_interval_distribution(
+    df[[distribution]]
+  )
+
+  if (
+    !is.numeric(coverage) ||
+      length(coverage) != 1L ||
+      is.na(coverage) ||
+      coverage <= 0 ||
+      coverage >= 1
+  ) {
+    rlang::abort("`coverage` must be between 0 and 1.")
+  }
+
+  if (
+    !is.numeric(conf_level) ||
+      length(conf_level) != 1L ||
+      is.na(conf_level) ||
+      conf_level <= 0 ||
+      conf_level >= 1
+  ) {
+    rlang::abort("`conf_level` must be between 0 and 1.")
+  }
+
+  cov_type <- rlang::arg_match0(
+    cov_type,
+    c("content", "expectation")
+  )
+
+  ti_type <- rlang::arg_match0(
+    ti_type,
+    c("two-sided", "upper", "lower")
+  )
+
+  if (!is.null(censored_col)) {
+    if (!is.logical(df$data[[1L]][[censored_col]])) {
+      rlang::abort(
+        sprintf("`%s` must be logical.", censored_col)
+      )
+    }
+  }
+
+  tolerance_results <- purrr::map2(
+    df$data,
+    df[[distribution]],
+    function(data, selected_distribution) {
+      values <- data[[analysis_result]]
+
+      censored <- if (is.null(censored_col)) {
+        NULL
+      } else {
+        data[[censored_col]]
+      }
+
+      keep <- !is.na(values)
+
+      values <- values[keep]
+
+      if (!is.null(censored)) {
+        censored <- censored[keep]
+
+        if (anyNA(censored)) {
+          rlang::abort(
+            sprintf(
+              "`%s` cannot contain missing values.",
+              censored_col
+            )
           )
-        ),
-        distribution == "Lognormal" ~ map(
-          .x = data,
-          ~ EnvStats::tolIntLnorm(
-            x = .x$analysis_result,
-            coverage = coverage,
-            cov.type = cov_type,
-            ti.type = ti_type,
-            method = method
+        }
+      }
+
+      .tol_int_call(
+        values = values,
+        censored = censored,
+        distribution = selected_distribution,
+        coverage = coverage,
+        cov_type = cov_type,
+        ti_type = ti_type,
+        method = method,
+        conf_level = conf_level,
+        censoring_side = censoring_side
+      )
+    }
+  )
+
+  df |>
+    dplyr::mutate(
+      .tol_int = tolerance_results,
+      sample_size = purrr::map_dbl(
+        .tol_int,
+        ~ .x$sample.size
+      ),
+      ltl = purrr::map_dbl(
+        .tol_int,
+        ~ unname(.x$interval$limits["LTL"])
+      ),
+      utl = purrr::map_dbl(
+        .tol_int,
+        ~ unname(.x$interval$limits["UTL"])
+      ),
+      conf_level = purrr::map_dbl(
+        .tol_int,
+        ~ .x$interval$conf.level
+      )
+    ) |>
+    dplyr::select(
+      -data,
+      -.tol_int
+    )
+}
+
+#' Dispatch a tolerance-interval calculation
+#'
+#' @keywords internal
+#' @noRd
+.tol_int_call <- function(
+  values,
+  censored = NULL,
+  distribution,
+  coverage,
+  cov_type,
+  ti_type,
+  method,
+  conf_level,
+  censoring_side = "left"
+) {
+  is_censored <- !is.null(censored) && any(censored)
+
+  if (is_censored) {
+    args <- list(
+      x = values,
+      censored = censored,
+      censoring.side = censoring_side,
+      coverage = coverage,
+      cov.type = cov_type,
+      ti.type = ti_type,
+      conf.level = conf_level
+    )
+
+    fun <- switch(
+      distribution,
+
+      Normal = {
+        args$method <- method
+        EnvStats::tolIntNormCensored
+      },
+
+      Lognormal = {
+        if (
+          !exists(
+            "tolIntLnormCensored",
+            envir = asNamespace("EnvStats"),
+            inherits = FALSE
           )
-        ),
-        distribution == "Nonparametric" ~ map(
-          .x = data,
-          ~ EnvStats::tolIntNpar(
-            x = .x$analysis_result,
-            coverage = coverage,
-            cov.type = cov_type,
-            ti.type = ti_type
+        ) {
+          rlang::abort(
+            paste0(
+              "`EnvStats::tolIntLnormCensored()` is not available ",
+              "in the installed version of EnvStats."
+            )
           )
+        }
+
+        args$method <- method
+        EnvStats::tolIntLnormCensored
+      },
+
+      Nonparametric = {
+        if (
+          !exists(
+            "tolIntNparCensored",
+            envir = asNamespace("EnvStats"),
+            inherits = FALSE
+          )
+        ) {
+          rlang::abort(
+            paste0(
+              "Censored nonparametric tolerance intervals are not ",
+              "available in the installed version of EnvStats."
+            )
+          )
+        }
+
+        EnvStats::tolIntNparCensored
+      },
+
+      rlang::abort(
+        sprintf(
+          "Unsupported tolerance-interval distribution: `%s`.",
+          distribution
         )
       )
     )
+  } else {
+    args <- list(
+      x = values,
+      coverage = coverage,
+      cov.type = cov_type,
+      ti.type = ti_type,
+      conf.level = conf_level
+    )
 
-  tol_int |>
-    mutate(
-      distribution = distribution,
-      sample_size = map(.x = tol_int, ~ .x$sample.size),
-      ltl = map(.x = tol_int, ~ .x$interval$limits["LTL"]),
-      utl = map(.x = tol_int, ~ .x$interval$limits["UTL"]),
-      conf_level = map(.x = tol_int, ~ .x$interval$conf.level)
-    ) |>
-    select(-data, -tol_int) |>
-    unnest()
+    fun <- switch(
+      distribution,
+
+      Normal = {
+        args$method <- method
+        EnvStats::tolIntNorm
+      },
+
+      Lognormal = {
+        args$method <- method
+        EnvStats::tolIntLnorm
+      },
+
+      Nonparametric = EnvStats::tolIntNpar,
+
+      rlang::abort(
+        sprintf(
+          "Unsupported tolerance-interval distribution: `%s`.",
+          distribution
+        )
+      )
+    )
+  }
+
+  do.call(fun, args)
 }
 
 #' Function to update background data
@@ -4524,31 +5951,4 @@ update_background <- function(
   )
 
   output
-}
-
-#' @keywords internal
-.validate_interval_distribution <- function(distribution) {
-  supported <- c(
-    "Normal",
-    "Lognormal",
-    "Nonparametric"
-  )
-
-  bad <- setdiff(
-    unique(stats::na.omit(distribution)),
-    supported
-  )
-
-  if (length(bad) > 0) {
-    rlang::abort(
-      paste(
-        "Intervals are only available for:",
-        paste(supported, collapse = ", "),
-        "\nUnsupported distribution(s):",
-        paste(bad, collapse = ", ")
-      )
-    )
-  }
-
-  invisible(distribution)
 }

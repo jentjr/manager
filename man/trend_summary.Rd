@@ -21,7 +21,8 @@ trend_summary(df, ...)
 
 \method{trend_summary}{env_schema}(
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
+  censored_col = NULL,
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95,
@@ -126,6 +127,7 @@ confidence interval cannot be estimated, `conf_low` and `conf_high`
 are returned as `NA`.
 }
 \section{env_schema Method}{
+
 
 For `env_schema` objects, `trend_summary()` automatically uses
 the schema mappings and standardized analytical fields:

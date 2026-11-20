@@ -1,3 +1,79 @@
+#' @keywords internal
+.register_environmental_units <- function() {
+  definitions <- list(
+    mV = "1e-3 V",
+    NTU = "unitless",
+    pCi = "0.037 Bq"
+  )
+
+  for (symbol in names(definitions)) {
+    is_installed <- tryCatch(
+      {
+        units::as_units(symbol)
+        TRUE
+      },
+      error = function(e) FALSE
+    )
+
+    if (!is_installed) {
+      units::install_unit(
+        symbol = symbol,
+        def = definitions[[symbol]]
+      )
+    }
+  }
+
+  invisible(TRUE)
+}
+
+#' @keywords internal
+.convert_value_columns <- function(
+  df,
+  value_cols,
+  from_unit_col,
+  to_unit_col
+) {
+  .validate_required_cols(
+    df,
+    c(value_cols, from_unit_col, to_unit_col)
+  )
+
+  from_unit <- .normalize_unit(df[[from_unit_col]])
+  to_unit <- .normalize_unit(df[[to_unit_col]])
+
+  conversion_groups <- df |>
+    dplyr::transmute(
+      .from_unit = from_unit,
+      .to_unit = to_unit
+    ) |>
+    dplyr::distinct() |>
+    dplyr::filter(
+      !is.na(.from_unit),
+      !is.na(.to_unit),
+      .from_unit != .to_unit
+    )
+
+  for (i in seq_len(nrow(conversion_groups))) {
+    from <- conversion_groups$.from_unit[i]
+    to <- conversion_groups$.to_unit[i]
+
+    idx <- !is.na(from_unit) &
+      !is.na(to_unit) &
+      from_unit == from &
+      to_unit == to
+
+    for (col in value_cols) {
+      df[[col]][idx] <- .safe_convert_units(
+        value = df[[col]][idx],
+        from_unit = from,
+        to_unit = to
+      )
+    }
+  }
+
+  df
+}
+
 #' Normalize analytical units
 #'
 #' Normalizes analytical units to canonical UDUNITS-2-compatible strings.
@@ -8,7 +84,11 @@
 #'
 #' @noRd
 .normalize_unit <- function(x) {
-  x <- as.character(x)
+  if (!is.character(x)) {
+    x <- as.character(x)
+  }
+
+  missing <- is.na(x)
 
   # Normalize whitespace and Unicode micro symbols.
   x <- x |>
@@ -18,11 +98,23 @@
     stringr::str_replace_all("\\s+", " ") |>
     stringr::str_to_lower()
 
-  # Temperature.
+  # Values used by some source systems to indicate that the value is
+  # reported in the standard unit, rather than specifying a physical unit.
+  standard_unit_sentinels <- c(
+    "std",
+    "standard",
+    "standard unit",
+    "standardized",
+    "same as standard"
+  )
+
+  x[x %in% standard_unit_sentinels] <- NA_character_
+
+  # Temperature aliases.
   x <- stringr::str_replace_all(
     x,
     stringr::regex(
-      "^(?:\u00B0\\s*c|deg\\s*c|degrees?\\s+celsius|celsius)$",
+      "^(?:°\\s*c|deg\\s*c|degrees?\\s+(?:c|celsius)|celsius)$",
       ignore_case = TRUE
     ),
     "degC"
@@ -39,7 +131,6 @@
   )
 
   # Microsiemens or micromhos per centimeter.
-  # 1 micromho = 1 microsiemens.
   x <- stringr::str_replace_all(
     x,
     stringr::regex(
@@ -68,94 +159,201 @@
     "uS"
   )
 
+  # Restore canonical case-sensitive symbols registered with {units}.
+  # This must occur after str_to_lower().
+  canonical_units <- c(
+    "mv" = "mV",
+    "ntu" = "NTU",
+    "pci" = "pCi",
+    "pci/l" = "pCi/L"
+  )
+
+  matched <- !is.na(x) & x %in% names(canonical_units)
+  x[matched] <- unname(canonical_units[x[matched]])
+
+  x[missing] <- NA_character_
+  x[stringr::str_length(x) == 0L] <- NA_character_
+
   x
 }
 
-#' Standardize env_schema analytical results
+#' Standardize env_schema analytical results and limits
 #'
-#' Converts .analysis_result values to analyte-specific
-#' standard reporting units and updates .analysis_unit.
+#' Converts analytical results and mapped detection/reporting limits
+#' to analyte-specific standard units.
 #'
-#' Original laboratory values are preserved in
-#' .original_lab_result and .original_lab_unit.
-#'
-#' @param df Data frame containing schema analyte metadata.
-#'
-#' @returns Data frame.
+#' Missing source units are assumed to be the analyte lookup standard
+#' unit and are reported with an informational message.
 #'
 #' @keywords internal
-.standardize_schema_results <- function(df) {
+.standardize_schema_results <- function(
+  df,
+  env_mapping = NULL
+) {
   if (!".std_unit" %in% names(df)) {
     return(df)
   }
 
-  required_cols <- c(
-    ".analysis_result",
-    ".analysis_unit",
-    ".std_unit"
-  )
-
   .validate_required_cols(
     df,
-    required_cols
-  )
-
-  df$.analysis_unit <- .normalize_unit(
-    df$.analysis_unit
-  )
-
-  df$.std_unit <- .normalize_unit(
-    df$.std_unit
-  )
-
-  conversion_groups <- df |>
-    dplyr::filter(
-      !is.na(.std_unit)
-    ) |>
-    dplyr::distinct(
-      .analysis_unit,
-      .std_unit
+    c(
+      ".analysis_result",
+      ".analysis_unit",
+      ".std_unit"
     )
+  )
 
-  for (i in seq_len(nrow(conversion_groups))) {
-    from_unit <- conversion_groups$.analysis_unit[i]
-    to_unit <- conversion_groups$.std_unit[i]
-
-    if (identical(from_unit, to_unit)) {
-      next
-    }
-
-    if (
-      is.na(from_unit) ||
-        is.na(to_unit)
-    ) {
-      next
-    }
-
-    idx <-
-      !is.na(df$.analysis_unit) &
-      !is.na(df$.std_unit) &
-      df$.analysis_unit == from_unit &
-      df$.std_unit == to_unit
-
-    if (!any(idx)) {
-      next
-    }
-
-    df$.analysis_result[idx] <-
-      .safe_convert_units(
-        value = df$.analysis_result[idx],
-        from_unit = from_unit,
-        to_unit = to_unit
-      )
+  if (!is.numeric(df$.analysis_result)) {
+    rlang::abort("`.analysis_result` must be numeric.")
   }
 
-  df$.analysis_unit <- dplyr::coalesce(
-    df$.std_unit,
-    df$.analysis_unit
+  df$.analysis_unit <- .normalize_unit(df$.analysis_unit)
+  df$.std_unit <- .normalize_unit(df$.std_unit)
+
+  if (!".original_lab_result" %in% names(df)) {
+    df$.original_lab_result <- df$.analysis_result
+  }
+
+  if (!".original_lab_unit" %in% names(df)) {
+    df$.original_lab_unit <- df$.analysis_unit
+  }
+
+  # Standardize the analytical result first. This establishes the
+  # final unit used by all limit columns below.
+  result <- .standardize_schema_value(
+    value = df$.analysis_result,
+    source_unit = df$.analysis_unit,
+    standard_unit = df$.std_unit,
+    analyte = df$.analyte_id,
+    value_label = "analytical result"
   )
 
+  df$.analysis_result <- result$value
+  df$.analysis_unit <- result$unit
+
+  # Standardize mapped limits. These fields currently inherit the
+  # analytical result source unit because the schema has no separate
+  # limit-unit mappings.
+  limit_specs <- c(
+    reporting_limit = ".reporting_limit",
+    detection_limit = ".detection_limit",
+    quantitation_limit = ".quantitation_limit",
+    achieved_mdc = ".achieved_mdc"
+  )
+
+  if (!is.null(env_mapping)) {
+    for (mapping_name in names(limit_specs)) {
+      source_col <- env_mapping[[mapping_name]]
+
+      if (
+        is.null(source_col) ||
+          is.na(source_col) ||
+          !nzchar(source_col) ||
+          !source_col %in% names(df)
+      ) {
+        next
+      }
+
+      internal_col <- limit_specs[[mapping_name]]
+
+      if (!is.numeric(df[[source_col]])) {
+        rlang::abort(
+          sprintf(
+            "`%s` must be numeric.",
+            source_col
+          )
+        )
+      }
+
+      original_col <- paste0(
+        ".original_",
+        mapping_name
+      )
+
+      if (!original_col %in% names(df)) {
+        df[[original_col]] <- df[[source_col]]
+      }
+
+      standardized <- .standardize_schema_value(
+        value = df[[source_col]],
+        source_unit = df$.analysis_unit,
+        standard_unit = df$.std_unit,
+        analyte = df$.analyte_id,
+        value_label = mapping_name
+      )
+
+      df[[internal_col]] <- standardized$value
+    }
+  }
+
   df
+}
+
+#' Standardize analyte-unit pair value vector
+#'
+#' @keywords internal
+.standardize_schema_value <- function(
+  value,
+  source_unit,
+  standard_unit,
+  analyte = NULL,
+  value_label = "value"
+) {
+  source_unit <- .normalize_unit(source_unit)
+  standard_unit <- .normalize_unit(standard_unit)
+
+  has_value <- !is.na(value)
+
+  missing_source_unit <- has_value &
+    is.na(source_unit) &
+    !is.na(standard_unit)
+
+  if (any(missing_source_unit)) {
+    cli::cli_inform(
+      c(
+        "i" = paste0(
+          sum(missing_source_unit),
+          " ",
+          value_label,
+          " value(s) have no source unit."
+        ),
+        "i" = "The analyte lookup standard unit will be assumed."
+      )
+    )
+
+    source_unit[missing_source_unit] <-
+      standard_unit[missing_source_unit]
+  }
+
+  convert_idx <- has_value &
+    !is.na(source_unit) &
+    !is.na(standard_unit) &
+    source_unit != standard_unit
+
+  conversion_groups <- unique(
+    data.frame(
+      from = source_unit[convert_idx],
+      to = standard_unit[convert_idx],
+      stringsAsFactors = FALSE
+    )
+  )
+
+  for (i in seq_len(nrow(conversion_groups))) {
+    idx <- convert_idx &
+      source_unit == conversion_groups$from[i] &
+      standard_unit == conversion_groups$to[i]
+
+    value[idx] <- .safe_convert_units(
+      value = value[idx],
+      from_unit = conversion_groups$from[i],
+      to_unit = conversion_groups$to[i]
+    )
+  }
+
+  list(
+    value = value,
+    unit = dplyr::coalesce(standard_unit, source_unit)
+  )
 }
 
 #' Convert standards to reporting units
@@ -339,72 +537,6 @@
   )
 }
 
-#' Safely convert a single value between units
-#'
-#' Performs a unit conversion while suppressing conversion errors.
-#'
-#' @param value Numeric value to convert.
-#'
-#' @param from_unit Character string specifying the source unit.
-#'
-#' @param to_unit Character string specifying the destination unit.
-#'
-#' @return
-#' Converted numeric value.
-#'
-#' Returns `NA_real_` if conversion cannot be performed.
-#'
-#' @details
-#' This helper wraps [`.convert_units()`] in a
-#' [base::tryCatch()] block and converts conversion failures into
-#' warnings.
-#'
-#' Typical causes of conversion failure include:
-#'
-#' \itemize{
-#'   \item incompatible dimensions (for example `"mg/L"` to
-#'   `"feet"`);
-#'   \item invalid unit strings;
-#'   \item unsupported unit definitions.
-#' }
-#'
-#' This helper is intended for row-wise conversions where source
-#' and destination units may vary between observations.
-#'
-#' @noRd
-.safe_convert_unit <- function(
-  value,
-  from_unit,
-  to_unit
-) {
-  if (
-    is.na(from_unit) ||
-      is.na(to_unit)
-  ) {
-    return(NA_real_)
-  }
-
-  tryCatch(
-    .convert_units(
-      value = value,
-      from_unit = from_unit,
-      to_unit = to_unit
-    ),
-    error = function(e) {
-      cli::cli_warn(
-        paste0(
-          "Skipped incompatible unit conversion: ",
-          from_unit,
-          " -> ",
-          to_unit
-        )
-      )
-
-      NA_real_
-    }
-  )
-}
-
 #' Safely convert a vector of values between units
 #'
 #' Performs vectorized unit conversion while suppressing
@@ -442,15 +574,12 @@
   to_unit
 ) {
   if (
-    is.na(from_unit) ||
+    length(from_unit) != 1L ||
+      length(to_unit) != 1L ||
+      is.na(from_unit) ||
       is.na(to_unit)
   ) {
-    return(
-      rep(
-        NA_real_,
-        length(value)
-      )
-    )
+    return(rep(NA_real_, length(value)))
   }
 
   tryCatch(
@@ -460,18 +589,13 @@
       to_unit = to_unit
     ),
     error = function(e) {
-      cli::cli_warn(
-        paste0(
-          "Skipped incompatible unit conversion: ",
-          from_unit,
-          " -> ",
-          to_unit
-        )
-      )
-
-      rep(
-        NA_real_,
-        length(value)
+      rlang::abort(
+        c(
+          "Unit conversion failed.",
+          "x" = paste0(from_unit, " -> ", to_unit),
+          "i" = conditionMessage(e)
+        ),
+        parent = e
       )
     }
   )
@@ -597,6 +721,8 @@ convert_analytes_to_meq <- function(
   value_out_col = ".analysis_result_meq",
   unit_out_col = ".analysis_unit_meq"
 ) {
+  meq_l_unit <- "meq/L"
+
   .validate_required_cols(
     df,
     c(
@@ -605,6 +731,23 @@ convert_analytes_to_meq <- function(
       unit_col
     )
   )
+
+  if (!is.numeric(df[[value_col]])) {
+    rlang::abort(
+      sprintf("`%s` must be numeric.", value_col)
+    )
+  }
+
+  if (
+    any(
+      !is.na(df[[value_col]]) &
+        !is.finite(df[[value_col]])
+    )
+  ) {
+    rlang::abort(
+      sprintf("`%s` cannot contain Inf or NaN.", value_col)
+    )
+  }
 
   .validate_analyte_meq_units(
     df,
@@ -617,6 +760,22 @@ convert_analytes_to_meq <- function(
       analyte_id,
       meq_factor
     )
+
+  if (!is.numeric(meq_lookup$meq_factor)) {
+    rlang::abort("`meq_factor` must be numeric.")
+  }
+
+  if (
+    any(
+      !is.na(meq_lookup$meq_factor) &
+        (!is.finite(meq_lookup$meq_factor) |
+          meq_lookup$meq_factor <= 0)
+    )
+  ) {
+    rlang::abort(
+      "`meq_factor` must contain finite positive values."
+    )
+  }
 
   df |>
     dplyr::left_join(
@@ -639,7 +798,7 @@ convert_analytes_to_meq <- function(
       ),
       !!unit_out_col := dplyr::if_else(
         !is.na(.data[[value_out_col]]),
-        "meq/L",
+        meq_l_unit,
         NA_character_
       )
     ) |>

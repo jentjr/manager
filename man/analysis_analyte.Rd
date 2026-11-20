@@ -4,7 +4,7 @@
 \alias{analysis_analyte}
 \title{Return resolved analyte values}
 \usage{
-analysis_analyte(x, analyte_matching = c("normalized", "strict", "exact"))
+analysis_analyte(x, analyte_matching = c("exact", "strict", "normalized"))
 }
 \arguments{
 \item{x}{Object.}

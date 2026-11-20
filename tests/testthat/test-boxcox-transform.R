@@ -260,3 +260,13 @@ test_that("boxcox_transform preserves ungrouped state", {
     dplyr::is_grouped_df(out)
   )
 })
+
+test_that("boxcox_transform works with grouped env_schema data", {
+  result <- gw |>
+    dplyr::group_by(location_id, param_name) |>
+    boxcox_transform()
+
+  expect_true(".boxcox_transform" %in% names(result))
+  expect_true(".boxcox_lambda" %in% names(result))
+  expect_s3_class(result, "env_schema")
+})

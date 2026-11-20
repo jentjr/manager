@@ -31,26 +31,46 @@ decision
 names(decision)
 
 ## -----------------------------------------------------------------------------
-statistical_decision(
+decisions <- statistical_decision(
   percent_censored = c(5, 25, 75, 95),
-  n_used = 20,
+  n_used = c(20, 20, 20, 20),
   n_detect = c(19, 15, 5, 1)
-) |>
-  select(
-    percent_censored,
-    censoring_class
   )
 
-## -----------------------------------------------------------------------------
-statistical_decision(
-  percent_censored = c(5, 25, 75, 95),
-  n_used = 20,
-  n_detect = c(19, 15, 5, 1)
-) |>
+decisions |>
   select(
     percent_censored,
-    distribution_method
+    n_used,
+    n_detect,
+    censoring_class,
+    distribution_method,
+    trend_method,
+    trend_guidance,
+    censored_method,
+    interval_method,
+    comparison_method
+    )
+
+## -----------------------------------------------------------------------------
+decisions <- statistical_decision(
+  percent_censored = c(5, 25, 75, 95),
+  n_used = c(20, 20, 20, 20),
+  n_detect = c(19, 15, 5, 1)
   )
+
+decisions |>
+  select(
+    percent_censored,
+    n_used,
+    n_detect,
+    censoring_class,
+    distribution_method,
+    trend_method,
+    trend_guidance,
+    censored_method,
+    interval_method,
+    comparison_method
+    )
 
 ## -----------------------------------------------------------------------------
 statistical_decision(
@@ -112,19 +132,24 @@ statistical_decision(
   percent_censored = 90,
   n_used = 20,
   n_detect = 2
-) |>
+  ) |>
   select(
-    trend_guidance
-  )
+    n_used,
+    n_detect,
+    trend_method,
+    trend_guidance, 
+    comparison_method
+    )
 
 ## -----------------------------------------------------------------------------
 statistical_decision(
-  percent_censored = c(5, 40, 75),
-  n_used = 20,
-  n_detect = c(19, 12, 5)
+  percent_censored = c(5, 40, 75, 95),
+  n_used = c(20, 20, 20, 20),
+  n_detect = c(19, 12, 5, 1)
 ) |>
   select(
     percent_censored,
+    censoring_class,
     censored_method
   )
 
@@ -134,17 +159,67 @@ trend_summary(
   censored_method = "auto"
 )
 
+## -----------------------------------------------------------------------------
+gw_example <- data.frame(
+  analysis_result = c(
+    1.2, 0.8, 0.5, 0.3, 0.2,
+    0.1, 0.4, 0.7, 1.1, 0.9
+  ),
+  censored = c(
+    FALSE, FALSE, FALSE, TRUE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, FALSE
+  )
+)
+
+decision <- derive_decision(gw_example)
+
+decision |>
+  select(
+    n_used,
+    n_detect,
+    percent_censored,
+    censoring_class,
+    distribution_method,
+    trend_method,
+    trend_guidance
+  )
+
 ## ----eval = FALSE-------------------------------------------------------------
 # decision <- derive_decision(gw)
 # 
 # decision
 
 ## ----eval = FALSE-------------------------------------------------------------
-# gw |>
-#   filter(
-#     param_name == "Arsenic, dissolved"
-#   ) |>
-#   derive_decision()
+# custom_data <- data.frame(
+#   concentration = c(1.2, 0.8, 0.5, 0.3),
+#   is_censored = c(FALSE, FALSE, TRUE, FALSE)
+#   )
+# 
+# derive_decision(
+#   custom_data,
+#   result_col = "concentration",
+#   censored_col = "is_censored"
+#   )
+
+## -----------------------------------------------------------------------------
+grouped_data <- data.frame(
+  location = c("A", "A", "A", "B", "B", "B"),
+  analysis_result = c(1.2, 0.8, 0.3, 0.2, 0.1, 0.4),
+  censored = c(FALSE, FALSE, TRUE, TRUE, TRUE, FALSE)
+  ) |>
+  group_by(location)
+
+grouped_decisions <- derive_decision(grouped_data)
+
+grouped_decisions |>
+  select(
+    location,
+    n_used,
+    n_detect,
+    percent_censored,
+    censoring_class,
+    distribution_method
+    )
 
 ## ----eval = FALSE-------------------------------------------------------------
 # gw |>
@@ -152,7 +227,7 @@ trend_summary(
 #     location_id,
 #     param_name,
 #     default_unit
-#   ) |>
+#     ) |>
 #   estimate_distribution()
 
 ## ----eval = FALSE-------------------------------------------------------------
@@ -174,7 +249,17 @@ decision <- statistical_decision(
 decision$distribution_config[[1]]
 
 ## -----------------------------------------------------------------------------
-decision$interval_config[[1]]
+decision <- statistical_decision(
+  percent_censored = 10,
+  n_used = 20,
+  n_detect = 18
+  )
+
+decision |>
+  select(
+    interval_method,
+    interval_config
+    )
 
 ## ----eval = FALSE-------------------------------------------------------------
 # dist_est <- gw |>
@@ -211,16 +296,24 @@ decision$interval_config[[1]]
 #   stats_summary()
 
 ## -----------------------------------------------------------------------------
-options(
-  manager.guidance = list(
-    low_threshold = 10,
-    moderate_threshold = 25,
-    high_threshold = 75
-  )
+statistical_decision(
+  percent_censored = 25,
+  n_used = 20,
+  n_detect = 15,
+  profile = guidance_profile("conservative")
 )
 
 ## -----------------------------------------------------------------------------
 guidance_options()
+
+## -----------------------------------------------------------------------------
+distribution_plan <- analysis_plan(
+objective = "distribution",
+response = "analysis_result",
+censored = "censored"
+)
+
+distribution_plan
 
 ## ----eval = FALSE-------------------------------------------------------------
 # gw |>

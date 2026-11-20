@@ -1,35 +1,46 @@
-#' Validate choices
-#'
-#' @param x Character vector.
-#' @param choices Character vector
-#' @param arg Character vector
+#' Validate a scalar choice
 #'
 #' @keywords internal
-.validate_choice <- function(x, choices, arg) {
-  if (!x %in% choices) {
-    stop(
+.validate_choice <- function(
+  x,
+  choices,
+  arg
+) {
+  if (
+    !is.character(x) ||
+      length(x) != 1L ||
+      is.na(x) ||
+      !x %in% choices
+  ) {
+    rlang::abort(
       sprintf(
-        "`%s` must be one of: %s",
+        "`%s` must be one of: %s.",
         arg,
         paste(choices, collapse = ", ")
-      ),
-      call. = FALSE
+      )
     )
   }
+
   invisible(x)
 }
 
+#' Validate a scalar logical flag
+#'
 #' @keywords internal
-.check_flag <- function(x, name) {
+.check_flag <- function(
+  x,
+  name
+) {
   if (
     !is.logical(x) ||
-      length(x) != 1 ||
+      length(x) != 1L ||
       is.na(x)
   ) {
-    stop(
-      name,
-      " must be TRUE or FALSE.",
-      call. = FALSE
+    rlang::abort(
+      sprintf(
+        "%s must be TRUE or FALSE.",
+        name
+      )
     )
   }
 
@@ -38,32 +49,83 @@
 
 #' Validate required columns
 #'
-#' Internal helper used throughout the package to check that
-#' required columns are present.
-#'
-#' @param data A data frame.
-#' @param cols Character vector of required column names.
-#'
-#' @return Invisibly returns TRUE.
-#'
-#' @noRd
+#' @keywords internal
 .validate_required_cols <- function(
   data,
   cols
 ) {
-  missing_cols <- setdiff(
-    cols,
-    names(data)
-  )
+  if (!is.data.frame(data)) {
+    rlang::abort("`data` must be a data frame.")
+  }
 
-  if (length(missing_cols) > 0) {
+  if (
+    !is.character(cols) ||
+      anyNA(cols) ||
+      any(!nzchar(cols))
+  ) {
+    rlang::abort("`cols` must contain non-empty column names.")
+  }
+
+  missing_cols <- setdiff(cols, names(data))
+
+  if (length(missing_cols) > 0L) {
     rlang::abort(
-      paste(
-        "Missing required column(s):",
+      paste0(
+        "Missing required column(s): ",
         paste(missing_cols, collapse = ", ")
       )
     )
   }
+
+  invisible(TRUE)
+}
+
+# Numeric values must be finite unless NA is explicitly allowed.
+.validate_numeric_column <- function(
+  x,
+  name,
+  allow_na = TRUE
+) {
+  if (!is.numeric(x)) {
+    rlang::abort(
+      sprintf("`%s` must be numeric.", name)
+    )
+  }
+
+  if (!allow_na && anyNA(x)) {
+    rlang::abort(
+      sprintf("`%s` cannot contain NA values.", name)
+    )
+  }
+
+  if (any(!is.na(x) & !is.finite(x))) {
+    rlang::abort(
+      sprintf("`%s` cannot contain Inf or NaN.", name)
+    )
+  }
+
+  invisible(TRUE)
+}
+
+#' @keywords internal
+.validate_logical_column <- function(
+  x,
+  name,
+  allow_na = FALSE
+) {
+  if (!is.logical(x)) {
+    rlang::abort(
+      sprintf("'%s' must be logical.", name)
+    )
+  }
+
+  if (!allow_na && anyNA(x)) {
+    rlang::abort(
+      sprintf("'%s' cannot contain NA values.", name)
+    )
+  }
+
+  invisible(TRUE)
 }
 
 #' Validate display options
@@ -71,9 +133,7 @@
 #' @keywords internal
 .validate_display_options <- function(x) {
   if (!is.list(x)) {
-    rlang::abort(
-      "display_options must be a list."
-    )
+    rlang::abort("`display_options` must be a list.")
   }
 
   required <- c(
@@ -84,15 +144,12 @@
     "report_style"
   )
 
-  missing <- setdiff(
-    required,
-    names(x)
-  )
+  missing <- setdiff(required, names(x))
 
-  if (length(missing) > 0) {
+  if (length(missing) > 0L) {
     rlang::abort(
-      paste(
-        "Missing display options:",
+      paste0(
+        "Missing display options: ",
         paste(missing, collapse = ", ")
       )
     )
@@ -100,56 +157,48 @@
 
   if (
     !is.numeric(x$digits) ||
-      length(x$digits) != 1 ||
+      length(x$digits) != 1L ||
+      is.na(x$digits) ||
+      !is.finite(x$digits) ||
       x$digits < 1 ||
       x$digits != as.integer(x$digits)
   ) {
-    rlang::abort(
-      "'digits' must be a positive integer."
-    )
+    rlang::abort("`digits` must be a positive integer.")
   }
 
-  if (
-    !is.logical(x$scientific) ||
-      length(x$scientific) != 1
-  ) {
-    rlang::abort(
-      "'scientific' must be TRUE or FALSE."
-    )
-  }
+  for (option in c("scientific", "trim_trailing_zeros")) {
+    value <- x[[option]]
 
-  if (
-    !is.logical(x$trim_trailing_zeros) ||
-      length(x$trim_trailing_zeros) != 1
-  ) {
-    rlang::abort(
-      "'trim_trailing_zeros' must be TRUE or FALSE."
-    )
+    if (
+      !is.logical(value) ||
+        length(value) != 1L ||
+        is.na(value)
+    ) {
+      rlang::abort(
+        sprintf("`%s` must be TRUE or FALSE.", option)
+      )
+    }
   }
 
   if (
     !is.character(x$censor_prefix) ||
-      length(x$censor_prefix) != 1
+      length(x$censor_prefix) != 1L ||
+      is.na(x$censor_prefix) ||
+      !nzchar(x$censor_prefix)
   ) {
     rlang::abort(
-      "'censor_prefix' must be character."
-    )
-  }
-
-  if (!nzchar(x$censor_prefix)) {
-    rlang::abort(
-      "'censor_prefix' cannot be empty."
+      "`censor_prefix` must be a non-empty character value."
     )
   }
 
   if (
     !is.character(x$report_style) ||
-      length(x$report_style) != 1 ||
-      !x$report_style %in%
-        c("standard", "verbose")
+      length(x$report_style) != 1L ||
+      is.na(x$report_style) ||
+      !x$report_style %in% c("standard", "verbose")
   ) {
     rlang::abort(
-      "'report_style' must be 'standard' or 'verbose'."
+      "`report_style` must be either 'standard' or 'verbose'."
     )
   }
 
@@ -177,24 +226,118 @@
 .check_metadata_overlap <- function(...) {
   metadata <- list(...)
 
-  names_found <- unlist(
-    metadata,
-    use.names = FALSE
+  if (length(metadata) == 0L) {
+    return(invisible(TRUE))
+  }
+
+  for (i in seq_along(metadata)) {
+    if (
+      !is.character(metadata[[i]]) ||
+        anyNA(metadata[[i]]) ||
+        any(!nzchar(metadata[[i]]))
+    ) {
+      rlang::abort(
+        "Metadata column assignments must be character vectors."
+      )
+    }
+  }
+
+  names_found <- unlist(metadata, use.names = FALSE)
+
+  duplicated_names <- unique(
+    names_found[duplicated(names_found)]
   )
 
-  dupes <- unique(
-    names_found[
-      duplicated(names_found)
-    ]
-  )
-
-  if (length(dupes) > 0) {
+  if (length(duplicated_names) > 0L) {
     rlang::abort(
-      paste(
-        "Metadata columns assigned to multiple metadata categories:",
-        paste(dupes, collapse = ", ")
+      paste0(
+        "Metadata columns assigned to multiple metadata categories: ",
+        paste(duplicated_names, collapse = ", ")
       )
     )
+  }
+
+  invisible(TRUE)
+}
+
+#' @keywords internal
+.validate_metadata_columns <- function(
+  x,
+  value,
+  name
+) {
+  if (
+    !is.character(value) ||
+      anyNA(value) ||
+      any(!nzchar(value)) ||
+      anyDuplicated(value)
+  ) {
+    rlang::abort(
+      sprintf(
+        "`%s` must be a unique character vector of non-empty column names.",
+        name
+      )
+    )
+  }
+
+  missing <- setdiff(value, names(x))
+
+  if (length(missing) > 0L) {
+    rlang::abort(
+      paste0(
+        "`",
+        name,
+        "` references missing column(s): ",
+        paste(missing, collapse = ", ")
+      )
+    )
+  }
+
+  invisible(TRUE)
+}
+
+#' @keywords internal
+.validate_schema_mapping <- function(
+  mapping
+) {
+  if (!is.list(mapping)) {
+    rlang::abort("`env_mapping` must be a list.")
+  }
+
+  required <- c(
+    "location",
+    "sample_date",
+    "analyte",
+    "result"
+  )
+
+  missing <- setdiff(required, names(mapping))
+
+  if (length(missing) > 0L) {
+    rlang::abort(
+      paste0(
+        "Missing mapping entries: ",
+        paste(missing, collapse = ", ")
+      )
+    )
+  }
+
+  for (name in required) {
+    value <- mapping[[name]]
+
+    if (
+      !is.character(value) ||
+        length(value) != 1L ||
+        is.na(value) ||
+        !nzchar(value)
+    ) {
+      rlang::abort(
+        sprintf(
+          "Mapping entry `%s` must be one non-empty column name.",
+          name
+        )
+      )
+    }
   }
 
   invisible(TRUE)
@@ -216,26 +359,7 @@ validate_env_schema <- function(x) {
 
   mapping <- schema_mapping(x)
 
-  required_mappings <- c(
-    "location",
-    "sample_date",
-    "analyte",
-    "result"
-  )
-
-  missing_mappings <- setdiff(
-    required_mappings,
-    names(mapping)
-  )
-
-  if (length(missing_mappings) > 0) {
-    rlang::abort(
-      paste(
-        "Missing mapped columns:",
-        paste(missing_mappings, collapse = ", ")
-      )
-    )
-  }
+  .validate_schema_mapping(mapping)
 
   # ------------------------------------------------------------------
   # Required mapped columns
@@ -289,47 +413,23 @@ validate_env_schema <- function(x) {
   # Metadata column references
   # ------------------------------------------------------------------
 
-  analysis_missing <- setdiff(
+  .validate_metadata_columns(
+    x,
     analysis_metadata(x),
-    names(x)
+    "analysis_metadata"
   )
 
-  if (length(analysis_missing) > 0) {
-    rlang::abort(
-      paste(
-        "Analysis metadata columns not found:",
-        paste(analysis_missing, collapse = ", ")
-      )
-    )
-  }
-
-  threshold_missing <- setdiff(
+  .validate_metadata_columns(
+    x,
     threshold_metadata(x),
-    names(x)
+    "threshold_metadata"
   )
 
-  if (length(threshold_missing) > 0) {
-    rlang::abort(
-      paste(
-        "Threshold metadata columns not found:",
-        paste(threshold_missing, collapse = ", ")
-      )
-    )
-  }
-
-  source_missing <- setdiff(
+  .validate_metadata_columns(
+    x,
     source_metadata(x),
-    names(x)
+    "source_metadata"
   )
-
-  if (length(source_missing) > 0) {
-    rlang::abort(
-      paste(
-        "Source metadata columns not found:",
-        paste(source_missing, collapse = ", ")
-      )
-    )
-  }
 
   .check_metadata_overlap(
     analysis_metadata(x),
@@ -521,11 +621,10 @@ validate_env_schema <- function(x) {
     ".rejected",
     ".usable"
   )) {
-    if (col %in% names(x) && !is.logical(x[[col]])) {
-      rlang::abort(
-        paste0("'", col, "' must be logical.")
-      )
-    }
+    .validate_logical_column(
+      x[[col]],
+      col
+    )
   }
 
   # ------------------------------------------------------------------
@@ -592,36 +691,10 @@ validate_env_schema_structure <- function(x) {
   )
 
   if (is.null(mapping)) {
-    rlang::abort(
-      "Missing env_mapping attribute."
-    )
+    rlang::abort("Missing env_mapping attribute.")
   }
 
-  required <- c(
-    stats::na.omit(
-      c(
-        mapping$location,
-        mapping$sample_date,
-        mapping$analyte,
-        mapping$result
-      )
-    ),
-    .required_env_schema_columns()
-  )
-
-  missing <- setdiff(
-    required,
-    names(x)
-  )
-
-  if (length(missing) > 0) {
-    rlang::abort(
-      paste(
-        "Missing required schema columns:",
-        paste(missing, collapse = ", ")
-      )
-    )
-  }
+  .validate_schema_mapping(mapping)
 
   # ------------------------------------------------------------
   # Required attributes
@@ -702,6 +775,8 @@ is_valid_env_schema <- function(x) {
 .is_valid_unit <- function(x) {
   x <- .normalize_unit(x)
 
+  .register_environmental_units()
+
   vapply(
     x,
     function(unit) {
@@ -726,45 +801,12 @@ is_valid_env_schema <- function(x) {
 
 #' Validate analyte metadata table
 #'
-#' Validates the structure and integrity of an analyte metadata table.
-#'
-#' An analyte metadata table provides the canonical analyte registry
-#' used throughout the package for analyte resolution, metadata
-#' assignment, standards matching, plotting, unit conversion, and
-#' environmental data classification workflows.
-#'
-#' @param x An analyte metadata table, typically [analyte_tbl].
-#'
-#' @returns
-#' Invisibly returns `TRUE` if validation succeeds.
-#'
-#' @details
-#' The table must contain the following required columns:
-#'
-#' \itemize{
-#'   \item `analyte_id`
-#'   \item `analyte`
-#'   \item `normalized_analyte`
-#'   \item `short_name`
-#'   \item `std_unit`
-#'   \item `analyte_group`
-#' }
-#'
-#' Validation includes:
-#'
-#' \itemize{
-#'   \item presence of required columns;
-#'   \item non-missing analyte identifiers;
-#'   \item uniqueness of canonical analyte names;
-#' }
-#'
-#'
-#' @seealso
-#' [analyte_tbl],
-#' [`.validate_alias_lookup`()]
-#'
 #' @keywords internal
 validate_analyte_tbl <- function(x) {
+  if (!is.data.frame(x)) {
+    rlang::abort("`analyte_tbl` must be a data frame.")
+  }
+
   required <- c(
     "analyte_id",
     "analyte",
@@ -775,66 +817,66 @@ validate_analyte_tbl <- function(x) {
     "fractionable"
   )
 
-  missing <- setdiff(
-    required,
-    names(x)
+  .validate_required_cols(x, required)
+
+  character_cols <- c(
+    "analyte_id",
+    "analyte",
+    "normalized_analyte",
+    "short_name",
+    "std_unit",
+    "analyte_group"
   )
 
-  if (length(missing) > 0) {
-    rlang::abort(
-      paste(
-        "Missing analyte_tbl columns:",
-        paste(
-          missing,
-          collapse = ", "
+  for (col in character_cols) {
+    value <- x[[col]]
+
+    if (!is.character(value)) {
+      rlang::abort(
+        sprintf("`%s` must be character.", col)
+      )
+    }
+
+    if (anyNA(value) || any(!nzchar(trimws(value)))) {
+      rlang::abort(
+        sprintf(
+          "`%s` cannot contain missing or empty values.",
+          col
         )
       )
-    )
-  }
-
-  if (!is.character(x$analyte_id)) {
-    rlang::abort(
-      "'analyte_id' must be character."
-    )
-  }
-
-  if (anyNA(x$analyte_id)) {
-    rlang::abort(
-      "'analyte_id' cannot contain NA."
-    )
-  }
-
-  if (!is.character(x$analyte)) {
-    rlang::abort(
-      "'analyte' must be character."
-    )
-  }
-
-  if (anyNA(x$analyte)) {
-    rlang::abort(
-      "'analyte' cannot contain NA."
-    )
+    }
   }
 
   if (!is.logical(x$fractionable)) {
-    rlang::abort(
-      "'fractionable' must be logical."
-    )
+    rlang::abort("`fractionable` must be logical.")
   }
 
   if (anyNA(x$fractionable)) {
-    rlang::abort(
-      "'fractionable' cannot contain NA."
-    )
+    rlang::abort("`fractionable` cannot contain NA values.")
   }
 
-  if (
-    anyDuplicated(
-      x$analyte
-    )
-  ) {
+  for (col in c("analyte_id", "analyte", "normalized_analyte")) {
+    if (anyDuplicated(x[[col]])) {
+      rlang::abort(
+        sprintf(
+          "Duplicate values detected in `%s`.",
+          col
+        )
+      )
+    }
+  }
+
+  invalid_units <- !.is_valid_unit(x$std_unit)
+
+  if (any(invalid_units)) {
     rlang::abort(
-      "Duplicate analyte names detected."
+      paste0(
+        "Invalid standard unit(s): ",
+        paste(
+          unique(x$std_unit[invalid_units]),
+          collapse = ", "
+        )
+      )
     )
   }
 
@@ -843,62 +885,43 @@ validate_analyte_tbl <- function(x) {
 
 #' Validate analyte alias table
 #'
-#' Validates the structure and integrity of an analyte alias table.
-#'
-#' @param alias_tbl Analyte alias table.
-#' @param analyte_tbl Canonical analyte metadata table.
-#'
-#' @returns
-#' Invisibly returns `TRUE`.
-#'
 #' @keywords internal
 validate_analyte_alias_tbl <- function(
   alias_tbl,
   analyte_tbl
 ) {
-  required <- c(
-    "analyte_id",
-    "alias"
-  )
-
-  missing <- setdiff(
-    required,
-    names(alias_tbl)
-  )
-
-  if (length(missing) > 0) {
-    rlang::abort(
-      paste(
-        "Missing alias columns:",
-        paste(
-          missing,
-          collapse = ", "
-        )
-      )
-    )
+  if (!is.data.frame(alias_tbl)) {
+    rlang::abort("`alias_tbl` must be a data frame.")
   }
 
+  validate_analyte_tbl(analyte_tbl)
+
+  required <- c("analyte_id", "alias")
+  .validate_required_cols(alias_tbl, required)
+
   if (!is.character(alias_tbl$analyte_id)) {
-    rlang::abort(
-      "'analyte_id' must be character."
-    )
+    rlang::abort("`alias_tbl$analyte_id` must be character.")
   }
 
   if (!is.character(alias_tbl$alias)) {
+    rlang::abort("`alias_tbl$alias` must be character.")
+  }
+
+  if (
+    anyNA(alias_tbl$analyte_id) ||
+      any(!nzchar(trimws(alias_tbl$analyte_id)))
+  ) {
     rlang::abort(
-      "'alias' must be character."
+      "`alias_tbl$analyte_id` cannot contain missing or empty values."
     )
   }
 
-  if (anyNA(alias_tbl$analyte_id)) {
+  if (
+    anyNA(alias_tbl$alias) ||
+      any(!nzchar(trimws(alias_tbl$alias)))
+  ) {
     rlang::abort(
-      "'analyte_id' cannot contain NA."
-    )
-  }
-
-  if (anyNA(alias_tbl$alias)) {
-    rlang::abort(
-      "'alias' cannot contain NA."
+      "`alias_tbl$alias` cannot contain missing or empty values."
     )
   }
 
@@ -907,39 +930,30 @@ validate_analyte_alias_tbl <- function(
     unique(analyte_tbl$analyte_id)
   )
 
-  if (length(bad_ids) > 0) {
+  if (length(bad_ids) > 0L) {
     rlang::abort(
-      paste(
-        "Unknown analyte IDs:",
-        paste(
-          bad_ids,
-          collapse = ", "
-        )
+      paste0(
+        "Unknown analyte IDs: ",
+        paste(bad_ids, collapse = ", ")
       )
     )
   }
 
-  alias_conflicts <- alias_tbl |>
-    dplyr::mutate(
-      alias = .normalize_analyte_text(alias)
-    ) |>
-    dplyr::group_by(alias) |>
-    dplyr::summarise(
-      n_ids = dplyr::n_distinct(analyte_id),
-      .groups = "drop"
-    ) |>
-    dplyr::filter(
-      n_ids > 1
-    )
+  normalized_aliases <- .normalize_analyte_text(
+    alias_tbl$alias
+  )
 
-  if (nrow(alias_conflicts) > 0) {
+  duplicate_aliases <- unique(
+    normalized_aliases[
+      duplicated(normalized_aliases)
+    ]
+  )
+
+  if (length(duplicate_aliases) > 0L) {
     rlang::abort(
-      paste(
-        "Aliases map to multiple analytes:",
-        paste(
-          alias_conflicts$alias,
-          collapse = ", "
-        )
+      paste0(
+        "Duplicate normalized aliases detected: ",
+        paste(duplicate_aliases, collapse = ", ")
       )
     )
   }
@@ -1023,6 +1037,8 @@ validate_analyte_alias_tbl <- function(
 #' @param df A data frame containing analytical results.
 #' @param param_name Character string identifying the analyte column.
 #' @param default_unit Character string identifying the unit column.
+#' @param alias_lookup Analyte alias lookup table
+#' @param lookup Anlayte table lookup
 #'
 #' @returns
 #' A data frame containing resolved analyte metadata and normalized
@@ -1051,44 +1067,30 @@ validate_analyte_alias_tbl <- function(
 .validate_analyte_units <- function(
   df,
   param_name = "param_name",
-  default_unit = "default_unit"
+  default_unit = "default_unit",
+  alias_lookup = analyte_alias_lookup,
+  lookup = analyte_tbl
 ) {
-  required_cols <- c(
-    param_name,
-    default_unit
+  .validate_required_cols(
+    df,
+    c(param_name, default_unit)
   )
 
-  missing_cols <- setdiff(
-    required_cols,
-    names(df)
-  )
+  validate_analyte_tbl(lookup)
 
-  if (length(missing_cols) > 0) {
-    rlang::abort(
-      paste(
-        "Missing required columns:",
-        paste(missing_cols, collapse = ", ")
-      )
-    )
-  }
-
-  validate_analyte_tbl(
-    analyte_tbl
-  )
-
-  .validate_alias_lookup(
-    analyte_alias_lookup,
-    analyte_tbl
+  validate_analyte_alias_tbl(
+    alias_tbl = alias_lookup,
+    analyte_tbl = lookup
   )
 
   out <- df |>
     .resolve_analyte_column(
-      analyte_col = param_name
+      analyte_col = param_name,
+      alias_lookup = alias_lookup,
+      analyte_lookup = lookup
     )
 
-  .warn_unsupported_analytes(
-    out
-  )
+  .warn_unsupported_analytes(out)
 
   out |>
     dplyr::mutate(
@@ -1100,35 +1102,7 @@ validate_analyte_alias_tbl <- function(
 
 #' Validate units for meq conversion
 #'
-#' Ensures analytes eligible for meq conversion are reported using
-#' their expected standardized reporting units.
-#'
-#' @param df Data frame containing analytical results.
-#'
-#' @param analyte_col Character string identifying the canonical
-#'   analyte column. Default is `"analyte"`.
-#'
-#' @param unit_col Character string identifying the
-#'   reporting unit column. Default is `".analysis_unit"`.
-#'
-#' @return
-#' Invisibly returns `TRUE`.
-#'
-#' @details
-#' Validation is performed using the metadata returned by
-#' [`.get_meq_conversion_factors()`].
-#'
-#' Only analytes having a non-missing `meq_factor` are validated.
-#'
-#' @section Validation:
-#'
-#' An error is raised when a convertible analyte is reported using a
-#' unit that differs from the expected standard unit.
-#'
-#' This typically indicates that
-#' [`.standardize_units()`] has not yet been executed.
-#'
-#' @noRd
+#' @keywords internal
 .validate_analyte_meq_units <- function(
   df,
   analyte_col = ".analyte_id",
@@ -1136,61 +1110,150 @@ validate_analyte_alias_tbl <- function(
 ) {
   .validate_required_cols(
     df,
-    c(
-      analyte_col,
-      unit_col
-    )
+    c(analyte_col, unit_col)
   )
 
-  meq_lookup <- .get_meq_conversion_factors() |>
+  if (!is.character(df[[analyte_col]])) {
+    rlang::abort(
+      sprintf("`%s` must be character.", analyte_col)
+    )
+  }
+
+  if (!is.character(df[[unit_col]])) {
+    rlang::abort(
+      sprintf("`%s` must be character.", unit_col)
+    )
+  }
+
+  meq_lookup <- .get_meq_conversion_factors()
+
+  .validate_required_cols(
+    meq_lookup,
+    c("analyte_id", "meq_factor", "std_unit")
+  )
+
+  if (!is.character(meq_lookup$analyte_id)) {
+    rlang::abort("Meq lookup `analyte_id` must be character.")
+  }
+
+  if (!is.numeric(meq_lookup$meq_factor)) {
+    rlang::abort("Meq lookup `meq_factor` must be numeric.")
+  }
+
+  if (!is.character(meq_lookup$std_unit)) {
+    rlang::abort("Meq lookup `std_unit` must be character.")
+  }
+
+  duplicate_ids <- meq_lookup$analyte_id[
+    duplicated(meq_lookup$analyte_id)
+  ]
+
+  if (length(duplicate_ids) > 0L) {
+    rlang::abort(
+      paste0(
+        "Meq lookup contains duplicate analyte IDs: ",
+        paste(unique(duplicate_ids), collapse = ", ")
+      )
+    )
+  }
+
+  meq_lookup <- meq_lookup |>
+    dplyr::mutate(
+      std_unit = .normalize_unit(std_unit)
+    )
+
+  if (
+    anyNA(meq_lookup$std_unit) ||
+      any(!nzchar(meq_lookup$std_unit))
+  ) {
+    rlang::abort(
+      "Meq lookup `std_unit` must contain non-empty valid units."
+    )
+  }
+
+  # Only validate lookup entries relevant to this conversion.
+  # Unknown analytes and analytes without conversion factors are
+  # intentionally allowed and produce NA output values.
+  relevant_lookup <- meq_lookup |>
+    dplyr::filter(
+      analyte_id %in% unique(df[[analyte_col]])
+    )
+
+  # Validate only factors that are present. NA means that the
+  # analyte is not convertible by design.
+  invalid_factors <- relevant_lookup |>
+    dplyr::filter(
+      !is.na(meq_factor) &
+        (!is.finite(meq_factor) | meq_factor <= 0)
+    )
+
+  if (nrow(invalid_factors) > 0L) {
+    rlang::abort(
+      paste0(
+        "Meq lookup contains invalid conversion factor(s) for: ",
+        paste(
+          unique(invalid_factors$analyte_id),
+          collapse = ", "
+        )
+      )
+    )
+  }
+
+  # Validate units only for analytes that have a conversion factor.
+  valid_lookup <- relevant_lookup |>
     dplyr::filter(
       !is.na(meq_factor)
+    ) |>
+    dplyr::select(
+      analyte_id,
+      std_unit
     )
 
   invalid_units <- df |>
     dplyr::mutate(
-      !!unit_col := .normalize_unit(
-        .data[[unit_col]]
-      )
+      .unit = .normalize_unit(.data[[unit_col]])
     ) |>
     dplyr::left_join(
-      meq_lookup,
-      by = stats::setNames(
-        "analyte_id",
-        analyte_col
-      ),
+      valid_lookup,
+      by = stats::setNames("analyte_id", analyte_col),
       relationship = "many-to-one"
     ) |>
     dplyr::filter(
-      !is.na(meq_factor),
-      !is.na(.data[[unit_col]]),
-      .data[[unit_col]] != std_unit
+      !is.na(std_unit) &
+        (is.na(.unit) |
+          !nzchar(.unit) |
+          .unit != std_unit)
     ) |>
     dplyr::distinct(
       .data[[analyte_col]],
-      .data[[unit_col]],
+      .unit,
       std_unit
     )
 
-  if (nrow(invalid_units) > 0) {
-    examples <- invalid_units |>
-      utils::head(10)
+  if (nrow(invalid_units) > 0L) {
+    examples <- utils::head(invalid_units, 10L)
+
+    details <- paste(
+      paste0(
+        examples[[analyte_col]],
+        " (",
+        ifelse(
+          is.na(examples$.unit) | !nzchar(examples$.unit),
+          "<missing>",
+          examples$.unit
+        ),
+        " != ",
+        examples$std_unit,
+        ")"
+      ),
+      collapse = ", "
+    )
 
     cli::cli_abort(
       c(
         "Non-standard units found for meq conversion.",
-        "x" = paste(
-          paste0(
-            examples[[analyte_col]],
-            " (",
-            examples[[unit_col]],
-            " != ",
-            examples$std_unit,
-            ")"
-          ),
-          collapse = ", "
-        ),
-        "i" = "Analytical concentrations must be standardized before meq conversion."
+        "x" = details,
+        "i" = "Standardize analytical concentrations before meq conversion."
       )
     )
   }
@@ -1199,60 +1262,6 @@ validate_analyte_alias_tbl <- function(
 }
 
 #' Validate alias lookup table
-#'
-#' Validates the structure and integrity of an analyte alias lookup
-#' table.
-#'
-#' The alias lookup table is used during analyte resolution to map
-#' normalized analyte aliases to canonical analyte identifiers and
-#' metadata.
-#'
-#' @param alias_lookup Alias lookup table, typically
-#'   [analyte_alias_lookup].
-#' @param lookup An analyte metadata table, typically [analyte_tbl].
-#'
-#' @returns
-#' Invisibly returns the validated alias lookup table.
-#'
-#' @details
-#' Required columns are:
-#'
-#' \itemize{
-#'   \item `alias`
-#'   \item `analyte_id`
-#'   \item `analyte`
-#'   \item `normalized_analyte`
-#'   \item `fraction`
-#' }
-#'
-#' Validation includes:
-#'
-#' \itemize{
-#'   \item required column checks;
-#'   \item referential integrity against `analyte_tbl`;
-#'   \item duplicate alias detection;
-#'   \item character type validation;
-#'   \item missing value checks;
-#'   \item fraction validation;
-#'   \item alias normalization checks.
-#' }
-#'
-#' Valid fraction values are:
-#'
-#' \itemize{
-#'   \item `"dissolved"`
-#'   \item `"total"`
-#'   \item `"filtered"`
-#'   \item `"unfiltered"`
-#' }
-#'
-#' All aliases are expected to have already been normalized using
-#' [`.normalize_analyte_text`()].
-#'
-#' @seealso
-#' [analyte_tbl],
-#' [analyte_alias_lookup],
-#' [`.normalize_analyte_text`()]
 #'
 #' @keywords internal
 .validate_alias_lookup <- function(
@@ -1269,21 +1278,45 @@ validate_analyte_alias_tbl <- function(
     "fraction"
   )
 
-  missing_cols <- setdiff(
-    required_cols,
-    names(alias_lookup)
+  .validate_required_cols(
+    alias_lookup,
+    required_cols
   )
 
-  if (length(missing_cols) > 0) {
-    cli::cli_abort(
-      c(
-        "Alias lookup table is invalid.",
-        "Missing columns:" = paste(
-          missing_cols,
-          collapse = ", "
+  character_cols <- c(
+    "alias",
+    "analyte_id",
+    "analyte",
+    "normalized_analyte",
+    "fraction"
+  )
+
+  for (col in character_cols) {
+    if (!is.character(alias_lookup[[col]])) {
+      rlang::abort(
+        sprintf("Alias lookup `%s` must be character.", col)
+      )
+    }
+  }
+
+  non_empty_cols <- c(
+    "alias",
+    "analyte_id",
+    "analyte",
+    "normalized_analyte"
+  )
+
+  for (col in non_empty_cols) {
+    value <- alias_lookup[[col]]
+
+    if (anyNA(value) || any(!nzchar(trimws(value)))) {
+      rlang::abort(
+        sprintf(
+          "Alias lookup `%s` cannot contain missing or empty values.",
+          col
         )
       )
-    )
+    }
   }
 
   bad_targets <- setdiff(
@@ -1291,85 +1324,37 @@ validate_analyte_alias_tbl <- function(
     unique(lookup$analyte_id)
   )
 
-  if (length(bad_targets) > 0) {
-    cli::cli_abort(
-      c(
-        "Alias lookup references unknown analyte IDs.",
-        setNames(
-          bad_targets,
-          rep("x", length(bad_targets))
-        )
+  if (length(bad_targets) > 0L) {
+    rlang::abort(
+      paste0(
+        "Alias lookup references unknown analyte IDs: ",
+        paste(bad_targets, collapse = ", ")
       )
     )
   }
 
-  alias_dupes <- alias_lookup |>
-    dplyr::count(alias) |>
-    dplyr::filter(n > 1)
+  normalized_alias <- .normalize_analyte_text(
+    alias_lookup$alias
+  )
 
-  if (nrow(alias_dupes) > 0) {
-    cli::cli_abort(
-      c(
-        "Duplicate aliases detected after normalization.",
-        setNames(
-          alias_dupes$alias,
-          rep("x", nrow(alias_dupes))
-        )
+  if (any(alias_lookup$alias != normalized_alias)) {
+    rlang::abort(
+      "All aliases must already be normalized."
+    )
+  }
+
+  duplicate_aliases <- unique(
+    alias_lookup$alias[
+      duplicated(alias_lookup$alias)
+    ]
+  )
+
+  if (length(duplicate_aliases) > 0L) {
+    rlang::abort(
+      paste0(
+        "Duplicate aliases detected after normalization: ",
+        paste(duplicate_aliases, collapse = ", ")
       )
-    )
-  }
-
-  if (anyNA(alias_lookup$analyte_id)) {
-    rlang::abort(
-      "'analyte_id' cannot contain NA."
-    )
-  }
-
-  if (!is.character(alias_lookup$analyte)) {
-    rlang::abort(
-      "'analyte' must be character."
-    )
-  }
-
-  if (anyNA(alias_lookup$analyte)) {
-    rlang::abort(
-      "'analyte' cannot contain NA."
-    )
-  }
-
-  if (!is.character(alias_lookup$alias)) {
-    rlang::abort(
-      "'alias' must be character."
-    )
-  }
-
-  if (!is.character(alias_lookup$analyte_id)) {
-    rlang::abort(
-      "'analyte_id' must be character."
-    )
-  }
-
-  if (anyNA(alias_lookup$alias)) {
-    rlang::abort(
-      "'alias' cannot contain NA."
-    )
-  }
-
-  if (!is.character(alias_lookup$normalized_analyte)) {
-    rlang::abort(
-      "'normalized_analyte' must be character."
-    )
-  }
-
-  if (anyNA(alias_lookup$normalized_analyte)) {
-    rlang::abort(
-      "'normalized_analyte' cannot contain NA."
-    )
-  }
-
-  if (!is.character(alias_lookup$fraction)) {
-    rlang::abort(
-      "'fraction' must be character."
     )
   }
 
@@ -1380,32 +1365,47 @@ validate_analyte_alias_tbl <- function(
     "unfiltered"
   )
 
-  bad_fraction <- alias_lookup |>
-    dplyr::filter(
-      !is.na(fraction),
-      !fraction %in% valid_fractions
-    )
+  invalid_fraction <- !is.na(alias_lookup$fraction) &
+    !alias_lookup$fraction %in% valid_fractions
 
-  if (nrow(bad_fraction) > 0) {
+  if (any(invalid_fraction)) {
     rlang::abort(
-      paste(
-        "Invalid fraction values detected:",
+      paste0(
+        "Invalid fraction values detected: ",
         paste(
-          unique(bad_fraction$fraction),
+          unique(alias_lookup$fraction[invalid_fraction]),
           collapse = ", "
         )
       )
     )
   }
 
-  bad_aliases <- alias_lookup |>
-    dplyr::filter(
-      alias != .normalize_analyte_text(alias)
+  # Ensure copied metadata agrees with the canonical lookup.
+  expected <- lookup |>
+    dplyr::select(
+      analyte_id,
+      analyte,
+      normalized_analyte
+    ) |>
+    dplyr::rename(
+      expected_analyte = analyte,
+      expected_normalized_analyte = normalized_analyte
     )
 
-  if (nrow(bad_aliases) > 0) {
+  mismatches <- alias_lookup |>
+    dplyr::left_join(
+      expected,
+      by = "analyte_id",
+      relationship = "many-to-one"
+    ) |>
+    dplyr::filter(
+      analyte != expected_analyte |
+        normalized_analyte != expected_normalized_analyte
+    )
+
+  if (nrow(mismatches) > 0L) {
     rlang::abort(
-      "All aliases must already be normalized."
+      "Alias lookup metadata does not agree with the canonical analyte table."
     )
   }
 
@@ -1414,15 +1414,11 @@ validate_analyte_alias_tbl <- function(
 
 #' Validate a standards schema
 #'
-#' @param x Object to validate.
-#'
-#' @returns Invisibly returns TRUE.
-#'
-#' @export
+#' @keywords internal
 validate_standards_schema <- function(x) {
   if (!is_standards_schema(x)) {
     rlang::abort(
-      "Object is not a standards_schema."
+      "Object must inherit from 'standards_schema'."
     )
   }
 
@@ -1441,53 +1437,66 @@ validate_standards_schema <- function(x) {
     ".priority"
   )
 
-  missing_cols <- setdiff(
+  .validate_required_cols(x, required_cols)
+
+  character_cols <- setdiff(
     required_cols,
-    names(x)
+    c(".standard_value", ".effective_date", ".priority")
   )
 
-  if (length(missing_cols) > 0) {
-    rlang::abort(
-      paste(
-        "Missing columns:",
-        paste(missing_cols, collapse = ", ")
+  for (col in character_cols) {
+    value <- x[[col]]
+
+    if (!is.character(value)) {
+      rlang::abort(
+        sprintf("`%s` must be character.", col)
       )
-    )
+    }
+
+    if (anyNA(value) || any(!nzchar(trimws(value)))) {
+      rlang::abort(
+        sprintf(
+          "`%s` cannot contain missing or empty values.",
+          col
+        )
+      )
+    }
   }
 
   if (!is.numeric(x$.standard_value)) {
+    rlang::abort("`.standard_value` must be numeric.")
+  }
+
+  if (
+    anyNA(x$.standard_value) ||
+      any(!is.finite(x$.standard_value))
+  ) {
     rlang::abort(
-      "`.standard_value` must be numeric."
+      "`.standard_value` cannot contain NA, Inf, or NaN."
     )
   }
 
   if (!is.numeric(x$.priority)) {
+    rlang::abort("`.priority` must be numeric.")
+  }
+
+  if (
+    anyNA(x$.priority) ||
+      any(!is.finite(x$.priority))
+  ) {
     rlang::abort(
-      "`.priority` must be numeric."
+      "`.priority` cannot contain NA, Inf, or NaN."
     )
   }
 
-  if (any(is.na(x$.analyte))) {
-    rlang::abort(
-      "`.analyte` contains missing values."
+  if (
+    !inherits(
+      x$.effective_date,
+      c("Date", "POSIXct", "POSIXt")
     )
-  }
-
-  if (any(is.na(x$.standard_value))) {
+  ) {
     rlang::abort(
-      "`.standard_value` contains missing values."
-    )
-  }
-
-  if (any(is.na(x$.standard_unit))) {
-    rlang::abort(
-      "`.standard_unit` contains missing values."
-    )
-  }
-
-  if (any(is.na(x$.priority))) {
-    rlang::abort(
-      "`.priority` contains missing values."
+      "`.effective_date` must be a Date or POSIXct column."
     )
   }
 
@@ -1496,49 +1505,57 @@ validate_standards_schema <- function(x) {
 
 #' Validate est_dist arguments
 #'
-#' Internal helper for validating distribution estimation arguments.
-#'
-#' @param alpha Significance level.
-#' @param method Goodness-of-fit test method.
-#' @param choices Candidate distributions.
-#' @param return_result Logical indicating whether to return the
-#' EnvStats result object.
-#'
-#' @return Invisibly returns TRUE.
-#'
-#' @noRd
+#' @keywords internal
 .validate_est_dist_args <- function(
   alpha,
   method,
   choices,
   return_result
 ) {
-  if (!is.logical(return_result) || length(return_result) != 1) {
-    rlang::abort(
-      "return_result must be TRUE or FALSE."
-    )
-  }
+  .validate_choice(
+    method,
+    c("sw", "sf", "ppcc", "proucl"),
+    "method"
+  )
+
+  .check_flag(
+    return_result,
+    "return_result"
+  )
 
   if (
     !is.numeric(alpha) ||
-      length(alpha) != 1 ||
+      length(alpha) != 1L ||
+      is.na(alpha) ||
+      !is.finite(alpha) ||
       alpha <= 0 ||
       alpha >= 1
   ) {
     rlang::abort(
-      "alpha must be a single numeric value between 0 and 1."
+      "`alpha` must be one finite numeric value strictly between 0 and 1."
     )
   }
 
-  if (!is.character(method) || length(method) != 1) {
+  if (
+    !is.character(method) ||
+      length(method) != 1L ||
+      is.na(method) ||
+      !nzchar(method)
+  ) {
     rlang::abort(
-      "method must be a single character value."
+      "`method` must be one non-empty character value."
     )
   }
 
-  if (!is.character(choices) || length(choices) < 1) {
+  if (
+    !is.character(choices) ||
+      length(choices) < 1L ||
+      anyNA(choices) ||
+      any(!nzchar(choices)) ||
+      anyDuplicated(choices)
+  ) {
     rlang::abort(
-      "choices must be a non-empty character vector."
+      "`choices` must be a non-empty vector of unique character values."
     )
   }
 
@@ -1558,59 +1575,59 @@ validate_standards_schema <- function(x) {
 #'
 #' @keywords internal
 .validate_est_dist_output <- function(df) {
+  if (!is.data.frame(df)) {
+    rlang::abort(
+      "Distribution-estimation output must be a data frame."
+    )
+  }
+
   required_cols <- c(
     "distribution",
     "n_used",
     "data"
   )
 
-  missing_cols <- setdiff(
-    required_cols,
-    names(df)
-  )
+  .validate_required_cols(df, required_cols)
 
-  if (length(missing_cols) > 0) {
-    cli::cli_abort(
-      c(
-        "Input must be the output of {.fn estimate_distribution}.",
-        "x" = "Missing column(s): {.val {missing_cols}}."
-      )
+  if (
+    !is.character(df$distribution) ||
+      anyNA(df$distribution)
+  ) {
+    rlang::abort(
+      "`distribution` must be a character column without NA values."
     )
   }
 
-  if (!inherits(df$data, "list")) {
-    cli::cli_abort(
-      c(
-        "Input must be the output of {.fn estimate_distribution}.",
-        "x" = "Column {.field data} must be a list-column."
-      )
+  if (
+    !is.numeric(df$n_used) ||
+      anyNA(df$n_used) ||
+      any(!is.finite(df$n_used)) ||
+      any(df$n_used < 0) ||
+      any(df$n_used != as.integer(df$n_used))
+  ) {
+    rlang::abort(
+      "`n_used` must contain finite non-negative integers."
     )
   }
 
-  empty_data <- purrr::map_lgl(
+  if (!is.list(df$data)) {
+    rlang::abort("`data` must be a list-column.")
+  }
+
+  valid_nested_data <- purrr::map_lgl(
     df$data,
-    is.null
+    function(value) {
+      is.data.frame(value) &&
+        ".analysis_result" %in% names(value) &&
+        is.numeric(value$.analysis_result)
+    }
   )
 
-  if (any(empty_data)) {
-    cli::cli_abort(
-      c(
-        "Invalid nested data detected.",
-        "x" = "{sum(empty_data)} row(s) contain a NULL {.field data} object."
-      )
-    )
-  }
-
-  has_analysis_result <- purrr::map_lgl(
-    df$data,
-    ~ ".analysis_result" %in% names(.x)
-  )
-
-  if (!all(has_analysis_result)) {
-    cli::cli_abort(
-      c(
-        "Invalid nested data detected.",
-        "x" = "Each nested data frame must contain {.field .analysis_result}."
+  if (!all(valid_nested_data)) {
+    rlang::abort(
+      paste(
+        "Each `data` element must be a data frame containing",
+        "a numeric `.analysis_result` column."
       )
     )
   }
@@ -1624,20 +1641,218 @@ validate_standards_schema <- function(x) {
     "Descriptive Only"
   )
 
-  invalid_distributions <- setdiff(
-    unique(stats::na.omit(df$distribution)),
+  invalid <- setdiff(
+    unique(df$distribution),
     valid_distributions
   )
 
-  if (length(invalid_distributions) > 0) {
-    cli::cli_abort(
-      c(
-        "Unsupported distribution detected.",
-        "x" = "Found {.val {invalid_distributions}}.",
-        "i" = "Valid values are {.val {valid_distributions}}."
+  if (length(invalid) > 0L) {
+    rlang::abort(
+      paste0(
+        "Unsupported distribution(s): ",
+        paste(invalid, collapse = ", ")
+      )
+    )
+  }
+
+  invisible(TRUE)
+}
+
+#' @keywords internal
+.validate_censoring_data <- function(
+  df,
+  result_col,
+  censored_col,
+  reporting_limit_col
+) {
+  .validate_required_cols(
+    df,
+    c(
+      result_col,
+      censored_col,
+      reporting_limit_col
+    )
+  )
+
+  result <- df[[result_col]]
+  censored <- df[[censored_col]]
+  reporting_limit <- df[[reporting_limit_col]]
+
+  if (!is.numeric(result)) {
+    rlang::abort(
+      sprintf("`%s` must be numeric.", result_col)
+    )
+  }
+
+  if (any(!is.na(result) & !is.finite(result))) {
+    rlang::abort(
+      sprintf("`%s` cannot contain Inf or NaN.", result_col)
+    )
+  }
+
+  if (!is.logical(censored)) {
+    rlang::abort(
+      sprintf("`%s` must be logical.", censored_col)
+    )
+  }
+
+  if (anyNA(censored)) {
+    rlang::abort(
+      sprintf("`%s` cannot contain NA values.", censored_col)
+    )
+  }
+
+  if (!is.numeric(reporting_limit)) {
+    rlang::abort(
+      sprintf("`%s` must be numeric.", reporting_limit_col)
+    )
+  }
+
+  if (any(!is.na(reporting_limit) & !is.finite(reporting_limit))) {
+    rlang::abort(
+      sprintf(
+        "`%s` cannot contain Inf or NaN.",
+        reporting_limit_col
+      )
+    )
+  }
+
+  if (
+    any(
+      censored &
+        (is.na(reporting_limit) | reporting_limit <= 0)
+    )
+  ) {
+    rlang::abort(
+      paste0(
+        "Every censored observation must have a finite positive ",
+        "reporting limit."
       )
     )
   }
 
   invisible(df)
+}
+
+#' @keywords internal
+.validate_count_vector <- function(x, name) {
+  if (
+    !is.numeric(x) ||
+      anyNA(x) ||
+      any(!is.finite(x)) ||
+      any(x < 0) ||
+      any(x != floor(x))
+  ) {
+    rlang::abort(
+      sprintf(
+        "`%s` must contain finite, non-negative integers.",
+        name
+      )
+    )
+  }
+
+  invisible(x)
+}
+
+#' @keywords internal
+.validate_interval_distribution <- function(distribution) {
+  supported <- c(
+    "Normal",
+    "Lognormal",
+    "Nonparametric"
+  )
+
+  bad <- setdiff(
+    unique(stats::na.omit(distribution)),
+    supported
+  )
+
+  if (length(bad) > 0) {
+    rlang::abort(
+      paste(
+        "Intervals are only available for:",
+        paste(supported, collapse = ", "),
+        "\nUnsupported distribution(s):",
+        paste(bad, collapse = ", ")
+      )
+    )
+  }
+
+  invisible(distribution)
+}
+
+#' @keywords internal
+#' @noRd
+.validate_positive_integer <- function(x, name) {
+  if (
+    !is.numeric(x) ||
+      length(x) != 1L ||
+      is.na(x) ||
+      x < 1 ||
+      x != as.integer(x)
+  ) {
+    rlang::abort(
+      sprintf("`%s` must be a positive integer.", name)
+    )
+  }
+
+  invisible(x)
+}
+
+#' @keywords internal
+#' @noRd
+.validate_probability <- function(x, name) {
+  if (
+    !is.numeric(x) ||
+      length(x) != 1L ||
+      is.na(x) ||
+      x <= 0 ||
+      x >= 1
+  ) {
+    rlang::abort(
+      sprintf("`%s` must be between 0 and 1.", name)
+    )
+  }
+
+  invisible(x)
+}
+
+#' @keywords internal
+#' @noRd
+.validate_conf_int_args <- function(
+  conf_level,
+  ci_type,
+  ci_param,
+  nonparametric_args,
+  censored_args
+) {
+  if (
+    !is.numeric(conf_level) ||
+      length(conf_level) != 1L ||
+      is.na(conf_level) ||
+      conf_level <= 0 ||
+      conf_level >= 1
+  ) {
+    rlang::abort("`conf_level` must be between 0 and 1.")
+  }
+
+  rlang::arg_match0(
+    ci_type,
+    c("upper", "lower", "two-sided")
+  )
+
+  rlang::arg_match0(
+    ci_param,
+    c("mean", "median", "quantile", "geometric.mean")
+  )
+
+  if (!is.list(nonparametric_args) || is.null(names(nonparametric_args))) {
+    rlang::abort("`nonparametric_args` must be a named list.")
+  }
+
+  if (!is.list(censored_args) || is.null(names(censored_args))) {
+    rlang::abort("`censored_args` must be a named list.")
+  }
+
+  invisible(NULL)
 }

@@ -216,7 +216,7 @@ test_that("validate_env_schema remains strict for required mapped columns", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries: location"
   )
 
   y <- dplyr::select(
@@ -226,7 +226,7 @@ test_that("validate_env_schema remains strict for required mapped columns", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries: sample_date"
   )
 
   y <- dplyr::select(
@@ -236,7 +236,7 @@ test_that("validate_env_schema remains strict for required mapped columns", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries: analyte"
   )
 
   y <- dplyr::select(
@@ -246,7 +246,7 @@ test_that("validate_env_schema remains strict for required mapped columns", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries: result"
   )
 })
 

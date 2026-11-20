@@ -2,22 +2,16 @@
 % Please edit documentation in R/units.R
 \name{.standardize_schema_results}
 \alias{.standardize_schema_results}
-\title{Standardize env_schema analytical results}
+\title{Standardize env_schema analytical results and limits}
 \usage{
-.standardize_schema_results(df)
-}
-\arguments{
-\item{df}{Data frame containing schema analyte metadata.}
-}
-\value{
-Data frame.
+.standardize_schema_results(df, env_mapping = NULL)
 }
 \description{
-Converts .analysis_result values to analyte-specific
-standard reporting units and updates .analysis_unit.
+Converts analytical results and mapped detection/reporting limits
+to analyte-specific standard units.
 }
 \details{
-Original laboratory values are preserved in
-.original_lab_result and .original_lab_unit.
+Missing source units are assumed to be the analyte lookup standard
+unit and are reported with an informational message.
 }
 \keyword{internal}

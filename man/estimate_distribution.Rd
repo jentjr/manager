@@ -4,11 +4,7 @@
 \alias{estimate_distribution}
 \title{Estimate Distributions Using Statistical Decision Guidance}
 \usage{
-estimate_distribution(
-  df,
-  distribution_config = "auto",
-  result_col = analysis_result_var(df)
-)
+estimate_distribution(df, ...)
 }
 \arguments{
 \item{df}{Grouped data frame or `env_schema` object.}
@@ -18,6 +14,14 @@ distribution fitting functions.
 
 If `"auto"` (the default), configuration settings are obtained from
 the group's [statistical_decision()] object.}
+
+\item{result_col}{Name of the numeric analytical-result column.
+Defaults to `"analysis_result"` for ordinary data frames and the
+schema-defined analytical-result column for `env_schema` objects.}
+
+\item{censored_col}{Name of the logical censoring-indicator column.
+Defaults to `"censored"` for ordinary data frames and the schema-defined
+censoring column for `env_schema` objects.}
 }
 \value{
 A tibble containing one row per group.

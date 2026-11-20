@@ -7,7 +7,9 @@
 .validate_analyte_units(
   df,
   param_name = "param_name",
-  default_unit = "default_unit"
+  default_unit = "default_unit",
+  alias_lookup = analyte_alias_lookup,
+  lookup = analyte_tbl
 )
 }
 \arguments{
@@ -16,6 +18,10 @@
 \item{param_name}{Character string identifying the analyte column.}
 
 \item{default_unit}{Character string identifying the unit column.}
+
+\item{alias_lookup}{Analyte alias lookup table}
+
+\item{lookup}{Anlayte table lookup}
 }
 \value{
 A data frame containing resolved analyte metadata and normalized

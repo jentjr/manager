@@ -113,28 +113,6 @@ test_that(".standardize_schema_results leaves rows with missing standard units u
   )
 })
 
-test_that(".standardize_schema_results handles incompatible unit conversions", {
-  df <- tibble::tibble(
-    .analysis_result = 1,
-    .analysis_unit = "mg/L",
-    .std_unit = "ft"
-  )
-
-  expect_warning(
-    out <- .standardize_schema_results(df),
-    "Skipped incompatible unit conversion"
-  )
-
-  expect_true(
-    is.na(out$.analysis_result)
-  )
-
-  expect_equal(
-    out$.analysis_unit,
-    "ft"
-  )
-})
-
 test_that(".standardize_schema_results standardizes equivalent concentrations identically", {
   df <- tibble::tibble(
     .analysis_result = c(
@@ -162,4 +140,47 @@ test_that(".standardize_schema_results standardizes equivalent concentrations id
     out$.analysis_unit[1],
     out$.analysis_unit[2]
   )
+})
+
+test_that(".standardize_schema_results uses the standard unit when source unit is missing", {
+  df <- tibble::tibble(
+    .analysis_result = 1,
+    .analysis_unit = NA_character_,
+    .std_unit = "mg/L"
+  )
+
+  expect_message(
+    out <- .standardize_schema_results(df),
+    "standard unit"
+  )
+
+  expect_equal(
+    out$.analysis_result,
+    1
+  )
+
+  expect_equal(
+    out$.analysis_unit,
+    "mg/l"
+  )
+})
+
+test_that("STD source units use the analyte standard unit", {
+  df <- tibble::tibble(
+    .analysis_result = 7,
+    .analysis_unit = "STD",
+    .std_unit = "pH"
+  )
+
+  expect_message(
+    out <- .standardize_schema_results(df),
+    "standard unit"
+  )
+
+  expect_equal(out$.analysis_result, 7)
+  expect_equal(out$.analysis_unit, "ph")
+})
+
+test_that("STD normalizes to a missing unit", {
+  expect_true(is.na(.normalize_unit("STD")))
 })

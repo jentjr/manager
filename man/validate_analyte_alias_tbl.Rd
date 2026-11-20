@@ -6,15 +6,7 @@
 \usage{
 validate_analyte_alias_tbl(alias_tbl, analyte_tbl)
 }
-\arguments{
-\item{alias_tbl}{Analyte alias table.}
-
-\item{analyte_tbl}{Canonical analyte metadata table.}
-}
-\value{
-Invisibly returns `TRUE`.
-}
 \description{
-Validates the structure and integrity of an analyte alias table.
+Validate analyte alias table
 }
 \keyword{internal}

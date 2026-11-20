@@ -21,13 +21,7 @@ stats_summary(df, ...)
   na.rm = TRUE
 )
 
-\method{stats_summary}{env_schema}(
-  df,
-  result_col = analysis_result_var(df),
-  censored_col = censored_var(df),
-  na.rm = TRUE,
-  ...
-)
+\method{stats_summary}{env_schema}(df, result_col = NULL, censored_col = NULL, na.rm = TRUE, ...)
 
 \method{stats_summary}{grouped_df}(df, ...)
 }
@@ -146,6 +140,7 @@ group.
 Empty inputs return an empty tibble with the standard summary columns.
 }
 \section{env_schema Method}{
+
 
 For `env_schema` objects, `stats_summary()` automatically uses
 the schema mappings and standardized analytical fields:

@@ -587,3 +587,49 @@ test_that("stable trends are not significant", {
     "Stable"
   )
 })
+
+test_that("auto uses ordinary Kendall for uncensored data", {
+  out <- trend_summary(
+    make_increasing_trend(),
+    method = "mann_kendall",
+    censored_method = "auto"
+  )
+
+  expect_equal(out$censored_method, "as_reported")
+  expect_true(out$significant)
+  expect_equal(out$trend_direction, "Increasing")
+})
+
+test_that("auto uses cenken for censored data", {
+  out <- trend_summary(
+    make_censored_trend(),
+    method = "mann_kendall",
+    censored_method = "auto"
+  )
+
+  expect_equal(out$censored_method, "cenken")
+  expect_false(is.na(out$slope))
+  expect_false(is.na(out$p_value))
+})
+
+test_that("regression methods reject censored data", {
+  expect_error(
+    trend_summary(
+      make_censored_trend(),
+      method = "lm",
+      censored_method = "auto"
+    ),
+    "not supported for censored data"
+  )
+})
+
+test_that("as_reported cannot be forced for censored data", {
+  expect_error(
+    trend_summary(
+      make_censored_trend(),
+      method = "mann_kendall",
+      censored_method = "as_reported"
+    ),
+    "cannot be used"
+  )
+})

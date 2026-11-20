@@ -50,7 +50,7 @@ rosner_test(df, ...)
 should be returned.}
 
 \item{keep_data_object}{Logical indicating whether the complete
-Rosner result object should be retained.}
+Rosner result object should be returned.}
 }
 \value{
 A tibble containing one row per outlier evaluation group.

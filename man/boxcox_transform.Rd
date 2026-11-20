@@ -16,14 +16,13 @@ boxcox_transform(df, ...)
   analysis_result = "analysis_result",
   default_unit = "default_unit",
   objective_name = "PPCC",
-  result_col = analysis_result_var(df),
   keep_data_object = FALSE,
   ...
 )
 
 \method{boxcox_transform}{env_schema}(
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
   objective_name = "PPCC",
   keep_data_object = FALSE,
   ...
@@ -38,7 +37,7 @@ boxcox_transform(df, ...)
 criterion passed to [EnvStats::boxcox()].}
 
 \item{keep_data_object}{Logical indicating whether the complete
-Box-Cox result object should be retained.}
+Box-Cox result object should be returned.}
 }
 \value{
 The original data with additional columns:

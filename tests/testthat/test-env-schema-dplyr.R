@@ -103,7 +103,7 @@ test_that("select preserves env_schema subclass", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries"
   )
 })
 

@@ -299,3 +299,57 @@ test_that("meq factors are internally consistent", {
     tolerance = 1e-10
   )
 })
+
+test_that("meq conversion ignores unrelated analytes with missing factors", {
+  prepared <- manager:::.prepare_geochemical_data(
+    df = gw,
+    analytes = c(
+      "Calcium, dissolved",
+      "Magnesium, dissolved",
+      "Sodium, dissolved",
+      "Potassium, dissolved",
+      "Chloride, total",
+      "Fluoride, total",
+      "Alkalinity, total (lab)",
+      "Sulfate, total"
+    ),
+    analyte_matching = "strict"
+  )
+
+  converted <- manager::convert_analytes_to_meq(prepared)
+
+  expect_equal(
+    sort(unique(converted$.analysis_unit_meq)),
+    "meq/L"
+  )
+
+  expect_true(
+    all(is.finite(converted$.analysis_result_meq))
+  )
+})
+
+test_that("unsupported analytes return missing meq values", {
+  input <- tibble::tibble(
+    .analyte_id = "imaginary analyte",
+    .analysis_result = 1,
+    .analysis_unit = "mg/l"
+  )
+
+  result <- manager::convert_analytes_to_meq(input)
+
+  expect_true(all(is.na(result$.analysis_result_meq)))
+  expect_true(all(is.na(result$.analysis_unit_meq)))
+})
+
+test_that("analytes without meq factors return missing values", {
+  input <- tibble::tibble(
+    .analyte_id = "iron",
+    .analysis_result = 1,
+    .analysis_unit = "mg/l"
+  )
+
+  result <- manager::convert_analytes_to_meq(input)
+
+  expect_true(all(is.na(result$.analysis_result_meq)))
+  expect_true(all(is.na(result$.analysis_unit_meq)))
+})

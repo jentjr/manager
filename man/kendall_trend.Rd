@@ -17,7 +17,13 @@ kendall_trend(df, ...)
   conf.level = 0.95
 )
 
-\method{kendall_trend}{env_schema}(df, result_col = analysis_result_var(df), conf.level = 0.95, ...)
+\method{kendall_trend}{env_schema}(
+  df,
+  result_col = NULL,
+  censored_col = NULL,
+  conf.level = 0.95,
+  ...
+)
 }
 \arguments{
 \item{df}{A data frame or `env_schema` object.}
@@ -65,6 +71,7 @@ increasing or decreasing trend is present through time.
 Confidence intervals may not be available for small sample sizes.
 }
 \section{env_schema Method}{
+
 
 For `env_schema` objects, the test is performed using:
 

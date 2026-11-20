@@ -441,7 +441,9 @@ env_schema <- function(
   # --------------------------------------------------------------
 
   out <- out |>
-    .standardize_schema_results() |>
+    .standardize_schema_results(
+      env_mapping = env_mapping
+    ) |>
     .build_analyte_labels()
 
   # --------------------------------------------------------------
@@ -649,23 +651,19 @@ default_display_options <- function() {
   env_mapping,
   display_options = default_display_options()
 ) {
-  reporting_limit <- if (!is.null(env_mapping$reporting_limit)) {
-    df[[env_mapping$reporting_limit]]
-  } else {
+  get_limit <- function(name) {
+    col <- paste0(".", name)
+
+    if (col %in% names(df)) {
+      return(df[[col]])
+    }
+
     rep(NA_real_, nrow(df))
   }
 
-  quantitation_limit <- if (!is.null(env_mapping$quantitation_limit)) {
-    df[[env_mapping$quantitation_limit]]
-  } else {
-    rep(NA_real_, nrow(df))
-  }
-
-  detection_limit <- if (!is.null(env_mapping$detection_limit)) {
-    df[[env_mapping$detection_limit]]
-  } else {
-    rep(NA_real_, nrow(df))
-  }
+  reporting_limit <- get_limit("reporting_limit")
+  quantitation_limit <- get_limit("quantitation_limit")
+  detection_limit <- get_limit("detection_limit")
 
   display_threshold <- dplyr::coalesce(
     reporting_limit,
@@ -675,20 +673,10 @@ default_display_options <- function() {
   )
 
   display_threshold_type <- dplyr::case_when(
-    !is.na(reporting_limit) ~
-      unname(.display_threshold_types["reporting_limit"]),
-
-    is.na(reporting_limit) &
-      !is.na(quantitation_limit) ~
-      unname(.display_threshold_types["quantitation_limit"]),
-
-    is.na(reporting_limit) &
-      is.na(quantitation_limit) &
-      !is.na(detection_limit) ~
-      unname(.display_threshold_types["detection_limit"]),
-
-    TRUE ~
-      unname(.display_threshold_types["analysis_result"])
+    !is.na(reporting_limit) ~ "reporting_limit",
+    !is.na(quantitation_limit) ~ "quantitation_limit",
+    !is.na(detection_limit) ~ "detection_limit",
+    TRUE ~ "analysis_result"
   )
 
   formatted_threshold <- .format_display_threshold(
@@ -703,38 +691,27 @@ default_display_options <- function() {
 
   tibble::tibble(
     .display_threshold = display_threshold,
-
     .display_threshold_type = display_threshold_type,
-
     .display_result = dplyr::case_when(
-      is.na(display_threshold) ~
-        NA_character_,
-
-      !df$.censored ~
-        formatted_result,
-
+      is.na(display_threshold) ~ NA_character_,
+      !df$.censored ~ formatted_result,
       display_options$report_style == "standard" ~
         paste0(
           display_options$censor_prefix,
           formatted_threshold
         ),
-
       display_options$report_style == "verbose" ~
         paste0(
           display_options$censor_prefix,
           " ",
-          .display_threshold_labels[
-            display_threshold_type
-          ],
+          .display_threshold_labels[display_threshold_type],
           " ",
           formatted_threshold
         ),
-
-      TRUE ~
-        paste0(
-          display_options$censor_prefix,
-          formatted_threshold
-        )
+      TRUE ~ paste0(
+        display_options$censor_prefix,
+        formatted_threshold
+      )
     )
   )
 }
@@ -914,12 +891,77 @@ is_env_schema <- function(x) {
 #'
 #' @keywords internal
 has_env_schema_structure <- function(x) {
-  tryCatch(
-    {
-      validate_env_schema_structure(x)
-      TRUE
+  if (!inherits(x, "env_schema")) {
+    return(FALSE)
+  }
+
+  required_attributes <- c(
+    "env_mapping",
+    "display_options",
+    "env_schema_version"
+  )
+
+  if (
+    !all(
+      vapply(
+        required_attributes,
+        function(name) {
+          !is.null(attr(x, name, exact = TRUE))
+        },
+        logical(1)
+      )
+    )
+  ) {
+    return(FALSE)
+  }
+
+  mapping <- attr(x, "env_mapping", exact = TRUE)
+
+  if (!is.list(mapping)) {
+    return(FALSE)
+  }
+
+  required_mapping <- c(
+    "location",
+    "sample_date",
+    "analyte",
+    "result"
+  )
+
+  if (!all(required_mapping %in% names(mapping))) {
+    return(FALSE)
+  }
+
+  mapped_names <- vapply(
+    mapping[required_mapping],
+    function(value) {
+      if (
+        !is.character(value) ||
+          length(value) != 1L ||
+          is.na(value) ||
+          !nzchar(value)
+      ) {
+        return(NA_character_)
+      }
+
+      value
     },
-    error = function(e) FALSE
+    character(1)
+  )
+
+  if (
+    anyNA(mapped_names) ||
+      !all(mapped_names %in% names(x))
+  ) {
+    return(FALSE)
+  }
+
+  all(
+    c(
+      ".analysis_result",
+      ".analysis_unit"
+    ) %in%
+      names(x)
   )
 }
 
@@ -1851,9 +1893,9 @@ censored_var <- function(x) {
 analysis_analyte <- function(
   x,
   analyte_matching = c(
-    "normalized",
+    "exact",
     "strict",
-    "exact"
+    "normalized"
   )
 ) {
   UseMethod("analysis_analyte")
@@ -2385,9 +2427,9 @@ short_analyte_label.env_schema <- function(x) {
 analysis_analyte.default <- function(
   x,
   analyte_matching = c(
-    "normalized",
+    "exact",
     "strict",
-    "exact"
+    "normalized"
   )
 ) {
   .accessor_not_implemented(
@@ -2583,7 +2625,7 @@ group_by.env_schema <- function(
   restored
 }
 
-#' @export
+#' @exportS3Method dplyr::ungroup env_schema
 ungroup.env_schema <- function(x, ...) {
   out <- dplyr::ungroup(
     tibble::as_tibble(x)
@@ -2612,7 +2654,7 @@ vec_restore.env_schema <- function(
   )
 }
 
-#' @export
+#' @exportS3Method dplyr::dplyr_reconstruct env_schema
 dplyr_reconstruct.env_schema <- function(
   data,
   template
@@ -2624,7 +2666,7 @@ dplyr_reconstruct.env_schema <- function(
   )
 }
 
-#' @export
+#' @exportS3Method dplyr::select env_schema
 select.env_schema <- function(.data, ...) {
   out <- dplyr::select(
     tibble::as_tibble(.data),

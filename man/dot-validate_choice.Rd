@@ -2,18 +2,11 @@
 % Please edit documentation in R/validation.R
 \name{.validate_choice}
 \alias{.validate_choice}
-\title{Validate choices}
+\title{Validate a scalar choice}
 \usage{
 .validate_choice(x, choices, arg)
 }
-\arguments{
-\item{x}{Character vector.}
-
-\item{choices}{Character vector}
-
-\item{arg}{Character vector}
-}
 \description{
-Validate choices
+Validate a scalar choice
 }
 \keyword{internal}

@@ -399,7 +399,7 @@ test_that("required mapped columns must remain present", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries"
   )
 
   y <- dplyr::select(
@@ -409,7 +409,7 @@ test_that("required mapped columns must remain present", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries"
   )
 
   y <- dplyr::select(
@@ -419,7 +419,7 @@ test_that("required mapped columns must remain present", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries"
   )
 
   y <- dplyr::select(
@@ -429,7 +429,7 @@ test_that("required mapped columns must remain present", {
 
   expect_error(
     validate_env_schema(y),
-    "Missing mapped columns"
+    "Missing mapping entries"
   )
 })
 

@@ -6,43 +6,7 @@
 \usage{
 validate_analyte_tbl(x)
 }
-\arguments{
-\item{x}{An analyte metadata table, typically [analyte_tbl].}
-}
-\value{
-Invisibly returns `TRUE` if validation succeeds.
-}
 \description{
-Validates the structure and integrity of an analyte metadata table.
-}
-\details{
-An analyte metadata table provides the canonical analyte registry
-used throughout the package for analyte resolution, metadata
-assignment, standards matching, plotting, unit conversion, and
-environmental data classification workflows.
-
-
-The table must contain the following required columns:
-
-\itemize{
-  \item `analyte_id`
-  \item `analyte`
-  \item `normalized_analyte`
-  \item `short_name`
-  \item `std_unit`
-  \item `analyte_group`
-}
-
-Validation includes:
-
-\itemize{
-  \item presence of required columns;
-  \item non-missing analyte identifiers;
-  \item uniqueness of canonical analyte names;
-}
-}
-\seealso{
-[analyte_tbl],
-[`.validate_alias_lookup`()]
+Validate analyte metadata table
 }
 \keyword{internal}

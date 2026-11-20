@@ -6,12 +6,7 @@
 \usage{
 validate_standards_schema(x)
 }
-\arguments{
-\item{x}{Object to validate.}
-}
-\value{
-Invisibly returns TRUE.
-}
 \description{
 Validate a standards schema
 }
+\keyword{internal}

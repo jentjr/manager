@@ -73,7 +73,8 @@ env_schema(
 )
 ```
 
-Internally, plotting methods interact with schema accessors rather than hard-coded column names:
+Internally, plotting methods interact with schema accessors rather than 
+hard-coded column names:
 
 ```r
 location_var()
@@ -84,15 +85,18 @@ analysis_unit_var()
 reporting_flag_var()
 ```
 
-This architecture ensures plots remain portable across different environmental datasets.
+This architecture ensures plots remain portable across different environmental 
+datasets.
 
 # Example Datasets
 
-The package includes groundwater monitoring datasets that can be used to demonstrate plotting functionality.
+The package includes groundwater monitoring datasets that can be used to 
+demonstrate plotting functionality.
 
 ## Standardized Example Dataset
 
-The `gw` dataset is an `env_schema` object and can be used directly with plotting functions.
+The `gw` dataset is an `env_schema` object and can be used directly with 
+plotting functions.
 
 ```{r data-gw}
 library(dplyr)
