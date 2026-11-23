@@ -1,23 +1,9 @@
-# Validate choices
+# Validate a scalar choice
 
-Validate choices
+Validate a scalar choice
 
 ## Usage
 
 ``` r
 .validate_choice(x, choices, arg)
 ```
-
-## Arguments
-
-- x:
-
-  Character vector.
-
-- choices:
-
-  Character vector
-
-- arg:
-
-  Character vector

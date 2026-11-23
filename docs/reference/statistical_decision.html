@@ -36,7 +36,7 @@ the degree of censoring."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Statistical Decision Guidance</h1>
-      <small class="dont-index">Source: <a href="https://github.com/jentjr/manager/blob/HEAD/R/stats.R" class="external-link"><code>R/stats.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/jentjr/manager/blob/HEAD/R/analysis_plan.R" class="external-link"><code>R/analysis_plan.R</code></a></small>
       <div class="d-none name"><code>statistical_decision.Rd</code></div>
     </div>
 
@@ -51,7 +51,7 @@ the degree of censoring.</p>
 <span>  <span class="va">percent_censored</span>,</span>
 <span>  <span class="va">n_used</span>,</span>
 <span>  <span class="va">n_detect</span>,</span>
-<span>  profile <span class="op">=</span> <span class="fu"><a href="guidance_profile.html">guidance_profile</a></span><span class="op">(</span><span class="st">"epa_unified"</span><span class="op">)</span></span>
+<span>  profile <span class="op">=</span> <span class="fu"><a href="guidance_options.html">guidance_options</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -126,6 +126,8 @@ statistical evaluation.</p></dd>
 <dd><p>Configuration list suitable for interval estimation
     functions.</p></dd>
 
+  <dt>interval_method</dt>
+<dd><p>Recommended interval method.</p></dd>
 
   <dt>decision_basis</dt>
 <dd><p>Primary basis for the recommendation.</p></dd>
@@ -172,13 +174,13 @@ evaluation when censoring is extensive.</p>
 <span class="r-in"><span>  n_detect <span class="op">=</span> <span class="fl">18</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;statistical_decision&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 12</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   n_used n_detect percent_censored censoring_class distribution_method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     20       18               12 low_censoring   parametric         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 7 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_used n_detect percent_censored censoring_class    distribution_method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     20       18               12 moderate_censoring ros_censored       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   censored_method &lt;chr&gt;, distribution_config &lt;list&gt;, interval_config &lt;list&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   decision_basis &lt;chr&gt;, comparison_method &lt;chr&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   interval_method &lt;chr&gt;, comparison_method &lt;chr&gt;, decision_basis &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">statistical_decision</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  percent_censored <span class="op">=</span> <span class="fl">75</span>,</span></span>
@@ -186,13 +188,13 @@ evaluation when censoring is extensive.</p>
 <span class="r-in"><span>  n_detect <span class="op">=</span> <span class="fl">4</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;statistical_decision&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 12</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   n_used n_detect percent_censored censoring_class distribution_method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     16        4               75 high_censoring  nonparametric      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 7 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_used n_detect percent_censored censoring_class   distribution_method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     16        4               75 extreme_censoring descriptive_only   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   censored_method &lt;chr&gt;, distribution_config &lt;list&gt;, interval_config &lt;list&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   decision_basis &lt;chr&gt;, comparison_method &lt;chr&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   interval_method &lt;chr&gt;, comparison_method &lt;chr&gt;, decision_basis &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">statistical_decision</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  percent_censored <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">25</span>, <span class="fl">80</span><span class="op">)</span>,</span></span>
@@ -200,15 +202,15 @@ evaluation when censoring is extensive.</p>
 <span class="r-in"><span>  n_detect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">9</span>, <span class="fl">7</span>, <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;statistical_decision&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 12</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   n_used n_detect percent_censored censoring_class    distribution_method</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     10        9                5 low_censoring      parametric         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     10        7               25 moderate_censoring ros_censored       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     10        2               80 high_censoring     nonparametric      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 7 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   n_used n_detect percent_censored censoring_class   distribution_method</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     10        9                5 low_censoring     parametric         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     10        7               25 high_censoring    nonparametric      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     10        2               80 extreme_censoring descriptive_only   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   censored_method &lt;chr&gt;, distribution_config &lt;list&gt;, interval_config &lt;list&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   decision_basis &lt;chr&gt;, comparison_method &lt;chr&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   interval_method &lt;chr&gt;, comparison_method &lt;chr&gt;, decision_basis &lt;chr&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -8,7 +8,9 @@ Validates analyte and unit fields within an analytical dataset.
 .validate_analyte_units(
   df,
   param_name = "param_name",
-  default_unit = "default_unit"
+  default_unit = "default_unit",
+  alias_lookup = analyte_alias_lookup,
+  lookup = analyte_tbl
 )
 ```
 
@@ -25,6 +27,14 @@ Validates analyte and unit fields within an analytical dataset.
 - default_unit:
 
   Character string identifying the unit column.
+
+- alias_lookup:
+
+  Analyte alias lookup table
+
+- lookup:
+
+  Anlayte table lookup
 
 ## Value
 

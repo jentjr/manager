@@ -88,6 +88,6 @@ gw <- env_schema(
 #> Warning: 1 analytes were not found in analyte metadata.
 #> ℹ Nitrite + Nitrate, total
 #> ,
-#> Warning: Skipped incompatible unit conversion: degrees c -> degC
-#> Warning: Skipped incompatible unit conversion: std -> ph
+#> ℹ 145 analytical result value(s) have no source unit.
+#> ℹ The analyte lookup standard unit will be assumed.
 ```

@@ -137,8 +137,8 @@ dixon_test(gw_data)
 #> Warning: 1 analytes were not found in analyte metadata.
 #> ℹ Nitrite + Nitrate, total
 #> ,
-#> Warning: Skipped incompatible unit conversion: degrees c -> degC
-#> Warning: Skipped incompatible unit conversion: std -> ph
+#> ℹ 145 analytical result value(s) have no source unit.
+#> ℹ The analyte lookup standard unit will be assumed.
 #> # A tibble: 387 × 5
 #> # Groups:   location_id, param_name, .analysis_unit [387]
 #>    location_id param_name           .analysis_unit alternative           p_value
@@ -166,8 +166,8 @@ schema <- env_schema(
 #> Warning: 1 analytes were not found in analyte metadata.
 #> ℹ Nitrite + Nitrate, total
 #> ,
-#> Warning: Skipped incompatible unit conversion: degrees c -> degC
-#> Warning: Skipped incompatible unit conversion: std -> ph
+#> ℹ 145 analytical result value(s) have no source unit.
+#> ℹ The analyte lookup standard unit will be assumed.
 
 dixon_test(schema)
 #> # A tibble: 387 × 5

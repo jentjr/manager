@@ -12,6 +12,8 @@
   : Return measurement metadata
 - [`analysis_method()`](https://jentjr.github.io/manager/reference/analysis_method.md)
   : Return standardized analytical methods
+- [`analysis_plan()`](https://jentjr.github.io/manager/reference/analysis_plan.md)
+  : Create a statistical analysis plan
 - [`analysis_result()`](https://jentjr.github.io/manager/reference/analysis_result.md)
   : Return standardized analytical results
 - [`analysis_result_meq()`](https://jentjr.github.io/manager/reference/analysis_result_meq.md)
@@ -38,8 +40,13 @@
   : Return censoring flags
 - [`charge_balance()`](https://jentjr.github.io/manager/reference/charge_balance.md)
   : Charge Balance Calculation
+- [`compare_groups()`](https://jentjr.github.io/manager/reference/compare_groups.md)
+  [`anova_test()`](https://jentjr.github.io/manager/reference/compare_groups.md)
+  [`welch_test()`](https://jentjr.github.io/manager/reference/compare_groups.md)
+  [`kruskal_test()`](https://jentjr.github.io/manager/reference/compare_groups.md)
+  : Compare Analytical Results Among Groups
 - [`conf_int()`](https://jentjr.github.io/manager/reference/conf_int.md)
-  : Function to calculate confidence intervals
+  : Calculate confidence intervals
 - [`convert_analytes_to_meq()`](https://jentjr.github.io/manager/reference/convert_analytes_to_meq.md)
   : Convert standardized analytes to milliequivalents per liter
 - [`corr_plot()`](https://jentjr.github.io/manager/reference/corr_plot.md)
@@ -84,6 +91,8 @@
   : Check if an object is an environmental schema
 - [`kendall_trend()`](https://jentjr.github.io/manager/reference/kendall_trend.md)
   : Mann-Kendall Trend Test
+- [`levene_test()`](https://jentjr.github.io/manager/reference/levene_test.md)
+  : Levene's Test for Homogeneity of Variance
 - [`location()`](https://jentjr.github.io/manager/reference/location.md)
   : Return location values
 - [`major_ions()`](https://jentjr.github.io/manager/reference/major_ions.md)
@@ -109,9 +118,11 @@
 - [`piper_time_plot()`](https://jentjr.github.io/manager/reference/piper_time_plot.md)
   : Animate Piper Diagrams
 - [`pred_int()`](https://jentjr.github.io/manager/reference/pred_int.md)
-  : Function to calculate prediction interval
+  : Calculate prediction intervals
 - [`pred_int_sim()`](https://jentjr.github.io/manager/reference/pred_int_sim.md)
-  : Function to calculate simultaneous prediction interval
+  : Calculate simultaneous prediction intervals
+- [`print(`*`<environmental_analysis_result>`*`)`](https://jentjr.github.io/manager/reference/print.environmental_analysis_result.md)
+  : Print an environmental analysis result
 - [`print(`*`<statistical_decision>`*`)`](https://jentjr.github.io/manager/reference/print.statistical_decision.md)
   : Print Statistical Decision Object
 - [`qualifier_table()`](https://jentjr.github.io/manager/reference/qualifier_table.md)
@@ -132,6 +143,8 @@
   Return original result values
 - [`rosner_test()`](https://jentjr.github.io/manager/reference/rosner_test.md)
   : Rosner Test
+- [`run_analysis()`](https://jentjr.github.io/manager/reference/run_analysis.md)
+  : Run an analysis from an analysis plan
 - [`sample_date()`](https://jentjr.github.io/manager/reference/sample_date.md)
   : Return sample dates
 - [`sample_id()`](https://jentjr.github.io/manager/reference/sample_id.md)
@@ -150,6 +163,8 @@
   : Schoeller Diagram Data
 - [`schoeller_plot()`](https://jentjr.github.io/manager/reference/schoeller_plot.md)
   : Schoeller Diagram
+- [`select_statistical_method()`](https://jentjr.github.io/manager/reference/select_statistical_method.md)
+  : Select a statistical method
 - [`series_plot()`](https://jentjr.github.io/manager/reference/series_plot.md)
   : Environmental Time Series Plot
 - [`set_background()`](https://jentjr.github.io/manager/reference/set_background.md)
@@ -187,7 +202,7 @@
 - [`threshold_metadata()`](https://jentjr.github.io/manager/reference/threshold_metadata.md)
   : Return threshold metadata
 - [`tol_int()`](https://jentjr.github.io/manager/reference/tol_int.md) :
-  Function to calculate tolernace intervals
+  Calculate tolerance intervals
 - [`to_spatial()`](https://jentjr.github.io/manager/reference/to_spatial.md)
   : function to convert data to sf object
 - [`to_wide()`](https://jentjr.github.io/manager/reference/to_wide.md) :
@@ -202,10 +217,12 @@
   : Function to update background data
 - [`usable()`](https://jentjr.github.io/manager/reference/usable.md) :
   Return usability flags
+- [`validate_analysis_data()`](https://jentjr.github.io/manager/reference/validate_analysis_data.md)
+  : Validate data against an analysis plan
+- [`validate_analysis_plan()`](https://jentjr.github.io/manager/reference/validate_analysis_plan.md)
+  : Validate a statistical analysis plan
 - [`validate_env_schema()`](https://jentjr.github.io/manager/reference/validate_env_schema.md)
   : Validate an environmental schema
-- [`validate_standards_schema()`](https://jentjr.github.io/manager/reference/validate_standards_schema.md)
-  : Validate a standards schema
 - [`write_event_summary()`](https://jentjr.github.io/manager/reference/write_event_summary.md)
   : Function to export summary table for a sampling event
 - [`write_excel()`](https://jentjr.github.io/manager/reference/write_excel.md)

@@ -16,7 +16,6 @@ boxcox_transform(
   analysis_result = "analysis_result",
   default_unit = "default_unit",
   objective_name = "PPCC",
-  result_col = analysis_result_var(df),
   keep_data_object = FALSE,
   ...
 )
@@ -24,7 +23,7 @@ boxcox_transform(
 # S3 method for class 'env_schema'
 boxcox_transform(
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
   objective_name = "PPCC",
   keep_data_object = FALSE,
   ...
@@ -49,7 +48,7 @@ boxcox_transform(
 - keep_data_object:
 
   Logical indicating whether the complete Box-Cox result object should
-  be retained.
+  be returned.
 
 ## Value
 

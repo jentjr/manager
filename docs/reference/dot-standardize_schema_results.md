@@ -1,25 +1,15 @@
-# Standardize env_schema analytical results
+# Standardize env_schema analytical results and limits
 
-Converts .analysis_result values to analyte-specific standard reporting
-units and updates .analysis_unit.
+Converts analytical results and mapped detection/reporting limits to
+analyte-specific standard units.
 
 ## Usage
 
 ``` r
-.standardize_schema_results(df)
+.standardize_schema_results(df, env_mapping = NULL)
 ```
-
-## Arguments
-
-- df:
-
-  Data frame containing schema analyte metadata.
-
-## Value
-
-Data frame.
 
 ## Details
 
-Original laboratory values are preserved in .original_lab_result and
-.original_lab_unit.
+Missing source units are assumed to be the analyte lookup standard unit
+and are reported with an informational message.

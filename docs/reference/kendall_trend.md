@@ -19,7 +19,13 @@ kendall_trend(
 )
 
 # S3 method for class 'env_schema'
-kendall_trend(df, result_col = analysis_result_var(df), conf.level = 0.95, ...)
+kendall_trend(
+  df,
+  result_col = NULL,
+  censored_col = NULL,
+  conf.level = 0.95,
+  ...
+)
 ```
 
 ## Arguments

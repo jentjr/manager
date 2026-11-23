@@ -21,13 +21,7 @@ stats_summary(
 )
 
 # S3 method for class 'env_schema'
-stats_summary(
-  df,
-  result_col = analysis_result_var(df),
-  censored_col = censored_var(df),
-  na.rm = TRUE,
-  ...
-)
+stats_summary(df, result_col = NULL, censored_col = NULL, na.rm = TRUE, ...)
 
 # S3 method for class 'grouped_df'
 stats_summary(df, ...)
@@ -236,7 +230,7 @@ stats_summary(gw)
 #> Caused by warning in `min()`:
 #> ! no non-missing arguments to min; returning Inf
 #> ℹ Run dplyr::last_dplyr_warnings() to see the 31 remaining warnings.
-#> # A tibble: 387 × 27
+#> # A tibble: 387 × 28
 #>    location_id param_name  .analysis_unit     n n_used n_detect percent_censored
 #>    <chr>       <chr>       <chr>          <int>  <int>    <int>            <dbl>
 #>  1 MW-1        Alkalinity… mg/l              20     20       20              0  
@@ -250,32 +244,32 @@ stats_summary(gw)
 #>  9 MW-1        Calcium, d… mg/l              20     20       20              0  
 #> 10 MW-1        Chloride, … mg/l              20     20       20              0  
 #> # ℹ 377 more rows
-#> # ℹ 20 more variables: mean <dbl>, median <dbl>, sd <dbl>, var <dbl>,
+#> # ℹ 21 more variables: mean <dbl>, median <dbl>, sd <dbl>, var <dbl>,
 #> #   min <dbl>, max <dbl>, cv <dbl>, `25%` <dbl>, `75%` <dbl>, IQR <dbl>,
 #> #   mad <dbl>, censoring_class <chr>, distribution_method <chr>,
 #> #   trend_method <chr>, trend_guidance <chr>, censored_method <chr>,
-#> #   distribution_config <list>, interval_config <list>, decision_basis <chr>,
-#> #   comparison_method <chr>
+#> #   distribution_config <list>, interval_config <list>, interval_method <chr>,
+#> #   comparison_method <chr>, decision_basis <chr>
 
 gw |>
   dplyr::group_by(location_id) |>
   stats_summary()
-#> # A tibble: 8 × 25
+#> # A tibble: 8 × 26
 #>   location_id     n n_used n_detect percent_censored  mean median    sd      var
 #>   <chr>       <int>  <int>    <int>            <dbl> <dbl>  <dbl> <dbl>    <dbl>
-#> 1 MW-1          791    753      472             35.5  169.   7.01  412.   1.70e5
-#> 2 MW-2          791    753      478             34.8  152.   5     363.   1.32e5
-#> 3 MW-3          790    752      470             35.7  106.   5     272.   7.38e4
-#> 4 MW-4          715    679      426             35.4  196.   6.9   552.   3.05e5
-#> 5 MW-5          715    679      409             37.8  207.   7     843.   7.11e5
-#> 6 MW-6          715    679      394             39.9  805.   5    4285.   1.84e7
-#> 7 MW-7          646    614      368             38.1  519.   5    2382.   5.67e6
-#> 8 MW-8          715    679      423             35.8  173.   9     523.   2.74e5
-#> # ℹ 16 more variables: min <dbl>, max <dbl>, cv <dbl>, `25%` <dbl>,
+#> 1 MW-1          791    753      472             37.3  169.   7.01  412.   1.70e5
+#> 2 MW-2          791    753      478             36.5  152.   5     363.   1.32e5
+#> 3 MW-3          790    752      470             37.5  106.   5     272.   7.38e4
+#> 4 MW-4          715    679      426             37.3  196.   6.9   552.   3.05e5
+#> 5 MW-5          715    679      409             39.8  207.   7     843.   7.11e5
+#> 6 MW-6          715    679      394             42.0  805.   5    4285.   1.84e7
+#> 7 MW-7          646    614      368             40.1  519.   5    2382.   5.67e6
+#> 8 MW-8          715    679      423             37.7  173.   9     523.   2.74e5
+#> # ℹ 17 more variables: min <dbl>, max <dbl>, cv <dbl>, `25%` <dbl>,
 #> #   `75%` <dbl>, IQR <dbl>, mad <dbl>, censoring_class <chr>,
 #> #   distribution_method <chr>, trend_method <chr>, trend_guidance <chr>,
 #> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
-#> #   decision_basis <chr>, comparison_method <chr>
+#> #   interval_method <chr>, comparison_method <chr>, decision_basis <chr>
 
 x <- env_schema(
   raw_data,

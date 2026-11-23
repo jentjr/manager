@@ -10,7 +10,7 @@ statistical_decision(
   percent_censored,
   n_used,
   n_detect,
-  profile = guidance_profile("epa_unified")
+  profile = guidance_options()
 )
 ```
 
@@ -80,6 +80,10 @@ The returned object contains:
 
   Configuration list suitable for interval estimation functions.
 
+- interval_method:
+
+  Recommended interval method.
+
 - decision_basis:
 
   Primary basis for the recommendation.
@@ -139,13 +143,13 @@ statistical_decision(
   n_detect = 18
 )
 #> <statistical_decision>
-#> # A tibble: 1 × 12
-#>   n_used n_detect percent_censored censoring_class distribution_method
-#>    <dbl>    <dbl>            <dbl> <chr>           <chr>              
-#> 1     20       18               12 low_censoring   parametric         
-#> # ℹ 7 more variables: trend_method <chr>, trend_guidance <chr>,
+#> # A tibble: 1 × 13
+#>   n_used n_detect percent_censored censoring_class    distribution_method
+#>    <dbl>    <dbl>            <dbl> <chr>              <chr>              
+#> 1     20       18               12 moderate_censoring ros_censored       
+#> # ℹ 8 more variables: trend_method <chr>, trend_guidance <chr>,
 #> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
-#> #   decision_basis <chr>, comparison_method <chr>
+#> #   interval_method <chr>, comparison_method <chr>, decision_basis <chr>
 
 statistical_decision(
   percent_censored = 75,
@@ -153,13 +157,13 @@ statistical_decision(
   n_detect = 4
 )
 #> <statistical_decision>
-#> # A tibble: 1 × 12
-#>   n_used n_detect percent_censored censoring_class distribution_method
-#>    <dbl>    <dbl>            <dbl> <chr>           <chr>              
-#> 1     16        4               75 high_censoring  nonparametric      
-#> # ℹ 7 more variables: trend_method <chr>, trend_guidance <chr>,
+#> # A tibble: 1 × 13
+#>   n_used n_detect percent_censored censoring_class   distribution_method
+#>    <dbl>    <dbl>            <dbl> <chr>             <chr>              
+#> 1     16        4               75 extreme_censoring descriptive_only   
+#> # ℹ 8 more variables: trend_method <chr>, trend_guidance <chr>,
 #> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
-#> #   decision_basis <chr>, comparison_method <chr>
+#> #   interval_method <chr>, comparison_method <chr>, decision_basis <chr>
 
 statistical_decision(
   percent_censored = c(5, 25, 80),
@@ -167,13 +171,13 @@ statistical_decision(
   n_detect = c(9, 7, 2)
 )
 #> <statistical_decision>
-#> # A tibble: 3 × 12
-#>   n_used n_detect percent_censored censoring_class    distribution_method
-#>    <dbl>    <dbl>            <dbl> <chr>              <chr>              
-#> 1     10        9                5 low_censoring      parametric         
-#> 2     10        7               25 moderate_censoring ros_censored       
-#> 3     10        2               80 high_censoring     nonparametric      
-#> # ℹ 7 more variables: trend_method <chr>, trend_guidance <chr>,
+#> # A tibble: 3 × 13
+#>   n_used n_detect percent_censored censoring_class   distribution_method
+#>    <dbl>    <dbl>            <dbl> <chr>             <chr>              
+#> 1     10        9                5 low_censoring     parametric         
+#> 2     10        7               25 high_censoring    nonparametric      
+#> 3     10        2               80 extreme_censoring descriptive_only   
+#> # ℹ 8 more variables: trend_method <chr>, trend_guidance <chr>,
 #> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
-#> #   decision_basis <chr>, comparison_method <chr>
+#> #   interval_method <chr>, comparison_method <chr>, decision_basis <chr>
 ```

@@ -223,21 +223,54 @@ grouped_decisions |>
 
 ## ----eval = FALSE-------------------------------------------------------------
 # gw |>
+#   filter(
+#     location_id == "MW-2",
+#     param_name %in% c(
+#       "Chloride, total",
+#       "Sulfate, total",
+#       "Selenium, dissolved",
+#       "Copper, dissolved"
+#       )
+#     ) |>
 #   group_by(
 #     location_id,
 #     param_name,
 #     default_unit
 #     ) |>
-#   estimate_distribution()
+#   estimate_distribution() |>
+#   select(
+#     location_id,
+#     param_name,
+#     n_detect,
+#     percent_censored,
+#     decision_basis,
+#     distribution
+#   )
 
 ## ----eval = FALSE-------------------------------------------------------------
 # gw |>
+#   filter(
+#     location_id == "MW-1",
+#     param_name %in% c(
+#       "Chloride, total",
+#       "Sulfate, total",
+#       "Tin, dissolved"
+#       )
+#     ) |>
 #   group_by(
 #     location_id,
 #     param_name,
 #     default_unit
-#   ) |>
-#   estimate_distribution()
+#     ) |>
+#   estimate_distribution() |>
+#   select(
+#     location_id,
+#     param_name,
+#     n_detect,
+#     percent_censored,
+#     decision_basis,
+#     distribution
+#   )
 
 ## -----------------------------------------------------------------------------
 decision <- statistical_decision(
@@ -261,13 +294,23 @@ decision |>
     interval_config
     )
 
+decision$interval_config
+
 ## ----eval = FALSE-------------------------------------------------------------
 # dist_est <- gw |>
+#   filter(
+#     location_id == "MW-2",
+#     param_name %in% c(
+#       "Chloride, total",
+#       "Sulfate, total",
+#       "Copper, dissolved"
+#       )
+#     ) |>
 #   group_by(
 #     location_id,
 #     param_name,
 #     default_unit
-#   ) |>
+#     ) |>
 #   estimate_distribution()
 
 ## ----eval = FALSE-------------------------------------------------------------
@@ -276,7 +319,7 @@ decision |>
 ## ----eval = FALSE-------------------------------------------------------------
 # pred_int(
 #   dist_est,
-#   pi_type = "upper",
+#   pi_type = "lower",
 #   conf_level = 0.99
 # )
 
@@ -317,11 +360,19 @@ distribution_plan
 
 ## ----eval = FALSE-------------------------------------------------------------
 # gw |>
+#   filter(
+#     location_id == "MW-2",
+#     param_name %in% c(
+#       "Chloride, total",
+#       "Sulfate, total",
+#       "Copper, dissolved"
+#       )
+#     ) |>
 #   group_by(
 #     location_id,
 #     param_name,
 #     default_unit
-#   ) |>
+#     ) |>
 #   estimate_distribution() |>
 #   pred_int(
 #     pi_type = "upper",
@@ -330,9 +381,18 @@ distribution_plan
 
 ## ----eval = FALSE-------------------------------------------------------------
 # gw |>
+#   filter(
+#     location_id == "MW-2",
+#     param_name %in% c(
+#       "Chloride, total",
+#       "Sulfate, total",
+#       "Copper, dissolved"
+#       )
+#     ) |>
 #   group_by(
 #     location_id,
-#     param_name
-#   ) |>
+#     param_name,
+#     default_unit
+#     ) |>
 #   stats_summary()
 

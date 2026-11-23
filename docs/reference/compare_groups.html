@@ -316,57 +316,74 @@ performs a Kruskal-Wallis comparison.</p>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  compare <span class="op">=</span> <span class="st">"location_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(x, statistic = purrr::map_dbl(test, ~if (is.null(.x)) NA_real_ else unname(.x$statistic[[1]])),     p_value = purrr::map_dbl(test, ~if (is.null(.x)) NA_real_ else .x$p.value)):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `statistic = purrr::map_dbl(test, ~if (is.null(.x))</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   NA_real_ else unname(.x$statistic[[1]]))`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `param_name = "Alkalinity, total (lab)"`, `.analysis_unit =</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   "mg/l"`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `purrr::map_dbl()`:</span></span>
+<span class="r-plt img"><img src="compare_groups-1.png" alt="" width="700" height="433"></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(nested, decision = purrr::map(data, derive_decision,     result_col = result_col, censored_col = censored_col), comparison_method = if (identical(method,     "auto")) {    purrr::map_chr(decision, ~.x$comparison_method[[1L]])} else {    rep(method, dplyr::n())}, test = purrr::pmap(list(data, comparison_method), function(data,     selected_method) {    if (selected_method %in% c("cenanova", "cenperm2", "censored_nonparametric")) {        .run_censored_comparison_test(df = data, method = selected_method,             compare = compare, result_col = result_col, censored_col = censored_col)    }    else {        .run_comparison_test(df = data, method = selected_method,             compare = compare, result_col = result_col)    }})):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `test = purrr::pmap(...)`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 3: `param_name = "Antimony, dissolved"`, `.analysis_unit = "ug/l"`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `purrr::pmap()`:</span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In index: 1.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Result must be length 1, not 0.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `.run_comparison_test()` at </span><a href="file://C:\Users\s225642\Documents\GitHub\manager\R\stats.R"><span style="font-weight: bold;">manager/R/stats.R:3550:13</span></a><span style="font-weight: bold;">:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Unsupported comparison method: `insufficient_data`.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">anova_test</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  compare <span class="op">=</span> <span class="st">"location_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(nested, decision = purrr::map(data, derive_decision,     result_col = result_col), comparison_method = if (identical(method,     "auto")) {    purrr::map_chr(decision, ~.x$comparison_method[[1]])} else {    rep(method, nrow(nested))}, test = purrr::map2(data, comparison_method, ~.run_comparison_test(df = .x,     method = .y, compare = compare, result_col = result_col))):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `comparison_method = if (...) NULL`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `param_name = "Alkalinity, total (lab)"`, `.analysis_unit =</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   "mg/l"`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> `comparison_method` must be size 1, not 49.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 49 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    param_name           .analysis_unit comparison_method statistic   p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Magnesium, dissolved mg/l           anova              19.8     2.71 <span style="color: #949494;">e</span><span style="color: #BB0000;">-18</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Sodium, dissolved    mg/l           anova              45.5     4.70 <span style="color: #949494;">e</span><span style="color: #BB0000;">-33</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Potassium, dissolved mg/l           anova              58.2     2.21 <span style="color: #949494;">e</span><span style="color: #BB0000;">-38</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Chloride, total      mg/l           anova              45.2     5.25 <span style="color: #949494;">e</span><span style="color: #BB0000;">-33</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Sulfate, total       mg/l           anova             145.      5.47 <span style="color: #949494;">e</span><span style="color: #BB0000;">-61</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Fluoride, total      mg/l           anova               1.08    3.77 <span style="color: #949494;">e</span><span style="color: #BB0000;">- 1</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Arsenic, dissolved   ug/l           anova              24.0     2.83 <span style="color: #949494;">e</span><span style="color: #BB0000;">-21</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Barium, dissolved    ug/l           anova              82.8     1.28 <span style="color: #949494;">e</span><span style="color: #BB0000;">-46</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Beryllium, dissolved ug/l           anova               0.006<span style="text-decoration: underline;">05</span> 1.000<span style="color: #949494;">e</span>+ 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Boron, dissolved     ug/l           anova             119.      9.03 <span style="color: #949494;">e</span><span style="color: #BB0000;">-56</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 39 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">welch_test</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  compare <span class="op">=</span> <span class="st">"location_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(nested, decision = purrr::map(data, derive_decision,     result_col = result_col), comparison_method = if (identical(method,     "auto")) {    purrr::map_chr(decision, ~.x$comparison_method[[1]])} else {    rep(method, nrow(nested))}, test = purrr::map2(data, comparison_method, ~.run_comparison_test(df = .x,     method = .y, compare = compare, result_col = result_col))):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `comparison_method = if (...) NULL`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `param_name = "Alkalinity, total (lab)"`, `.analysis_unit =</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   "mg/l"`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> `comparison_method` must be size 1, not 49.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(nested, decision = purrr::map(data, derive_decision,     result_col = result_col, censored_col = censored_col), comparison_method = if (identical(method,     "auto")) {    purrr::map_chr(decision, ~.x$comparison_method[[1L]])} else {    rep(method, dplyr::n())}, test = purrr::pmap(list(data, comparison_method), function(data,     selected_method) {    if (selected_method %in% c("cenanova", "cenperm2", "censored_nonparametric")) {        .run_censored_comparison_test(df = data, method = selected_method,             compare = compare, result_col = result_col, censored_col = censored_col)    }    else {        .run_comparison_test(df = data, method = selected_method,             compare = compare, result_col = result_col)    }})):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `test = purrr::pmap(...)`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 15: `param_name = "Dissolved Oxygen"`, `.analysis_unit = "mg/l"`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `purrr::pmap()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In index: 1.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `stats::oneway.test()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> not enough observations</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">kruskal_test</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">gw</span>,</span></span>
 <span class="r-in"><span>  compare <span class="op">=</span> <span class="st">"location_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(nested, decision = purrr::map(data, derive_decision,     result_col = result_col), comparison_method = if (identical(method,     "auto")) {    purrr::map_chr(decision, ~.x$comparison_method[[1]])} else {    rep(method, nrow(nested))}, test = purrr::map2(data, comparison_method, ~.run_comparison_test(df = .x,     method = .y, compare = compare, result_col = result_col))):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `comparison_method = if (...) NULL`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `param_name = "Alkalinity, total (lab)"`, `.analysis_unit =</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   "mg/l"`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> `comparison_method` must be size 1, not 49.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 49 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    param_name           .analysis_unit comparison_method statistic   p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Magnesium, dissolved mg/l           kruskal             75.1    1.38 <span style="color: #949494;">e</span><span style="color: #BB0000;">-13</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Sodium, dissolved    mg/l           kruskal            113.     2.77 <span style="color: #949494;">e</span><span style="color: #BB0000;">-21</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Potassium, dissolved mg/l           kruskal            110.     8.74 <span style="color: #949494;">e</span><span style="color: #BB0000;">-21</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Chloride, total      mg/l           kruskal            100.     8.53 <span style="color: #949494;">e</span><span style="color: #BB0000;">-19</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Sulfate, total       mg/l           kruskal            121.     4.11 <span style="color: #949494;">e</span><span style="color: #BB0000;">-23</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Fluoride, total      mg/l           kruskal             40.3    1.08 <span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Arsenic, dissolved   ug/l           kruskal             90.8    8.60 <span style="color: #949494;">e</span><span style="color: #BB0000;">-17</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Barium, dissolved    ug/l           kruskal            106.     6.21 <span style="color: #949494;">e</span><span style="color: #BB0000;">-20</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Beryllium, dissolved ug/l           kruskal              0.044<span style="text-decoration: underline;">5</span> 1.000<span style="color: #949494;">e</span>+ 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Boron, dissolved     ug/l           kruskal            128.     1.79 <span style="color: #949494;">e</span><span style="color: #BB0000;">-24</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 39 more rows</span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gw</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">param_name</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">compare_groups</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    compare <span class="op">=</span> <span class="st">"location_id"</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(x, statistic = purrr::map_dbl(test, ~if (is.null(.x)) NA_real_ else unname(.x$statistic[[1]])),     p_value = purrr::map_dbl(test, ~if (is.null(.x)) NA_real_ else .x$p.value)):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `statistic = purrr::map_dbl(test, ~if (is.null(.x))</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   NA_real_ else unname(.x$statistic[[1]]))`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 1: `param_name = "Alkalinity, total (lab)"`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `purrr::map_dbl()`:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::mutate(nested, decision = purrr::map(data, derive_decision,     result_col = result_col, censored_col = censored_col), comparison_method = if (identical(method,     "auto")) {    purrr::map_chr(decision, ~.x$comparison_method[[1L]])} else {    rep(method, dplyr::n())}, test = purrr::pmap(list(data, comparison_method), function(data,     selected_method) {    if (selected_method %in% c("cenanova", "cenperm2", "censored_nonparametric")) {        .run_censored_comparison_test(df = data, method = selected_method,             compare = compare, result_col = result_col, censored_col = censored_col)    }    else {        .run_comparison_test(df = data, method = selected_method,             compare = compare, result_col = result_col)    }})):</span> <span style="color: #00BBBB;">ℹ</span> In argument: `test = purrr::pmap(...)`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In group 3: `param_name = "Antimony, dissolved"`.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `purrr::pmap()`:</span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> In index: 1.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error:</span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Result must be length 1, not 0.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Caused by error in `.run_comparison_test()` at </span><a href="file://C:\Users\s225642\Documents\GitHub\manager\R\stats.R"><span style="font-weight: bold;">manager/R/stats.R:3550:13</span></a><span style="font-weight: bold;">:</span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Unsupported comparison method: `insufficient_data`.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">gw</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">well_class</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>

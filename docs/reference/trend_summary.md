@@ -23,7 +23,8 @@ trend_summary(
 # S3 method for class 'env_schema'
 trend_summary(
   df,
-  result_col = analysis_result_var(df),
+  result_col = NULL,
+  censored_col = NULL,
   method = "mann_kendall",
   censored_method = "auto",
   conf.level = 0.95,

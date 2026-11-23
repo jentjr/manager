@@ -76,13 +76,11 @@ validity of distribution fitting, trend analysis, and interval
 estimation procedures <span class="citation">(<a href="#ref-helsel2012">Helsel 2012</a>; <a href="#ref-helsel2020">Helsel
 et al. 2020</a>)</span>. Statistical methods that perform well under low
 censoring may become unreliable when censoring is extensive.</p>
-<p>The <code>manager</code> package includes a statistical decision
-framework that automatically evaluates data quality and recommends
-appropriate statistical methods for environmental monitoring data. The
-framework is inspired by recommendations commonly used in groundwater
-monitoring programs and EPA statistical guidance documents <span class="citation">(<a href="#ref-epa2009">United States Environmental
-Protection Agency 2009</a>, <a href="#ref-epa1989">1989</a>; <a href="#ref-itrc2013">Interstate Technology and Regulatory Council
-2013</a>)</span>.</p>
+<p>The framework isinspired by recommendations commonly used in
+groundwater monitoring programs and EPA statistical guidance documents
+<span class="citation">(<a href="#ref-epa2009">United States
+Environmental Protection Agency 2009</a>, <a href="#ref-epa1989">1989</a>; <a href="#ref-itrc2013">Interstate
+Technology and Regulatory Council 2013</a>)</span>.</p>
 <p>The <code>manager</code> package includes a statistical decision
 framework that automatically evaluates data quality and recommends
 appropriate statistical methods for:</p>
@@ -204,20 +202,21 @@ dataset.</p>
 <span></span>
 <span><span class="va">decision</span></span>
 <span><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 12</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 13</span></span></span>
 <span><span class="co">#&gt;   n_used n_detect percent_censored censoring_class distribution_method</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     20       18               12 low_censoring   parametric         </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 7 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   censored_method &lt;chr&gt;, distribution_config &lt;list&gt;, interval_config &lt;list&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   decision_basis &lt;chr&gt;, comparison_method &lt;chr&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;">#   interval_method &lt;chr&gt;, comparison_method &lt;chr&gt;, decision_basis &lt;chr&gt;</span></span></span></code></pre></div>
 <p>The resulting object contains:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">decision</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "n_used"              "n_detect"            "percent_censored"   </span></span>
 <span><span class="co">#&gt;  [4] "censoring_class"     "distribution_method" "trend_method"       </span></span>
 <span><span class="co">#&gt;  [7] "trend_guidance"      "censored_method"     "distribution_config"</span></span>
-<span><span class="co">#&gt; [10] "interval_config"     "decision_basis"      "comparison_method"</span></span></code></pre></div>
+<span><span class="co">#&gt; [10] "interval_config"     "interval_method"     "comparison_method"  </span></span>
+<span><span class="co">#&gt; [13] "decision_basis"</span></span></code></pre></div>
 <p>Key recommendation fields include:</p>
 <ul>
 <li><code>censoring_class</code></li>
@@ -241,23 +240,35 @@ Kendall methods <span class="citation">(<a href="#ref-helsel2012">Helsel
 <p>The first stage of the decision framework is classification of
 censoring severity.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">decisions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
 <span>  percent_censored <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">25</span>, <span class="fl">75</span>, <span class="fl">95</span><span class="op">)</span>,</span>
-<span>  n_used <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  n_used <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">20</span>, <span class="fl">20</span>, <span class="fl">20</span><span class="op">)</span>,</span>
 <span>  n_detect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">19</span>, <span class="fl">15</span>, <span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="va">decisions</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">percent_censored</span>,</span>
-<span>    <span class="va">censoring_class</span></span>
-<span>  <span class="op">)</span></span>
+<span>    <span class="va">n_used</span>,</span>
+<span>    <span class="va">n_detect</span>,</span>
+<span>    <span class="va">censoring_class</span>,</span>
+<span>    <span class="va">distribution_method</span>,</span>
+<span>    <span class="va">trend_method</span>,</span>
+<span>    <span class="va">trend_guidance</span>,</span>
+<span>    <span class="va">censored_method</span>,</span>
+<span>    <span class="va">interval_method</span>,</span>
+<span>    <span class="va">comparison_method</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 2</span></span></span>
-<span><span class="co">#&gt;   percent_censored censoring_class   </span></span>
-<span><span class="co">#&gt;              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                5 low_censoring     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               25 moderate_censoring</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>               75 high_censoring    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>               95 extreme_censoring</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 10</span></span></span>
+<span><span class="co">#&gt;   percent_censored n_used n_detect censoring_class    distribution_method</span></span>
+<span><span class="co">#&gt;              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                5     20       19 low_censoring      parametric         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               25     20       15 moderate_censoring ros_censored       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>               75     20        5 high_censoring     nonparametric      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>               95     20        1 extreme_censoring  descriptive_only   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   censored_method &lt;chr&gt;, interval_method &lt;chr&gt;, comparison_method &lt;chr&gt;</span></span></span></code></pre></div>
 <p>Under the default EPA profile:</p>
 <table class="table">
 <thead><tr class="header">
@@ -322,23 +333,35 @@ sample size.</p>
 </table>
 <p>Example:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">decisions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
 <span>  percent_censored <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">25</span>, <span class="fl">75</span>, <span class="fl">95</span><span class="op">)</span>,</span>
-<span>  n_used <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  n_used <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">20</span>, <span class="fl">20</span>, <span class="fl">20</span><span class="op">)</span>,</span>
 <span>  n_detect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">19</span>, <span class="fl">15</span>, <span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="va">decisions</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">percent_censored</span>,</span>
-<span>    <span class="va">distribution_method</span></span>
-<span>  <span class="op">)</span></span>
+<span>    <span class="va">n_used</span>,</span>
+<span>    <span class="va">n_detect</span>,</span>
+<span>    <span class="va">censoring_class</span>,</span>
+<span>    <span class="va">distribution_method</span>,</span>
+<span>    <span class="va">trend_method</span>,</span>
+<span>    <span class="va">trend_guidance</span>,</span>
+<span>    <span class="va">censored_method</span>,</span>
+<span>    <span class="va">interval_method</span>,</span>
+<span>    <span class="va">comparison_method</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 2</span></span></span>
-<span><span class="co">#&gt;   percent_censored distribution_method</span></span>
-<span><span class="co">#&gt;              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                5 parametric         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               25 ros_censored       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>               75 nonparametric      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>               95 descriptive_only</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 10</span></span></span>
+<span><span class="co">#&gt;   percent_censored n_used n_detect censoring_class    distribution_method</span></span>
+<span><span class="co">#&gt;              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                5     20       19 low_censoring      parametric         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               25     20       15 moderate_censoring ros_censored       </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>               75     20        5 high_censoring     nonparametric      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>               95     20        1 extreme_censoring  descriptive_only   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   censored_method &lt;chr&gt;, interval_method &lt;chr&gt;, comparison_method &lt;chr&gt;</span></span></span></code></pre></div>
 <p>The progression from parametric methods to censored-data methods and
 eventually nonparametric approaches is consistent with recommendations
 described by Helsel <span class="citation">(<a href="#ref-helsel2012">Helsel 2012</a>)</span> and EPA groundwater
@@ -472,96 +495,119 @@ are robust to skewed environmental data <span class="citation">(<a href="#ref-gi
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   trend_method trend_guidance    censored_method</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mann_kendall formal_trend_test cenken</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> mann_kendall formal_trend_test ros</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="trend-guidance-categories">Trend Guidance Categories<a class="anchor" aria-label="anchor" href="#trend-guidance-categories"></a>
 </h3>
+<p>Trend recommendations use a Mann-Kendall framework whenever enough
+observations are available.</p>
 <div class="section level4">
 <h4 id="formal-trend-testing">Formal Trend Testing<a class="anchor" aria-label="anchor" href="#formal-trend-testing"></a>
 </h4>
-<p>When censoring remains below the high-censoring threshold and
-adequate detects are available:</p>
-<pre class="text"><code><span><span class="va">formal_trend_test</span></span></code></pre>
+<p>For datasets with at least five usable observations and low or
+moderate censoring, the framework returns:</p>
+<pre class="text"><code><span><span class="va">trend_method</span> <span class="op">=</span> <span class="st">"mann_kendall"</span></span>
+<span><span class="va">trend_guidance</span> <span class="op">=</span> <span class="st">"formal_trend_test"</span></span></code></pre>
 <p>is recommended.</p>
 </div>
 <div class="section level4">
 <h4 id="screening-only-evaluation">Screening-Only Evaluation<a class="anchor" aria-label="anchor" href="#screening-only-evaluation"></a>
 </h4>
-<p>When censoring becomes extensive:</p>
-<pre class="text"><code><span><span class="va">screening_only</span></span></code></pre>
+<p>For high or extreme censoring, the Mann-Kendall framework is still
+selected, but interpretation is limited to screening-level
+evaluation::</p>
+<pre class="text"><code><span><span class="va">trend_method</span> <span class="op">=</span> <span class="st">"mann_kendall"</span></span>
+<span><span class="va">trend_guidance</span> <span class="op">=</span> <span class="st">"screening_only"</span></span></code></pre>
 <p>is returned.</p>
 </div>
 <div class="section level4">
 <h4 id="insufficient-detects">Insufficient Detects<a class="anchor" aria-label="anchor" href="#insufficient-detects"></a>
 </h4>
-<p>When fewer than four detects are available:</p>
-<pre class="text"><code><span><span class="va">insufficient_detects</span></span></code></pre>
+<p>When fewer than five usable observations are available:</p>
+<pre class="text"><code><span><span class="va">trend_method</span> <span class="op">=</span> <span class="st">"insufficient_data"</span></span>
+<span><span class="va">trend_guidance</span> <span class="op">=</span> <span class="st">"insufficient_data"</span></span></code></pre>
 <p>is returned.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
 <span>  percent_censored <span class="op">=</span> <span class="fl">90</span>,</span>
 <span>  n_used <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  n_detect <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
-<span>    <span class="va">trend_guidance</span></span>
-<span>  <span class="op">)</span></span>
+<span>    <span class="va">n_used</span>,</span>
+<span>    <span class="va">n_detect</span>,</span>
+<span>    <span class="va">trend_method</span>,</span>
+<span>    <span class="va">trend_guidance</span>, </span>
+<span>    <span class="va">comparison_method</span></span>
+<span>    <span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 1</span></span></span>
-<span><span class="co">#&gt;   trend_guidance      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> insufficient_detects</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 5</span></span></span>
+<span><span class="co">#&gt;   n_used n_detect trend_method trend_guidance comparison_method</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     20        2 mann_kendall screening_only insufficient_data</span></span></code></pre></div>
+<p>Expected</p>
+<pre><code><span><span class="va">trend_method</span>       <span class="op">=</span> <span class="st">"mann_kendall"</span></span>
+<span><span class="va">trend_guidance</span>     <span class="op">=</span> <span class="st">"screening_only"</span></span>
+<span><span class="va">comparison_method</span>  <span class="op">=</span> <span class="st">"insufficient_data"</span></span></code></pre>
+<p>The number of detected observations is used separately when selecting
+the recommended comparison method. It does not independently create an
+insufficient_detects trend category.</p>
 </div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="censored-trend-methods">Censored Trend Methods<a class="anchor" aria-label="anchor" href="#censored-trend-methods"></a>
+<h2 id="censored-data-handling-recommendations">Censored-Data Handling Recommendations<a class="anchor" aria-label="anchor" href="#censored-data-handling-recommendations"></a>
 </h2>
-<p>The decision framework also recommends how censored observations
-should be handled during trend evaluation.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<p>The decision object includes a <code>censored_method</code> field
+describing the recommended treatment of censored observations.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
-<span>  percent_censored <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">40</span>, <span class="fl">75</span><span class="op">)</span>,</span>
-<span>  n_used <span class="op">=</span> <span class="fl">20</span>,</span>
-<span>  n_detect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">19</span>, <span class="fl">12</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  percent_censored <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">40</span>, <span class="fl">75</span>, <span class="fl">95</span><span class="op">)</span>,</span>
+<span>  n_used <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">20</span>, <span class="fl">20</span>, <span class="fl">20</span><span class="op">)</span>,</span>
+<span>  n_detect <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">19</span>, <span class="fl">12</span>, <span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">percent_censored</span>,</span>
+<span>    <span class="va">censoring_class</span>,</span>
 <span>    <span class="va">censored_method</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
-<span><span class="co">#&gt;   percent_censored censored_method</span></span>
-<span><span class="co">#&gt;              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                5 as_reported    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               40 cenken         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>               75 cenken</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 3</span></span></span>
+<span><span class="co">#&gt;   percent_censored censoring_class    censored_method </span></span>
+<span><span class="co">#&gt;              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>                5 low_censoring      standard        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>               40 moderate_censoring ros             </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>               75 high_censoring     nonparametric   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>               95 extreme_censoring  descriptive_only</span></span></code></pre></div>
 <p>For censored environmental datasets, ordinary Mann-Kendall analyses
 may not adequately account for reporting limits. In these situations,
 censored Kendall methods such as <code><a href="https://rdrr.io/pkg/NADA2/man/cenken.html" class="external-link">NADA2::cenken()</a></code> are often
 recommended <span class="citation">(<a href="#ref-helsel2012">Helsel
 2012</a>; <a href="#ref-nada2"><span class="nocase">Julian et al.</span>
 2024</a>)</span>.</p>
-<p>Recommended methods:</p>
+<p>The current recommendations are:</p>
 <table class="table">
 <thead><tr class="header">
-<th>Condition</th>
-<th>Method</th>
+<th>Censoring class</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td>Low censoring</td>
-<td>as_reported</td>
 </tr>
 <tr class="even">
-<td>Moderate or greater censoring</td>
-<td>cenken</td>
+<td>Moderate censoring</td>
+</tr>
+<tr class="odd">
+<td>High censoring</td>
+</tr>
+<tr class="even">
+<td>Extreme censoring</td>
 </tr>
 </tbody>
 </table>
 <p>These recommendations are automatically used by functions such
 as:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/trend_summary.html">trend_summary</a></span><span class="op">(</span></span>
 <span>  <span class="va">gw</span>,</span>
 <span>  censored_method <span class="op">=</span> <span class="st">"auto"</span></span>
@@ -590,14 +636,52 @@ as:</p>
 <div class="section level2">
 <h2 id="deriving-decisions-from-data">Deriving Decisions from Data<a class="anchor" aria-label="anchor" href="#deriving-decisions-from-data"></a>
 </h2>
-<p>Most workflows will not create decisions manually.</p>
-<p>Instead, recommendations are derived automatically from environmental
-data.</p>
+<p>Use <code><a href="../reference/derive_decision.html">derive_decision()</a></code> to calculate censoring metrics
+directly from a data frame.</p>
+<p>For ordinary data frames, the default columns are:</p>
+<ul>
+<li>
+<code>analysis_result</code>: numeric analytical result;</li>
+<li>
+<code>censored</code>: logical censoring indicator.</li>
+</ul>
+<p>A value of <code>TRUE</code> indicates a censored observation and
+<code>FALSE</code> indicates a detected observation.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gw_example</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  analysis_result <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="fl">1.2</span>, <span class="fl">0.8</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>,</span>
+<span>    <span class="fl">0.1</span>, <span class="fl">0.4</span>, <span class="fl">0.7</span>, <span class="fl">1.1</span>, <span class="fl">0.9</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  censored <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>,</span>
+<span>    <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">FALSE</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">decision</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_decision.html">derive_decision</a></span><span class="op">(</span><span class="va">gw_example</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">decision</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">n_used</span>,</span>
+<span>    <span class="va">n_detect</span>,</span>
+<span>    <span class="va">percent_censored</span>,</span>
+<span>    <span class="va">censoring_class</span>,</span>
+<span>    <span class="va">distribution_method</span>,</span>
+<span>    <span class="va">trend_method</span>,</span>
+<span>    <span class="va">trend_guidance</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 7</span></span></span>
+<span><span class="co">#&gt;   n_used n_detect percent_censored censoring_class distribution_method</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     10        9               10 low_censoring   parametric         </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;</span></span></span></code></pre></div>
 <p>This approach allows data characteristics rather than analyst
 preference to determine the recommended statistical workflow, improving
 reproducibility and consistency across monitoring programs <span class="citation">(<a href="#ref-epa2009">United States Environmental
 Protection Agency 2009</a>)</span>.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">decision</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_decision.html">derive_decision</a></span><span class="op">(</span><span class="va">gw</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">decision</span></span></code></pre></div>
@@ -607,42 +691,110 @@ Protection Agency 2009</a>)</span>.</p>
 <li><code>n_detect</code></li>
 <li><code>percent_censored</code></li>
 </ul>
-<p>and passes those values into <code><a href="../reference/statistical_decision.html">statistical_decision()</a></code>.</p>
+<p>and passes those values into <code><a href="../reference/statistical_decision.html">statistical_decision()</a></code>.
+Rows with missing analytical results or missing censoring indicators are
+excluded from these calculations.</p>
 <div class="section level3">
-<h3 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h3 id="custom-column-names">Custom Column Names<a class="anchor" aria-label="anchor" href="#custom-column-names"></a>
 </h3>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>    <span class="va">param_name</span> <span class="op">==</span> <span class="st">"Arsenic, dissolved"</span></span>
+<p>Use <code>result_col</code> and <code>censored_col</code> when the
+data does not use the default column names.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">custom_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  concentration <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.2</span>, <span class="fl">0.8</span>, <span class="fl">0.5</span>, <span class="fl">0.3</span><span class="op">)</span>, </span>
+<span>  is_censored <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/derive_decision.html">derive_decision</a></span><span class="op">(</span> </span>
+<span>  <span class="va">custom_data</span>,</span>
+<span>  result_col <span class="op">=</span> <span class="st">"concentration"</span>,</span>
+<span>  censored_col <span class="op">=</span> <span class="st">"is_censored"</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>The result column must be numeric and the censoring column must be
+logical. Missing required columns, invalid column types, and missing
+column names produce informative errors.</p>
+</div>
+<div class="section level3">
+<h3 id="grouped-data">Grouped Data<a class="anchor" aria-label="anchor" href="#grouped-data"></a>
+</h3>
+<p><code><a href="../reference/derive_decision.html">derive_decision()</a></code> supports grouped data frames and
+returns one decision for each group.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grouped_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  location <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"B"</span><span class="op">)</span>,</span>
+<span>  analysis_result <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.2</span>, <span class="fl">0.8</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="fl">0.1</span>, <span class="fl">0.4</span><span class="op">)</span>,</span>
+<span>  censored <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="cn">FALSE</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/derive_decision.html">derive_decision</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">location</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">grouped_decisions</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/derive_decision.html">derive_decision</a></span><span class="op">(</span><span class="va">grouped_data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">grouped_decisions</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">location</span>,</span>
+<span>    <span class="va">n_used</span>,</span>
+<span>    <span class="va">n_detect</span>,</span>
+<span>    <span class="va">percent_censored</span>,</span>
+<span>    <span class="va">censoring_class</span>,</span>
+<span>    <span class="va">distribution_method</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 6</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Groups:   location [2]</span></span></span>
+<span><span class="co">#&gt;   location n_used n_detect percent_censored censoring_class  distribution_method</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> A             3        2             33.3 moderate_censor… insufficient_data  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> B             3        1             66.7 high_censoring   insufficient_data</span></span></code></pre></div>
+<p>For env_schema objects, standardized analysis and censoring variables
+are resolved through analysis_result_var() and censored_var().</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="distribution-estimation-workflow">Distribution Estimation Workflow<a class="anchor" aria-label="anchor" href="#distribution-estimation-workflow"></a>
 </h2>
-<p>The primary consumer of statistical decision guidance is
-<code><a href="../reference/estimate_distribution.html">estimate_distribution()</a></code>. Distribution estimation relies on
-methods implemented in the <code>EnvStats</code> package <span class="citation">(<a href="#ref-envstats">Millard and Kowarik
-2024</a>)</span>, which contains many of the statistical procedures
-described in EPA groundwater monitoring guidance <span class="citation">(<a href="#ref-epa2009">United States Environmental
-Protection Agency 2009</a>)</span>.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<p><code><a href="../reference/estimate_distribution.html">estimate_distribution()</a></code> uses the statistical decision
+framework to select a distribution-estimation pathway for each
+group.</p>
+<p>The input must be grouped with <code><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">dplyr::group_by()</a></code>.</p>
+<p>Distribution estimation relies on methods implemented in the
+<code>EnvStats</code> package <span class="citation">(<a href="#ref-envstats">Millard and Kowarik 2024</a>)</span>, which
+contains many of the statistical procedures described in EPA groundwater
+monitoring guidance<span class="citation">(<a href="#ref-epa2009">United
+States Environmental Protection Agency 2009</a>)</span>.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">location_id</span> <span class="op">==</span> <span class="st">"MW-2"</span>, </span>
+<span>    <span class="va">param_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Chloride, total"</span>, </span>
+<span>      <span class="st">"Sulfate, total"</span>,</span>
+<span>      <span class="st">"Selenium, dissolved"</span>,</span>
+<span>      <span class="st">"Copper, dissolved"</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span></span>
 <span>    <span class="va">location_id</span>,</span>
 <span>    <span class="va">param_name</span>,</span>
 <span>    <span class="va">default_unit</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/estimate_distribution.html">estimate_distribution</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>For each group:</p>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/estimate_distribution.html">estimate_distribution</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">location_id</span>, </span>
+<span>    <span class="va">param_name</span>,</span>
+<span>    <span class="va">n_detect</span>,</span>
+<span>    <span class="va">percent_censored</span>,</span>
+<span>    <span class="va">decision_basis</span>,</span>
+<span>    <span class="va">distribution</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>With the default distribution_config = “auto”:</p>
 <ol style="list-style-type: decimal">
-<li>Censoring is evaluated</li>
-<li>A statistical decision is derived</li>
-<li>The recommended workflow is selected</li>
-<li>Distribution results are returned along with decision metadata</li>
+<li>analytical columns are resolved;</li>
+<li>censoring metrics are calculated with derive_decision();</li>
+<li>a statistical decision is created;</li>
+<li>the recommended distribution pathway is selected; and</li>
+<li>results and decision metadata are returned.</li>
 </ol>
+<p>Calling <code><a href="../reference/estimate_distribution.html">estimate_distribution()</a></code> on an ungrouped data
+frame produces an error. Group the data before calling the function.</p>
 </div>
 <div class="section level2">
 <h2 id="automatic-method-selection">Automatic Method Selection<a class="anchor" aria-label="anchor" href="#automatic-method-selection"></a>
@@ -651,48 +803,70 @@ Protection Agency 2009</a>)</span>.</p>
 <table class="table">
 <thead><tr class="header">
 <th>Percent Censored</th>
+<th>Classification</th>
 <th>Recommendation</th>
-<th>Action</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>&lt;15</td>
-<td>parametric</td>
-<td>Fit candidate distributions</td>
+<td><code>&lt; 15%</code></td>
+<td><code>low_censoring</code></td>
+<td><code>parametric</code></td>
 </tr>
 <tr class="even">
-<td>15-50</td>
-<td>ros_censored</td>
-<td>Fit censored distributions</td>
+<td>
+<code>&gt;= 15%</code> and <code>&lt; 50%</code>
+</td>
+<td><code>moderate_censoring</code></td>
+<td><code>ros_censored</code></td>
 </tr>
 <tr class="odd">
-<td>50-90</td>
-<td>nonparametric</td>
-<td>Classify as nonparametric</td>
+<td>
+<code>&gt;= 50%</code> and <code>&lt; 90%</code>
+</td>
+<td><code>high_censoring</code></td>
+<td><code>nonparametric</code></td>
 </tr>
 <tr class="even">
-<td>&gt;=90</td>
-<td>descriptive_only</td>
-<td>Descriptive evaluation only</td>
+<td><code>&gt;=90%</code></td>
+<td><code>extreme_censoring</code></td>
+<td><code>descriptive_only</code></td>
 </tr>
 </tbody>
 </table>
+<p>A separate minimum-sample-size rule takes precedence: fewer than four
+usable observations results in <code>insufficient_data</code>.</p>
 <p>Example:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">location_id</span> <span class="op">==</span> <span class="st">"MW-1"</span>, </span>
+<span>    <span class="va">param_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Chloride, total"</span>, </span>
+<span>      <span class="st">"Sulfate, total"</span>,</span>
+<span>      <span class="st">"Tin, dissolved"</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span></span>
 <span>    <span class="va">location_id</span>,</span>
 <span>    <span class="va">param_name</span>,</span>
 <span>    <span class="va">default_unit</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/estimate_distribution.html">estimate_distribution</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/estimate_distribution.html">estimate_distribution</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">location_id</span>, </span>
+<span>    <span class="va">param_name</span>,</span>
+<span>    <span class="va">n_detect</span>,</span>
+<span>    <span class="va">percent_censored</span>,</span>
+<span>    <span class="va">decision_basis</span>,</span>
+<span>    <span class="va">distribution</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <p>The method-selection process occurs automatically.</p>
 </div>
 <div class="section level2">
 <h2 id="distribution-configuration">Distribution Configuration<a class="anchor" aria-label="anchor" href="#distribution-configuration"></a>
 </h2>
 <p>Each decision includes a recommended configuration object.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">decision</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
 <span>  percent_censored <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  n_used <span class="op">=</span> <span class="fl">20</span>,</span>
@@ -706,7 +880,7 @@ Protection Agency 2009</a>)</span>.</p>
 <span><span class="co">#&gt; $choices</span></span>
 <span><span class="co">#&gt; [1] "norm"  "lnorm"</span></span></code></pre></div>
 <p>Default settings:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  method <span class="op">=</span> <span class="st">"sf"</span>,</span>
 <span>  choices <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -715,45 +889,63 @@ Protection Agency 2009</a>)</span>.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>These settings are automatically supplied to:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">EnvStats</span><span class="fu">::</span><span class="fu"><a href="https://alexkowa.github.io/EnvStats/reference/distChoose.html" class="external-link">distChoose</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>or</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">EnvStats</span><span class="fu">::</span><span class="fu"><a href="https://alexkowa.github.io/EnvStats/reference/distChooseCensored.html" class="external-link">distChooseCensored</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>depending on the decision outcome.</p>
 </div>
 <div class="section level2">
 <h2 id="interval-configuration">Interval Configuration<a class="anchor" aria-label="anchor" href="#interval-configuration"></a>
 </h2>
-<p>The decision object also includes interval-estimation guidance.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">decision</span><span class="op">$</span><span class="va">interval_config</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="co">#&gt; $conf_level</span></span>
+<p>The decision object includes interval-estimation guidance for methods
+supported by the selected distributional approach.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">decision</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
+<span>  percent_censored <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  n_used <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  n_detect <span class="op">=</span> <span class="fl">18</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="va">decision</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">interval_method</span>,</span>
+<span>    <span class="va">interval_config</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
+<span><span class="co">#&gt;   interval_method interval_config </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>          </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> parametric      <span style="color: #949494;">&lt;named list [4]&gt;</span></span></span>
+<span></span>
+<span><span class="va">decision</span><span class="op">$</span><span class="va">interval_config</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; [[1]]$conf_level</span></span>
 <span><span class="co">#&gt; [1] 0.95</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $method</span></span>
+<span><span class="co">#&gt; [[1]]$method</span></span>
 <span><span class="co">#&gt; [1] "Bonferroni"</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $k</span></span>
+<span><span class="co">#&gt; [[1]]$k</span></span>
 <span><span class="co">#&gt; [1] 1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $n_mean</span></span>
+<span><span class="co">#&gt; [[1]]$n_mean</span></span>
 <span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
-<p>Default settings:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<p>For parametric, ROS-censored, and nonparametric recommendations, the
+default configuration is:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"Bonferroni"</span>,</span>
-<span>  k <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  n_mean <span class="op">=</span> <span class="fl">1</span></span>
+<span>  k <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  n_mean <span class="op">=</span> <span class="fl">1L</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>These values are intended as defaults for:</p>
-<ul>
-<li><code><a href="../reference/pred_int.html">pred_int()</a></code></li>
-<li><code><a href="../reference/pred_int_sim.html">pred_int_sim()</a></code></li>
-<li><code><a href="../reference/conf_int.html">conf_int()</a></code></li>
-<li><code><a href="../reference/tol_int.html">tol_int()</a></code></li>
-</ul>
+<p>For insufficient-data and descriptive-only recommendations, the
+interval configuration is an empty list.</p>
+<p>These values are configuration metadata intended for
+interval-estimation functions. The decision function does not execute
+interval estimation by itself.</p>
 </div>
 <div class="section level2">
 <h2 id="prediction-intervals">Prediction Intervals<a class="anchor" aria-label="anchor" href="#prediction-intervals"></a>
@@ -765,26 +957,34 @@ Protection Agency 2009</a>; <a href="#ref-gilbert1987">Gilbert
 1987</a>)</span>.</p>
 <p>Prediction intervals require a distribution classification.</p>
 <p>A common workflow is:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dist_est</span> <span class="op">&lt;-</span> <span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">location_id</span> <span class="op">==</span> <span class="st">"MW-2"</span>, </span>
+<span>    <span class="va">param_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Chloride, total"</span>, </span>
+<span>      <span class="st">"Sulfate, total"</span>,</span>
+<span>      <span class="st">"Copper, dissolved"</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span></span>
 <span>    <span class="va">location_id</span>,</span>
 <span>    <span class="va">param_name</span>,</span>
 <span>    <span class="va">default_unit</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/estimate_distribution.html">estimate_distribution</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Standard prediction intervals:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_int.html">pred_int</a></span><span class="op">(</span><span class="va">dist_est</span><span class="op">)</span></span></code></pre></div>
-<p>Upper prediction intervals:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<p>Lower prediction intervals:</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_int.html">pred_int</a></span><span class="op">(</span></span>
 <span>  <span class="va">dist_est</span>,</span>
-<span>  pi_type <span class="op">=</span> <span class="st">"upper"</span>,</span>
+<span>  pi_type <span class="op">=</span> <span class="st">"lower"</span>,</span>
 <span>  conf_level <span class="op">=</span> <span class="fl">0.99</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Simultaneous prediction intervals:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/pred_int_sim.html">pred_int_sim</a></span><span class="op">(</span></span>
 <span>  <span class="va">dist_est</span>,</span>
 <span>  pi_type <span class="op">=</span> <span class="st">"upper"</span>,</span>
@@ -800,7 +1000,7 @@ into summary tables helps document methodological decisions and provides
 a transparent audit trail for regulatory and technical review <span class="citation">(<a href="#ref-epa2009">United States Environmental
 Protection Agency 2009</a>; <a href="#ref-itrc2013">Interstate
 Technology and Regulatory Council 2013</a>)</span>.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span></span>
 <span>    <span class="va">location_id</span>,</span>
@@ -820,52 +1020,183 @@ approaches directly within summary tables.</p>
 <div class="section level2">
 <h2 id="custom-guidance-thresholds">Custom Guidance Thresholds<a class="anchor" aria-label="anchor" href="#custom-guidance-thresholds"></a>
 </h2>
-<p>Organizations may prefer different censoring thresholds.</p>
-<p>Global options can be used to override defaults.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span></span>
-<span>  manager.guidance <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    low_threshold <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>    moderate_threshold <span class="op">=</span> <span class="fl">25</span>,</span>
-<span>    high_threshold <span class="op">=</span> <span class="fl">75</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<p>A profile can be supplied directly to a decision:</p>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/statistical_decision.html">statistical_decision</a></span><span class="op">(</span></span>
+<span>  percent_censored <span class="op">=</span> <span class="fl">25</span>,</span>
+<span>  n_used <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  n_detect <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>  profile <span class="op">=</span> <span class="fu"><a href="../reference/guidance_profile.html">guidance_profile</a></span><span class="op">(</span><span class="st">"conservative"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;statistical_decision&gt;</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 13</span></span></span>
+<span><span class="co">#&gt;   n_used n_detect percent_censored censoring_class distribution_method</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     20       15               25 high_censoring  nonparametric      </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: trend_method &lt;chr&gt;, trend_guidance &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   censored_method &lt;chr&gt;, distribution_config &lt;list&gt;, interval_config &lt;list&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   interval_method &lt;chr&gt;, comparison_method &lt;chr&gt;, decision_basis &lt;chr&gt;</span></span></span></code></pre></div>
+<p>The active package option can also be changed:</p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">old_guidance</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"manager.guidance"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span></span>
+<span>manager.guidance <span class="op">=</span> <span class="fu"><a href="../reference/guidance_profile.html">guidance_profile</a></span><span class="op">(</span><span class="st">"conservative"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/guidance_options.html">guidance_options</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Restore the previous setting after the example:</p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">old_guidance</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>manager.guidance <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>manager.guidance <span class="op">=</span> <span class="va">old_guidance</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>For reproducible analyses, passing profile explicitly is preferable
+to depending on a mutable global option.</p>
 <p>Retrieve the active settings:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/guidance_options.html">guidance_options</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $low_threshold</span></span>
-<span><span class="co">#&gt; [1] 10</span></span>
+<span><span class="co">#&gt; [1] 15</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $moderate_threshold</span></span>
-<span><span class="co">#&gt; [1] 25</span></span>
+<span><span class="co">#&gt; [1] 50</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $high_threshold</span></span>
-<span><span class="co">#&gt; [1] 75</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 90</span></span></code></pre></div>
 <p>Decisions derived afterward will use the updated thresholds.</p>
+</div>
+<div class="section level2">
+<h2 id="analysis-plans">Analysis Plans<a class="anchor" aria-label="anchor" href="#analysis-plans"></a>
+</h2>
+<p>Use <code><a href="../reference/analysis_plan.html">analysis_plan()</a></code> to define the objective and required
+analysis fields before running a statistical procedure.</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">distribution_plan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/analysis_plan.html">analysis_plan</a></span><span class="op">(</span></span>
+<span>objective <span class="op">=</span> <span class="st">"distribution"</span>,</span>
+<span>response <span class="op">=</span> <span class="st">"analysis_result"</span>,</span>
+<span>censored <span class="op">=</span> <span class="st">"censored"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">distribution_plan</span></span>
+<span><span class="co">#&gt; $objective</span></span>
+<span><span class="co">#&gt; [1] "distribution"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $response</span></span>
+<span><span class="co">#&gt; [1] "analysis_result"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $censored</span></span>
+<span><span class="co">#&gt; [1] "censored"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $date</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $group</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $comparison</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $method</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $alpha</span></span>
+<span><span class="co">#&gt; [1] 0.05</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $confidence_level</span></span>
+<span><span class="co">#&gt; [1] 0.95</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $censoring_method</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $missing_policy</span></span>
+<span><span class="co">#&gt; [1] "exclude_required_fields"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $guidance</span></span>
+<span><span class="co">#&gt; $guidance$low_threshold</span></span>
+<span><span class="co">#&gt; [1] 15</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $guidance$moderate_threshold</span></span>
+<span><span class="co">#&gt; [1] 50</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $guidance$high_threshold</span></span>
+<span><span class="co">#&gt; [1] 90</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $parameters</span></span>
+<span><span class="co">#&gt; list()</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attr(,"class")</span></span>
+<span><span class="co">#&gt; [1] "statistical_analysis_plan"</span></span></code></pre></div>
+<p>Trend analyses require a date column:</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">trend_plan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/analysis_plan.html">analysis_plan</a></span><span class="op">(</span></span>
+<span>objective <span class="op">=</span> <span class="st">"trend"</span>,</span>
+<span>response <span class="op">=</span> <span class="st">"analysis_result"</span>,</span>
+<span>censored <span class="op">=</span> <span class="st">"censored"</span>,</span>
+<span>date <span class="op">=</span> <span class="st">"sample_date"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">trend_plan</span></span></code></pre></div>
+<p>Comparison analyses require a comparison column:</p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">comparison_plan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/analysis_plan.html">analysis_plan</a></span><span class="op">(</span></span>
+<span>objective <span class="op">=</span> <span class="st">"comparison"</span>,</span>
+<span>response <span class="op">=</span> <span class="st">"analysis_result"</span>,</span>
+<span>censored <span class="op">=</span> <span class="st">"censored"</span>,</span>
+<span>comparison <span class="op">=</span> <span class="st">"location"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">comparison_plan</span></span></code></pre></div>
+<p>Plans are validated when created. Use
+<code><a href="../reference/validate_analysis_plan.html">validate_analysis_plan()</a></code> to validate an existing compatible
+list:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a><span class="fu">validate_analysis_plan</span>(distribution_plan)<span class="st">`</span></span></code></pre></div>
+<p>The validator checks the objective, response column, error and
+confidence levels, guidance thresholds, and objective-specific required
+fields.</p>
 </div>
 <div class="section level2">
 <h2 id="example-workflow">Example Workflow<a class="anchor" aria-label="anchor" href="#example-workflow"></a>
 </h2>
 <p>A typical environmental monitoring workflow may look like:</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">location_id</span> <span class="op">==</span> <span class="st">"MW-2"</span>, </span>
+<span>    <span class="va">param_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Chloride, total"</span>, </span>
+<span>      <span class="st">"Sulfate, total"</span>,</span>
+<span>      <span class="st">"Copper, dissolved"</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span></span>
 <span>    <span class="va">location_id</span>,</span>
 <span>    <span class="va">param_name</span>,</span>
 <span>    <span class="va">default_unit</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/estimate_distribution.html">estimate_distribution</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/pred_int.html">pred_int</a></span><span class="op">(</span></span>
 <span>    pi_type <span class="op">=</span> <span class="st">"upper"</span>,</span>
 <span>    conf_level <span class="op">=</span> <span class="fl">0.95</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 <p>Or for sitewide reporting:</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gw</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>    <span class="va">location_id</span> <span class="op">==</span> <span class="st">"MW-2"</span>, </span>
+<span>    <span class="va">param_name</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"Chloride, total"</span>, </span>
+<span>      <span class="st">"Sulfate, total"</span>,</span>
+<span>      <span class="st">"Copper, dissolved"</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span></span>
 <span>    <span class="va">location_id</span>,</span>
-<span>    <span class="va">param_name</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="va">param_name</span>,</span>
+<span>    <span class="va">default_unit</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/stats_summary.html">stats_summary</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>The decision framework automatically:</p>
 <ul>
@@ -975,12 +1306,13 @@ environmental statistics references <span class="citation">(<a href="#ref-epa200
 <li><code><a href="../reference/guidance_options.html">guidance_options()</a></code></li>
 <li><code><a href="../reference/statistical_decision.html">statistical_decision()</a></code></li>
 <li><code><a href="../reference/derive_decision.html">derive_decision()</a></code></li>
+<li><code><a href="../reference/analysis_plan.html">analysis_plan()</a></code></li>
+<li><code><a href="../reference/validate_analysis_plan.html">validate_analysis_plan()</a></code></li>
 <li><code><a href="../reference/estimate_distribution.html">estimate_distribution()</a></code></li>
-<li><code><a href="../reference/stats_summary.html">stats_summary()</a></code></li>
 </ul>
-<p>Together these functions allow environmental datasets to be evaluated
-using method-selection rules that are consistent across projects,
-analytes, and monitoring programs.</p>
+<p>Together, these functions support consistent and reproducible method
+selection across projects, analytes, locations, and monitoring
+programs.</p>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-gilbert1987" class="csl-entry">
 Gilbert, Richard O. 1987. <em>Statistical Methods for Environmental

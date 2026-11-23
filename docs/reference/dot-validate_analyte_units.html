@@ -47,7 +47,9 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">.validate_analyte_units</span><span class="op">(</span></span>
 <span>  <span class="va">df</span>,</span>
 <span>  param_name <span class="op">=</span> <span class="st">"param_name"</span>,</span>
-<span>  default_unit <span class="op">=</span> <span class="st">"default_unit"</span></span>
+<span>  default_unit <span class="op">=</span> <span class="st">"default_unit"</span>,</span>
+<span>  alias_lookup <span class="op">=</span> <span class="va">analyte_alias_lookup</span>,</span>
+<span>  lookup <span class="op">=</span> <span class="va">analyte_tbl</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -65,6 +67,14 @@
 
 <dt id="arg-default-unit">default_unit<a class="anchor" aria-label="anchor" href="#arg-default-unit"></a></dt>
 <dd><p>Character string identifying the unit column.</p></dd>
+
+
+<dt id="arg-alias-lookup">alias_lookup<a class="anchor" aria-label="anchor" href="#arg-alias-lookup"></a></dt>
+<dd><p>Analyte alias lookup table</p></dd>
+
+
+<dt id="arg-lookup">lookup<a class="anchor" aria-label="anchor" href="#arg-lookup"></a></dt>
+<dd><p>Anlayte table lookup</p></dd>
 
 </dl></div>
     <div class="section level2">

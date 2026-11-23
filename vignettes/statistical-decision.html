@@ -1090,12 +1090,29 @@ contains many of the statistical procedures described in EPA groundwater
 monitoring guidance<span class="citation">(<a href="#ref-epa2009">United
 States Environmental Protection Agency 2009</a>)</span>.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
-<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
-<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>    location_id,</span>
-<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>    param_name,</span>
-<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>    default_unit</span>
-<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>()</span></code></pre></div>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a>    location_id <span class="sc">==</span> <span class="st">&quot;MW-2&quot;</span>, </span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>    param_name <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>      <span class="st">&quot;Chloride, total&quot;</span>, </span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>      <span class="st">&quot;Sulfate, total&quot;</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>      <span class="st">&quot;Selenium, dissolved&quot;</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a>      <span class="st">&quot;Copper, dissolved&quot;</span></span>
+<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a>      )</span>
+<span id="cb25-10"><a href="#cb25-10" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb25-11"><a href="#cb25-11" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb25-12"><a href="#cb25-12" tabindex="-1"></a>    location_id,</span>
+<span id="cb25-13"><a href="#cb25-13" tabindex="-1"></a>    param_name,</span>
+<span id="cb25-14"><a href="#cb25-14" tabindex="-1"></a>    default_unit</span>
+<span id="cb25-15"><a href="#cb25-15" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb25-16"><a href="#cb25-16" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>() <span class="sc">|&gt;</span></span>
+<span id="cb25-17"><a href="#cb25-17" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb25-18"><a href="#cb25-18" tabindex="-1"></a>    location_id, </span>
+<span id="cb25-19"><a href="#cb25-19" tabindex="-1"></a>    param_name,</span>
+<span id="cb25-20"><a href="#cb25-20" tabindex="-1"></a>    n_detect,</span>
+<span id="cb25-21"><a href="#cb25-21" tabindex="-1"></a>    percent_censored,</span>
+<span id="cb25-22"><a href="#cb25-22" tabindex="-1"></a>    decision_basis,</span>
+<span id="cb25-23"><a href="#cb25-23" tabindex="-1"></a>    distribution</span>
+<span id="cb25-24"><a href="#cb25-24" tabindex="-1"></a>  )</span></code></pre></div>
 <p>With the default distribution_config = “auto”:</p>
 <ol style="list-style-type: decimal">
 <li>analytical columns are resolved;</li>
@@ -1145,12 +1162,28 @@ frame produces an error. Group the data before calling the function.</p>
 usable observations results in <code>insufficient_data</code>.</p>
 <p>Example:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>    location_id,</span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>    param_name,</span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>    default_unit</span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>()</span></code></pre></div>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>    location_id <span class="sc">==</span> <span class="st">&quot;MW-1&quot;</span>, </span>
+<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a>    param_name <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>      <span class="st">&quot;Chloride, total&quot;</span>, </span>
+<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a>      <span class="st">&quot;Sulfate, total&quot;</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>      <span class="st">&quot;Tin, dissolved&quot;</span></span>
+<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a>      )</span>
+<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb26-11"><a href="#cb26-11" tabindex="-1"></a>    location_id,</span>
+<span id="cb26-12"><a href="#cb26-12" tabindex="-1"></a>    param_name,</span>
+<span id="cb26-13"><a href="#cb26-13" tabindex="-1"></a>    default_unit</span>
+<span id="cb26-14"><a href="#cb26-14" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb26-15"><a href="#cb26-15" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>() <span class="sc">|&gt;</span></span>
+<span id="cb26-16"><a href="#cb26-16" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb26-17"><a href="#cb26-17" tabindex="-1"></a>    location_id, </span>
+<span id="cb26-18"><a href="#cb26-18" tabindex="-1"></a>    param_name,</span>
+<span id="cb26-19"><a href="#cb26-19" tabindex="-1"></a>    n_detect,</span>
+<span id="cb26-20"><a href="#cb26-20" tabindex="-1"></a>    percent_censored,</span>
+<span id="cb26-21"><a href="#cb26-21" tabindex="-1"></a>    decision_basis,</span>
+<span id="cb26-22"><a href="#cb26-22" tabindex="-1"></a>    distribution</span>
+<span id="cb26-23"><a href="#cb26-23" tabindex="-1"></a>  )</span></code></pre></div>
 <p>The method-selection process occurs automatically.</p>
 </div>
 <div id="distribution-configuration" class="section level1">
@@ -1201,7 +1234,21 @@ supported by the selected distributional approach.</p>
 <span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
 <span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a><span class="co">#&gt;   interval_method interval_config </span></span>
 <span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;           &lt;list&gt;          </span></span>
-<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a><span class="co">#&gt; 1 parametric      &lt;named list [4]&gt;</span></span></code></pre></div>
+<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a><span class="co">#&gt; 1 parametric      &lt;named list [4]&gt;</span></span>
+<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a>decision<span class="sc">$</span>interval_config</span>
+<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a><span class="co">#&gt; [[1]]$conf_level</span></span>
+<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a><span class="co">#&gt; [1] 0.95</span></span>
+<span id="cb31-22"><a href="#cb31-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb31-23"><a href="#cb31-23" tabindex="-1"></a><span class="co">#&gt; [[1]]$method</span></span>
+<span id="cb31-24"><a href="#cb31-24" tabindex="-1"></a><span class="co">#&gt; [1] &quot;Bonferroni&quot;</span></span>
+<span id="cb31-25"><a href="#cb31-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb31-26"><a href="#cb31-26" tabindex="-1"></a><span class="co">#&gt; [[1]]$k</span></span>
+<span id="cb31-27"><a href="#cb31-27" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb31-28"><a href="#cb31-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb31-29"><a href="#cb31-29" tabindex="-1"></a><span class="co">#&gt; [[1]]$n_mean</span></span>
+<span id="cb31-30"><a href="#cb31-30" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 <p>For parametric, ROS-censored, and nonparametric recommendations, the
 default configuration is:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="fu">list</span>(</span>
@@ -1226,18 +1273,26 @@ Protection Agency 2009</a>; <a href="#ref-gilbert1987">Gilbert
 <p>Prediction intervals require a distribution classification.</p>
 <p>A common workflow is:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>dist_est <span class="ot">&lt;-</span> gw <span class="sc">|&gt;</span></span>
-<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
-<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>    location_id,</span>
-<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>    param_name,</span>
-<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a>    default_unit</span>
-<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>()</span></code></pre></div>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>    location_id <span class="sc">==</span> <span class="st">&quot;MW-2&quot;</span>, </span>
+<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>    param_name <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a>      <span class="st">&quot;Chloride, total&quot;</span>, </span>
+<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a>      <span class="st">&quot;Sulfate, total&quot;</span>,</span>
+<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a>      <span class="st">&quot;Copper, dissolved&quot;</span></span>
+<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a>      )</span>
+<span id="cb33-9"><a href="#cb33-9" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb33-10"><a href="#cb33-10" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb33-11"><a href="#cb33-11" tabindex="-1"></a>    location_id,</span>
+<span id="cb33-12"><a href="#cb33-12" tabindex="-1"></a>    param_name,</span>
+<span id="cb33-13"><a href="#cb33-13" tabindex="-1"></a>    default_unit</span>
+<span id="cb33-14"><a href="#cb33-14" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb33-15"><a href="#cb33-15" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>()</span></code></pre></div>
 <p>Standard prediction intervals:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">pred_int</span>(dist_est)</span></code></pre></div>
-<p>Upper prediction intervals:</p>
+<p>Lower prediction intervals:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">pred_int</span>(</span>
 <span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a>  dist_est,</span>
-<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a>  <span class="at">pi_type =</span> <span class="st">&quot;upper&quot;</span>,</span>
+<span id="cb35-3"><a href="#cb35-3" tabindex="-1"></a>  <span class="at">pi_type =</span> <span class="st">&quot;lower&quot;</span>,</span>
 <span id="cb35-4"><a href="#cb35-4" tabindex="-1"></a>  <span class="at">conf_level =</span> <span class="fl">0.99</span></span>
 <span id="cb35-5"><a href="#cb35-5" tabindex="-1"></a>)</span></code></pre></div>
 <p>Simultaneous prediction intervals:</p>
@@ -1406,23 +1461,40 @@ fields.</p>
 <h1>Example Workflow</h1>
 <p>A typical environmental monitoring workflow may look like:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
-<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
-<span id="cb47-3"><a href="#cb47-3" tabindex="-1"></a>    location_id,</span>
-<span id="cb47-4"><a href="#cb47-4" tabindex="-1"></a>    param_name,</span>
-<span id="cb47-5"><a href="#cb47-5" tabindex="-1"></a>    default_unit</span>
-<span id="cb47-6"><a href="#cb47-6" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb47-7"><a href="#cb47-7" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>() <span class="sc">|&gt;</span></span>
-<span id="cb47-8"><a href="#cb47-8" tabindex="-1"></a>  <span class="fu">pred_int</span>(</span>
-<span id="cb47-9"><a href="#cb47-9" tabindex="-1"></a>    <span class="at">pi_type =</span> <span class="st">&quot;upper&quot;</span>,</span>
-<span id="cb47-10"><a href="#cb47-10" tabindex="-1"></a>    <span class="at">conf_level =</span> <span class="fl">0.95</span></span>
-<span id="cb47-11"><a href="#cb47-11" tabindex="-1"></a>  )</span></code></pre></div>
+<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb47-3"><a href="#cb47-3" tabindex="-1"></a>    location_id <span class="sc">==</span> <span class="st">&quot;MW-2&quot;</span>, </span>
+<span id="cb47-4"><a href="#cb47-4" tabindex="-1"></a>    param_name <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb47-5"><a href="#cb47-5" tabindex="-1"></a>      <span class="st">&quot;Chloride, total&quot;</span>, </span>
+<span id="cb47-6"><a href="#cb47-6" tabindex="-1"></a>      <span class="st">&quot;Sulfate, total&quot;</span>,</span>
+<span id="cb47-7"><a href="#cb47-7" tabindex="-1"></a>      <span class="st">&quot;Copper, dissolved&quot;</span></span>
+<span id="cb47-8"><a href="#cb47-8" tabindex="-1"></a>      )</span>
+<span id="cb47-9"><a href="#cb47-9" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb47-10"><a href="#cb47-10" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb47-11"><a href="#cb47-11" tabindex="-1"></a>    location_id,</span>
+<span id="cb47-12"><a href="#cb47-12" tabindex="-1"></a>    param_name,</span>
+<span id="cb47-13"><a href="#cb47-13" tabindex="-1"></a>    default_unit</span>
+<span id="cb47-14"><a href="#cb47-14" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb47-15"><a href="#cb47-15" tabindex="-1"></a>  <span class="fu">estimate_distribution</span>() <span class="sc">|&gt;</span></span>
+<span id="cb47-16"><a href="#cb47-16" tabindex="-1"></a>  <span class="fu">pred_int</span>(</span>
+<span id="cb47-17"><a href="#cb47-17" tabindex="-1"></a>    <span class="at">pi_type =</span> <span class="st">&quot;upper&quot;</span>,</span>
+<span id="cb47-18"><a href="#cb47-18" tabindex="-1"></a>    <span class="at">conf_level =</span> <span class="fl">0.95</span></span>
+<span id="cb47-19"><a href="#cb47-19" tabindex="-1"></a>  )</span></code></pre></div>
 <p>Or for sitewide reporting:</p>
 <div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" tabindex="-1"></a>gw <span class="sc">|&gt;</span></span>
-<span id="cb48-2"><a href="#cb48-2" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
-<span id="cb48-3"><a href="#cb48-3" tabindex="-1"></a>    location_id,</span>
-<span id="cb48-4"><a href="#cb48-4" tabindex="-1"></a>    param_name</span>
-<span id="cb48-5"><a href="#cb48-5" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb48-6"><a href="#cb48-6" tabindex="-1"></a>  <span class="fu">stats_summary</span>()</span></code></pre></div>
+<span id="cb48-2"><a href="#cb48-2" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb48-3"><a href="#cb48-3" tabindex="-1"></a>    location_id <span class="sc">==</span> <span class="st">&quot;MW-2&quot;</span>, </span>
+<span id="cb48-4"><a href="#cb48-4" tabindex="-1"></a>    param_name <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb48-5"><a href="#cb48-5" tabindex="-1"></a>      <span class="st">&quot;Chloride, total&quot;</span>, </span>
+<span id="cb48-6"><a href="#cb48-6" tabindex="-1"></a>      <span class="st">&quot;Sulfate, total&quot;</span>,</span>
+<span id="cb48-7"><a href="#cb48-7" tabindex="-1"></a>      <span class="st">&quot;Copper, dissolved&quot;</span></span>
+<span id="cb48-8"><a href="#cb48-8" tabindex="-1"></a>      )</span>
+<span id="cb48-9"><a href="#cb48-9" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb48-10"><a href="#cb48-10" tabindex="-1"></a>  <span class="fu">group_by</span>(</span>
+<span id="cb48-11"><a href="#cb48-11" tabindex="-1"></a>    location_id,</span>
+<span id="cb48-12"><a href="#cb48-12" tabindex="-1"></a>    param_name,</span>
+<span id="cb48-13"><a href="#cb48-13" tabindex="-1"></a>    default_unit</span>
+<span id="cb48-14"><a href="#cb48-14" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb48-15"><a href="#cb48-15" tabindex="-1"></a>  <span class="fu">stats_summary</span>()</span></code></pre></div>
 <p>The decision framework automatically:</p>
 <ul>
 <li>Evaluates data sufficiency</li>

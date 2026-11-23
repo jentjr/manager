@@ -222,5 +222,7 @@ plots <- boxplot(
 #> Warning: 1 analytes were not found in analyte metadata.
 #> ℹ Nitrite + Nitrate, total
 #> ,
-#> Error in validate_env_schema(out): Missing mapped columns: sample_date
+#> ℹ 5851 analytical result value(s) have no source unit.
+#> ℹ The analyte lookup standard unit will be assumed.
+#> Error in .validate_schema_mapping(mapping): Missing mapping entries: sample_date
 ```

@@ -97,7 +97,7 @@ data(gw)
 major_ions(gw)
 #> # A tibble: 150 × 10
 #>    location_id sample_date         calcium magnesium sodium potassium
-#>    <chr>       <dttm>                <dbl>     <dbl>  <dbl>     <dbl>
+#>  * <chr>       <dttm>                <dbl>     <dbl>  <dbl>     <dbl>
 #>  1 MW-1        2007-12-20 00:00:00    3.23      1.73  0.779   0.0831 
 #>  2 MW-1        2008-02-20 00:00:00    3.56      1.62  0.609   0.0864 
 #>  3 MW-1        2008-04-24 00:00:00    5.59      2.50  0.605   0.00256

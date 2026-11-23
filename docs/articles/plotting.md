@@ -216,10 +216,22 @@ plots[[1]]
 
 ### Linear Trend
 
+Linear regression is demonstrated using detected results only. Censored
+observations require a censored-aware trend method such as Mann-Kendall
+with cenken.
+
 ``` r
 
+lm_trend_data <- gw |>
+  filter(location_id %in% c("MW-1", "MW-2"), 
+         param_name %in% c(
+           "Chloride, total",
+           "Sulfate, total"
+         )
+        )
+
 plots <- series_plot(
-  gw,
+  lm_trend_data,
   trend = "lm"
 )
 
@@ -696,14 +708,14 @@ sessionInfo()
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6       beeswarm_0.4.0     xfun_0.62          bslib_0.12.0      
-#>  [5] ggplot2_4.0.3      htmlwidgets_1.6.4  vctrs_0.7.3        tools_4.6.1       
+#>  [5] ggplot2_4.0.4      htmlwidgets_1.6.4  vctrs_0.7.3        tools_4.6.1       
 #>  [9] generics_0.1.4     tibble_3.3.1       cluster_2.1.8.3    pkgconfig_2.0.3   
-#> [13] data.table_1.18.99 checkmate_2.3.4    RColorBrewer_1.1-3 S7_0.2.2          
+#> [13] data.table_1.18.99 checkmate_2.3.4    RColorBrewer_1.1-3 S7_1.0.0          
 #> [17] desc_1.4.3         lifecycle_1.0.5    compiler_4.6.1     farver_2.1.2      
 #> [21] stringr_1.6.0      textshaping_1.0.5  vipor_0.4.7        htmltools_0.5.9   
 #> [25] sass_0.4.10        yaml_2.3.12        htmlTable_2.5.0    Formula_1.2-6     
 #> [29] pillar_1.11.1      pkgdown_2.2.1      jquerylib_0.1.4    cachem_1.1.0      
-#> [33] Hmisc_5.3-0        viridis_0.6.5      rpart_4.1.27       tidyselect_1.2.1  
+#> [33] Hmisc_5.3-1        viridis_0.6.5      rpart_4.1.27       tidyselect_1.2.1  
 #> [37] digest_0.6.39      stringi_1.8.9      purrr_1.2.2        labeling_0.4.3    
 #> [41] cowplot_1.2.0      fastmap_1.2.0      grid_4.6.1         colorspace_2.1-4  
 #> [45] cli_3.6.6          magrittr_2.0.5     base64enc_0.1-6    utf8_1.2.6        
@@ -712,5 +724,5 @@ sessionInfo()
 #> [57] gridExtra_2.3.1    ragg_1.5.2         evaluate_1.0.5     knitr_1.52        
 #> [61] EnvStats_3.1.0     viridisLite_0.4.3  rlang_1.3.0        Rcpp_1.1.2        
 #> [65] glue_1.8.1         rstudioapi_0.19.0  jsonlite_2.0.0     R6_2.6.1          
-#> [69] systemfonts_1.3.2  fs_2.1.0           units_1.0-1.6
+#> [69] systemfonts_1.3.3  fs_2.1.0           units_1.0-1.7
 ```

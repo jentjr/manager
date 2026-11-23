@@ -6,7 +6,7 @@ strategy.
 ## Usage
 
 ``` r
-analysis_analyte(x, analyte_matching = c("normalized", "strict", "exact"))
+analysis_analyte(x, analyte_matching = c("exact", "strict", "normalized"))
 ```
 
 ## Arguments

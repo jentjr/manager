@@ -12,6 +12,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/analysis_date.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/analysis_metadata.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/analysis_method.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/analysis_plan.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/analysis_result.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/analysis_result_meq.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/analysis_unit.html</loc></url>
@@ -26,6 +27,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/boxplot.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/censored.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/charge_balance.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/compare_groups.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/conf_int.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/connect_manages3.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/connect_manages4.html</loc></url>
@@ -46,6 +48,8 @@
 <url><loc>https://jentjr.github.io/manager/reference/dot-build_analyte_labels.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-build_env_schema_call.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-censoring_decision_metadata.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-check_flag.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-classify_censoring.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-classify_results.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-compute_pred_int.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-connect_manages3.html</loc></url>
@@ -53,6 +57,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/dot-copy_env_schema_attributes.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-create_display_metadata.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-extract_fraction.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-extract_test_results.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-import_env_data.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-match_standards.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-optional_env_schema_columns.html</loc></url>
@@ -61,15 +66,22 @@
 <url><loc>https://jentjr.github.io/manager/reference/dot-resolve_analyte.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-resolve_analyte_metadata.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-resolve_reporting_flag.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-resolve_trend_censored_method.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-run_cenanova.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-safe_stat.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-standardize_ion_name.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-standardize_schema_results.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-standardize_schema_value.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-stats_summary_core.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-validate_alias_lookup.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-validate_analyte_meq_units.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-validate_analyte_units.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-validate_choice.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-validate_display_options.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-validate_est_dist_args.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-validate_est_dist_output.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-validate_guidance_profile.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/dot-validate_required_cols.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-validate_supported_analytes.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/dot-warn_unsupported_analytes.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/durov_data.html</loc></url>
@@ -92,6 +104,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/is_standards_schema.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/is_valid_env_schema.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/kendall_trend.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/levene_test.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/location.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/major_ions.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/major_ion_chemistry.html</loc></url>
@@ -108,6 +121,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/piper_time_plot.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/pred_int.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/pred_int_sim.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/print.environmental_analysis_result.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/print.statistical_decision.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/qualifier_table.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/quantitation_limit.html</loc></url>
@@ -119,6 +133,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/restore_env_schema.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/result.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/rosner_test.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/run_analysis.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/sample_date.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/sample_id.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/schema_accessors.html</loc></url>
@@ -129,6 +144,7 @@
 <url><loc>https://jentjr.github.io/manager/reference/schema_version.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/schoeller_data.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/schoeller_plot.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/select_statistical_method.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/series_plot.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/set_background.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/set_proposed_background.html</loc></url>
@@ -156,6 +172,8 @@
 <url><loc>https://jentjr.github.io/manager/reference/unit.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/update_background.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/usable.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/validate_analysis_data.html</loc></url>
+<url><loc>https://jentjr.github.io/manager/reference/validate_analysis_plan.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/validate_analyte_alias_tbl.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/validate_analyte_tbl.html</loc></url>
 <url><loc>https://jentjr.github.io/manager/reference/validate_env_schema.html</loc></url>

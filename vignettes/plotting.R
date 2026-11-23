@@ -57,8 +57,16 @@ plots <- series_plot(gw)
 plots[[1]]
 
 ## ----series-lm----------------------------------------------------------------
+lm_trend_data <- gw |>
+  filter(location_id %in% c("MW-1", "MW-2"), 
+         param_name %in% c(
+           "Chloride, total",
+           "Sulfate, total"
+         )
+        )
+
 plots <- series_plot(
-  gw,
+  lm_trend_data,
   trend = "lm"
 )
 

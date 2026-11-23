@@ -10,12 +10,9 @@ estimation procedures ([Helsel 2012](#ref-helsel2012); [Helsel et al.
 2020](#ref-helsel2020)). Statistical methods that perform well under low
 censoring may become unreliable when censoring is extensive.
 
-The `manager` package includes a statistical decision framework that
-automatically evaluates data quality and recommends appropriate
-statistical methods for environmental monitoring data. The framework is
-inspired by recommendations commonly used in groundwater monitoring
-programs and EPA statistical guidance documents ([United States
-Environmental Protection Agency 2009](#ref-epa2009),
+The framework isinspired by recommendations commonly used in groundwater
+monitoring programs and EPA statistical guidance documents ([United
+States Environmental Protection Agency 2009](#ref-epa2009),
 [1989](#ref-epa1989); [Interstate Technology and Regulatory Council
 2013](#ref-itrc2013)).
 
@@ -126,13 +123,13 @@ decision <- statistical_decision(
 
 decision
 #> <statistical_decision>
-#> # A tibble: 1 × 12
+#> # A tibble: 1 × 13
 #>   n_used n_detect percent_censored censoring_class distribution_method
 #>    <dbl>    <dbl>            <dbl> <chr>           <chr>              
 #> 1     20       18               12 low_censoring   parametric         
-#> # ℹ 7 more variables: trend_method <chr>, trend_guidance <chr>,
+#> # ℹ 8 more variables: trend_method <chr>, trend_guidance <chr>,
 #> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
-#> #   decision_basis <chr>, comparison_method <chr>
+#> #   interval_method <chr>, comparison_method <chr>, decision_basis <chr>
 ```
 
 The resulting object contains:
@@ -143,7 +140,8 @@ names(decision)
 #>  [1] "n_used"              "n_detect"            "percent_censored"   
 #>  [4] "censoring_class"     "distribution_method" "trend_method"       
 #>  [7] "trend_guidance"      "censored_method"     "distribution_config"
-#> [10] "interval_config"     "decision_basis"      "comparison_method"
+#> [10] "interval_config"     "interval_method"     "comparison_method"  
+#> [13] "decision_basis"
 ```
 
 Key recommendation fields include:
@@ -169,23 +167,35 @@ severity.
 
 ``` r
 
-statistical_decision(
+decisions <- statistical_decision(
   percent_censored = c(5, 25, 75, 95),
-  n_used = 20,
+  n_used = c(20, 20, 20, 20),
   n_detect = c(19, 15, 5, 1)
-) |>
+  )
+
+decisions |>
   select(
     percent_censored,
-    censoring_class
-  )
+    n_used,
+    n_detect,
+    censoring_class,
+    distribution_method,
+    trend_method,
+    trend_guidance,
+    censored_method,
+    interval_method,
+    comparison_method
+    )
 #> <statistical_decision>
-#> # A tibble: 4 × 2
-#>   percent_censored censoring_class   
-#>              <dbl> <chr>             
-#> 1                5 low_censoring     
-#> 2               25 moderate_censoring
-#> 3               75 high_censoring    
-#> 4               95 extreme_censoring
+#> # A tibble: 4 × 10
+#>   percent_censored n_used n_detect censoring_class    distribution_method
+#>              <dbl>  <dbl>    <dbl> <chr>              <chr>              
+#> 1                5     20       19 low_censoring      parametric         
+#> 2               25     20       15 moderate_censoring ros_censored       
+#> 3               75     20        5 high_censoring     nonparametric      
+#> 4               95     20        1 extreme_censoring  descriptive_only   
+#> # ℹ 5 more variables: trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, interval_method <chr>, comparison_method <chr>
 ```
 
 Under the default EPA profile:
@@ -216,23 +226,35 @@ Example:
 
 ``` r
 
-statistical_decision(
+decisions <- statistical_decision(
   percent_censored = c(5, 25, 75, 95),
-  n_used = 20,
+  n_used = c(20, 20, 20, 20),
   n_detect = c(19, 15, 5, 1)
-) |>
+  )
+
+decisions |>
   select(
     percent_censored,
-    distribution_method
-  )
+    n_used,
+    n_detect,
+    censoring_class,
+    distribution_method,
+    trend_method,
+    trend_guidance,
+    censored_method,
+    interval_method,
+    comparison_method
+    )
 #> <statistical_decision>
-#> # A tibble: 4 × 2
-#>   percent_censored distribution_method
-#>              <dbl> <chr>              
-#> 1                5 parametric         
-#> 2               25 ros_censored       
-#> 3               75 nonparametric      
-#> 4               95 descriptive_only
+#> # A tibble: 4 × 10
+#>   percent_censored n_used n_detect censoring_class    distribution_method
+#>              <dbl>  <dbl>    <dbl> <chr>              <chr>              
+#> 1                5     20       19 low_censoring      parametric         
+#> 2               25     20       15 moderate_censoring ros_censored       
+#> 3               75     20        5 high_censoring     nonparametric      
+#> 4               95     20        1 extreme_censoring  descriptive_only   
+#> # ℹ 5 more variables: trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, interval_method <chr>, comparison_method <chr>
 ```
 
 The progression from parametric methods to censored-data methods and
@@ -385,38 +407,45 @@ decision |>
 #> # A tibble: 1 × 3
 #>   trend_method trend_guidance    censored_method
 #>   <chr>        <chr>             <chr>          
-#> 1 mann_kendall formal_trend_test cenken
+#> 1 mann_kendall formal_trend_test ros
 ```
 
 ### Trend Guidance Categories
 
+Trend recommendations use a Mann-Kendall framework whenever enough
+observations are available.
+
 #### Formal Trend Testing
 
-When censoring remains below the high-censoring threshold and adequate
-detects are available:
+For datasets with at least five usable observations and low or moderate
+censoring, the framework returns:
 
 ``` text
-formal_trend_test
+trend_method = "mann_kendall"
+trend_guidance = "formal_trend_test"
 ```
 
 is recommended.
 
 #### Screening-Only Evaluation
 
-When censoring becomes extensive:
+For high or extreme censoring, the Mann-Kendall framework is still
+selected, but interpretation is limited to screening-level evaluation::
 
 ``` text
-screening_only
+trend_method = "mann_kendall"
+trend_guidance = "screening_only"
 ```
 
 is returned.
 
 #### Insufficient Detects
 
-When fewer than four detects are available:
+When fewer than five usable observations are available:
 
 ``` text
-insufficient_detects
+trend_method = "insufficient_data"
+trend_guidance = "insufficient_data"
 ```
 
 is returned.
@@ -427,40 +456,56 @@ statistical_decision(
   percent_censored = 90,
   n_used = 20,
   n_detect = 2
-) |>
+  ) |>
   select(
-    trend_guidance
-  )
+    n_used,
+    n_detect,
+    trend_method,
+    trend_guidance, 
+    comparison_method
+    )
 #> <statistical_decision>
-#> # A tibble: 1 × 1
-#>   trend_guidance      
-#>   <chr>               
-#> 1 insufficient_detects
+#> # A tibble: 1 × 5
+#>   n_used n_detect trend_method trend_guidance comparison_method
+#>    <dbl>    <dbl> <chr>        <chr>          <chr>            
+#> 1     20        2 mann_kendall screening_only insufficient_data
 ```
 
-## Censored Trend Methods
+Expected
 
-The decision framework also recommends how censored observations should
-be handled during trend evaluation.
+    trend_method       = "mann_kendall"
+    trend_guidance     = "screening_only"
+    comparison_method  = "insufficient_data"
+
+The number of detected observations is used separately when selecting
+the recommended comparison method. It does not independently create an
+insufficient_detects trend category.
+
+## Censored-Data Handling Recommendations
+
+The decision object includes a `censored_method` field describing the
+recommended treatment of censored observations.
 
 ``` r
 
 statistical_decision(
-  percent_censored = c(5, 40, 75),
-  n_used = 20,
-  n_detect = c(19, 12, 5)
+  percent_censored = c(5, 40, 75, 95),
+  n_used = c(20, 20, 20, 20),
+  n_detect = c(19, 12, 5, 1)
 ) |>
   select(
     percent_censored,
+    censoring_class,
     censored_method
   )
 #> <statistical_decision>
-#> # A tibble: 3 × 2
-#>   percent_censored censored_method
-#>              <dbl> <chr>          
-#> 1                5 as_reported    
-#> 2               40 cenken         
-#> 3               75 cenken
+#> # A tibble: 4 × 3
+#>   percent_censored censoring_class    censored_method 
+#>              <dbl> <chr>              <chr>           
+#> 1                5 low_censoring      standard        
+#> 2               40 moderate_censoring ros             
+#> 3               75 high_censoring     nonparametric   
+#> 4               95 extreme_censoring  descriptive_only
 ```
 
 For censored environmental datasets, ordinary Mann-Kendall analyses may
@@ -470,12 +515,14 @@ censored Kendall methods such as
 recommended ([Helsel 2012](#ref-helsel2012); [Julian et al.
 2024](#ref-nada2)).
 
-Recommended methods:
+The current recommendations are:
 
-| Condition                     | Method      |
-|-------------------------------|-------------|
-| Low censoring                 | as_reported |
-| Moderate or greater censoring | cenken      |
+| Censoring class    |
+|--------------------|
+| Low censoring      |
+| Moderate censoring |
+| High censoring     |
+| Extreme censoring  |
 
 These recommendations are automatically used by functions such as:
 
@@ -509,10 +556,50 @@ trend_summary(
 
 ## Deriving Decisions from Data
 
-Most workflows will not create decisions manually.
+Use
+[`derive_decision()`](https://jentjr.github.io/manager/reference/derive_decision.md)
+to calculate censoring metrics directly from a data frame.
 
-Instead, recommendations are derived automatically from environmental
-data.
+For ordinary data frames, the default columns are:
+
+- `analysis_result`: numeric analytical result;
+- `censored`: logical censoring indicator.
+
+A value of `TRUE` indicates a censored observation and `FALSE` indicates
+a detected observation.
+
+``` r
+
+gw_example <- data.frame(
+  analysis_result = c(
+    1.2, 0.8, 0.5, 0.3, 0.2,
+    0.1, 0.4, 0.7, 1.1, 0.9
+  ),
+  censored = c(
+    FALSE, FALSE, FALSE, TRUE, FALSE,
+    FALSE, FALSE, FALSE, FALSE, FALSE
+  )
+)
+
+decision <- derive_decision(gw_example)
+
+decision |>
+  select(
+    n_used,
+    n_detect,
+    percent_censored,
+    censoring_class,
+    distribution_method,
+    trend_method,
+    trend_guidance
+  )
+#> <statistical_decision>
+#> # A tibble: 1 × 7
+#>   n_used n_detect percent_censored censoring_class distribution_method
+#>    <int>    <int>            <dbl> <chr>           <chr>              
+#> 1     10        9               10 low_censoring   parametric         
+#> # ℹ 2 more variables: trend_method <chr>, trend_guidance <chr>
+```
 
 This approach allows data characteristics rather than analyst preference
 to determine the recommended statistical workflow, improving
@@ -535,68 +622,165 @@ calculates:
 
 and passes those values into
 [`statistical_decision()`](https://jentjr.github.io/manager/reference/statistical_decision.md).
+Rows with missing analytical results or missing censoring indicators are
+excluded from these calculations.
 
-### Example
+### Custom Column Names
+
+Use `result_col` and `censored_col` when the data does not use the
+default column names.
 
 ``` r
 
-gw |>
-  filter(
-    param_name == "Arsenic, dissolved"
-  ) |>
-  derive_decision()
+custom_data <- data.frame(
+  concentration = c(1.2, 0.8, 0.5, 0.3), 
+  is_censored = c(FALSE, FALSE, TRUE, FALSE)
+  )
+
+derive_decision( 
+  custom_data,
+  result_col = "concentration",
+  censored_col = "is_censored"
+  )
 ```
+
+The result column must be numeric and the censoring column must be
+logical. Missing required columns, invalid column types, and missing
+column names produce informative errors.
+
+### Grouped Data
+
+[`derive_decision()`](https://jentjr.github.io/manager/reference/derive_decision.md)
+supports grouped data frames and returns one decision for each group.
+
+``` r
+
+grouped_data <- data.frame(
+  location = c("A", "A", "A", "B", "B", "B"),
+  analysis_result = c(1.2, 0.8, 0.3, 0.2, 0.1, 0.4),
+  censored = c(FALSE, FALSE, TRUE, TRUE, TRUE, FALSE)
+  ) |>
+  group_by(location)
+
+grouped_decisions <- derive_decision(grouped_data)
+
+grouped_decisions |>
+  select(
+    location,
+    n_used,
+    n_detect,
+    percent_censored,
+    censoring_class,
+    distribution_method
+    )
+#> # A tibble: 2 × 6
+#> # Groups:   location [2]
+#>   location n_used n_detect percent_censored censoring_class  distribution_method
+#>   <chr>     <int>    <int>            <dbl> <chr>            <chr>              
+#> 1 A             3        2             33.3 moderate_censor… insufficient_data  
+#> 2 B             3        1             66.7 high_censoring   insufficient_data
+```
+
+For env_schema objects, standardized analysis and censoring variables
+are resolved through analysis_result_var() and censored_var().
 
 ## Distribution Estimation Workflow
 
-The primary consumer of statistical decision guidance is
-[`estimate_distribution()`](https://jentjr.github.io/manager/reference/estimate_distribution.md).
+[`estimate_distribution()`](https://jentjr.github.io/manager/reference/estimate_distribution.md)
+uses the statistical decision framework to select a
+distribution-estimation pathway for each group.
+
+The input must be grouped with
+[`dplyr::group_by()`](https://dplyr.tidyverse.org/reference/group_by.html).
+
 Distribution estimation relies on methods implemented in the `EnvStats`
 package ([Millard and Kowarik 2024](#ref-envstats)), which contains many
 of the statistical procedures described in EPA groundwater monitoring
-guidance ([United States Environmental Protection Agency
+guidance([United States Environmental Protection Agency
 2009](#ref-epa2009)).
 
 ``` r
 
 gw |>
+  filter(
+    location_id == "MW-2", 
+    param_name %in% c(
+      "Chloride, total", 
+      "Sulfate, total",
+      "Selenium, dissolved",
+      "Copper, dissolved"
+      )
+    ) |>
   group_by(
     location_id,
     param_name,
     default_unit
-  ) |>
-  estimate_distribution()
+    ) |>
+  estimate_distribution() |>
+  select(
+    location_id, 
+    param_name,
+    n_detect,
+    percent_censored,
+    decision_basis,
+    distribution
+  )
 ```
 
-For each group:
+With the default distribution_config = “auto”:
 
-1.  Censoring is evaluated
-2.  A statistical decision is derived
-3.  The recommended workflow is selected
-4.  Distribution results are returned along with decision metadata
+1.  analytical columns are resolved;
+2.  censoring metrics are calculated with derive_decision();
+3.  a statistical decision is created;
+4.  the recommended distribution pathway is selected; and
+5.  results and decision metadata are returned.
+
+Calling
+[`estimate_distribution()`](https://jentjr.github.io/manager/reference/estimate_distribution.md)
+on an ungrouped data frame produces an error. Group the data before
+calling the function.
 
 ## Automatic Method Selection
 
 Under the default EPA profile:
 
-| Percent Censored | Recommendation   | Action                      |
-|------------------|------------------|-----------------------------|
-| \<15             | parametric       | Fit candidate distributions |
-| 15-50            | ros_censored     | Fit censored distributions  |
-| 50-90            | nonparametric    | Classify as nonparametric   |
-| \>=90            | descriptive_only | Descriptive evaluation only |
+| Percent Censored     | Classification       | Recommendation     |
+|----------------------|----------------------|--------------------|
+| `< 15%`              | `low_censoring`      | `parametric`       |
+| `>= 15%` and `< 50%` | `moderate_censoring` | `ros_censored`     |
+| `>= 50%` and `< 90%` | `high_censoring`     | `nonparametric`    |
+| `>=90%`              | `extreme_censoring`  | `descriptive_only` |
+
+A separate minimum-sample-size rule takes precedence: fewer than four
+usable observations results in `insufficient_data`.
 
 Example:
 
 ``` r
 
 gw |>
+  filter(
+    location_id == "MW-1", 
+    param_name %in% c(
+      "Chloride, total", 
+      "Sulfate, total",
+      "Tin, dissolved"
+      )
+    ) |>
   group_by(
     location_id,
     param_name,
     default_unit
-  ) |>
-  estimate_distribution()
+    ) |>
+  estimate_distribution() |>
+  select(
+    location_id, 
+    param_name,
+    n_detect,
+    percent_censored,
+    decision_basis,
+    distribution
+  )
 ```
 
 The method-selection process occurs automatically.
@@ -652,42 +836,62 @@ depending on the decision outcome.
 
 ## Interval Configuration
 
-The decision object also includes interval-estimation guidance.
+The decision object includes interval-estimation guidance for methods
+supported by the selected distributional approach.
 
 ``` r
 
-decision$interval_config[[1]]
-#> $conf_level
+decision <- statistical_decision(
+  percent_censored = 10,
+  n_used = 20,
+  n_detect = 18
+  )
+
+decision |>
+  select(
+    interval_method,
+    interval_config
+    )
+#> <statistical_decision>
+#> # A tibble: 1 × 2
+#>   interval_method interval_config 
+#>   <chr>           <list>          
+#> 1 parametric      <named list [4]>
+
+decision$interval_config
+#> [[1]]
+#> [[1]]$conf_level
 #> [1] 0.95
 #> 
-#> $method
+#> [[1]]$method
 #> [1] "Bonferroni"
 #> 
-#> $k
+#> [[1]]$k
 #> [1] 1
 #> 
-#> $n_mean
+#> [[1]]$n_mean
 #> [1] 1
 ```
 
-Default settings:
+For parametric, ROS-censored, and nonparametric recommendations, the
+default configuration is:
 
 ``` r
 
 list(
   conf_level = 0.95,
   method = "Bonferroni",
-  k = 1,
-  n_mean = 1
+  k = 1L,
+  n_mean = 1L
 )
 ```
 
-These values are intended as defaults for:
+For insufficient-data and descriptive-only recommendations, the interval
+configuration is an empty list.
 
-- [`pred_int()`](https://jentjr.github.io/manager/reference/pred_int.md)
-- [`pred_int_sim()`](https://jentjr.github.io/manager/reference/pred_int_sim.md)
-- [`conf_int()`](https://jentjr.github.io/manager/reference/conf_int.md)
-- [`tol_int()`](https://jentjr.github.io/manager/reference/tol_int.md)
+These values are configuration metadata intended for interval-estimation
+functions. The decision function does not execute interval estimation by
+itself.
 
 ## Prediction Intervals
 
@@ -704,11 +908,19 @@ A common workflow is:
 ``` r
 
 dist_est <- gw |>
+  filter(
+    location_id == "MW-2", 
+    param_name %in% c(
+      "Chloride, total", 
+      "Sulfate, total",
+      "Copper, dissolved"
+      )
+    ) |>
   group_by(
     location_id,
     param_name,
     default_unit
-  ) |>
+    ) |>
   estimate_distribution()
 ```
 
@@ -719,13 +931,13 @@ Standard prediction intervals:
 pred_int(dist_est)
 ```
 
-Upper prediction intervals:
+Lower prediction intervals:
 
 ``` r
 
 pred_int(
   dist_est,
-  pi_type = "upper",
+  pi_type = "lower",
   conf_level = 0.99
 )
 ```
@@ -777,20 +989,52 @@ approaches directly within summary tables.
 
 ## Custom Guidance Thresholds
 
-Organizations may prefer different censoring thresholds.
-
-Global options can be used to override defaults.
+A profile can be supplied directly to a decision:
 
 ``` r
 
-options(
-  manager.guidance = list(
-    low_threshold = 10,
-    moderate_threshold = 25,
-    high_threshold = 75
-  )
+statistical_decision(
+  percent_censored = 25,
+  n_used = 20,
+  n_detect = 15,
+  profile = guidance_profile("conservative")
 )
+#> <statistical_decision>
+#> # A tibble: 1 × 13
+#>   n_used n_detect percent_censored censoring_class distribution_method
+#>    <dbl>    <dbl>            <dbl> <chr>           <chr>              
+#> 1     20       15               25 high_censoring  nonparametric      
+#> # ℹ 8 more variables: trend_method <chr>, trend_guidance <chr>,
+#> #   censored_method <chr>, distribution_config <list>, interval_config <list>,
+#> #   interval_method <chr>, comparison_method <chr>, decision_basis <chr>
 ```
+
+The active package option can also be changed:
+
+``` r
+
+old_guidance <- getOption("manager.guidance")
+
+options(
+manager.guidance = guidance_profile("conservative")
+)
+
+guidance_options()
+```
+
+Restore the previous setting after the example:
+
+``` r
+
+if (is.null(old_guidance)) {
+options(manager.guidance = NULL)
+} else {
+options(manager.guidance = old_guidance)
+}
+```
+
+For reproducible analyses, passing profile explicitly is preferable to
+depending on a mutable global option.
 
 Retrieve the active settings:
 
@@ -798,16 +1042,123 @@ Retrieve the active settings:
 
 guidance_options()
 #> $low_threshold
-#> [1] 10
+#> [1] 15
 #> 
 #> $moderate_threshold
-#> [1] 25
+#> [1] 50
 #> 
 #> $high_threshold
-#> [1] 75
+#> [1] 90
 ```
 
 Decisions derived afterward will use the updated thresholds.
+
+## Analysis Plans
+
+Use
+[`analysis_plan()`](https://jentjr.github.io/manager/reference/analysis_plan.md)
+to define the objective and required analysis fields before running a
+statistical procedure.
+
+``` r
+
+distribution_plan <- analysis_plan(
+objective = "distribution",
+response = "analysis_result",
+censored = "censored"
+)
+
+distribution_plan
+#> $objective
+#> [1] "distribution"
+#> 
+#> $response
+#> [1] "analysis_result"
+#> 
+#> $censored
+#> [1] "censored"
+#> 
+#> $date
+#> NULL
+#> 
+#> $group
+#> NULL
+#> 
+#> $comparison
+#> NULL
+#> 
+#> $method
+#> NULL
+#> 
+#> $alpha
+#> [1] 0.05
+#> 
+#> $confidence_level
+#> [1] 0.95
+#> 
+#> $censoring_method
+#> NULL
+#> 
+#> $missing_policy
+#> [1] "exclude_required_fields"
+#> 
+#> $guidance
+#> $guidance$low_threshold
+#> [1] 15
+#> 
+#> $guidance$moderate_threshold
+#> [1] 50
+#> 
+#> $guidance$high_threshold
+#> [1] 90
+#> 
+#> 
+#> $parameters
+#> list()
+#> 
+#> attr(,"class")
+#> [1] "statistical_analysis_plan"
+```
+
+Trend analyses require a date column:
+
+``` r
+
+trend_plan <- analysis_plan(
+objective = "trend",
+response = "analysis_result",
+censored = "censored",
+date = "sample_date"
+)
+
+trend_plan
+```
+
+Comparison analyses require a comparison column:
+
+``` r
+
+comparison_plan <- analysis_plan(
+objective = "comparison",
+response = "analysis_result",
+censored = "censored",
+comparison = "location"
+)
+
+comparison_plan
+```
+
+Plans are validated when created. Use
+[`validate_analysis_plan()`](https://jentjr.github.io/manager/reference/validate_analysis_plan.md)
+to validate an existing compatible list:
+
+``` r
+validate_analysis_plan(distribution_plan)`
+```
+
+The validator checks the objective, response column, error and
+confidence levels, guidance thresholds, and objective-specific required
+fields.
 
 ## Example Workflow
 
@@ -816,11 +1167,19 @@ A typical environmental monitoring workflow may look like:
 ``` r
 
 gw |>
+  filter(
+    location_id == "MW-2", 
+    param_name %in% c(
+      "Chloride, total", 
+      "Sulfate, total",
+      "Copper, dissolved"
+      )
+    ) |>
   group_by(
     location_id,
     param_name,
     default_unit
-  ) |>
+    ) |>
   estimate_distribution() |>
   pred_int(
     pi_type = "upper",
@@ -833,10 +1192,19 @@ Or for sitewide reporting:
 ``` r
 
 gw |>
+  filter(
+    location_id == "MW-2", 
+    param_name %in% c(
+      "Chloride, total", 
+      "Sulfate, total",
+      "Copper, dissolved"
+      )
+    ) |>
   group_by(
     location_id,
-    param_name
-  ) |>
+    param_name,
+    default_unit
+    ) |>
   stats_summary()
 ```
 
@@ -942,12 +1310,12 @@ Key functions include:
 - [`guidance_options()`](https://jentjr.github.io/manager/reference/guidance_options.md)
 - [`statistical_decision()`](https://jentjr.github.io/manager/reference/statistical_decision.md)
 - [`derive_decision()`](https://jentjr.github.io/manager/reference/derive_decision.md)
+- [`analysis_plan()`](https://jentjr.github.io/manager/reference/analysis_plan.md)
+- [`validate_analysis_plan()`](https://jentjr.github.io/manager/reference/validate_analysis_plan.md)
 - [`estimate_distribution()`](https://jentjr.github.io/manager/reference/estimate_distribution.md)
-- [`stats_summary()`](https://jentjr.github.io/manager/reference/stats_summary.md)
 
-Together these functions allow environmental datasets to be evaluated
-using method-selection rules that are consistent across projects,
-analytes, and monitoring programs.
+Together, these functions support consistent and reproducible method
+selection across projects, analytes, locations, and monitoring programs.
 
 Gilbert, Richard O. 1987. *Statistical Methods for Environmental
 Pollution Monitoring*. Van Nostrand Reinhold.

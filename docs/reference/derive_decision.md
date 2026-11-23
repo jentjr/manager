@@ -6,11 +6,16 @@ Calculates censoring metrics from a dataset and returns a corresponding
 ## Usage
 
 ``` r
-derive_decision(
-  df,
-  result_col = analysis_result_var(df),
-  censored_col = censored_var(df)
-)
+derive_decision(df, ...)
+
+# S3 method for class 'data.frame'
+derive_decision(df, result_col = NULL, censored_col = NULL, ...)
+
+# S3 method for class 'grouped_df'
+derive_decision(df, result_col = NULL, censored_col = NULL, ...)
+
+# S3 method for class 'env_schema'
+derive_decision(df, result_col = NULL, censored_col = NULL, ...)
 ```
 
 ## Arguments
@@ -19,47 +24,15 @@ derive_decision(
 
   Data frame containing analytical results.
 
-## Value
+- ...:
 
-A \`"statistical_decision"\` object.
+  Additional arguments passed to methods.
 
-## Details
+## env_schema Method
 
-The input must contain standardized analytical fields:
+For \`env_schema\` objects, censoring metrics are computed using the
+standardized analytical fields:
 
 - \`.analysis_result\`
 
 - \`.censored\`
-
-The following quantities are calculated automatically:
-
-- n_used:
-
-  Number of non-missing analytical results.
-
-- n_detect:
-
-  Number of detected observations.
-
-- percent_censored:
-
-  Percentage of observations flagged as censored.
-
-These values are supplied to \[statistical_decision()\] to obtain
-method-selection guidance.
-
-## See also
-
-\[statistical_decision()\], \[estimate_distribution()\]
-
-## Examples
-
-``` r
-derive_decision(gw_schema)
-#> Error: object 'gw_schema' not found
-
-gw_schema |>
-  dplyr::filter(param_name == "Arsenic, dissolved") |>
-  derive_decision()
-#> Error: object 'gw_schema' not found
-```
