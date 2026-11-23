@@ -92,6 +92,7 @@
 
   # Normalize whitespace and Unicode micro symbols.
   x <- x |>
+    stringr::str_replace_all("\u00A0", " ") |>
     stringr::str_trim() |>
     stringr::str_replace_all("[\u00B5\u03BC]", "u") |>
     stringr::str_replace_all("\\s*/\\s*", "/") |>
@@ -101,6 +102,7 @@
   # Values used by some source systems to indicate that the value is
   # reported in the standard unit, rather than specifying a physical unit.
   standard_unit_sentinels <- c(
+    "su",
     "std",
     "standard",
     "standard unit",
@@ -109,6 +111,13 @@
   )
 
   x[x %in% standard_unit_sentinels] <- NA_character_
+
+  # Normalize pH labels before any UDUNITS-2 call.
+  # Handles: ph, pH, ph unit, pH units, and repeated whitespace.
+  ph_idx <- !is.na(x) &
+    stringr::str_detect(x, "^p\\s*h(?:\\s+units?)?$")
+
+  x[ph_idx] <- "pH"
 
   # Temperature aliases.
   x <- stringr::str_replace_all(
@@ -159,8 +168,7 @@
     "uS"
   )
 
-  # Restore canonical case-sensitive symbols registered with {units}.
-  # This must occur after str_to_lower().
+  # Restore canonical case-sensitive symbols after str_to_lower().
   canonical_units <- c(
     "mv" = "mV",
     "ntu" = "NTU",
@@ -207,9 +215,7 @@
     rlang::abort("`.analysis_result` must be numeric.")
   }
 
-  df$.analysis_unit <- .normalize_unit(df$.analysis_unit)
-  df$.std_unit <- .normalize_unit(df$.std_unit)
-
+  # Preserve source-system values exactly as supplied.
   if (!".original_lab_result" %in% names(df)) {
     df$.original_lab_result <- df$.analysis_result
   }
@@ -218,11 +224,17 @@
     df$.original_lab_unit <- df$.analysis_unit
   }
 
+  # Normalize only the working unit columns.
+  df$.analysis_unit <- .normalize_unit(df$.analysis_unit)
+  df$.std_unit <- .normalize_unit(df$.std_unit)
+
+  source_analysis_unit <- df$.analysis_unit
+
   # Standardize the analytical result first. This establishes the
   # final unit used by all limit columns below.
   result <- .standardize_schema_value(
     value = df$.analysis_result,
-    source_unit = df$.analysis_unit,
+    source_unit = source_analysis_unit,
     standard_unit = df$.std_unit,
     analyte = df$.analyte_id,
     value_label = "analytical result"
@@ -276,7 +288,7 @@
 
       standardized <- .standardize_schema_value(
         value = df[[source_col]],
-        source_unit = df$.analysis_unit,
+        source_unit = source_analysis_unit,
         standard_unit = df$.std_unit,
         analyte = df$.analyte_id,
         value_label = mapping_name
@@ -304,6 +316,8 @@
 
   has_value <- !is.na(value)
 
+  # Missing units and sentinel units mean that the standard unit is
+  # already being reported. No UDUNITS-2 conversion is required.
   missing_source_unit <- has_value &
     is.na(source_unit) &
     !is.na(standard_unit)
@@ -324,6 +338,13 @@
     source_unit[missing_source_unit] <-
       standard_unit[missing_source_unit]
   }
+
+  # pH is an opaque logarithmic analytical measure. pH-to-pH is
+  # always a no-op and must not reach {units}.
+  same_unit <- has_value &
+    !is.na(source_unit) &
+    !is.na(standard_unit) &
+    source_unit == standard_unit
 
   convert_idx <- has_value &
     !is.na(source_unit) &
@@ -524,6 +545,35 @@
   from_unit,
   to_unit
 ) {
+  from_unit <- .normalize_unit(from_unit)
+  to_unit <- .normalize_unit(to_unit)
+
+  if (
+    length(from_unit) != 1L ||
+      length(to_unit) != 1L ||
+      is.na(from_unit) ||
+      is.na(to_unit)
+  ) {
+    rlang::abort(
+      "`from_unit` and `to_unit` must be single, non-missing units."
+    )
+  }
+
+  # No conversion is required. This also prevents pH from reaching
+  # UDUNITS-2, where "ph" means phot rather than pH.
+  if (identical(from_unit, to_unit)) {
+    return(as.numeric(value))
+  }
+
+  if ("pH" %in% c(from_unit, to_unit)) {
+    rlang::abort(
+      c(
+        "pH cannot be converted using UDUNITS-2.",
+        "i" = "pH is a logarithmic analytical measure, not a linear unit."
+      )
+    )
+  }
+
   units::drop_units(
     units::set_units(
       units::set_units(
@@ -580,6 +630,18 @@
       is.na(to_unit)
   ) {
     return(rep(NA_real_, length(value)))
+  }
+
+  from_unit <- .normalize_unit(from_unit)
+  to_unit <- .normalize_unit(to_unit)
+
+  if (is.na(from_unit) || is.na(to_unit)) {
+    return(rep(NA_real_, length(value)))
+  }
+
+  # Includes pH -> pH. Never send identical units to {units}.
+  if (identical(from_unit, to_unit)) {
+    return(as.numeric(value))
   }
 
   tryCatch(

@@ -496,7 +496,7 @@ test_that("std source unit falls back to the lookup unit", {
   )
 
   expect_equal(result$value, 7)
-  expect_equal(result$unit, "ph")
+  expect_equal(result$unit, "pH")
 })
 
 test_that("STD is treated as a missing source unit", {
@@ -514,5 +514,34 @@ test_that("STD pH values use the lookup standard unit", {
   )
 
   expect_equal(result$value, 7)
-  expect_equal(result$unit, "ph")
+  expect_equal(result$unit, "pH")
+})
+
+test_that("pH aliases normalize to canonical pH", {
+  expect_identical(
+    manager:::.normalize_unit(c("pH", "ph", " PH ")),
+    rep("pH", 3L)
+  )
+})
+
+test_that("pH to pH conversion is a no-op", {
+  expect_identical(
+    manager:::.convert_units(
+      value = c(6.5, 7, 8.2),
+      from_unit = "pH",
+      to_unit = "pH"
+    ),
+    c(6.5, 7, 8.2)
+  )
+})
+
+test_that("pH cannot be converted to a linear unit", {
+  expect_error(
+    manager:::.convert_units(
+      value = 7,
+      from_unit = "pH",
+      to_unit = "1"
+    ),
+    "pH cannot be converted"
+  )
 })
