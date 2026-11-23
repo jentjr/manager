@@ -730,8 +730,9 @@ shinyServer(function(input, output, session) {
   })
 
   get_stiff_data <- reactive({
-    req(get_data())
-    stiff_data <- get_data()
+    req(get_data(), input$date_range_Stiff)
+
+    dates <- .get_date_range(input$date_range_stiff)
 
     ions <- c(
       input$magnesium_stiff,
@@ -744,29 +745,28 @@ shinyServer(function(input, output, session) {
       input$tds_stiff
     )
 
-    dates <- .get_date_range(input$date_stiff_range)
-
-    start <- dates$start
-
-    end <- dates$start
-
-    stiff_data %>%
-      filter(
+    get_data %>%
+      dplyr::filter(
         param_name %in% ions,
         location_id %in% input$well_stiff,
-        sample_date >= start &
-          sample_date <= end
+        sample_date >= dates$start,
+        sample_date <= dates$end
       )
   })
 
   output$select_stiff_tds <- renderUI({
-    if (isTRUE(input$tds_stiff)) {
-      selectInput(
-        inputId = "tds_stiff",
-        label = "Total Dissolved Solids",
-        choices = c("Total Dissolved Solids")
-      )
+    req(get_data())
+
+    if (isTRUE(input$tds_stiff_enabled)) {
+      return(NULL)
     }
+
+    selectInput(
+      inputId = "tds_stiff_param",
+      label = "Total Dissolved Solids",
+      choices = "Total Dissolved Solids",
+      selected = "Total Dissolved Solids"
+    )
   })
 
   stiff_diagram <- reactive({
@@ -789,7 +789,7 @@ shinyServer(function(input, output, session) {
           stiff_i <- i
           stiff_name <- paste("stiff_plot", stiff_i, sep = "")
           output[[stiff_name]] <- renderPlot({
-            if (isTRUE(input$tds_stiff)) {
+            if (isTRUE(input$tds_stiff_enabled)) {
               stiff <- stiff_plot(
                 stiff_data[
                   stiff_data$location_id == stiff_locations[stiff_i],
@@ -801,7 +801,7 @@ shinyServer(function(input, output, session) {
                 chloride = paste(input$chloride_stiff),
                 sulfate = paste(input$sulfate_stiff),
                 alkalinity = paste(input$alkalinity_stiff),
-                total_dissolved_solids = paste(input$tds_stiff),
+                total_dissolved_solids = paste(input$tds_stiff_param),
                 group_var = "location_id",
                 facet_var = "sample_date",
                 lines = input$stiff_lines
@@ -890,7 +890,7 @@ shinyServer(function(input, output, session) {
       pdf(file = file, width = 17, height = 11)
       stiff_by_loc(
         df = get_stiff_data(),
-        TDS = input$TDS_plot_stiff,
+        TDS = isTRUE(input$tds_stiff_enabled),
         lines = input$stiff_lines
       )
       dev.off()
@@ -1057,7 +1057,7 @@ shinyServer(function(input, output, session) {
 
     data %>%
       schoeller_plot(
-        magnesium = paste(input$magnesium_schoeller),
+        magnesium = paste(input$schoeller_magnesium),
         calcium = paste(input$schoeller_calcium),
         sodium = paste(input$sodium_schoeller),
         potassium = paste(input$potassium_schoeller),
@@ -1453,7 +1453,7 @@ shinyServer(function(input, output, session) {
 
     start <- dates$start
 
-    end <- dates$ends
+    end <- dates$end
 
     df <- df %>%
       filter(sample_date >= start & sample_date <= end)

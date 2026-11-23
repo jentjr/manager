@@ -72,6 +72,7 @@
 
   dplyr::case_when(
     is.na(percent_censored) ~ NA_character_,
+    percent_censored == 100 ~ "all_nondetect",
     percent_censored < low ~ "low_censoring",
     percent_censored < moderate ~ "moderate_censoring",
     percent_censored < high ~ "high_censoring",

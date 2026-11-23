@@ -189,6 +189,7 @@ statistical_decision <- function(
       is.na(censoring_class) ~ NA_character_,
       is.na(n_used) ~ NA_character_,
       n_used < 4L ~ "insufficient_data",
+      censoring_class == "all_nondetect" ~ "descriptive_only",
       censoring_class == "low_censoring" ~ "parametric",
       censoring_class == "moderate_censoring" ~ "ros_censored",
       censoring_class == "high_censoring" ~ "nonparametric",

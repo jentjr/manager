@@ -12,8 +12,7 @@ suppressPackageStartupMessages(library(leaflet))
 suppressPackageStartupMessages(library(factoextra))
 suppressPackageStartupMessages(library(dendextend))
 
-# change options to handle large file size
-options(shiny.maxRequestSize = -1)
+options(shiny.maxRequestSize = 100 * 1024^2) # 100 MB
 # force numbers to be decimal instead of scientific
 options(scipen = 6, digits = 8)
 
@@ -28,24 +27,24 @@ pool <- dbPool(
 )
 
 sites <- pool |> tbl("SITE")
+locations <- pool |> tbl("LOCATIONS")
+site_parameters <- pool |> tbl("SITE_PARAMETERS")
+sample_results <- pool |> tbl("SAMPLE_RESULTS")
+
 
 site_list <- sites |>
-  select(NAME) |>
-  collect()
-
-locations <- pool |> tbl("LOCATIONS")
+  distinct(NAME) |>
+  pull(NAME) |>
+  sort()
 
 location_list <- locations |>
   select(LOCATION_ID) |>
   collect()
 
-site_parameters <- pool |> tbl("SITE_PARAMETERS")
-
 constituent_list <- site_parameters |>
   select(PARAM_NAME) |>
   collect()
 
-sample_results <- pool |> tbl("SAMPLE_RESULTS")
 
 query <- sample_results |>
   left_join(site_parameters, by = c("SITE_ID", "STORET_CODE")) |>
@@ -73,57 +72,7 @@ query <- sample_results |>
     LOCATION_CLASS,
     WELL_TYPE
   ) |>
-  rename_with(tolower) |>
-  tibble::as_tibble() |>
-  dplyr::mutate(
-    reporting_flag = .resolve_reporting_flag(
-      flags,
-      lt_measure
-    )
-  ) |>
-  env_schema(
-    location = location_id,
-    sample_date = sample_date,
-    analyte = param_name,
-    result = analysis_result,
-    unit = default_unit,
-    sample_id = lab_id,
-    reporting_flag = reporting_flag,
-
-    reporting_limit = rl,
-    detection_limit = detection_limit,
-
-    achieved_mdc = achieved_mdc
-  ) |>
-  dplyr::mutate(
-    .site_id = site_id,
-    .site_name = name,
-
-    .latitude = north_coordinate,
-    .longitude = east_coordinate,
-    .coordinate_system = coordinate_reference,
-
-    .water_class = water_class,
-    .location_class = location_class,
-    .well_type = well_type,
-
-    .source_flag = flags,
-    .source_lt_measure = lt_measure
-  ) |>
-  set_source_metadata(
-    c(
-      ".site_id",
-      ".site_name",
-      ".latitude",
-      ".longitude",
-      ".coordinate_system",
-      ".water_class",
-      ".location_class",
-      ".well_type",
-      ".source_flag",
-      ".source_lt_measure"
-    )
-  )
+  rename_with(tolower)
 
 onStop(function() {
   poolClose(pool)

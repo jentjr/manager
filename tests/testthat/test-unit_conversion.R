@@ -545,3 +545,34 @@ test_that("pH cannot be converted to a linear unit", {
     "pH cannot be converted"
   )
 })
+
+test_that("ppm and mg/L use aqueous analytical equivalence", {
+  expect_equal(
+    manager:::.convert_units(
+      value = c(1, 2.5),
+      from_unit = "ppm",
+      to_unit = "mg/L"
+    ),
+    c(1, 2.5)
+  )
+
+  expect_equal(
+    manager:::.convert_units(
+      value = c(1, 2.5),
+      from_unit = "mg/L",
+      to_unit = "ppm"
+    ),
+    c(1, 2.5)
+  )
+})
+
+test_that("pH is not treated as a linear unit", {
+  expect_error(
+    manager:::.convert_units(
+      value = 7,
+      from_unit = "pH",
+      to_unit = "mg/L"
+    ),
+    "pH cannot be converted"
+  )
+})

@@ -27,6 +27,62 @@
 }
 
 #' @keywords internal
+.is_analytical_mass_conversion <- function(
+  from_unit,
+  to_unit
+) {
+  identical(
+    c(from_unit, to_unit),
+    c("ppm", "mg/L")
+  ) ||
+    identical(
+      c(from_unit, to_unit),
+      c("mg/L", "ppm")
+    ) ||
+    identical(
+      c(from_unit, to_unit),
+      c("ppb", "ug/L")
+    ) ||
+    identical(
+      c(from_unit, to_unit),
+      c("ug/L", "ppb")
+    )
+}
+
+#' @keywords internal
+.convert_analytical_mass_units <- function(
+  value,
+  from_unit,
+  to_unit
+) {
+  if (
+    identical(c(from_unit, to_unit), c("ppm", "mg/L")) ||
+      identical(c(from_unit, to_unit), c("mg/L", "ppm"))
+  ) {
+    # Approximation for dilute aqueous samples:
+    # 1 ppm = 1 mg/L at approximately 1 kg/L density.
+    return(as.numeric(value))
+  }
+
+  if (
+    identical(c(from_unit, to_unit), c("ppb", "ug/L")) ||
+      identical(c(from_unit, to_unit), c("ug/L", "ppb"))
+  ) {
+    # Approximation for dilute aqueous samples:
+    # 1 ppb = 1 ug/L at approximately 1 kg/L density.
+    return(as.numeric(value))
+  }
+
+  rlang::abort(
+    sprintf(
+      "Unsupported analytical mass conversion: %s -> %s.",
+      from_unit,
+      to_unit
+    )
+  )
+}
+
+#' @keywords internal
 .convert_value_columns <- function(
   df,
   value_cols,
@@ -170,6 +226,11 @@
 
   # Restore canonical case-sensitive symbols after str_to_lower().
   canonical_units <- c(
+    "ppm" = "ppm",
+    "ppb" = "ppb",
+    "mg/l" = "mg/L",
+    "ug/l" = "ug/L",
+    "ng/l" = "ng/L",
     "mv" = "mV",
     "ntu" = "NTU",
     "pci" = "pCi",
@@ -570,6 +631,16 @@
       c(
         "pH cannot be converted using UDUNITS-2.",
         "i" = "pH is a logarithmic analytical measure, not a linear unit."
+      )
+    )
+  }
+
+  if (.is_analytical_mass_conversion(from_unit, to_unit)) {
+    return(
+      .convert_analytical_mass_units(
+        value = value,
+        from_unit = from_unit,
+        to_unit = to_unit
       )
     )
   }

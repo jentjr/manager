@@ -1,16 +1,9 @@
-selectDataUI <- function(id, multiple) {
-  
-  ns <- NS(id)
-  
-  tagList(
-     
-    uiOutput(ns("selectSites")),
-     
-    uiOutput(ns("selectLocations")),
+selectDataUI <- function(id, multiple = TRUE) {
+  ns <- shiny::NS(id)
 
-    uiOutput(ns("selectConstituents"))
-    
+  shiny::tagList(
+    shiny::uiOutput(ns("selectSites")),
+    shiny::uiOutput(ns("selectLocations")),
+    shiny::uiOutput(ns("selectConstituents"))
   )
-
-  
 }
